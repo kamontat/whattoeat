@@ -1,10 +1,12 @@
 import type { AppHeader } from "#components/app-header";
+import type { DataTransferPanel } from "#components/data-transfer";
 import type { RandomPicker } from "#components/random-picker";
 import type { RestaurantManager } from "#components/restaurant-manager";
 
 declare global {
 	interface HTMLElementTagNameMap {
 		"app-header": AppHeader;
+		"data-transfer": DataTransferPanel;
 		"random-picker": RandomPicker;
 		"restaurant-manager": RestaurantManager;
 	}
