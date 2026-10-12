@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "<TODO>",
+	"name": "whattoeat",
 	"compatibility_date": "2026-09-10",
 	"workers_dev": true,
 	"preview_urls": true,
@@ -13,5 +13,6 @@
 	"observability": {
 		"enabled": true
 	},
-	"send_metrics": false
+	"send_metrics": false,
+	"routes": [{ "pattern": "whattoeat.kc.in.th", "custom_domain": true }]
 }

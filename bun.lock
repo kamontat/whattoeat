@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "<TODO>",
+      "name": "whattoeat",
       "dependencies": {
         "@kcstyles/reset.css": "2.0.0",
         "@kctools/bun-server": "0.4.2",
