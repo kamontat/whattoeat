@@ -1,10 +1,10 @@
 import type { AppHeader } from "#components/app-header";
-import type { HelloWorld } from "#components/hello-world";
+import type { RandomPicker } from "#components/random-picker";
 
 declare global {
 	interface HTMLElementTagNameMap {
 		"app-header": AppHeader;
-		"hello-world": HelloWorld;
+		"random-picker": RandomPicker;
 	}
 }
 

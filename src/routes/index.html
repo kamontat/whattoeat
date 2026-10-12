@@ -6,9 +6,13 @@
 		<title>What to Eat</title>
 		<script type="module" src="../lib/gtm.ts"></script>
 		<link rel="stylesheet" href="../styles/global.css" />
-		<script type="module" src="../components/hello-world.ts"></script>
+		<script type="module" src="../components/app-header.ts"></script>
+		<script type="module" src="../components/random-picker.ts"></script>
 	</head>
 	<body>
-		<hello-world></hello-world>
+		<app-header current="home"></app-header>
+		<main>
+			<random-picker></random-picker>
+		</main>
 	</body>
 </html>
