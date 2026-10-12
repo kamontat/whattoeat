@@ -2,6 +2,41 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-12: Random restaurant picker with English and Thai
+
+### BREAKING CHANGES
+
+- The template's `hello-world` component and its test are gone; the home page is now the
+  random restaurant picker.
+
+### Features
+
+- The home page (`/`) picks a random restaurant from your list with one button, never the
+  same one twice in a row, and shows its tags, location (a link only for `http(s)://`) and
+  notes.
+- `/restaurants` adds, edits and deletes restaurants (name, comma-separated tags, location
+  or map link, notes), sorted by name, with an inline delete confirmation that keeps
+  keyboard focus.
+- `/settings` exports the list as `whattoeat-YYYY-MM-DD.json` and imports it back with
+  **Replace all** or **Merge** (by id). A file with any invalid or duplicate entry is
+  rejected and the current list is left untouched; imported text is cleaned like typed input.
+- English and Thai UI with an EN | TH toggle in the header, remembered per browser,
+  detected from the browser language on first visit, applied to `<html lang>` and tab titles,
+  and followed across open tabs.
+- The list lives in `localStorage` (`whattoeat:restaurants`) and stays in sync across tabs.
+  When the browser refuses to save, the Restaurants and Settings pages warn that changes
+  will be lost instead of claiming success.
+
+### Decisions
+
+- Browser storage only, no backend: each device keeps its own list and JSON export/import
+  moves it between devices.
+- Restaurant names are one free-text field; only the interface is translated.
+- Pages are `restaurants.html` and `settings.html` rather than `*/index.html`, so links
+  have no trailing slash and the built chunks resolve.
+- Stored entries that fail validation are copied to `whattoeat:restaurants:invalid`
+  before a save drops them, rather than being lost or blocking the app.
+
 ## 2026-10-12: Agent skills and a green template CI, Google Tag Manager, and clean, fully typechecked builds
 
 ### BREAKING CHANGES
