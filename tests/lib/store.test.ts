@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import {
 	addRestaurant,
 	CHANGE_EVENT,
+	isMemoryOnly,
 	loadRestaurants,
 	onRestaurantsChanged,
 	removeRestaurant,
@@ -163,4 +164,32 @@ test("falls back to memory when localStorage throws", () => {
 	saveRestaurants([]);
 	expect(loadRestaurants()).toEqual([]);
 	expect(localStorage.getItem(STORAGE_KEY)).toBe("[]");
+});
+
+test("saveRestaurants reports whether the list was persisted", () => {
+	expect(saveRestaurants([])).toBe(true);
+	expect(isMemoryOnly()).toBe(false);
+	// happy-dom bypasses a mocked Storage.prototype.setItem after real writes, so swap the global.
+	const real = globalThis.localStorage;
+	const full = {
+		getItem: () => null,
+		setItem: () => {
+			throw new Error("QuotaExceededError");
+		},
+	};
+	Object.defineProperty(globalThis, "localStorage", {
+		value: full,
+		configurable: true,
+	});
+	try {
+		expect(saveRestaurants([])).toBe(false);
+		expect(isMemoryOnly()).toBe(true);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+	}
+	saveRestaurants([]);
+	expect(isMemoryOnly()).toBe(false);
 });

@@ -62,6 +62,11 @@ export const uiStyles = css`
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius);
 		background: var(--color-surface);
+		overflow-wrap: anywhere;
+	}
+
+	.card > * {
+		min-width: 0;
 	}
 
 	.actions {
@@ -100,5 +105,13 @@ export const uiStyles = css`
 
 	.success {
 		color: var(--color-success);
+	}
+
+	.warning {
+		margin: 0;
+		padding: 0.75rem 1rem;
+		border: 1px solid var(--color-danger);
+		border-radius: var(--radius);
+		color: var(--color-danger);
 	}
 `;

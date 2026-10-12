@@ -3,6 +3,7 @@ import { customElement, state } from "lit/decorators.js";
 import { LangController, t } from "#lib/i18n";
 import type { Restaurant } from "#lib/restaurant";
 import {
+	isMemoryOnly,
 	loadRestaurants,
 	onRestaurantsChanged,
 	saveRestaurants,
@@ -111,15 +112,16 @@ export class DataTransferPanel extends LitElement {
 			mode === "replace"
 				? this.pending
 				: mergeRestaurants(loadRestaurants(), this.pending);
-		saveRestaurants(list);
+		const persisted = saveRestaurants(list);
 		this.pending = undefined;
-		this.imported = list.length;
+		this.imported = persisted ? list.length : undefined;
 	}
 
 	override render() {
 		return html`
 			<h1>${t("settings.title")}</h1>
 			<p class="count">${t("settings.count", { count: this.count })}</p>
+			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			<section class="card">
 				<h2>${t("settings.exportTitle")}</h2>
 				<div class="actions">

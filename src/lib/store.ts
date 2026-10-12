@@ -28,7 +28,11 @@ export const loadRestaurants = (): Restaurant[] => {
 	}
 };
 
-export const saveRestaurants = (list: Restaurant[]): void => {
+/** True when the last save could not reach localStorage, so changes vanish when the page is left. */
+export const isMemoryOnly = (): boolean => memory !== undefined;
+
+/** Returns `false` when localStorage refused the write and the list is only kept in memory. */
+export const saveRestaurants = (list: Restaurant[]): boolean => {
 	try {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 		memory = undefined;
@@ -36,6 +40,7 @@ export const saveRestaurants = (list: Restaurant[]): void => {
 		memory = list;
 	}
 	window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
+	return memory === undefined;
 };
 
 const requireName = (input: RestaurantInput): RestaurantInput => {

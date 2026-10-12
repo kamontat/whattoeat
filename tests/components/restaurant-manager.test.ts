@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/restaurant-manager";
 import type { RestaurantManager } from "#components/restaurant-manager";
 import { setLang } from "#lib/i18n";
-import { addRestaurant, loadRestaurants } from "#lib/store";
+import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
 
 beforeEach(() => {
 	localStorage.clear();
@@ -177,4 +177,57 @@ test("re-renders labels in Thai", async () => {
 	setLang("th");
 	await el.updateComplete;
 	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("เพิ่ม");
+});
+
+test("delete moves focus to the confirm button, cancel moves it back", async () => {
+	addRestaurant({ name: "Bye", tags: [], location: "", notes: "" });
+	const el = await mount();
+	await click(el, 'button[data-action="delete"]');
+	await el.updateComplete;
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+		"confirm-delete",
+	);
+	await click(el, 'button[data-action="cancel-delete"]');
+	await el.updateComplete;
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+		"delete",
+	);
+});
+
+test("a confirmed delete moves focus to the name field", async () => {
+	addRestaurant({ name: "Bye", tags: [], location: "", notes: "" });
+	const el = await mount();
+	await click(el, 'button[data-action="delete"]');
+	await click(el, 'button[data-action="confirm-delete"]');
+	await el.updateComplete;
+	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+});
+
+test("warns when the browser refuses to save", async () => {
+	const el = await mount();
+	expect($(el, ".warning")).toBeNull();
+	const real = globalThis.localStorage;
+	const full = {
+		getItem: () => null,
+		setItem: () => {
+			throw new Error("QuotaExceededError");
+		},
+	};
+	Object.defineProperty(globalThis, "localStorage", {
+		value: full,
+		configurable: true,
+	});
+	try {
+		addRestaurant({ name: "Lost", tags: [], location: "", notes: "" });
+		await el.updateComplete;
+		expect($(el, ".warning")?.textContent?.trim()).toBe(
+			"Your browser is not saving changes. They will be lost when you leave this page.",
+		);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		saveRestaurants([]);
+	}
 });

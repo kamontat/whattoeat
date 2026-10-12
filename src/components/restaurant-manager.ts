@@ -5,6 +5,7 @@ import { getLang, LangController, t } from "#lib/i18n";
 import { isLink, parseTags, type Restaurant } from "#lib/restaurant";
 import {
 	addRestaurant,
+	isMemoryOnly,
 	loadRestaurants,
 	onRestaurantsChanged,
 	removeRestaurant,
@@ -139,14 +140,38 @@ export class RestaurantManager extends LitElement {
 			location: item.location,
 			notes: item.notes,
 		};
+		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
+	}
+
+	/** Swapping the row's buttons removes the focused one, so move focus to its replacement. */
+	private focusAfterRender(find: () => Element | null | undefined): void {
 		void this.updateComplete.then(() => {
-			this.renderRoot.querySelector<HTMLInputElement>("#name")?.focus();
+			const target = find();
+			if (target instanceof HTMLElement) target.focus();
 		});
+	}
+
+	private rowAction(id: string, action: string): Element | undefined {
+		const row = [...this.renderRoot.querySelectorAll("li[data-id]")].find(
+			(item) => item.getAttribute("data-id") === id,
+		);
+		return row?.querySelector(`[data-action="${action}"]`) ?? undefined;
+	}
+
+	private askDelete(id: string): void {
+		this.confirmingId = id;
+		this.focusAfterRender(() => this.rowAction(id, "confirm-delete"));
+	}
+
+	private cancelDelete(id: string): void {
+		this.confirmingId = undefined;
+		this.focusAfterRender(() => this.rowAction(id, "delete"));
 	}
 
 	private confirmDelete(id: string): void {
 		this.confirmingId = undefined;
 		removeRestaurant(id);
+		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	}
 
 	override render() {
@@ -155,6 +180,7 @@ export class RestaurantManager extends LitElement {
 		);
 		return html`
 			<h1>${t("manager.title")}</h1>
+			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${this.renderForm()}
 			${
 				sorted.length === 0
@@ -241,9 +267,7 @@ export class RestaurantManager extends LitElement {
 									<button
 										type="button"
 										data-action="cancel-delete"
-										@click=${() => {
-											this.confirmingId = undefined;
-										}}
+										@click=${() => this.cancelDelete(item.id)}
 									>
 										${t("manager.cancel")}
 									</button>
@@ -254,9 +278,7 @@ export class RestaurantManager extends LitElement {
 										type="button"
 										class="danger"
 										data-action="delete"
-										@click=${() => {
-											this.confirmingId = item.id;
-										}}
+										@click=${() => this.askDelete(item.id)}
 									>
 										${t("manager.delete")}
 									</button>

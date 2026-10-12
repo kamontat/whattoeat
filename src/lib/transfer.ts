@@ -1,4 +1,4 @@
-import { isRestaurant, type Restaurant } from "#lib/restaurant";
+import { isRestaurant, normalizeInput, type Restaurant } from "#lib/restaurant";
 
 export const EXPORT_VERSION = 1;
 
@@ -53,9 +53,21 @@ export const parseImport = (text: string): ImportResult => {
 	}
 	if (file.version !== EXPORT_VERSION)
 		return { ok: false, error: "import.error.version" };
-	if (!restaurants.every(isRestaurant))
+	if (
+		!restaurants.every(isRestaurant) ||
+		new Set(restaurants.map((item) => item.id)).size !== restaurants.length
+	)
 		return { ok: false, error: "import.error.entries" };
-	return { ok: true, restaurants };
+	// Clean imported text the same way as typed input, and keep only known fields.
+	return {
+		ok: true,
+		restaurants: restaurants.map((item) => ({
+			id: item.id,
+			...normalizeInput(item),
+			createdAt: item.createdAt,
+			updatedAt: item.updatedAt,
+		})),
+	};
 };
 
 /** Incoming restaurants replace existing ones with the same id (keeping their position); new ids are appended. */

@@ -112,3 +112,32 @@ test("merge does not mutate its inputs", () => {
 	expect(existing).toEqual([make("a")]);
 	expect(incoming).toEqual([make("b")]);
 });
+
+test("imported entries are normalized like typed input and lose unknown fields", () => {
+	const messy = {
+		...make("a", "  Foo  "),
+		tags: ["", " thai ", "thai"],
+		location: " x ",
+		extra: 1,
+	};
+	expect(
+		parseImport(
+			JSON.stringify({ app: "whattoeat", version: 1, restaurants: [messy] }),
+		),
+	).toEqual({
+		ok: true,
+		restaurants: [{ ...make("a", "Foo"), tags: ["thai"], location: "x" }],
+	});
+});
+
+test("rejects a file with duplicate ids", () => {
+	expect(
+		parseImport(
+			JSON.stringify({
+				app: "whattoeat",
+				version: 1,
+				restaurants: [make("a"), make("a", "B")],
+			}),
+		),
+	).toEqual({ ok: false, error: "import.error.entries" });
+});

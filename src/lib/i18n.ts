@@ -46,6 +46,8 @@ export const en = {
 	"import.error.format": "The file is not a What to Eat export.",
 	"import.error.version": "This file version is not supported.",
 	"import.error.entries": "The file contains invalid restaurant data.",
+	"storage.warning":
+		"Your browser is not saving changes. They will be lost when you leave this page.",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -90,6 +92,7 @@ export const th: Record<MessageKey, string> = {
 	"import.error.format": "ไฟล์นี้ไม่ใช่ไฟล์ส่งออกของ กินอะไรดี",
 	"import.error.version": "ไม่รองรับไฟล์เวอร์ชันนี้",
 	"import.error.entries": "ไฟล์มีข้อมูลร้านอาหารที่ไม่ถูกต้อง",
+	"storage.warning": "เบราว์เซอร์ไม่ได้บันทึกข้อมูล การเปลี่ยนแปลงจะหายไปเมื่อออกจากหน้านี้",
 };
 
 const dictionaries: Record<Lang, Record<MessageKey, string>> = { en, th };

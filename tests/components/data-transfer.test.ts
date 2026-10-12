@@ -3,7 +3,7 @@ import "#components/data-transfer";
 import type { DataTransferPanel } from "#components/data-transfer";
 import { setLang } from "#lib/i18n";
 import type { Restaurant } from "#lib/restaurant";
-import { addRestaurant, loadRestaurants } from "#lib/store";
+import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
 import { toExportFile } from "#lib/transfer";
 
 const make = (id: string, name = id): Restaurant => ({
@@ -166,4 +166,34 @@ test("choosing a file reads and validates it", async () => {
 	expect($(el, ".found")?.textContent?.trim()).toBe(
 		"1 restaurants found in the file.",
 	);
+});
+
+test("an import the browser refuses to store warns instead of claiming success", async () => {
+	const el = await mount();
+	el.readImport(JSON.stringify(toExportFile([make("x")])));
+	await el.updateComplete;
+	const real = globalThis.localStorage;
+	const full = {
+		getItem: () => null,
+		setItem: () => {
+			throw new Error("QuotaExceededError");
+		},
+	};
+	Object.defineProperty(globalThis, "localStorage", {
+		value: full,
+		configurable: true,
+	});
+	try {
+		await click(el, 'button[data-action="replace"]');
+		expect($(el, ".success")).toBeNull();
+		expect($(el, ".warning")?.textContent?.trim()).toBe(
+			"Your browser is not saving changes. They will be lost when you leave this page.",
+		);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		saveRestaurants([]);
+	}
 });
