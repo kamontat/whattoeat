@@ -17,7 +17,7 @@ Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): sta
 
 - [Stack](#stack)
 - [Getting started](#getting-started)
-- [Customize the template](#customize-the-template)
+- [Data and storage](#data-and-storage)
 - [Project layout](#project-layout)
 - [Scripts](#scripts)
 - [Writing components](#writing-components)
@@ -43,18 +43,11 @@ Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): sta
 
 ## Getting started
 
-> [!TIP]
-> Prefer to let an AI agent do it? After step 1, open an agent in the
-> repository and give it the prompt in [GET_START.md](GET_START.md). It
-> customizes the project, sets up Cloudflare Workers and (optionally) Google
-> Tag Manager, and deploys the hello-world page.
-
-1. Create a new repository from this template (**Use this template** on GitHub),
-   or clone it directly:
+1. Clone the repository:
 
    ```bash
-   git clone https://github.com/kamontat/bun-lit-template.git my-app
-   cd my-app
+   git clone git@github.com:kamontat/whattoeat.git
+   cd whattoeat
    ```
 
 2. Install the pinned toolchain (Bun) with mise, or install Bun yourself
@@ -77,38 +70,31 @@ Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): sta
    bun run dev
    ```
 
-## Customize the template
+## Data and storage
 
-After creating a project from this template, replace every `<TODO>`
-placeholder (`grep -rn "<TODO>" --exclude-dir=node_modules .`):
+Everything is kept in the browser's `localStorage`, per device and per browser. Nothing
+is sent to a server.
 
-| File                                      | Placeholder                                                         |
-| ----------------------------------------- | ------------------------------------------------------------------- |
-| `package.json`                            | `name`, the package name                                            |
-| `bun.lock`                                | `name`, kept in sync with `package.json` (or rerun `bun install`)   |
-| `wrangler.jsonc`                          | `name`, the Cloudflare Worker name                                  |
-| `src/routes/index.html`                   | `<title>TODO</title>`, the page title (plain `TODO`, not matched by the grep) |
-| `.github/workflows/deploy-preview.yml`    | `environment.url`, `https://pr-<number>-<TODO>.kcinth.workers.dev`  |
-| `.github/workflows/deploy-production.yml` | `environment.url`, `https://<TODO>.kc.in.th`                        |
+| Key                             | Holds                                                                |
+| ------------------------------- | -------------------------------------------------------------------- |
+| `whattoeat:restaurants`         | The restaurant list (JSON array)                                     |
+| `whattoeat:lang`                | The chosen language, `en` or `th`                                    |
+| `whattoeat:restaurants:invalid` | Stored entries that failed validation, kept before a save drops them |
 
-> [!IMPORTANT]
-> `<TODO>` is not a valid package or Worker name, so `bun install` and
-> `wrangler deploy` fail until it is replaced. Use the same value for the
-> Worker name in `wrangler.jsonc` and in the preview URL.
+The app never shows the `:invalid` backup. To inspect or recover it, open the browser's
+developer tools (Application, then Local Storage) and copy the value; fixed entries can be
+re-imported from **Settings** inside an export file
+(`{ "app": "whattoeat", "version": 1, "restaurants": [...] }`).
 
-The workflow URLs also contain the original author's domains. Replace
-`kcinth.workers.dev` with your own `workers.dev` subdomain and `kc.in.th` with
-your custom domain, or point the production URL at
-`https://<worker-name>.<subdomain>.workers.dev` if you have no custom domain.
-
-Then delete or replace the sample `hello-world` component and its test.
+Ideas for future work live in [IDEAS.md](IDEAS.md).
 
 ## Project layout
 
 ```text
 .
 ├── src/                 # application code
-│   ├── routes/          # HTML entrypoints (index.html is the app shell)
+│   ├── routes/          # HTML pages: index, restaurants, settings
+│   ├── assets/          # files pages link to, e.g. favicon.svg
 │   ├── components/      # Lit components        (import as #components/*)
 │   ├── lib/             # shared TypeScript     (import as #lib/*), e.g. gtm.ts
 │   ├── styles/          # global CSS and shared Lit styles (#styles/*)
@@ -119,7 +105,7 @@ Then delete or replace the sample `hello-world` component and its test.
 ├── .claude/skills/      # Claude Code skills for working in this repo
 ├── .github/workflows/   # CI, preview, and production deploy pipelines
 ├── CHANGELOG.md         # what changed and why, newest first
-├── GET_START.md         # setup prompt for an AI agent
+├── IDEAS.md             # features left for later
 ├── biome.json           # lint / format config
 ├── bunfig.toml          # bun install + bun test config
 ├── mise.toml            # pinned tool versions
@@ -298,7 +284,7 @@ And optionally this repository variable (see [Google Tag Manager](#google-tag-ma
 Also create `preview` and `production` environments in the repository settings
 (**Settings → Environments**). Each workflow's `environment.url` is only the
 link GitHub shows on the deployment, so it must be updated by hand to match
-your Worker (see [Customize the template](#customize-the-template)).
+your Worker (`.github/workflows/deploy-preview.yml` and `deploy-production.yml`).
 
 ## Google Tag Manager
 
