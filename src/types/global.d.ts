@@ -1,7 +1,9 @@
+import type { AppHeader } from "#components/app-header";
 import type { HelloWorld } from "#components/hello-world";
 
 declare global {
 	interface HTMLElementTagNameMap {
+		"app-header": AppHeader;
 		"hello-world": HelloWorld;
 	}
 }
