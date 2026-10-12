@@ -27,8 +27,8 @@ and Thai. Keep it simple: no accounts, no backend.
   static assets (unchanged from the template).
 - Pages:
   - `src/routes/index.html` — random picker
-  - `src/routes/restaurants/index.html` — manage the list
-  - `src/routes/settings/index.html` — import / export
+  - `src/routes/restaurants.html` — manage the list (`/restaurants`)
+  - `src/routes/settings.html` — import / export (`/settings`)
 - UI as Lit components in `src/components/`, registered in
   `src/types/global.d.ts`.
 - Logic as plain TypeScript in `src/lib/`, with no DOM dependency except
