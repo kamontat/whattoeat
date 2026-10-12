@@ -114,3 +114,14 @@ test("re-renders in Thai when the language changes", async () => {
 	await el.updateComplete;
 	expect(pickButton(el)?.textContent?.trim()).toBe("กินอะไรดี?");
 });
+
+test.each([
+	["empty", false],
+	["with restaurants", true],
+])("has a page heading when %s", async (_label, seed) => {
+	if (seed) addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(el.shadowRoot!.querySelector("h1")?.textContent?.trim()).toBe(
+		"What to Eat",
+	);
+});

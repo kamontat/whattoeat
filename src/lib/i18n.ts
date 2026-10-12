@@ -46,6 +46,7 @@ export const en = {
 	"import.error.format": "The file is not a What to Eat export.",
 	"import.error.version": "This file version is not supported.",
 	"import.error.entries": "The file contains invalid restaurant data.",
+	"import.error.read": "The file could not be read. Choose it again.",
 	"storage.warning":
 		"Your browser is not saving changes. They will be lost when you leave this page.",
 } as const;
@@ -92,6 +93,7 @@ export const th: Record<MessageKey, string> = {
 	"import.error.format": "ไฟล์นี้ไม่ใช่ไฟล์ส่งออกของ กินอะไรดี",
 	"import.error.version": "ไม่รองรับไฟล์เวอร์ชันนี้",
 	"import.error.entries": "ไฟล์มีข้อมูลร้านอาหารที่ไม่ถูกต้อง",
+	"import.error.read": "อ่านไฟล์ไม่ได้ กรุณาเลือกไฟล์อีกครั้ง",
 	"storage.warning": "เบราว์เซอร์ไม่ได้บันทึกข้อมูล การเปลี่ยนแปลงจะหายไปเมื่อออกจากหน้านี้",
 };
 
@@ -121,16 +123,34 @@ export const getLang = (): Lang => {
 	return current;
 };
 
-export const setLang = (lang: Lang): void => {
+const apply = (lang: Lang): void => {
 	current = lang;
+	document.documentElement.lang = lang;
+	window.dispatchEvent(new CustomEvent(LANG_EVENT, { detail: lang }));
+};
+
+export const setLang = (lang: Lang): void => {
 	try {
 		localStorage.setItem(LANG_KEY, lang);
 	} catch {
 		// Storage blocked: the choice lasts for this page only.
 	}
-	document.documentElement.lang = lang;
-	window.dispatchEvent(new CustomEvent(LANG_EVENT, { detail: lang }));
+	apply(lang);
 };
+
+/** Put the detected language on `<html lang>` as soon as this module loads, before any component renders. */
+export const initLang = (): void => {
+	document.documentElement.lang = getLang();
+};
+
+initLang();
+
+// Follow a language change made in another tab (`null` key is `localStorage.clear()`).
+window.addEventListener("storage", (event: StorageEvent) => {
+	if (event.key !== LANG_KEY && event.key !== null) return;
+	const next = detectLang();
+	if (next !== current) apply(next);
+});
 
 export const t = (
 	key: MessageKey,

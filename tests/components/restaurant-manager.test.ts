@@ -2,7 +2,12 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/restaurant-manager";
 import type { RestaurantManager } from "#components/restaurant-manager";
 import { setLang } from "#lib/i18n";
-import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
+import {
+	addRestaurant,
+	loadRestaurants,
+	saveRestaurants,
+	updateRestaurant,
+} from "#lib/store";
 
 beforeEach(() => {
 	localStorage.clear();
@@ -157,6 +162,27 @@ test("delete needs confirmation", async () => {
 	await click(el, 'button[data-action="confirm-delete"]');
 	expect(loadRestaurants()).toEqual([]);
 	expect($(el, ".empty")).not.toBeNull();
+});
+
+test("an edit saved elsewhere reloads the open form instead of being overwritten", async () => {
+	const [item] = addRestaurant({
+		name: "Mine",
+		tags: [],
+		location: "",
+		notes: "",
+	});
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	// Another tab saves a newer version of the same restaurant.
+	updateRestaurant(
+		item!.id,
+		{ name: "Theirs", tags: ["new"], location: "", notes: "" },
+		new Date(Date.now() + 1000),
+	);
+	await el.updateComplete;
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Theirs");
+	expect($<HTMLInputElement>(el, "#tags")?.value).toBe("new");
+	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("Save");
 });
 
 test("deleting the restaurant being edited resets the form", async () => {

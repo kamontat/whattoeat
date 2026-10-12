@@ -87,6 +87,15 @@ export class AppHeader extends LitElement {
 
 	protected readonly langController = new LangController(this);
 
+	/** Keep the browser tab title in the current language. */
+	override updated(): void {
+		const page = LINKS.find((link) => link.page === this.current);
+		document.title =
+			page === undefined || page.page === "home"
+				? t("app.title")
+				: `${t(page.label)} · ${t("app.title")}`;
+	}
+
 	override render() {
 		const lang = getLang();
 		return html`

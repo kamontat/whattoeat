@@ -60,6 +60,8 @@ test.each([
 	["missing notes", { ...valid, notes: undefined }],
 	["missing createdAt", { ...valid, createdAt: undefined }],
 	["missing updatedAt", { ...valid, updatedAt: undefined }],
+	["non-date createdAt", { ...valid, createdAt: "yesterday-ish" }],
+	["non-date updatedAt", { ...valid, updatedAt: "" }],
 ])("isRestaurant rejects %s", (_label, value) => {
 	expect(isRestaurant(value)).toBe(false);
 });

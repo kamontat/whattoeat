@@ -88,9 +88,18 @@ export class DataTransferPanel extends LitElement {
 		const input = event.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
-		this.readImport(await file.text());
 		// Clear so choosing the same file again fires another change event.
 		input.value = "";
+		let text: string;
+		try {
+			text = await file.text();
+		} catch {
+			this.pending = undefined;
+			this.imported = undefined;
+			this.error = "import.error.read";
+			return;
+		}
+		this.readImport(text);
 	};
 
 	private readonly exportData = (): void => {
@@ -103,7 +112,8 @@ export class DataTransferPanel extends LitElement {
 		link.href = url;
 		link.download = exportFileName(now);
 		link.click();
-		setTimeout(() => URL.revokeObjectURL(url), 0);
+		// Revoking at once can cancel the download in some browsers.
+		setTimeout(() => URL.revokeObjectURL(url), 1000);
 	};
 
 	private apply(mode: "replace" | "merge"): void {

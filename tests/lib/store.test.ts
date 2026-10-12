@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import {
 	addRestaurant,
 	CHANGE_EVENT,
+	INVALID_KEY,
 	isMemoryOnly,
 	loadRestaurants,
 	onRestaurantsChanged,
@@ -50,6 +51,27 @@ test("drops invalid entries and keeps valid ones", () => {
 		JSON.stringify([...raw, { name: "broken" }, null]),
 	);
 	expect(loadRestaurants()).toEqual([kept!]);
+});
+
+test("invalid entries are backed up before the next save drops them", () => {
+	addRestaurant(input);
+	const raw = JSON.parse(
+		localStorage.getItem(STORAGE_KEY) ?? "[]",
+	) as unknown[];
+	localStorage.setItem(
+		STORAGE_KEY,
+		JSON.stringify([...raw, { name: "broken" }]),
+	);
+	loadRestaurants();
+	loadRestaurants();
+	addRestaurant({ ...input, name: "Next" });
+	expect(JSON.parse(localStorage.getItem(INVALID_KEY) ?? "null")).toEqual([
+		{ name: "broken" },
+	]);
+	expect(loadRestaurants().map((item) => item.name)).toEqual([
+		"Jay Fai",
+		"Next",
+	]);
 });
 
 test("addRestaurant normalizes, stamps and saves", () => {

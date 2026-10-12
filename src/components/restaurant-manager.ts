@@ -76,6 +76,9 @@ export class RestaurantManager extends LitElement {
 	@state()
 	private nameError = false;
 
+	/** `updatedAt` of the restaurant when it was loaded into the form. */
+	private editingUpdatedAt: string | undefined;
+
 	private unsubscribe: (() => void) | undefined;
 
 	override connectedCallback(): void {
@@ -83,12 +86,14 @@ export class RestaurantManager extends LitElement {
 		this.restaurants = loadRestaurants();
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.restaurants = loadRestaurants();
-			if (
-				this.editingId !== undefined &&
-				!this.restaurants.some((item) => item.id === this.editingId)
-			) {
-				this.resetForm();
-			}
+			if (this.editingId === undefined) return;
+			const editing = this.restaurants.find(
+				(item) => item.id === this.editingId,
+			);
+			if (editing === undefined) this.resetForm();
+			// Saved elsewhere (another tab): show the newer version rather than overwrite it.
+			else if (editing.updatedAt !== this.editingUpdatedAt)
+				this.fillForm(editing);
 		});
 	}
 
@@ -130,9 +135,9 @@ export class RestaurantManager extends LitElement {
 		else updateRestaurant(editingId, input);
 	};
 
-	private startEdit(item: Restaurant): void {
+	private fillForm(item: Restaurant): void {
 		this.editingId = item.id;
-		this.confirmingId = undefined;
+		this.editingUpdatedAt = item.updatedAt;
 		this.nameError = false;
 		this.form = {
 			name: item.name,
@@ -140,6 +145,11 @@ export class RestaurantManager extends LitElement {
 			location: item.location,
 			notes: item.notes,
 		};
+	}
+
+	private startEdit(item: Restaurant): void {
+		this.confirmingId = undefined;
+		this.fillForm(item);
 		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	}
 

@@ -7,9 +7,27 @@ import {
 
 export const STORAGE_KEY = "whattoeat:restaurants";
 export const CHANGE_EVENT = "whattoeat:restaurants-changed";
+/** Stored entries that failed validation, kept so the next save does not destroy them for good. */
+export const INVALID_KEY = "whattoeat:restaurants:invalid";
 
 /** Set when localStorage refused a write; the list then lives in memory for this session. */
 let memory: Restaurant[] | undefined;
+
+const backupInvalid = (entries: unknown[]): void => {
+	try {
+		const previous: unknown = JSON.parse(
+			localStorage.getItem(INVALID_KEY) ?? "[]",
+		);
+		const kept = Array.isArray(previous) ? previous : [];
+		const seen = new Set(kept.map((entry) => JSON.stringify(entry)));
+		const added = entries.filter((entry) => !seen.has(JSON.stringify(entry)));
+		if (added.length > 0) {
+			localStorage.setItem(INVALID_KEY, JSON.stringify([...kept, ...added]));
+		}
+	} catch {
+		// Best effort: a failed backup must not break loading.
+	}
+};
 
 export const loadRestaurants = (): Restaurant[] => {
 	if (memory !== undefined) return memory;
@@ -20,12 +38,18 @@ export const loadRestaurants = (): Restaurant[] => {
 		return [];
 	}
 	if (raw === null) return [];
+	let data: unknown;
 	try {
-		const data: unknown = JSON.parse(raw);
-		return Array.isArray(data) ? data.filter(isRestaurant) : [];
+		data = JSON.parse(raw);
 	} catch {
 		return [];
 	}
+	if (!Array.isArray(data)) return [];
+	const valid = data.filter(isRestaurant);
+	if (valid.length < data.length) {
+		backupInvalid(data.filter((entry) => !isRestaurant(entry)));
+	}
+	return valid;
 };
 
 /** True when the last save could not reach localStorage, so changes vanish when the page is left. */

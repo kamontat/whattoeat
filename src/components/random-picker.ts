@@ -82,8 +82,10 @@ export class RandomPicker extends LitElement {
 	};
 
 	override render() {
+		const heading = html`<h1 class="visually-hidden">${t("app.title")}</h1>`;
 		if (this.restaurants.length === 0) {
 			return html`
+				${heading}
 				<div class="card empty">
 					<p>${t("picker.empty")}</p>
 					<a href="./restaurants">${t("picker.addLink")}</a>
@@ -91,6 +93,7 @@ export class RandomPicker extends LitElement {
 			`;
 		}
 		return html`
+			${heading}
 			<button type="button" class="primary pick" @click=${this.pick}>
 				${this.picked ? t("picker.again") : t("picker.button")}
 			</button>

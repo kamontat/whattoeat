@@ -34,6 +34,9 @@ export const normalizeInput = (input: RestaurantInput): RestaurantInput => ({
 
 const isString = (value: unknown): value is string => typeof value === "string";
 
+const isDate = (value: unknown): value is string =>
+	isString(value) && !Number.isNaN(Date.parse(value));
+
 export const isRestaurant = (value: unknown): value is Restaurant => {
 	if (typeof value !== "object" || value === null) return false;
 	const item = value as Partial<Record<keyof Restaurant, unknown>>;
@@ -49,8 +52,8 @@ export const isRestaurant = (value: unknown): value is Restaurant => {
 		tags.every(isString) &&
 		isString(item.location) &&
 		isString(item.notes) &&
-		isString(item.createdAt) &&
-		isString(item.updatedAt)
+		isDate(item.createdAt) &&
+		isDate(item.updatedAt)
 	);
 };
 

@@ -60,3 +60,16 @@ test("switching to Thai re-renders text and marks the button", async () => {
 	).toBe("false");
 	expect(document.documentElement.lang).toBe("th");
 });
+
+test("translates the browser tab title for the current page", async () => {
+	const el = await mount("restaurants");
+	expect(document.title).toBe("Restaurants · What to Eat");
+	setLang("th");
+	await el.updateComplete;
+	expect(document.title).toBe("ร้านอาหาร · กินอะไรดี");
+});
+
+test("the home page title is the app name", async () => {
+	await mount("home");
+	expect(document.title).toBe("What to Eat");
+});

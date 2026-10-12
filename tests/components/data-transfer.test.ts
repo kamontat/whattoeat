@@ -85,6 +85,51 @@ test("export downloads a json file of the stored list", async () => {
 	}
 });
 
+test("export keeps the download URL alive long enough for the browser", async () => {
+	const create = spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
+	const revoke = spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+	const anchorClick = spyOn(
+		HTMLAnchorElement.prototype,
+		"click",
+	).mockImplementation(() => {});
+	const delays: number[] = [];
+	const timer = spyOn(globalThis, "setTimeout").mockImplementation(((
+		_handler: () => void,
+		delay?: number,
+	) => {
+		delays.push(delay ?? 0);
+		return 0;
+	}) as unknown as typeof setTimeout);
+	try {
+		const el = await mount();
+		$(el, 'button[data-action="export"]')!.click();
+		expect(revoke).not.toHaveBeenCalled();
+		expect(Math.max(...delays)).toBeGreaterThanOrEqual(1000);
+	} finally {
+		timer.mockRestore();
+		create.mockRestore();
+		revoke.mockRestore();
+		anchorClick.mockRestore();
+	}
+});
+
+test("a file that cannot be read shows an error", async () => {
+	const el = await mount();
+	const input =
+		el.shadowRoot!.querySelector<HTMLInputElement>('input[type="file"]')!;
+	const unreadable = { text: () => Promise.reject(new Error("moved")) };
+	Object.defineProperty(input, "files", {
+		value: [unreadable],
+		configurable: true,
+	});
+	input.dispatchEvent(new Event("change"));
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	await el.updateComplete;
+	expect($(el, '[role="alert"]')?.textContent?.trim()).toBe(
+		"The file could not be read. Choose it again.",
+	);
+});
+
 test("an invalid file shows an error and changes nothing", async () => {
 	addRestaurant({ name: "Keep", tags: [], location: "", notes: "" });
 	const el = await mount();

@@ -3,12 +3,43 @@ import {
 	detectLang,
 	en,
 	getLang,
+	initLang,
 	LANG_EVENT,
 	LANG_KEY,
 	setLang,
 	t,
 	th,
 } from "#lib/i18n";
+
+test("initLang applies the current language to the page before any render", () => {
+	setLang("th");
+	document.documentElement.lang = "en";
+	initLang();
+	expect(document.documentElement.lang).toBe("th");
+});
+
+test("a language change in another tab updates this tab", () => {
+	setLang("en");
+	let fired = false;
+	const listener = (): void => {
+		fired = true;
+	};
+	window.addEventListener(LANG_EVENT, listener);
+	// Another tab wrote the new language straight to storage.
+	localStorage.setItem(LANG_KEY, "th");
+	window.dispatchEvent(new StorageEvent("storage", { key: LANG_KEY }));
+	window.removeEventListener(LANG_EVENT, listener);
+	expect(getLang()).toBe("th");
+	expect(document.documentElement.lang).toBe("th");
+	expect(fired).toBe(true);
+});
+
+test("a storage event for another key leaves the language alone", () => {
+	setLang("en");
+	localStorage.setItem(LANG_KEY, "th");
+	window.dispatchEvent(new StorageEvent("storage", { key: "other" }));
+	expect(getLang()).toBe("en");
+});
 
 const setNavigatorLanguage = (value: string): void => {
 	Object.defineProperty(navigator, "language", { value, configurable: true });

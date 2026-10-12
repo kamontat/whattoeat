@@ -14,7 +14,8 @@ export type ImportError =
 	| "import.error.json"
 	| "import.error.format"
 	| "import.error.version"
-	| "import.error.entries";
+	| "import.error.entries"
+	| "import.error.read";
 
 export type ImportResult =
 	| { ok: true; restaurants: Restaurant[] }
