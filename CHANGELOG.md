@@ -2,6 +2,29 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-12: Site icon, app README and ideas for later
+
+### Features
+
+- Every page has a site icon (an orange plate with fork and knife), so browser tabs show it
+  and the console no longer reports a `/favicon.ico` 404.
+- `IDEAS.md` lists features left for later — tag filter, weighted random, pick history,
+  cloud sync, CSV, separate English and Thai names, recovering invalid entries in the app,
+  dark mode — each with what it gives and what makes it more than a small change.
+
+### Improvements
+
+- The README describes this app rather than the template: getting started clones
+  `kamontat/whattoeat`, the template customization steps and the missing `GET_START.md`
+  are gone, and a new "Data and storage" section lists the `localStorage` keys and how to
+  recover entries from the `whattoeat:restaurants:invalid` backup.
+- `tests/routes/pages.test.ts` fails if a page stops linking the icon.
+
+### Decisions
+
+- The icon is an SVG under `src/assets/` linked from each page, so the build bundles it as a
+  hashed asset; no `--statics` folder or `favicon.ico` was added.
+
 ## 2026-10-12: Random restaurant picker with English and Thai
 
 ### BREAKING CHANGES
