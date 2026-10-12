@@ -1,1 +1,32 @@
 @import "@kcstyles/reset.css";
+
+:root {
+	--color-bg: #fff8f0;
+	--color-surface: #ffffff;
+	--color-text: #2b2118;
+	--color-muted: #7a6a5c;
+	--color-primary: #d9480f;
+	--color-primary-text: #ffffff;
+	--color-border: #eaded2;
+	--color-danger: #c0392b;
+	--color-success: #2b8a3e;
+	--radius: 12px;
+	--font:
+		system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", "Sarabun",
+		"Leelawadee UI", Tahoma, sans-serif;
+
+	font-family: var(--font);
+	color: var(--color-text);
+	background: var(--color-bg);
+}
+
+body {
+	min-height: 100vh;
+}
+
+main {
+	width: 100%;
+	max-width: 40rem;
+	margin: 0 auto;
+	padding: 1.5rem 1rem 3rem;
+}
