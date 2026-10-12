@@ -1,10 +1,19 @@
-# bun-lit-template
+# What to Eat
 
-A starter template for static websites built with [Lit](https://lit.dev/) web
-components, bundled by [Bun](https://bun.com/) through
-[`@kctools/bun-server`](https://www.npmjs.com/package/@kctools/bun-server), and
-deployed to [Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/)
-as static assets.
+Can't decide where to eat? Add the restaurants you like, press one button, and get a random
+pick. The list lives in your browser (`localStorage`); move it between devices with JSON
+export and import on the Settings page. The interface is available in English and Thai.
+
+| Page           | What it does                                   |
+| -------------- | ---------------------------------------------- |
+| `/`            | Random pick, never the same one twice in a row |
+| `/restaurants` | Add, edit and delete restaurants               |
+| `/settings`    | Export to JSON, import with replace or merge   |
+
+Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static
+[Lit](https://lit.dev/) web components, bundled by [Bun](https://bun.com/) through
+[`@kctools/bun-server`](https://www.npmjs.com/package/@kctools/bun-server), and deployed to
+[Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/) as static assets.
 
 - [Stack](#stack)
 - [Getting started](#getting-started)
@@ -124,7 +133,7 @@ Then delete or replace the sample `hello-world` component and its test.
 so you never need long relative paths:
 
 ```ts
-import "#components/hello-world"; // ./src/components/hello-world.ts
+import "#components/app-header"; // ./src/components/app-header.ts
 import { something } from "#lib/utils"; // ./src/lib/utils.ts
 import { sharedStyles } from "#styles/shared"; // ./src/styles/shared.ts
 ```
@@ -224,25 +233,25 @@ adjusted to its depth (`tests/routes/pages.test.ts` fails otherwise):
 ## Testing
 
 Tests run with `bun test` and live in `tests/`, mirroring `src/`
-(`tests/components/hello-world.test.ts`); `bun run check` typechecks them too.
+(`tests/components/app-header.test.ts`); `bun run check` typechecks them too.
 `bunfig.toml` preloads `tests/setup-happydom.ts`, which registers a happy-dom
 `window` and `document`, so components render without a browser, and reports
 external scripts as loaded instead of fetching them:
 
 ```ts
 import { afterEach, expect, test } from "bun:test";
-import "#components/hello-world";
+import "#components/app-header";
 
 afterEach(() => {
 	document.body.innerHTML = "";
 });
 
-test("renders custom name", async () => {
-	const el = document.createElement("hello-world");
-	el.name = "Bun";
+test("marks the current page", async () => {
+	const el = document.createElement("app-header");
+	el.current = "restaurants";
 	document.body.append(el);
 	await el.updateComplete;
-	expect(el.shadowRoot?.querySelector("h1")?.textContent).toBe("Hello, Bun!");
+	expect(el.shadowRoot?.querySelector('nav a[aria-current="page"]')?.getAttribute("href")).toBe("./restaurants");
 });
 ```
 
