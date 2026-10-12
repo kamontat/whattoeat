@@ -27,3 +27,16 @@ test.each(pages)(
 		expect(html).toContain("<app-header");
 	},
 );
+
+test.each(pages)("%s links the site icon", async (page) => {
+	const html = await Bun.file(`src/routes/${page}`).text();
+	const match = html.match(
+		/<link rel="icon" type="image\/svg\+xml" href="((?:\.\.\/)+assets\/favicon\.svg)" \/>/,
+	);
+	expect(match).not.toBeNull();
+	expect(
+		await Bun.file(
+			new URL(match![1]!, `file://${process.cwd()}/src/routes/`),
+		).exists(),
+	).toBe(true);
+});
