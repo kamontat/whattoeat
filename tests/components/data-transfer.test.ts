@@ -136,7 +136,7 @@ test("an invalid file shows an error and changes nothing", async () => {
 	el.readImport("{oops");
 	await el.updateComplete;
 	expect($(el, '[role="alert"]')?.textContent?.trim()).toBe(
-		"The file is not valid JSON.",
+		"The data is not valid JSON.",
 	);
 	expect($(el, 'button[data-action="replace"]')).toBeNull();
 	expect(loadRestaurants().map((r) => r.name)).toEqual(["Keep"]);
@@ -153,7 +153,7 @@ test("a file with a bad entry is rejected", async () => {
 	);
 	await el.updateComplete;
 	expect($(el, '[role="alert"]')?.textContent?.trim()).toBe(
-		"The file contains invalid restaurant data.",
+		"The data contains invalid restaurant data.",
 	);
 	expect(loadRestaurants()).toEqual([]);
 });
@@ -163,9 +163,7 @@ test("replace swaps the whole list", async () => {
 	const el = await mount();
 	el.readImport(JSON.stringify(toExportFile([make("x", "X"), make("y", "Y")])));
 	await el.updateComplete;
-	expect($(el, ".found")?.textContent?.trim()).toBe(
-		"2 restaurants found in the file.",
-	);
+	expect($(el, ".found")?.textContent?.trim()).toBe("2 restaurants found.");
 	await click(el, 'button[data-action="replace"]');
 	expect(loadRestaurants()).toEqual([make("x", "X"), make("y", "Y")]);
 	expect($(el, ".success")?.textContent?.trim()).toBe(
@@ -208,9 +206,7 @@ test("choosing a file reads and validates it", async () => {
 	input.dispatchEvent(new Event("change"));
 	await new Promise((resolve) => setTimeout(resolve, 0));
 	await el.updateComplete;
-	expect($(el, ".found")?.textContent?.trim()).toBe(
-		"1 restaurants found in the file.",
-	);
+	expect($(el, ".found")?.textContent?.trim()).toBe("1 restaurants found.");
 });
 
 test("an import the browser refuses to store warns instead of claiming success", async () => {
@@ -241,4 +237,103 @@ test("an import the browser refuses to store warns instead of claiming success",
 		});
 		saveRestaurants([]);
 	}
+});
+
+const setClipboard = (writeText: (text: string) => Promise<void>) => {
+	Object.defineProperty(navigator, "clipboard", {
+		value: { writeText },
+		configurable: true,
+	});
+};
+
+const flush = async (el: DataTransferPanel): Promise<void> => {
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	await el.updateComplete;
+};
+
+test("copy puts one-line export json on the clipboard", async () => {
+	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	let copied = "";
+	setClipboard(async (text) => {
+		copied = text;
+	});
+	const el = await mount();
+	$(el, 'button[data-action="copy"]')!.click();
+	await flush(el);
+	expect(copied).not.toContain("\n");
+	expect(JSON.parse(copied)).toMatchObject({
+		app: "whattoeat",
+		version: 1,
+		restaurants: loadRestaurants(),
+	});
+	expect($(el, ".copied")?.textContent?.trim()).toBe(
+		"Copied 1 restaurants to the clipboard.",
+	);
+	expect($(el, "textarea.copy-fallback")).toBeNull();
+});
+
+test("a blocked clipboard shows the json to copy by hand", async () => {
+	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	setClipboard(() => Promise.reject(new Error("NotAllowedError")));
+	const el = await mount();
+	$(el, 'button[data-action="copy"]')!.click();
+	await flush(el);
+	const fallback = el.shadowRoot!.querySelector<HTMLTextAreaElement>(
+		"textarea.copy-fallback",
+	)!;
+	expect(fallback.readOnly).toBe(true);
+	expect(JSON.parse(fallback.value).restaurants).toEqual(loadRestaurants());
+	expect($(el, ".copied")).toBeNull();
+	expect($(el, ".copy-failed")?.textContent?.trim()).toBe(
+		"Could not copy. Select the text below and copy it.",
+	);
+});
+
+test("a browser without a clipboard shows the json to copy by hand", async () => {
+	Object.defineProperty(navigator, "clipboard", {
+		value: undefined,
+		configurable: true,
+	});
+	const el = await mount();
+	$(el, 'button[data-action="copy"]')!.click();
+	await flush(el);
+	expect($(el, "textarea.copy-fallback")).not.toBeNull();
+});
+
+const paste = async (el: DataTransferPanel, text: string): Promise<void> => {
+	const area =
+		el.shadowRoot!.querySelector<HTMLTextAreaElement>("textarea.paste")!;
+	area.value = text;
+	area.dispatchEvent(new Event("input"));
+	await el.updateComplete;
+	await click(el, 'button[data-action="check-paste"]');
+};
+
+test("pasted json is checked and can be merged", async () => {
+	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	const el = await mount();
+	await paste(el, JSON.stringify(toExportFile([make("x", "X")])));
+	expect($(el, ".found")?.textContent?.trim()).toBe("1 restaurants found.");
+	await click(el, 'button[data-action="merge"]');
+	expect(loadRestaurants().map((r) => r.name)).toEqual(["Old", "X"]);
+	expect(
+		el.shadowRoot!.querySelector<HTMLTextAreaElement>("textarea.paste")!.value,
+	).toBe("");
+});
+
+test("pasted text that is not an export shows an error", async () => {
+	const el = await mount();
+	await paste(el, "hello");
+	expect($(el, '[role="alert"]')?.textContent?.trim()).toBe(
+		"The data is not valid JSON.",
+	);
+	expect($(el, 'button[data-action="merge"]')).toBeNull();
+});
+
+test("check is disabled while the paste box is empty", async () => {
+	const el = await mount();
+	const check = el.shadowRoot!.querySelector<HTMLButtonElement>(
+		'button[data-action="check-paste"]',
+	)!;
+	expect(check.disabled).toBe(true);
 });

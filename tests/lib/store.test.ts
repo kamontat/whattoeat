@@ -86,7 +86,7 @@ test("addRestaurant normalizes, stamps and saves", () => {
 		createdAt: now.toISOString(),
 		updatedAt: now.toISOString(),
 	});
-	expect(list[0]!.id).not.toBe("");
+	expect(list[0]!.id).toMatch(/^[0-9A-Za-z]{8}$/);
 	expect(loadRestaurants()).toEqual(list);
 });
 
