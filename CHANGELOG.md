@@ -2,7 +2,14 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer and data reset
+## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer, data reset, and a warning for unreadable saved data
+
+### BREAKING CHANGES
+
+- Stored restaurants that fail validation are no longer copied to
+  `whattoeat:restaurants:invalid`, so the next change to the list deletes them for good. To
+  keep one, copy `whattoeat:restaurants` from the browser's developer tools before changing
+  the list. A backup already saved under the old key stays there but is no longer updated.
 
 ### Features
 
@@ -37,6 +44,12 @@ What changed in this project and why, newest first.
   that names how many restaurants will go, clears every `localStorage` entry: restaurants,
   theme, language and tag filter. The page resets at once without a reload, in English and
   Thai.
+
+- Home, Restaurants and Settings warn when saved restaurants could not be read, for example
+  "2 saved restaurants could not be read and were skipped. They will be removed the next
+  time the list changes.", in English and Thai. Saved data that is not JSON, or not a list,
+  counts as one; before, it was dropped without any trace. The warning goes after the next
+  save or a reset.
 
 ### Improvements
 
@@ -92,6 +105,11 @@ What changed in this project and why, newest first.
   in another tab sends, so the existing theme, language and restaurant listeners reset this
   tab with no new wiring. The confirmation lives in the page because the browser's
   `confirm()` can be blocked.
+- Unreadable entries get a warning instead of a backup that the app never showed. The app
+  itself cannot write one (adding, editing and import all validate), so they only come from
+  editing storage by hand, another build of the app, or corruption. Showing them in the app
+  to fix or discard, the idea in `IDEAS.md`, was dropped as too much for so rare a case. The
+  warning is on every page, not only Settings, because a change on any page deletes them.
 
 ## 2026-10-12: Site icon, app README and ideas for later
 
