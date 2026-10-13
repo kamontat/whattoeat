@@ -2,6 +2,36 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-13: Dark mode and theme switch
+
+### Features
+
+- The app has a dark palette. It follows the system colour scheme by default, and a new
+  header switch (`◐ ☀ ☾` for auto, light and dark, labelled in English and Thai) forces
+  either one. The choice is saved under `whattoeat:theme`, follows changes made in other
+  tabs, and still works for the session when the browser blocks storage.
+- `tests/styles/palette.test.ts` checks that every text colour pair in both palettes meets
+  WCAG AA (4.5:1) and that the system-dark and chosen-dark rules stay identical.
+
+### Improvements
+
+- The light primary colour is slightly darker (`#d9480f` to `#c4440e`), and so is the
+  success colour (`#2b8a3e` to `#2b7a3b`), so links, white button text and success messages
+  meet WCAG AA; before, they measured 4.08, 4.30 and 4.37 to 1.
+- On phones the header is always two rows, with the name and switches on top and the nav
+  links below, instead of wrapping freely into up to three rows. From `40rem` up it is one
+  row.
+
+### Decisions
+
+- The theme is applied as `data-theme` on `<html>` by `#lib/theme`, loaded before the
+  stylesheet; with no choice saved there is no attribute and pure CSS
+  (`prefers-color-scheme`) picks the palette, so the default needs no JavaScript.
+- The switch sits in the header next to the language switch rather than only on the
+  Settings page, so it is one tap away on every page.
+- Dark primary buttons use dark text on a light orange, because white on a bright enough
+  orange fails contrast.
+
 ## 2026-10-12: Site icon, app README and ideas for later
 
 ### Features

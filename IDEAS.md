@@ -27,3 +27,10 @@ design spec under `docs/superpowers/specs/`, then delete it here when it ships.
 - **Recover invalid entries in the app.** Show what is in `whattoeat:restaurants:invalid`
   on the Settings page and let the user fix or discard each entry, instead of using browser
   developer tools.
+
+## Look and feel
+
+- **Rethink the phone header.** The two-row header (name and switches on top, links below)
+  works but looks odd. Options: a menu button that hides the links and switches, a bottom
+  tab bar for the three pages, or one compact settings button that opens language and
+  theme choices.
