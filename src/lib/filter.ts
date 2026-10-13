@@ -18,7 +18,6 @@ export const EMPTY_FILTER: Filter = {
 	kind: EMPTY_GROUP,
 	cuisine: EMPTY_GROUP,
 	area: EMPTY_GROUP,
-	tags: EMPTY_GROUP,
 };
 export const FILTER_KEY = "whattoeat:filter";
 
@@ -121,7 +120,7 @@ const toGroup = (value: unknown, group: Group): GroupFilter => {
 
 /**
  * The saved filter, or the empty filter when nothing valid is stored. A value in both lists
- * stays included. An older filter of only `include` and `exclude` tags becomes the tags group.
+ * stays included. Tags are not filtered, so an older tag-only filter loads as empty.
  */
 export const loadFilter = (): Filter => {
 	let data: unknown;
@@ -134,9 +133,6 @@ export const loadFilter = (): Filter => {
 		return EMPTY_FILTER;
 	}
 	const raw = data as Record<string, unknown>;
-	if ("include" in raw || "exclude" in raw) {
-		return { ...EMPTY_FILTER, tags: toGroup(raw, "tags") };
-	}
 	const filter = { ...EMPTY_FILTER };
 	for (const group of GROUPS) filter[group] = toGroup(raw[group], group);
 	return filter;

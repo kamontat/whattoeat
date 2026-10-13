@@ -33,14 +33,14 @@ const pickedNames = (el: HTMLElement) =>
 		(h) => h.textContent ?? "",
 	);
 const root = (el: HTMLElement) => el.shadowRoot!;
-const tagButton = (el: HTMLElement, tag: string, group = "tags") =>
+const tagButton = (el: HTMLElement, tag: string, group = "area") =>
 	root(el).querySelector<HTMLButtonElement>(
 		`button.tag[data-group="${group}"][data-tag="${tag}"]`,
 	);
 const cycle = async (
 	el: HTMLElement & { updateComplete: Promise<boolean> },
 	tag: string,
-	group = "tags",
+	group = "area",
 ) => {
 	tagButton(el, tag, group)!.click();
 	await el.updateComplete;
@@ -49,7 +49,6 @@ const emptyFilter = {
 	kind: { include: [], exclude: [] },
 	cuisine: { include: [], exclude: [] },
 	area: { include: [], exclude: [] },
-	tags: { include: [], exclude: [] },
 };
 const activeLine = (el: HTMLElement) =>
 	root(el)
@@ -175,15 +174,16 @@ test.each([
 	);
 });
 
-test("no filter row when no restaurant has tags, type, cuisine or area", async () => {
-	addRestaurant({ ...base, name: "A" });
+test("no filter row when no restaurant has a type, cuisine or area", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
 	const el = await mount();
 	expect(root(el).querySelector("section.filter")).toBeNull();
 });
 
-test("filter chips list tags most used first and cycle off, include, exclude", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
-	addRestaurant({ ...base, name: "B", tags: ["thai", "spicy"] });
+test("filter chips list values most used first and cycle off, include, exclude", async () => {
+	addRestaurant({ ...base, name: "A", area: "thai" });
+	addRestaurant({ ...base, name: "B", area: "thai" });
+	addRestaurant({ ...base, name: "C", area: "spicy" });
 	const el = await mount();
 	expect(
 		[...root(el).querySelectorAll("button.tag")].map((b) =>
@@ -193,28 +193,28 @@ test("filter chips list tags most used first and cycle off, include, exclude", a
 	const thai = () => tagButton(el, "thai")!;
 	expect(thai().getAttribute("data-state")).toBe("off");
 	expect(thai().getAttribute("aria-pressed")).toBe("false");
-	expect(thai().getAttribute("aria-label")).toBe("Tags: thai, not used");
+	expect(thai().getAttribute("aria-label")).toBe("Area: thai, not used");
 	await cycle(el, "thai");
 	expect(thai().getAttribute("data-state")).toBe("include");
 	expect(thai().getAttribute("aria-pressed")).toBe("true");
-	expect(thai().getAttribute("aria-label")).toBe("Tags: thai, included");
+	expect(thai().getAttribute("aria-label")).toBe("Area: thai, included");
 	expect(thai().textContent?.trim()).toBe("✓ thai");
 	await cycle(el, "thai");
 	expect(thai().getAttribute("data-state")).toBe("exclude");
-	expect(thai().getAttribute("aria-label")).toBe("Tags: thai, excluded");
+	expect(thai().getAttribute("aria-label")).toBe("Area: thai, excluded");
 	expect(thai().textContent?.trim()).toBe("✕ thai");
 	await cycle(el, "thai");
 	expect(thai().getAttribute("data-state")).toBe("off");
 });
 
 test("picks only from restaurants that match the filter", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
-	addRestaurant({ ...base, name: "B", tags: ["japanese"] });
-	addRestaurant({ ...base, name: "C", tags: ["thai", "spicy"] });
+	addRestaurant({ ...base, name: "A", kinds: ["food"] });
+	addRestaurant({ ...base, name: "B", kinds: ["drinks"] });
+	addRestaurant({ ...base, name: "C", kinds: ["food", "dessert"] });
 	const el = await mount();
-	await cycle(el, "thai");
-	await cycle(el, "spicy");
-	await cycle(el, "spicy");
+	await cycle(el, "food", "kind");
+	await cycle(el, "dessert", "kind");
+	await cycle(el, "dessert", "kind");
 	for (let i = 0; i < 10; i++) {
 		pickButton(el)!.click();
 		await el.updateComplete;
@@ -223,14 +223,14 @@ test("picks only from restaurants that match the filter", async () => {
 });
 
 test("an active filter is shown and Clear resets it", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
-	addRestaurant({ ...base, name: "B", tags: ["spicy"] });
+	addRestaurant({ ...base, name: "A", area: "thai" });
+	addRestaurant({ ...base, name: "B", area: "spicy" });
 	const el = await mount();
 	expect(activeLine(el)).toBeUndefined();
 	await cycle(el, "thai");
 	await cycle(el, "spicy");
 	await cycle(el, "spicy");
-	expect(activeLine(el)).toBe("Filter active: Tags: ✓ thai, ✕ spicy Clear");
+	expect(activeLine(el)).toBe("Filter active: Area: ✓ thai, ✕ spicy Clear");
 	root(el)
 		.querySelector<HTMLButtonElement>('button[data-action="clear-filter"]')!
 		.click();
@@ -243,12 +243,12 @@ test("an active filter is shown and Clear resets it", async () => {
 });
 
 test("a filter that matches nothing disables the button and says so", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
-	addRestaurant({ ...base, name: "B", tags: ["japanese", "spicy"] });
+	addRestaurant({ ...base, name: "A", kinds: ["food"] });
+	addRestaurant({ ...base, name: "B", kinds: ["drinks", "dessert"] });
 	const el = await mount();
-	await cycle(el, "japanese");
-	await cycle(el, "spicy");
-	await cycle(el, "spicy");
+	await cycle(el, "drinks", "kind");
+	await cycle(el, "dessert", "kind");
+	await cycle(el, "dessert", "kind");
 	expect(pickButton(el)?.disabled).toBe(true);
 	expect(root(el).querySelector(".no-match")?.textContent?.trim()).toBe(
 		"No restaurant matches this filter.",
@@ -259,7 +259,7 @@ test("a filter that matches nothing disables the button and says so", async () =
 });
 
 test("the filter is remembered across visits", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "A", area: "thai" });
 	const first = await mount();
 	await cycle(first, "thai");
 	first.remove();
@@ -267,23 +267,23 @@ test("the filter is remembered across visits", async () => {
 	expect(tagButton(second, "thai")?.getAttribute("data-state")).toBe("include");
 });
 
-test("saved filter tags no longer used by any restaurant are dropped", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+test("saved filter values no longer used by any restaurant are dropped", async () => {
+	addRestaurant({ ...base, name: "A", area: "thai" });
 	localStorage.setItem(
 		FILTER_KEY,
-		JSON.stringify({ include: ["thai", "gone"], exclude: ["old"] }),
+		JSON.stringify({ area: { include: ["thai", "gone"], exclude: ["old"] } }),
 	);
 	const el = await mount();
-	expect(activeLine(el)).toBe("Filter active: Tags: ✓ thai Clear");
+	expect(activeLine(el)).toBe("Filter active: Area: ✓ thai Clear");
 	expect(JSON.parse(localStorage.getItem(FILTER_KEY) ?? "null")).toEqual({
 		...emptyFilter,
-		tags: { include: ["thai"], exclude: [] },
+		area: { include: ["thai"], exclude: [] },
 	});
 });
 
 test("the result keeps only picks that still match the filter", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
-	addRestaurant({ ...base, name: "B", tags: ["noodle"] });
+	addRestaurant({ ...base, name: "A", area: "thai" });
+	addRestaurant({ ...base, name: "B", area: "noodle" });
 	const el = await mount();
 	pickButton(el)!.click();
 	await el.updateComplete;
@@ -294,7 +294,7 @@ test("the result keeps only picks that still match the filter", async () => {
 });
 
 test("filter labels render in Thai", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "A", area: "thai" });
 	const el = await mount();
 	setLang("th");
 	await el.updateComplete;
@@ -312,7 +312,7 @@ const groupChips = (el: HTMLElement, group: string) =>
 		b.textContent?.trim(),
 	);
 
-test("the filter shows type, cuisine, area and tags groups, only those in use", async () => {
+test("the filter shows type, cuisine and area groups, only those in use, and never tags", async () => {
 	addRestaurant({
 		...base,
 		name: "A",
@@ -321,9 +321,10 @@ test("the filter shows type, cuisine, area and tags groups, only those in use", 
 		area: "Siam",
 	});
 	addRestaurant({ ...base, name: "B", kinds: ["drinks"], area: "ari" });
-	addRestaurant({ ...base, name: "C", area: "siam" });
+	addRestaurant({ ...base, name: "C", area: "siam", tags: ["spicy"] });
 	const el = await mount();
 	expect(groupTitles(el)).toEqual(["Type", "Cuisine", "Area"]);
+	expect(root(el).querySelector('button.tag[data-group="tags"]')).toBeNull();
 	expect(groupChips(el, "kind")).toEqual(["Food", "Drinks", "Dessert"]);
 	expect(groupChips(el, "cuisine")).toEqual(["thai"]);
 	expect(groupChips(el, "area")).toEqual(["siam", "ari"]);
@@ -399,9 +400,9 @@ test("uses the singular for one restaurant", async () => {
 });
 
 test("with a filter, shows how many of all restaurants match", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
-	addRestaurant({ ...base, name: "B", tags: ["noodle"] });
-	addRestaurant({ ...base, name: "C", tags: ["thai"] });
+	addRestaurant({ ...base, name: "A", area: "thai" });
+	addRestaurant({ ...base, name: "B", area: "noodle" });
+	addRestaurant({ ...base, name: "C", area: "thai" });
 	const el = await mount();
 	await cycle(el, "thai");
 	expect(countText(el)).toBe("2 of 3 restaurants match");
@@ -420,7 +421,7 @@ test("the count follows restaurants added after mount", async () => {
 });
 
 test("the count renders in Thai", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "A", area: "thai" });
 	addRestaurant({ ...base, name: "B" });
 	const el = await mount();
 	setLang("th");

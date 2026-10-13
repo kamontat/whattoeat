@@ -13,14 +13,10 @@ import {
 } from "#lib/filter";
 import type { Restaurant } from "#lib/restaurant";
 
-const make = (
-	name: string,
-	tags: string[],
-	extra: Partial<Restaurant> = {},
-): Restaurant => ({
+const make = (name: string, extra: Partial<Restaurant> = {}): Restaurant => ({
 	id: name,
 	name,
-	tags,
+	tags: [],
 	location: "",
 	notes: "",
 	area: "",
@@ -32,15 +28,15 @@ const make = (
 });
 
 const list = [
-	make("A", ["thai"]),
-	make("B", ["japanese"]),
-	make("C", ["thai", "spicy"]),
-	make("D", []),
+	make("A", { kinds: ["food"] }),
+	make("B", { kinds: ["drinks"] }),
+	make("C", { kinds: ["food", "dessert"] }),
+	make("D"),
 ];
 const names = (items: Restaurant[]) => items.map((item) => item.name);
-const tags = (include: string[], exclude: string[] = []): Filter => ({
+const kinds = (include: string[], exclude: string[] = []): Filter => ({
 	...EMPTY_FILTER,
-	tags: { include, exclude },
+	kind: { include, exclude },
 });
 
 beforeEach(() => localStorage.clear());
@@ -50,16 +46,16 @@ test("an empty filter keeps every restaurant", () => {
 	expect(names(applyFilter(list, EMPTY_FILTER))).toEqual(["A", "B", "C", "D"]);
 });
 
-test("include keeps restaurants with any included tag", () => {
-	expect(names(applyFilter(list, tags(["thai", "japanese"])))).toEqual([
+test("include keeps restaurants with any included value", () => {
+	expect(names(applyFilter(list, kinds(["food", "drinks"])))).toEqual([
 		"A",
 		"B",
 		"C",
 	]);
 });
 
-test("exclude drops restaurants with any excluded tag, untagged ones stay", () => {
-	expect(names(applyFilter(list, tags([], ["spicy"])))).toEqual([
+test("exclude drops restaurants with any excluded value, ones without a value stay", () => {
+	expect(names(applyFilter(list, kinds([], ["dessert"])))).toEqual([
 		"A",
 		"B",
 		"D",
@@ -67,23 +63,36 @@ test("exclude drops restaurants with any excluded tag, untagged ones stay", () =
 });
 
 test("include and exclude combine", () => {
-	expect(names(applyFilter(list, tags(["thai"], ["spicy"])))).toEqual(["A"]);
+	expect(names(applyFilter(list, kinds(["food"], ["dessert"])))).toEqual(["A"]);
 });
 
 test("a filter can match nothing", () => {
-	expect(applyFilter(list, tags(["pizza"]))).toEqual([]);
+	expect(
+		applyFilter(list, {
+			...EMPTY_FILTER,
+			area: { include: ["x"], exclude: [] },
+		}),
+	).toEqual([]);
+});
+
+test("the filter has type, cuisine and area groups, not tags", () => {
+	expect(Object.keys(EMPTY_FILTER).sort()).toEqual(["area", "cuisine", "kind"]);
+});
+
+test("tags do not affect the filter", () => {
+	const tagged = [make("A", { tags: ["thai"] }), make("B")];
+	expect(names(applyFilter(tagged, EMPTY_FILTER))).toEqual(["A", "B"]);
 });
 
 const places = [
-	make("Noodle", [], { area: "siam", cuisine: "thai", kinds: ["food"] }),
-	make("Cafe", [], { area: "ari", cuisine: "", kinds: ["drinks", "dessert"] }),
-	make("Sushi", [], { area: "siam", cuisine: "japanese", kinds: ["food"] }),
-	make("Bingsu", [], { area: "siam", cuisine: "korean", kinds: ["dessert"] }),
+	make("Noodle", { area: "siam", cuisine: "thai", kinds: ["food"] }),
+	make("Cafe", { area: "ari", cuisine: "", kinds: ["drinks", "dessert"] }),
+	make("Sushi", { area: "siam", cuisine: "japanese", kinds: ["food"] }),
+	make("Bingsu", { area: "siam", cuisine: "korean", kinds: ["dessert"] }),
 ];
 
 test("values in one group match any, groups must all match", () => {
 	const filter: Filter = {
-		...EMPTY_FILTER,
 		area: { include: ["siam"], exclude: [] },
 		kind: { include: ["food", "dessert"], exclude: [] },
 		cuisine: { include: [], exclude: ["japanese"] },
@@ -98,40 +107,42 @@ test("a restaurant with no value in an included group does not match it", () => 
 
 test("isFilterActive is true only when some group has a value", () => {
 	expect(isFilterActive(EMPTY_FILTER)).toBe(false);
-	expect(isFilterActive(tags([], ["x"]))).toBe(true);
-	expect(isFilterActive(cycleTag(EMPTY_FILTER, "kind", "food"))).toBe(true);
+	expect(isFilterActive(kinds([], ["food"]))).toBe(true);
+	expect(isFilterActive(cycleTag(EMPTY_FILTER, "area", "siam"))).toBe(true);
 });
 
 test("cycleTag goes off, include, exclude, off", () => {
-	const included = cycleTag(EMPTY_FILTER, "tags", "thai");
-	expect(included).toEqual(tags(["thai"]));
-	expect(tagState(included, "tags", "thai")).toBe("include");
-	const excluded = cycleTag(included, "tags", "thai");
-	expect(excluded).toEqual(tags([], ["thai"]));
-	expect(tagState(excluded, "tags", "thai")).toBe("exclude");
-	const off = cycleTag(excluded, "tags", "thai");
+	const included = cycleTag(EMPTY_FILTER, "kind", "food");
+	expect(included).toEqual(kinds(["food"]));
+	expect(tagState(included, "kind", "food")).toBe("include");
+	const excluded = cycleTag(included, "kind", "food");
+	expect(excluded).toEqual(kinds([], ["food"]));
+	expect(tagState(excluded, "kind", "food")).toBe("exclude");
+	const off = cycleTag(excluded, "kind", "food");
 	expect(off).toEqual(EMPTY_FILTER);
-	expect(tagState(off, "tags", "thai")).toBe("off");
+	expect(tagState(off, "kind", "food")).toBe("off");
 });
 
 test("cycleTag leaves other values and groups alone", () => {
-	const start = cycleTag(tags(["a"], ["b"]), "area", "thai");
-	expect(cycleTag(start, "tags", "c")).toEqual({
+	const start = cycleTag(kinds(["food"], ["drinks"]), "area", "thai");
+	expect(cycleTag(start, "kind", "dessert")).toEqual({
 		...EMPTY_FILTER,
-		tags: { include: ["a", "c"], exclude: ["b"] },
+		kind: { include: ["food", "dessert"], exclude: ["drinks"] },
 		area: { include: ["thai"], exclude: [] },
 	});
-	expect(tagState(start, "tags", "thai")).toBe("off");
+	expect(tagState(start, "cuisine", "thai")).toBe("off");
 });
 
 test("pruneFilter drops values no restaurant uses in that group any more", () => {
 	const filter: Filter = {
-		...tags(["thai", "gone"], ["old"]),
-		area: { include: ["siam"], exclude: ["thai"] },
+		...kinds(["food"], ["dessert"]),
+		area: { include: ["siam"], exclude: ["gone"] },
 	};
-	expect(pruneFilter(filter, list)).toEqual(tags(["thai"]));
+	expect(pruneFilter(filter, [make("A", { kinds: ["food"] })])).toEqual(
+		kinds(["food"]),
+	);
 	expect(pruneFilter(filter, places)).toEqual({
-		...EMPTY_FILTER,
+		...kinds(["food"], ["dessert"]),
 		area: { include: ["siam"], exclude: [] },
 	});
 });
@@ -145,39 +156,31 @@ test.each([
 	["null", "null"],
 	["an array", "[]"],
 	["a string", '"thai"'],
+	["an older tag-only filter", '{"include":["thai"],"exclude":["spicy"]}'],
 ])("loadFilter gives the empty filter for %s", (_label, raw) => {
 	localStorage.setItem(FILTER_KEY, raw);
 	expect(loadFilter()).toEqual(EMPTY_FILTER);
 });
 
-test("loadFilter reads an older tag-only filter as the tags group", () => {
-	localStorage.setItem(
-		FILTER_KEY,
-		JSON.stringify({ include: ["Thai"], exclude: ["spicy"] }),
-	);
-	expect(loadFilter()).toEqual(tags(["thai"], ["spicy"]));
-});
-
-test("loadFilter normalizes values, drops non-strings, blanks and unknown kinds, and resolves conflicts toward include", () => {
+test("loadFilter normalizes values, drops non-strings, blanks, unknown kinds and tags, and resolves conflicts toward include", () => {
 	localStorage.setItem(
 		FILTER_KEY,
 		JSON.stringify({
-			tags: { include: ["Thai", 1, " ", "THAI"], exclude: ["thai", "Spicy"] },
+			tags: { include: ["thai"], exclude: [] },
+			cuisine: { include: ["Thai", 1, " ", "THAI"], exclude: ["thai", "Lao"] },
 			area: { include: " Siam ", exclude: ["Ari"] },
 			kind: { include: ["Food", "pizza"], exclude: [] },
-			cuisine: "x",
 		}),
 	);
 	expect(loadFilter()).toEqual({
-		tags: { include: ["thai"], exclude: ["spicy"] },
+		cuisine: { include: ["thai"], exclude: ["lao"] },
 		area: { include: [], exclude: ["ari"] },
 		kind: { include: ["food"], exclude: [] },
-		cuisine: { include: [], exclude: [] },
 	});
 });
 
 test("saveFilter round-trips through loadFilter", () => {
-	const filter = cycleTag(tags(["thai"], ["spicy"]), "kind", "dessert");
+	const filter = cycleTag(kinds(["food"], ["drinks"]), "area", "siam");
 	saveFilter(filter);
 	expect(loadFilter()).toEqual(filter);
 });
@@ -187,7 +190,7 @@ test("saveFilter does not throw when storage refuses the write", () => {
 		throw new Error("QuotaExceededError");
 	});
 	try {
-		expect(() => saveFilter(tags(["x"]))).not.toThrow();
+		expect(() => saveFilter(kinds(["food"]))).not.toThrow();
 	} finally {
 		spy.mockRestore();
 	}

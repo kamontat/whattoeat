@@ -29,9 +29,11 @@ export type StoredRestaurant = Omit<
 	kinds?: string[];
 };
 
-/** The filterable groups of a restaurant. */
-export const GROUPS = ["kind", "cuisine", "area", "tags"] as const;
+/** The filterable groups of a restaurant. Tags are shown but not filtered. */
+export const GROUPS = ["kind", "cuisine", "area"] as const;
 export type Group = (typeof GROUPS)[number];
+/** Every group of values a restaurant has, filterable or not. */
+export type ValueGroup = Group | "tags";
 
 export type RestaurantInput = {
 	name: string;
@@ -165,7 +167,7 @@ export const isRestaurant = (value: unknown): value is StoredRestaurant => {
 export const isLink = (text: string): boolean => /^https?:\/\//i.test(text);
 
 /** The values a restaurant has in one filter group. */
-export const groupValues = (item: Restaurant, group: Group): string[] => {
+export const groupValues = (item: Restaurant, group: ValueGroup): string[] => {
 	switch (group) {
 		case "kind":
 			return item.kinds;
@@ -181,7 +183,7 @@ export const groupValues = (item: Restaurant, group: Group): string[] => {
 /** Every value used in one group, most-used first with ties by name; kinds keep the order of `KINDS`. */
 export const valuesByUsage = (
 	list: readonly Restaurant[],
-	group: Group,
+	group: ValueGroup,
 ): string[] => {
 	const counts = new Map<string, number>();
 	for (const item of list) {
