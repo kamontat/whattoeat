@@ -169,6 +169,7 @@ test("imported entries are normalized like typed input and lose unknown fields",
 	).toEqual({
 		ok: true,
 		restaurants: [{ ...make("a", "Foo"), tags: ["thai"], location: "x" }],
+		history: undefined,
 	});
 });
 
@@ -195,6 +196,7 @@ test("imported tags are lowercased and merged by case", () => {
 	expect(result).toEqual({
 		ok: true,
 		restaurants: [{ ...make("a"), tags: ["thai", "noodle"] }],
+		history: undefined,
 	});
 });
 

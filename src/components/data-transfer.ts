@@ -1,6 +1,7 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
+import { type HistoryEntry, loadHistory, saveHistory } from "#lib/history";
 import { LangController, t } from "#lib/i18n";
 import type { Restaurant } from "#lib/restaurant";
 import {
@@ -15,6 +16,7 @@ import {
 	exportFileName,
 	exportJson,
 	type ImportError,
+	mergeHistory,
 	mergeRestaurants,
 	parseImport,
 } from "#lib/transfer";
@@ -58,8 +60,11 @@ export class DataTransferPanel extends LitElement {
 	@state()
 	private skipped = 0;
 
+	/** A checked import waiting for Replace or Merge; `history` is `undefined` for a version 1 file. */
 	@state()
-	private pending: Restaurant[] | undefined;
+	private pending:
+		| { restaurants: Restaurant[]; history: HistoryEntry[] | undefined }
+		| undefined;
 
 	@state()
 	private error: ImportError | undefined;
@@ -101,7 +106,10 @@ export class DataTransferPanel extends LitElement {
 		const result = parseImport(text);
 		this.imported = undefined;
 		if (result.ok) {
-			this.pending = result.restaurants;
+			this.pending = {
+				restaurants: result.restaurants,
+				history: result.history,
+			};
 			this.error = undefined;
 		} else {
 			this.pending = undefined;
@@ -129,7 +137,9 @@ export class DataTransferPanel extends LitElement {
 
 	private readonly exportData = (): void => {
 		const now = new Date();
-		const json = exportJson(loadRestaurants(), now, { pretty: true });
+		const json = exportJson(loadRestaurants(), loadHistory(), now, {
+			pretty: true,
+		});
 		const url = URL.createObjectURL(
 			new Blob([json], { type: "application/json" }),
 		);
@@ -143,7 +153,9 @@ export class DataTransferPanel extends LitElement {
 
 	private readonly copyData = async (): Promise<void> => {
 		const restaurants = loadRestaurants();
-		const json = exportJson(restaurants, new Date(), { pretty: false });
+		const json = exportJson(restaurants, loadHistory(), new Date(), {
+			pretty: false,
+		});
 		try {
 			// The clipboard is missing outside secure contexts and can be refused by permission.
 			if (!navigator.clipboard) throw new Error("no clipboard");
@@ -160,11 +172,18 @@ export class DataTransferPanel extends LitElement {
 
 	private apply(mode: "replace" | "merge"): void {
 		if (this.pending === undefined) return;
+		const { restaurants, history } = this.pending;
 		const list =
 			mode === "replace"
-				? this.pending
-				: mergeRestaurants(loadRestaurants(), this.pending);
-		const persisted = saveRestaurants(list);
+				? restaurants
+				: mergeRestaurants(loadRestaurants(), restaurants);
+		let persisted = saveRestaurants(list);
+		// A version 1 file has no history, so the saved history stays as it is.
+		if (history !== undefined) {
+			const locks =
+				mode === "replace" ? history : mergeHistory(loadHistory(), history);
+			persisted = saveHistory(locks) && persisted;
+		}
 		this.pending = undefined;
 		this.pasteText = "";
 		this.imported = persisted ? list.length : undefined;
@@ -288,7 +307,7 @@ export class DataTransferPanel extends LitElement {
 				${
 					this.pending
 						? html`
-								<p class="found">${t("settings.importFound", { count: this.pending.length })}</p>
+								<p class="found">${t("settings.importFound", { count: this.pending.restaurants.length })}</p>
 								<div class="actions">
 									<button type="button" class="danger" data-action="replace" @click=${() => this.apply("replace")}>
 										${t("settings.replace")}

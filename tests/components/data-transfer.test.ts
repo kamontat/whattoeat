@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
 import "#components/data-transfer";
 import type { DataTransferPanel } from "#components/data-transfer";
+import {
+	HISTORY_KEY,
+	type HistoryEntry,
+	loadHistory,
+	saveHistory,
+} from "#lib/history";
 import { getLang, setLang } from "#lib/i18n";
 import type { Restaurant } from "#lib/restaurant";
 import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
@@ -14,6 +20,13 @@ const make = (id: string, name = id): Restaurant => ({
 	notes: "",
 	createdAt: "2026-10-12T00:00:00.000Z",
 	updatedAt: "2026-10-12T00:00:00.000Z",
+});
+
+const lock = (id: string, lockedAt: string): HistoryEntry => ({
+	id,
+	restaurantId: "x",
+	name: "X",
+	lockedAt,
 });
 
 beforeEach(() => {
@@ -55,6 +68,7 @@ test("shows the saved restaurant count and keeps it current", async () => {
 
 test("export downloads a json file of the stored list", async () => {
 	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	saveHistory([lock("h1", "2026-10-12T09:00:00.000Z")]);
 	const blobs: Blob[] = [];
 	const create = spyOn(URL, "createObjectURL").mockImplementation(
 		(blob: Blob | MediaSource) => {
@@ -76,8 +90,9 @@ test("export downloads a json file of the stored list", async () => {
 		const file = JSON.parse(await blobs[0]!.text());
 		expect(file).toMatchObject({
 			app: "whattoeat",
-			version: 1,
+			version: 2,
 			restaurants: loadRestaurants(),
+			history: [lock("h1", "2026-10-12T09:00:00.000Z")],
 		});
 	} finally {
 		create.mockRestore();
@@ -253,6 +268,7 @@ const flush = async (el: DataTransferPanel): Promise<void> => {
 
 test("copy puts one-line export json on the clipboard", async () => {
 	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	saveHistory([lock("h1", "2026-10-12T09:00:00.000Z")]);
 	let copied = "";
 	setClipboard(async (text) => {
 		copied = text;
@@ -263,8 +279,9 @@ test("copy puts one-line export json on the clipboard", async () => {
 	expect(copied).not.toContain("\n");
 	expect(JSON.parse(copied)).toMatchObject({
 		app: "whattoeat",
-		version: 1,
+		version: 2,
 		restaurants: loadRestaurants(),
+		history: [lock("h1", "2026-10-12T09:00:00.000Z")],
 	});
 	expect($(el, ".copied")?.textContent?.trim()).toBe(
 		"Copied 1 restaurants to the clipboard.",
@@ -366,7 +383,7 @@ test("reset asks for confirmation and can be cancelled", async () => {
 	expect($(el, 'button[data-action="reset-confirm"]')).toBeNull();
 	await click(el, 'button[data-action="reset"]');
 	expect($(el, ".reset-prompt")?.textContent?.trim()).toBe(
-		"Delete all 1 restaurants and settings saved in this browser? This cannot be undone.",
+		"Delete all 1 restaurants, your history and settings saved in this browser? This cannot be undone.",
 	);
 	await click(el, 'button[data-action="reset-cancel"]');
 	expect($(el, 'button[data-action="reset-confirm"]')).toBeNull();
@@ -389,4 +406,61 @@ test("confirming reset deletes everything in localStorage", async () => {
 	expect($(el, ".reset-done")?.textContent?.trim()).toBe(
 		"All saved data was deleted.",
 	);
+});
+
+test("replace with a version 2 file replaces history too", async () => {
+	saveHistory([lock("mine", "2026-10-01T09:00:00.000Z")]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify(
+			toExportFile(
+				[make("x", "X")],
+				[lock("theirs", "2026-10-12T09:00:00.000Z")],
+			),
+		),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="replace"]');
+	expect(loadHistory().map((item) => item.id)).toEqual(["theirs"]);
+});
+
+test("replace with a version 1 file keeps the current history", async () => {
+	saveHistory([lock("mine", "2026-10-01T09:00:00.000Z")]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 1,
+			restaurants: [make("x", "X")],
+		}),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="replace"]');
+	expect(loadRestaurants()).toEqual([make("x", "X")]);
+	expect(loadHistory().map((item) => item.id)).toEqual(["mine"]);
+});
+
+test("merge combines history newest first", async () => {
+	saveHistory([lock("mine", "2026-10-01T09:00:00.000Z")]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify(
+			toExportFile(
+				[make("x", "X")],
+				[lock("theirs", "2026-10-12T09:00:00.000Z")],
+			),
+		),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="merge"]');
+	expect(loadHistory().map((item) => item.id)).toEqual(["theirs", "mine"]);
+});
+
+test("confirming reset deletes the history too", async () => {
+	saveHistory([lock("mine", "2026-10-01T09:00:00.000Z")]);
+	const el = await mount();
+	await click(el, 'button[data-action="reset"]');
+	await click(el, 'button[data-action="reset-confirm"]');
+	expect(localStorage.getItem(HISTORY_KEY)).toBeNull();
+	expect(loadHistory()).toEqual([]);
 });
