@@ -1,5 +1,6 @@
 import {
 	isRestaurant,
+	newId,
 	normalizeInput,
 	type Restaurant,
 	type RestaurantInput,
@@ -79,9 +80,11 @@ export const addRestaurant = (
 ): Restaurant[] => {
 	const clean = requireName(input);
 	const stamp = now.toISOString();
+	const existing = loadRestaurants();
+	const id = newId(existing.map((item) => item.id));
 	const list = [
-		...loadRestaurants(),
-		{ id: crypto.randomUUID(), ...clean, createdAt: stamp, updatedAt: stamp },
+		...existing,
+		{ id, ...clean, createdAt: stamp, updatedAt: stamp },
 	];
 	saveRestaurants(list);
 	return list;
