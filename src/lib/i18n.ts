@@ -68,7 +68,7 @@ export const en = {
 	"settings.resetTitle": "Reset",
 	"settings.reset": "Delete all data",
 	"settings.resetPrompt":
-		"Delete all restaurants and settings saved in this browser? This cannot be undone.",
+		"Delete all {count} restaurants and settings saved in this browser? This cannot be undone.",
 	"settings.resetConfirm": "Delete everything",
 	"settings.resetDone": "All saved data was deleted.",
 	"import.error.json": "The data is not valid JSON.",
@@ -148,7 +148,7 @@ export const th: Record<MessageKey, string> = {
 	"settings.resetTitle": "รีเซ็ต",
 	"settings.reset": "ลบข้อมูลทั้งหมด",
 	"settings.resetPrompt":
-		"ลบร้านอาหารและการตั้งค่าทั้งหมดที่บันทึกไว้ในเบราว์เซอร์นี้หรือไม่ การลบนี้ย้อนกลับไม่ได้",
+		"ลบร้านอาหาร {count} ร้านและการตั้งค่าทั้งหมดที่บันทึกไว้ในเบราว์เซอร์นี้หรือไม่ การลบนี้ย้อนกลับไม่ได้",
 	"settings.resetConfirm": "ลบทั้งหมด",
 	"settings.resetDone": "ลบข้อมูลที่บันทึกไว้ทั้งหมดแล้ว",
 	"import.error.json": "ข้อมูลนี้ไม่ใช่ JSON ที่ถูกต้อง",

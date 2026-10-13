@@ -176,7 +176,7 @@ export class DataTransferPanel extends LitElement {
 	private renderReset() {
 		if (this.reset === "confirm")
 			return html`
-				<p class="reset-prompt" role="alert">${t("settings.resetPrompt")}</p>
+				<p class="reset-prompt" role="alert">${t("settings.resetPrompt", { count: this.count })}</p>
 				<div class="actions">
 					<button type="button" class="danger" data-action="reset-confirm" @click=${this.confirmReset}>
 						${t("settings.resetConfirm")}

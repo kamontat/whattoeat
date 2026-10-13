@@ -344,7 +344,7 @@ test("reset asks for confirmation and can be cancelled", async () => {
 	expect($(el, 'button[data-action="reset-confirm"]')).toBeNull();
 	await click(el, 'button[data-action="reset"]');
 	expect($(el, ".reset-prompt")?.textContent?.trim()).toBe(
-		"Delete all restaurants and settings saved in this browser? This cannot be undone.",
+		"Delete all 1 restaurants and settings saved in this browser? This cannot be undone.",
 	);
 	await click(el, 'button[data-action="reset-cancel"]');
 	expect($(el, 'button[data-action="reset-confirm"]')).toBeNull();
