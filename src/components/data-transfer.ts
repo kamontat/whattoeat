@@ -1,5 +1,6 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import { live } from "lit/directives/live.js";
 import { LangController, t } from "#lib/i18n";
 import type { Restaurant } from "#lib/restaurant";
 import {
@@ -10,10 +11,10 @@ import {
 } from "#lib/store";
 import {
 	exportFileName,
+	exportJson,
 	type ImportError,
 	mergeRestaurants,
 	parseImport,
-	toExportFile,
 } from "#lib/transfer";
 import { uiStyles } from "#styles/ui";
 
@@ -38,6 +39,11 @@ export class DataTransferPanel extends LitElement {
 			input[type="file"] {
 				padding: 0.5rem;
 			}
+
+			textarea {
+				font-family: ui-monospace, monospace;
+				font-size: 0.875rem;
+			}
 		`,
 	];
 
@@ -54,6 +60,13 @@ export class DataTransferPanel extends LitElement {
 
 	@state()
 	private imported: number | undefined;
+
+	/** Result of the last copy: a count when it worked, the JSON to copy by hand when it did not. */
+	@state()
+	private copied: { count: number } | { fallback: string } | undefined;
+
+	@state()
+	private pasteText = "";
 
 	private unsubscribe: (() => void) | undefined;
 
@@ -104,7 +117,7 @@ export class DataTransferPanel extends LitElement {
 
 	private readonly exportData = (): void => {
 		const now = new Date();
-		const json = JSON.stringify(toExportFile(loadRestaurants(), now), null, 2);
+		const json = exportJson(loadRestaurants(), now, { pretty: true });
 		const url = URL.createObjectURL(
 			new Blob([json], { type: "application/json" }),
 		);
@@ -116,6 +129,23 @@ export class DataTransferPanel extends LitElement {
 		setTimeout(() => URL.revokeObjectURL(url), 1000);
 	};
 
+	private readonly copyData = async (): Promise<void> => {
+		const restaurants = loadRestaurants();
+		const json = exportJson(restaurants, new Date(), { pretty: false });
+		try {
+			// The clipboard is missing outside secure contexts and can be refused by permission.
+			if (!navigator.clipboard) throw new Error("no clipboard");
+			await navigator.clipboard.writeText(json);
+			this.copied = { count: restaurants.length };
+		} catch {
+			this.copied = { fallback: json };
+		}
+	};
+
+	private readonly selectAll = (event: Event): void => {
+		(event.target as HTMLTextAreaElement).select();
+	};
+
 	private apply(mode: "replace" | "merge"): void {
 		if (this.pending === undefined) return;
 		const list =
@@ -124,7 +154,20 @@ export class DataTransferPanel extends LitElement {
 				: mergeRestaurants(loadRestaurants(), this.pending);
 		const persisted = saveRestaurants(list);
 		this.pending = undefined;
+		this.pasteText = "";
 		this.imported = persisted ? list.length : undefined;
+	}
+
+	private renderCopied() {
+		if (this.copied === undefined) return nothing;
+		if ("count" in this.copied)
+			return html`<p class="success copied" role="status">
+				${t("settings.copied", { count: this.copied.count })}
+			</p>`;
+		return html`
+			<p class="error copy-failed" role="alert">${t("settings.copyFailed")}</p>
+			<textarea class="copy-fallback" rows="4" readonly .value=${this.copied.fallback} @focus=${this.selectAll}></textarea>
+		`;
 	}
 
 	override render() {
@@ -138,7 +181,11 @@ export class DataTransferPanel extends LitElement {
 					<button type="button" class="primary" data-action="export" @click=${this.exportData}>
 						${t("settings.export")}
 					</button>
+					<button type="button" data-action="copy" @click=${this.copyData}>
+						${t("settings.copy")}
+					</button>
 				</div>
+				${this.renderCopied()}
 			</section>
 			<section class="card">
 				<h2>${t("settings.importTitle")}</h2>
@@ -146,6 +193,28 @@ export class DataTransferPanel extends LitElement {
 					${t("settings.importFile")}
 					<input type="file" accept="application/json,.json" @change=${this.onFile} />
 				</label>
+				<label>
+					${t("settings.pasteLabel")}
+					<textarea
+						class="paste"
+						rows="4"
+						spellcheck="false"
+						.value=${live(this.pasteText)}
+						@input=${(event: Event) => {
+							this.pasteText = (event.target as HTMLTextAreaElement).value;
+						}}
+					></textarea>
+				</label>
+				<div class="actions">
+					<button
+						type="button"
+						data-action="check-paste"
+						?disabled=${this.pasteText.trim() === ""}
+						@click=${() => this.readImport(this.pasteText)}
+					>
+						${t("settings.pasteCheck")}
+					</button>
+				</div>
 				${this.error ? html`<p class="error" role="alert">${t(this.error)}</p>` : nothing}
 				${
 					this.pending
