@@ -27,9 +27,3 @@ design spec under `docs/superpowers/specs/`, then delete it here when it ships.
 - **Recover invalid entries in the app.** Show what is in `whattoeat:restaurants:invalid`
   on the Settings page and let the user fix or discard each entry, instead of using browser
   developer tools.
-
-## Look and feel
-
-- **Dark mode.** A dark palette that follows the system setting, with an optional toggle.
-  The colours are already custom properties in `src/styles/global.css`, so most of the work
-  is choosing the palette and checking contrast.
