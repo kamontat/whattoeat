@@ -15,11 +15,15 @@ export type RestaurantInput = {
 	notes: string;
 };
 
-/** Split comma-separated text into trimmed, non-empty, de-duplicated tags, keeping first-seen order. */
+/** Canonical form of a tag: NFC, trimmed, single spaces, lowercase. Tags compare by this form only. */
+export const normalizeTag = (text: string): string =>
+	text.normalize("NFC").trim().replace(/\s+/g, " ").toLowerCase();
+
+/** Split comma-separated text into normalized, non-empty, de-duplicated tags, keeping first-seen order. */
 export const parseTags = (text: string): string[] => {
 	const tags = new Set<string>();
 	for (const raw of text.split(",")) {
-		const tag = raw.trim();
+		const tag = normalizeTag(raw);
 		if (tag !== "") tags.add(tag);
 	}
 	return [...tags];
@@ -59,3 +63,14 @@ export const isRestaurant = (value: unknown): value is Restaurant => {
 
 /** Only http(s) URLs are rendered as links; anything else (including `javascript:`) stays text. */
 export const isLink = (text: string): boolean => /^https?:\/\//i.test(text);
+
+/** Every tag in the list, most-used first; ties are sorted by name. */
+export const tagsByUsage = (list: readonly Restaurant[]): string[] => {
+	const counts = new Map<string, number>();
+	for (const item of list) {
+		for (const tag of item.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+	}
+	return [...counts]
+		.sort(([a, countA], [b, countB]) => countB - countA || a.localeCompare(b))
+		.map(([tag]) => tag);
+};

@@ -3,8 +3,10 @@ import {
 	isLink,
 	isRestaurant,
 	normalizeInput,
+	normalizeTag,
 	parseTags,
 	type Restaurant,
+	tagsByUsage,
 } from "#lib/restaurant";
 
 const valid: Restaurant = {
@@ -25,8 +27,39 @@ test("parseTags returns [] for blank text", () => {
 	expect(parseTags("   ")).toEqual([]);
 });
 
-test("parseTags keeps different casing as different tags", () => {
-	expect(parseTags("Thai, thai")).toEqual(["Thai", "thai"]);
+test("parseTags merges tags that differ only in case, keeping first-seen order", () => {
+	expect(parseTags("Thai, noodle, THAI, thai")).toEqual(["thai", "noodle"]);
+});
+
+test.each([
+	["lowercases", "Thai", "thai"],
+	["trims", "  thai  ", "thai"],
+	["collapses inner whitespace", "thai \t  food", "thai food"],
+	["composes Unicode to NFC", "cafe\u0301", "caf\u00e9"],
+	["leaves Thai text alone", "ก๋วยเตี๋ยว", "ก๋วยเตี๋ยว"],
+	["returns empty for blank text", "   ", ""],
+])("normalizeTag %s", (_label, input, expected) => {
+	expect(normalizeTag(input)).toBe(expected);
+});
+
+const withTags = (id: string, tags: string[]): Restaurant => ({
+	...valid,
+	id,
+	tags,
+});
+
+test("tagsByUsage orders tags by how many restaurants use them, then by name", () => {
+	expect(
+		tagsByUsage([
+			withTags("1", ["thai", "spicy"]),
+			withTags("2", ["noodle", "thai"]),
+			withTags("3", ["noodle", "thai", "cheap"]),
+		]),
+	).toEqual(["thai", "noodle", "cheap", "spicy"]);
+});
+
+test("tagsByUsage returns [] for no restaurants", () => {
+	expect(tagsByUsage([])).toEqual([]);
 });
 
 test("normalizeInput trims every field and cleans tags", () => {

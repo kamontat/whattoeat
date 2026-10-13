@@ -1,6 +1,7 @@
 import {
 	isRestaurant,
 	normalizeInput,
+	parseTags,
 	type Restaurant,
 	type RestaurantInput,
 } from "#lib/restaurant";
@@ -49,7 +50,11 @@ export const loadRestaurants = (): Restaurant[] => {
 	if (valid.length < data.length) {
 		backupInvalid(data.filter((entry) => !isRestaurant(entry)));
 	}
-	return valid;
+	// Older data may hold tags that differ only in case; read them in canonical form.
+	return valid.map((item) => ({
+		...item,
+		tags: parseTags(item.tags.join(",")),
+	}));
 };
 
 /** True when the last save could not reach localStorage, so changes vanish when the page is left. */

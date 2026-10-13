@@ -215,3 +215,12 @@ test("saveRestaurants reports whether the list was persisted", () => {
 	saveRestaurants([]);
 	expect(isMemoryOnly()).toBe(false);
 });
+
+test("stored tags that differ only in case load as one lowercase tag", () => {
+	const [item] = addRestaurant({ ...input, tags: [] });
+	localStorage.setItem(
+		STORAGE_KEY,
+		JSON.stringify([{ ...item, tags: ["Thai", "thai", " BBQ "] }]),
+	);
+	expect(loadRestaurants()[0]?.tags).toEqual(["thai", "bbq"]);
+});
