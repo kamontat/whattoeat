@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/random-picker";
+import { FILTER_KEY } from "#lib/filter";
 import { setLang } from "#lib/i18n";
 import { addRestaurant, removeRestaurant } from "#lib/store";
 
@@ -26,6 +27,21 @@ const pickButton = (el: HTMLElement) =>
 	el.shadowRoot!.querySelector<HTMLButtonElement>("button.pick");
 const pickedName = (el: HTMLElement) =>
 	el.shadowRoot!.querySelector(".result h2")?.textContent;
+const root = (el: HTMLElement) => el.shadowRoot!;
+const tagButton = (el: HTMLElement, tag: string) =>
+	root(el).querySelector<HTMLButtonElement>(`button.tag[data-tag="${tag}"]`);
+const cycle = async (
+	el: HTMLElement & { updateComplete: Promise<boolean> },
+	tag: string,
+) => {
+	tagButton(el, tag)!.click();
+	await el.updateComplete;
+};
+const activeLine = (el: HTMLElement) =>
+	root(el)
+		.querySelector(".active-filter")
+		?.textContent?.replace(/\s+/g, " ")
+		.trim();
 
 test("empty list shows a link to the restaurants page and no button", async () => {
 	const el = await mount();
@@ -124,4 +140,180 @@ test.each([
 	expect(el.shadowRoot!.querySelector("h1")?.textContent?.trim()).toBe(
 		"What to Eat",
 	);
+});
+
+test("no filter row when no restaurant has tags", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(root(el).querySelector("section.filter")).toBeNull();
+});
+
+test("filter chips list tags most used first and cycle off, include, exclude", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "B", tags: ["thai", "spicy"] });
+	const el = await mount();
+	expect(
+		[...root(el).querySelectorAll("button.tag")].map((b) =>
+			b.getAttribute("data-tag"),
+		),
+	).toEqual(["thai", "spicy"]);
+	const thai = () => tagButton(el, "thai")!;
+	expect(thai().getAttribute("data-state")).toBe("off");
+	expect(thai().getAttribute("aria-pressed")).toBe("false");
+	expect(thai().getAttribute("aria-label")).toBe("thai, not used");
+	await cycle(el, "thai");
+	expect(thai().getAttribute("data-state")).toBe("include");
+	expect(thai().getAttribute("aria-pressed")).toBe("true");
+	expect(thai().getAttribute("aria-label")).toBe("thai, included");
+	expect(thai().textContent?.trim()).toBe("✓ thai");
+	await cycle(el, "thai");
+	expect(thai().getAttribute("data-state")).toBe("exclude");
+	expect(thai().getAttribute("aria-label")).toBe("thai, excluded");
+	expect(thai().textContent?.trim()).toBe("✕ thai");
+	await cycle(el, "thai");
+	expect(thai().getAttribute("data-state")).toBe("off");
+});
+
+test("picks only from restaurants that match the filter", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "B", tags: ["japanese"] });
+	addRestaurant({ ...base, name: "C", tags: ["thai", "spicy"] });
+	const el = await mount();
+	await cycle(el, "thai");
+	await cycle(el, "spicy");
+	await cycle(el, "spicy");
+	for (let i = 0; i < 10; i++) {
+		pickButton(el)!.click();
+		await el.updateComplete;
+		expect(pickedName(el)).toBe("A");
+	}
+});
+
+test("an active filter is shown and Clear resets it", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "B", tags: ["spicy"] });
+	const el = await mount();
+	expect(activeLine(el)).toBeUndefined();
+	await cycle(el, "thai");
+	await cycle(el, "spicy");
+	await cycle(el, "spicy");
+	expect(activeLine(el)).toBe("Filter active: ✓ thai, ✕ spicy Clear");
+	root(el)
+		.querySelector<HTMLButtonElement>('button[data-action="clear-filter"]')!
+		.click();
+	await el.updateComplete;
+	expect(activeLine(el)).toBeUndefined();
+	expect(tagButton(el, "thai")?.getAttribute("data-state")).toBe("off");
+	expect(JSON.parse(localStorage.getItem(FILTER_KEY) ?? "null")).toEqual({
+		include: [],
+		exclude: [],
+	});
+});
+
+test("a filter that matches nothing disables the button and says so", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "B", tags: ["japanese", "spicy"] });
+	const el = await mount();
+	await cycle(el, "japanese");
+	await cycle(el, "spicy");
+	await cycle(el, "spicy");
+	expect(pickButton(el)?.disabled).toBe(true);
+	expect(root(el).querySelector(".no-match")?.textContent?.trim()).toBe(
+		"No restaurant matches this filter.",
+	);
+	pickButton(el)!.click();
+	await el.updateComplete;
+	expect(pickedName(el)).toBeUndefined();
+});
+
+test("the filter is remembered across visits", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	const first = await mount();
+	await cycle(first, "thai");
+	first.remove();
+	const second = await mount();
+	expect(tagButton(second, "thai")?.getAttribute("data-state")).toBe("include");
+});
+
+test("saved filter tags no longer used by any restaurant are dropped", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({ include: ["thai", "gone"], exclude: ["old"] }),
+	);
+	const el = await mount();
+	expect(activeLine(el)).toBe("Filter active: ✓ thai Clear");
+	expect(JSON.parse(localStorage.getItem(FILTER_KEY) ?? "null")).toEqual({
+		include: ["thai"],
+		exclude: [],
+	});
+});
+
+test("the result hides when the filter leaves out the current pick", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "B", tags: ["noodle"] });
+	const el = await mount();
+	pickButton(el)!.click();
+	await el.updateComplete;
+	const other = pickedName(el) === "A" ? "noodle" : "thai";
+	await cycle(el, other);
+	expect(pickedName(el)).toBeUndefined();
+});
+
+test("filter labels render in Thai", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	expect(root(el).querySelector(".filter-title")?.textContent?.trim()).toBe(
+		"กรองตามแท็ก",
+	);
+});
+
+const countText = (el: HTMLElement) =>
+	root(el).querySelector(".count")?.textContent?.trim();
+
+test("shows how many restaurants there are", async () => {
+	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: "B" });
+	const el = await mount();
+	expect(countText(el)).toBe("2 restaurants");
+});
+
+test("uses the singular for one restaurant", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(countText(el)).toBe("1 restaurant");
+});
+
+test("with a filter, shows how many of all restaurants match", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "B", tags: ["noodle"] });
+	addRestaurant({ ...base, name: "C", tags: ["thai"] });
+	const el = await mount();
+	await cycle(el, "thai");
+	expect(countText(el)).toBe("2 of 3 restaurants match");
+	await cycle(el, "thai");
+	expect(countText(el)).toBe("1 of 3 restaurants match");
+	await cycle(el, "thai");
+	expect(countText(el)).toBe("3 restaurants");
+});
+
+test("the count follows restaurants added after mount", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	addRestaurant({ ...base, name: "B" });
+	await el.updateComplete;
+	expect(countText(el)).toBe("2 restaurants");
+});
+
+test("the count renders in Thai", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "B" });
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	expect(countText(el)).toBe("2 ร้าน");
+	await cycle(el, "thai");
+	expect(countText(el)).toBe("1 จาก 2 ร้านที่ตรงกัน");
 });

@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-13: Dark mode and theme switch, and copy and paste import and export
+## 2026-10-13: Dark mode and theme switch, copy and paste import and export, and tag rework
 
 ### Features
 
@@ -18,6 +18,17 @@ What changed in this project and why, newest first.
 - Settings can import JSON pasted into an **Or paste JSON** box: **Check** runs the same
   validation and Replace / Merge / Cancel choice as a file, so a list can move between
   devices through a chat or notes app without saving a file.
+- The tag field in the restaurant form is a chip input (`<tag-input>`) that suggests tags
+  already in use, most used first. Enter, a comma, a click or pasting a list adds tags;
+  Backspace in an empty box removes the last one; text typed but not confirmed is still
+  saved. Enter that confirms a character in an input method does not add a tag.
+- The home page can filter the random pick by tag. Tapping a tag cycles it through include
+  (✓), exclude (✕) and off: a restaurant is picked only if it has any included tag (or none
+  is included) and no excluded tag. The filter is saved under `whattoeat:filter`, a
+  "Filter active: … · Clear" line shows while one is on, and when nothing matches the pick
+  button is disabled with a message.
+- The home page shows how many restaurants there are, or "3 of 12 restaurants match" while
+  a filter is on.
 
 ### Improvements
 
@@ -35,6 +46,9 @@ What changed in this project and why, newest first.
   surrounding spaces, and says "A restaurant with this name already exists." Editing may keep
   a restaurant's own name but not take another's. `addRestaurant` and `updateRestaurant`
   throw on such a name too.
+- Tags are case-insensitive: they are stored trimmed, with single spaces and in lowercase,
+  so `Thai` and `thai` are one tag. Saved and imported data is cleaned the same way when
+  read and written back on the next save; the export format version does not change.
 
 ### Decisions
 
@@ -52,6 +66,13 @@ What changed in this project and why, newest first.
   format version does not change.
 - Duplicate names count as the same when they match ignoring case and surrounding spaces,
   rather than only on exact text. Import does not check names; only adding and editing do.
+- Tags are stored in one lowercase form rather than keeping the casing first typed, so
+  every comparison is plain string equality; Thai has no case, so only English tags lose
+  their capitals. Lowercasing uses `toLowerCase()`, not the locale-aware version, so a
+  device's language never changes which tags match.
+- Included tags match on any of them (OR) rather than all, so adding a tag widens the pool
+  and exclude does the narrowing. Tags no restaurant uses any more are dropped from the
+  saved filter. Renaming or merging tags is left for later in `IDEAS.md`.
 
 ## 2026-10-12: Site icon, app README and ideas for later
 
