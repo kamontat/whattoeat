@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-13: Dark mode and theme switch, copy and paste import and export, and tag rework
+## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, and build footer
 
 ### Features
 
@@ -29,6 +29,10 @@ What changed in this project and why, newest first.
   button is disabled with a message.
 - The home page shows how many restaurants there are, or "3 of 12 restaurants match" while
   a filter is on.
+- Every page has a footer (`<app-footer>`) linking the source on GitHub and this changelog,
+  with the short commit sha the page was built from (linking to that commit) and the build
+  time with its time zone, in English and Thai. The dev server and manual deploys show
+  "Development build" instead of the sha and time.
 
 ### Improvements
 
@@ -73,6 +77,12 @@ What changed in this project and why, newest first.
 - Included tags match on any of them (OR) rather than all, so adding a tag widens the pool
   and exclude does the narrowing. Tags no restaurant uses any more are dropped from the
   saved filter. Renaming or merging tags is left for later in `IDEAS.md`.
+- The footer's commit and build time come from `BUN_PUBLIC_COMMIT_SHA` and
+  `BUN_PUBLIC_BUILD_DATE`, set by the deploy workflows and inlined at build time like the
+  GTM id. A preview links the pull request head, not the merge commit GitHub builds from.
+- The build time shows in the viewer's own time zone, with the zone name added separately:
+  `dateStyle` and `timeStyle` refuse `timeZoneName`, and listing the fields instead spells
+  Thai times out as "15 นาฬิกา 30 นาที".
 
 ## 2026-10-12: Site icon, app README and ideas for later
 
