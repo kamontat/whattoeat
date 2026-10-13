@@ -55,10 +55,17 @@ export class AppFooter extends LitElement {
 	protected readonly langController = new LangController(this);
 
 	private renderBuilt(built: Date) {
-		const date = new Intl.DateTimeFormat(getLang(), {
+		const lang = getLang();
+		// dateStyle and timeStyle refuse timeZoneName, and spelling the fields out turns
+		// Thai times into "15 นาฬิกา 30 นาที", so the zone is formatted on its own.
+		const zone = new Intl.DateTimeFormat(lang, { timeZoneName: "short" })
+			.formatToParts(built)
+			.find((part) => part.type === "timeZoneName")?.value;
+		const time = new Intl.DateTimeFormat(lang, {
 			dateStyle: "medium",
 			timeStyle: "short",
 		}).format(built);
+		const date = zone === undefined ? time : `${time} ${zone}`;
 		return html`<span>${t("footer.built")} <time datetime=${built.toISOString()}>${date}</time></span>`;
 	}
 

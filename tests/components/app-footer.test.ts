@@ -55,6 +55,25 @@ test("shows the build date in a time element", async () => {
 	expect(el.shadowRoot!.textContent).toContain("Built");
 });
 
+test("shows the time zone of the build time", async () => {
+	const saved = process.env.TZ;
+	process.env.TZ = "Asia/Bangkok";
+	try {
+		const el = await mount(SHA, new Date("2026-10-13T08:30:00Z"));
+		expect(el.shadowRoot!.querySelector("time")?.textContent).toBe(
+			"Oct 13, 2026 at 3:30 PM GMT+7",
+		);
+		setLang("th");
+		await el.updateComplete;
+		expect(el.shadowRoot!.querySelector("time")?.textContent).toBe(
+			"13 ต.ค. 2569 15:30 GMT+7",
+		);
+	} finally {
+		if (saved === undefined) delete process.env.TZ;
+		else process.env.TZ = saved;
+	}
+});
+
 test("says development build when nothing was inlined", async () => {
 	const el = await mount();
 	expect(link(el, "commit")).toBeNull();
