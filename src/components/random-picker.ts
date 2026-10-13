@@ -1,8 +1,20 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import {
+	applyFilter,
+	cycleTag,
+	EMPTY_FILTER,
+	isFilterActive,
+	loadFilter,
+	pruneFilter,
+	saveFilter,
+	type TagFilter,
+	type TagState,
+	tagState,
+} from "#lib/filter";
 import { LangController, t } from "#lib/i18n";
 import { pickRandom } from "#lib/random";
-import { isLink, type Restaurant } from "#lib/restaurant";
+import { isLink, type Restaurant, tagsByUsage } from "#lib/restaurant";
 import { loadRestaurants, onRestaurantsChanged } from "#lib/store";
 import { uiStyles } from "#styles/ui";
 
@@ -48,6 +60,51 @@ export class RandomPicker extends LitElement {
 			.notes {
 				white-space: pre-wrap;
 			}
+
+			.filter {
+				display: grid;
+				gap: 0.5rem;
+				width: 100%;
+				justify-items: center;
+			}
+
+			.filter-title {
+				font-size: 1rem;
+			}
+
+			.filter .chips {
+				justify-content: center;
+			}
+
+			button.tag {
+				padding: 0.25rem 0.75rem;
+				font-size: 0.875rem;
+			}
+
+			button.tag.include {
+				border-color: var(--color-success);
+				color: var(--color-success);
+				font-weight: 700;
+			}
+
+			button.tag.exclude {
+				border-color: var(--color-danger);
+				color: var(--color-danger);
+				text-decoration: line-through;
+			}
+
+			button.link {
+				padding: 0;
+				border: 0;
+				background: none;
+				color: var(--color-primary);
+				text-decoration: underline;
+			}
+
+			.pick:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
 		`,
 	];
 
@@ -61,13 +118,18 @@ export class RandomPicker extends LitElement {
 
 	private unsubscribe: (() => void) | undefined;
 
+	@state()
+	private filter: TagFilter = EMPTY_FILTER;
+
 	override connectedCallback(): void {
 		super.connectedCallback();
 		this.restaurants = loadRestaurants();
+		this.filter = loadFilter();
+		this.pruneFilter();
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.restaurants = loadRestaurants();
-			const pickedId = this.picked?.id;
-			this.picked = this.restaurants.find((item) => item.id === pickedId);
+			this.pruneFilter();
+			this.keepPickInPool();
 		});
 	}
 
@@ -77,8 +139,40 @@ export class RandomPicker extends LitElement {
 		this.unsubscribe = undefined;
 	}
 
+	private get pool(): Restaurant[] {
+		return applyFilter(this.restaurants, this.filter);
+	}
+
+	/** Drop filter tags no restaurant uses any more; save only when that changed something. */
+	private pruneFilter(): void {
+		const pruned = pruneFilter(this.filter, tagsByUsage(this.restaurants));
+		if (
+			pruned.include.length !== this.filter.include.length ||
+			pruned.exclude.length !== this.filter.exclude.length
+		) {
+			saveFilter(pruned);
+		}
+		this.filter = pruned;
+	}
+
+	/** Hide the result when the picked restaurant was deleted or is outside the filter. */
+	private keepPickInPool(): void {
+		const pickedId = this.picked?.id;
+		this.picked = this.pool.find((item) => item.id === pickedId);
+	}
+
+	private setFilter(next: TagFilter): void {
+		this.filter = next;
+		saveFilter(next);
+		this.keepPickInPool();
+	}
+
+	private readonly clearFilter = (): void => {
+		this.setFilter(EMPTY_FILTER);
+	};
+
 	private readonly pick = (): void => {
-		this.picked = pickRandom(this.restaurants, this.picked?.id);
+		this.picked = pickRandom(this.pool, this.picked?.id);
 	};
 
 	override render() {
@@ -92,12 +186,73 @@ export class RandomPicker extends LitElement {
 				</div>
 			`;
 		}
+		const tags = tagsByUsage(this.restaurants);
+		const empty = this.pool.length === 0;
 		return html`
 			${heading}
-			<button type="button" class="primary pick" @click=${this.pick}>
+			${tags.length > 0 ? this.renderFilter(tags) : nothing}
+			${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
+			<p class="count muted">${this.countText()}</p>
+			<button type="button" class="primary pick" ?disabled=${empty} @click=${this.pick}>
 				${this.picked ? t("picker.again") : t("picker.button")}
 			</button>
 			<div aria-live="polite">${this.picked ? this.renderResult(this.picked) : nothing}</div>
+		`;
+	}
+
+	private countText(): string {
+		const total = this.restaurants.length;
+		if (isFilterActive(this.filter)) {
+			return t("picker.countFiltered", { count: this.pool.length, total });
+		}
+		return total === 1
+			? t("picker.count.one")
+			: t("picker.count.other", { count: total });
+	}
+
+	private renderFilter(tags: string[]) {
+		const symbol: Record<TagState, string> = {
+			off: "",
+			include: "✓ ",
+			exclude: "✕ ",
+		};
+		const summary = [
+			...this.filter.include.map((tag) => `${symbol.include}${tag}`),
+			...this.filter.exclude.map((tag) => `${symbol.exclude}${tag}`),
+		].join(", ");
+		return html`
+			<section class="filter" aria-labelledby="filter-title">
+				<h2 id="filter-title" class="filter-title">${t("filter.title")}</h2>
+				<p class="hint">${t("filter.hint")}</p>
+				<ul class="chips">
+					${tags.map((tag) => {
+						const state = tagState(this.filter, tag);
+						return html`<li>
+							<button
+								type="button"
+								class="chip tag ${state}"
+								data-tag=${tag}
+								data-state=${state}
+								aria-pressed=${state === "off" ? "false" : "true"}
+								aria-label=${t("filter.tagState", { tag, state: t(`filter.state.${state}`) })}
+								@click=${() => this.setFilter(cycleTag(this.filter, tag))}
+							>
+								${symbol[state]}${tag}
+							</button>
+						</li>`;
+					})}
+				</ul>
+				${
+					isFilterActive(this.filter)
+						? html`<p class="active-filter">
+								${t("filter.active", { tags: summary })}
+								<button type="button" class="link" data-action="clear-filter" @click=${this.clearFilter}>
+									${t("filter.clear")}
+								</button>
+							</p>`
+						: nothing
+				}
+			</section>
 		`;
 	}
 

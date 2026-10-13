@@ -156,3 +156,17 @@ test("rejects a file with duplicate ids", () => {
 		),
 	).toEqual({ ok: false, error: "import.error.entries" });
 });
+
+test("imported tags are lowercased and merged by case", () => {
+	const result = parseImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 1,
+			restaurants: [{ ...make("a"), tags: ["Thai", "THAI", "Noodle"] }],
+		}),
+	);
+	expect(result).toEqual({
+		ok: true,
+		restaurants: [{ ...make("a"), tags: ["thai", "noodle"] }],
+	});
+});
