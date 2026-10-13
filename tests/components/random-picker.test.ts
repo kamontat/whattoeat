@@ -27,6 +27,10 @@ const pickButton = (el: HTMLElement) =>
 	el.shadowRoot!.querySelector<HTMLButtonElement>("button.pick");
 const pickedName = (el: HTMLElement) =>
 	el.shadowRoot!.querySelector(".result h2")?.textContent;
+const pickedNames = (el: HTMLElement) =>
+	[...el.shadowRoot!.querySelectorAll(".result h2")].map(
+		(h) => h.textContent ?? "",
+	);
 const root = (el: HTMLElement) => el.shadowRoot!;
 const tagButton = (el: HTMLElement, tag: string) =>
 	root(el).querySelector<HTMLButtonElement>(`button.tag[data-tag="${tag}"]`);
@@ -91,16 +95,29 @@ test("a non-http location renders as text, not a link", async () => {
 	).toBe("javascript:alert(1)");
 });
 
-test("picking again with two restaurants always changes the result", async () => {
+test("shows two different restaurants to choose from", async () => {
 	addRestaurant({ ...base, name: "A" });
 	addRestaurant({ ...base, name: "B" });
+	addRestaurant({ ...base, name: "C" });
+	const el = await mount();
+	for (let i = 0; i < 10; i++) {
+		pickButton(el)!.click();
+		await el.updateComplete;
+		const names = pickedNames(el);
+		expect(names).toHaveLength(2);
+		expect(new Set(names).size).toBe(2);
+	}
+});
+
+test("picking again with four restaurants shows two new ones", async () => {
+	for (const name of ["A", "B", "C", "D"]) addRestaurant({ ...base, name });
 	const el = await mount();
 	pickButton(el)!.click();
 	await el.updateComplete;
-	const first = pickedName(el);
+	const first = pickedNames(el);
 	pickButton(el)!.click();
 	await el.updateComplete;
-	expect(pickedName(el)).not.toBe(first);
+	for (const name of pickedNames(el)) expect(first).not.toContain(name);
 });
 
 test("updates when restaurants are added after mount", async () => {
@@ -110,14 +127,20 @@ test("updates when restaurants are added after mount", async () => {
 	expect(pickButton(el)).not.toBeNull();
 });
 
-test("clears the result when the picked restaurant is deleted", async () => {
+test("drops a deleted restaurant from the result and clears it when none are left", async () => {
 	addRestaurant({ ...base, name: "A" });
-	const list = addRestaurant({ ...base, name: "B" });
+	addRestaurant({ ...base, name: "B" });
+	const list = addRestaurant({ ...base, name: "C" });
 	const el = await mount();
 	pickButton(el)!.click();
 	await el.updateComplete;
-	const picked = list.find((r) => r.name === pickedName(el))!;
-	removeRestaurant(picked.id);
+	const [first = "", second = ""] = pickedNames(el);
+	const idOf = (name: string) => list.find((r) => r.name === name)!.id;
+	removeRestaurant(idOf(first));
+	await el.updateComplete;
+	expect(pickedNames(el)).toEqual([second]);
+	expect(pickButton(el)?.textContent?.trim()).toBe("Pick again");
+	removeRestaurant(idOf(second));
 	await el.updateComplete;
 	expect(pickedName(el)).toBeUndefined();
 	expect(pickButton(el)?.textContent?.trim()).toBe("What should I eat?");
@@ -249,14 +272,15 @@ test("saved filter tags no longer used by any restaurant are dropped", async () 
 	});
 });
 
-test("the result hides when the filter leaves out the current pick", async () => {
+test("the result keeps only picks that still match the filter", async () => {
 	addRestaurant({ ...base, name: "A", tags: ["thai"] });
 	addRestaurant({ ...base, name: "B", tags: ["noodle"] });
 	const el = await mount();
 	pickButton(el)!.click();
 	await el.updateComplete;
-	const other = pickedName(el) === "A" ? "noodle" : "thai";
-	await cycle(el, other);
+	await cycle(el, "thai");
+	expect(pickedNames(el)).toEqual(["A"]);
+	await cycle(el, "thai");
 	expect(pickedName(el)).toBeUndefined();
 });
 
