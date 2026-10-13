@@ -15,7 +15,11 @@ import {
 import { LangController, t } from "#lib/i18n";
 import { pickRandom } from "#lib/random";
 import { isLink, type Restaurant, tagsByUsage } from "#lib/restaurant";
-import { loadRestaurants, onRestaurantsChanged } from "#lib/store";
+import {
+	loadRestaurants,
+	onRestaurantsChanged,
+	skippedCount,
+} from "#lib/store";
 import { uiStyles } from "#styles/ui";
 
 @customElement("random-picker")
@@ -113,6 +117,10 @@ export class RandomPicker extends LitElement {
 	@state()
 	private restaurants: Restaurant[] = [];
 
+	/** Stored entries the last load could not read. */
+	@state()
+	private skipped = 0;
+
 	@state()
 	private picked: Restaurant | undefined;
 
@@ -124,10 +132,12 @@ export class RandomPicker extends LitElement {
 	override connectedCallback(): void {
 		super.connectedCallback();
 		this.restaurants = loadRestaurants();
+		this.skipped = skippedCount();
 		this.filter = loadFilter();
 		this.pruneFilter();
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.restaurants = loadRestaurants();
+			this.skipped = skippedCount();
 			this.pruneFilter();
 			this.keepPickInPool();
 		});
@@ -176,7 +186,16 @@ export class RandomPicker extends LitElement {
 	};
 
 	override render() {
-		const heading = html`<h1 class="visually-hidden">${t("app.title")}</h1>`;
+		const heading = html`
+			<h1 class="visually-hidden">${t("app.title")}</h1>
+			${
+				this.skipped > 0
+					? html`<p class="warning skipped" role="alert">
+							${this.skipped === 1 ? t("storage.skipped.one") : t("storage.skipped.other", { count: this.skipped })}
+						</p>`
+					: nothing
+			}
+		`;
 		if (this.restaurants.length === 0) {
 			return html`
 				${heading}

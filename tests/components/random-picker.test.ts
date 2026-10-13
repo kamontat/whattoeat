@@ -317,3 +317,25 @@ test("the count renders in Thai", async () => {
 	await cycle(el, "thai");
 	expect(countText(el)).toBe("1 จาก 2 ร้านที่ตรงกัน");
 });
+
+test("warns about stored entries that could not be read until a save drops them", async () => {
+	localStorage.setItem(
+		"whattoeat:restaurants",
+		JSON.stringify([{ name: "broken" }, null]),
+	);
+	const el = await mount();
+	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
+		"2 saved restaurants could not be read and were skipped. They will be removed the next time the list changes.",
+	);
+	addRestaurant({ name: "Fresh", tags: [], location: "", notes: "" });
+	await el.updateComplete;
+	expect(el.shadowRoot!.querySelector(".skipped")).toBeNull();
+});
+
+test("uses the singular when one stored entry could not be read", async () => {
+	localStorage.setItem("whattoeat:restaurants", "{not json");
+	const el = await mount();
+	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
+		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
+	);
+});

@@ -2,13 +2,13 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import {
 	addRestaurant,
 	CHANGE_EVENT,
-	INVALID_KEY,
 	isMemoryOnly,
 	loadRestaurants,
 	onRestaurantsChanged,
 	removeRestaurant,
 	STORAGE_KEY,
 	saveRestaurants,
+	skippedCount,
 	updateRestaurant,
 } from "#lib/store";
 
@@ -29,16 +29,19 @@ afterEach(() => {
 
 test("loads [] when nothing is stored", () => {
 	expect(loadRestaurants()).toEqual([]);
+	expect(skippedCount()).toBe(0);
 });
 
 test("loads [] for unparseable data", () => {
 	localStorage.setItem(STORAGE_KEY, "{not json");
 	expect(loadRestaurants()).toEqual([]);
+	expect(skippedCount()).toBe(1);
 });
 
 test("loads [] when stored data is not an array", () => {
 	localStorage.setItem(STORAGE_KEY, JSON.stringify({ name: "x" }));
 	expect(loadRestaurants()).toEqual([]);
+	expect(skippedCount()).toBe(1);
 });
 
 test("drops invalid entries and keeps valid ones", () => {
@@ -53,25 +56,21 @@ test("drops invalid entries and keeps valid ones", () => {
 	expect(loadRestaurants()).toEqual([kept!]);
 });
 
-test("invalid entries are backed up before the next save drops them", () => {
+test("counts skipped entries until the next save drops them", () => {
 	addRestaurant(input);
 	const raw = JSON.parse(
 		localStorage.getItem(STORAGE_KEY) ?? "[]",
 	) as unknown[];
 	localStorage.setItem(
 		STORAGE_KEY,
-		JSON.stringify([...raw, { name: "broken" }]),
+		JSON.stringify([...raw, { name: "broken" }, null]),
 	);
 	loadRestaurants();
-	loadRestaurants();
+	expect(skippedCount()).toBe(2);
 	addRestaurant({ ...input, name: "Next" });
-	expect(JSON.parse(localStorage.getItem(INVALID_KEY) ?? "null")).toEqual([
-		{ name: "broken" },
-	]);
-	expect(loadRestaurants().map((item) => item.name)).toEqual([
-		"Jay Fai",
-		"Next",
-	]);
+	loadRestaurants();
+	expect(skippedCount()).toBe(0);
+	expect(localStorage.getItem("whattoeat:restaurants:invalid")).toBeNull();
 });
 
 test("addRestaurant normalizes, stamps and saves", () => {

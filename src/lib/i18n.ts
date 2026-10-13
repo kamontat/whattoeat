@@ -72,6 +72,10 @@ export const en = {
 	"import.error.read": "The file could not be read. Choose it again.",
 	"storage.warning":
 		"Your browser is not saving changes. They will be lost when you leave this page.",
+	"storage.skipped.one":
+		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
+	"storage.skipped.other":
+		"{count} saved restaurants could not be read and were skipped. They will be removed the next time the list changes.",
 	"footer.source": "Source on GitHub",
 	"footer.changelog": "Changelog",
 	"footer.dev": "Development build",
@@ -145,6 +149,10 @@ export const th: Record<MessageKey, string> = {
 	"import.error.entries": "ข้อมูลมีร้านอาหารที่ไม่ถูกต้อง",
 	"import.error.read": "อ่านไฟล์ไม่ได้ กรุณาเลือกไฟล์อีกครั้ง",
 	"storage.warning": "เบราว์เซอร์ไม่ได้บันทึกข้อมูล การเปลี่ยนแปลงจะหายไปเมื่อออกจากหน้านี้",
+	"storage.skipped.one":
+		"อ่านร้านอาหารที่บันทึกไว้ 1 ร้านไม่ได้จึงข้ามไป ร้านนี้จะถูกลบเมื่อรายการเปลี่ยนครั้งถัดไป",
+	"storage.skipped.other":
+		"อ่านร้านอาหารที่บันทึกไว้ {count} ร้านไม่ได้จึงข้ามไป ร้านเหล่านี้จะถูกลบเมื่อรายการเปลี่ยนครั้งถัดไป",
 	"footer.source": "ซอร์สโค้ดบน GitHub",
 	"footer.changelog": "บันทึกการเปลี่ยนแปลง",
 	"footer.dev": "รุ่นพัฒนา",

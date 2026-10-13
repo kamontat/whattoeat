@@ -10,30 +10,22 @@ import {
 
 export const STORAGE_KEY = "whattoeat:restaurants";
 export const CHANGE_EVENT = "whattoeat:restaurants-changed";
-/** Stored entries that failed validation, kept so the next save does not destroy them for good. */
-export const INVALID_KEY = "whattoeat:restaurants:invalid";
 
 /** Set when localStorage refused a write; the list then lives in memory for this session. */
 let memory: Restaurant[] | undefined;
 
-const backupInvalid = (entries: unknown[]): void => {
-	try {
-		const previous: unknown = JSON.parse(
-			localStorage.getItem(INVALID_KEY) ?? "[]",
-		);
-		const kept = Array.isArray(previous) ? previous : [];
-		const seen = new Set(kept.map((entry) => JSON.stringify(entry)));
-		const added = entries.filter((entry) => !seen.has(JSON.stringify(entry)));
-		if (added.length > 0) {
-			localStorage.setItem(INVALID_KEY, JSON.stringify([...kept, ...added]));
-		}
-	} catch {
-		// Best effort: a failed backup must not break loading.
-	}
-};
+/** Stored entries the last load could not read; the next save drops them. */
+let skipped = 0;
+
+/**
+ * How many stored entries the last `loadRestaurants` skipped. Stored text that is not a JSON
+ * array counts as one.
+ */
+export const skippedCount = (): number => skipped;
 
 export const loadRestaurants = (): Restaurant[] => {
 	if (memory !== undefined) return memory;
+	skipped = 0;
 	let raw: string | null;
 	try {
 		raw = localStorage.getItem(STORAGE_KEY);
@@ -45,13 +37,15 @@ export const loadRestaurants = (): Restaurant[] => {
 	try {
 		data = JSON.parse(raw);
 	} catch {
+		skipped = 1;
 		return [];
 	}
-	if (!Array.isArray(data)) return [];
-	const valid = data.filter(isRestaurant);
-	if (valid.length < data.length) {
-		backupInvalid(data.filter((entry) => !isRestaurant(entry)));
+	if (!Array.isArray(data)) {
+		skipped = 1;
+		return [];
 	}
+	const valid = data.filter(isRestaurant);
+	skipped = data.length - valid.length;
 	// Older data may hold tags that differ only in case; read them in canonical form.
 	return valid.map((item) => ({
 		...item,
