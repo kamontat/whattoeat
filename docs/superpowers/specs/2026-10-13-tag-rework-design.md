@@ -21,7 +21,7 @@ Make tags reliable and useful for picking:
 | Filter semantics  | Include and exclude: any included tag matches (OR), any excluded tag removes     |
 | Filter UI         | One row of tri-state chips on the home page: off, include, exclude               |
 | Filter memory     | Remembered in `localStorage`, with a visible "Filter active · Clear" line        |
-| No match          | Pick button disabled, message with a Clear button                                |
+| No match          | Pick button disabled, message; Clear on the "Filter active" line                 |
 | Rename/merge tag  | Out of scope; recorded in `IDEAS.md`                                             |
 
 ## Tag data rule
@@ -29,12 +29,13 @@ Make tags reliable and useful for picking:
 `src/lib/restaurant.ts`
 
 - `normalizeTag(text: string): string` — Unicode NFC, trim, collapse any run of
-  whitespace into one space, then `toLocaleLowerCase()`. Thai text has no case, so
-  only the whitespace rules affect it.
+  whitespace into one space, then `toLowerCase()` (not the locale-aware variant, so a
+  device's locale never changes how tags match). Thai text has no case, so only the
+  whitespace rules affect it.
 - `parseTags(text)` uses `normalizeTag` on each comma-separated part, drops empty
   results and de-duplicates, keeping first-seen order. `normalizeInput` already
   calls `parseTags`, so typed input and imported files are both covered.
-- `tagCounts(list: readonly Restaurant[]): string[]` — every tag in the list,
+- `tagsByUsage(list: readonly Restaurant[]): string[]` — every tag in the list,
   most-used first, ties sorted by `localeCompare`. Used for suggestions and for
   the filter chips.
 
@@ -74,7 +75,7 @@ Make tags reliable and useful for picking:
 
 - Form state `tags` becomes `string[]`; editing an item copies its tags array.
 - The comma text field is replaced by `<tag-input>` with suggestions from
-  `tagCounts` over the current list.
+  `tagsByUsage` over the current list.
 - `field.tagsHint` changes to say "Press Enter or comma to add" (EN and TH).
 
 ## Tag filter
@@ -91,6 +92,7 @@ export const FILTER_KEY = "whattoeat:filter";
   having at least one included tag; then remove restaurants having any excluded
   tag. An empty filter returns the list unchanged.
 - `isFilterActive(filter)`: true when either list is non-empty.
+- `tagState(filter, tag)`: `"off" | "include" | "exclude"`.
 - `cycleTag(filter, tag)`: off → include → exclude → off. A tag is never in both
   lists.
 - `pruneFilter(filter, knownTags)`: drops tags that no longer exist.
@@ -103,14 +105,16 @@ export const FILTER_KEY = "whattoeat:filter";
 ### Picker UI (`random-picker`)
 
 - Above the pick button, when at least one tag exists: a row of chips from
-  `tagCounts`. Each chip is a `<button>` with `aria-pressed` ("mixed" is not
+  `tagsByUsage`. Each chip is a `<button>` with `aria-pressed` ("mixed" is not
   used); state is shown by both a symbol (✓ include, ✕ exclude) and colour, and
   the accessible name includes the state ("thai, included").
 - Tapping a chip calls `cycleTag`, saves the filter and recomputes the pool.
 - When the filter is active, a line shows "Filter active: ✓ thai, ✓ japanese,
   ✕ spicy" and a Clear button that resets to `EMPTY_FILTER`.
 - When the filtered pool is empty, the pick button is disabled and a message
-  "No restaurant matches this filter." shows with a Clear button.
+  "No restaurant matches this filter." shows. An empty pool always means a filter is
+  active, so the Clear button on the "Filter active" line is the way out; no second
+  Clear button.
 - Picking uses `pickRandom(pool, previousId)`. If the current pick is no longer
   in the pool after a filter or data change, the result is hidden.
 - On load and on every restaurant change, the filter is pruned to existing tags
@@ -126,7 +130,7 @@ Unit (`tests/lib/`):
 - `parseTags`: case-only duplicates merge, order kept.
 - `loadRestaurants`: stored mixed-case tags come back normalized.
 - `parseImport`: imported tags normalized.
-- `tagCounts`: ordering by count then name.
+- `tagsByUsage`: ordering by count then name.
 - `applyFilter`: empty, include only, exclude only, both, nothing matches.
 - `cycleTag`, `pruneFilter`, `loadFilter` (missing, bad JSON, wrong shape,
   mixed case), `saveFilter` when storage throws.
