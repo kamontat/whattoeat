@@ -1,3 +1,4 @@
+import { forgetHistoryMemory } from "#lib/history";
 import {
 	isNameTaken,
 	isRestaurant,
@@ -70,9 +71,10 @@ export const saveRestaurants = (list: Restaurant[]): boolean => {
 
 /**
  * Delete every localStorage entry this origin holds, then announce it the way another tab's
- * `localStorage.clear()` would, so restaurants, theme and language listeners reset in this tab too.
+ * `localStorage.clear()` would, so restaurants, history, theme and language listeners reset in this tab too.
  */
 export const resetStorage = (): void => {
+	forgetHistoryMemory();
 	try {
 		localStorage.clear();
 	} catch {
