@@ -4,24 +4,36 @@ import {
 	applyFilter,
 	cycleTag,
 	EMPTY_FILTER,
+	type Filter,
 	isFilterActive,
 	loadFilter,
 	pruneFilter,
 	saveFilter,
-	type TagFilter,
 	type TagState,
 	tagState,
 } from "#lib/filter";
 import { addLock, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
 import { pickOptions } from "#lib/random";
-import { isLink, type Restaurant, tagsByUsage } from "#lib/restaurant";
+import {
+	GROUPS,
+	type Group,
+	isKind,
+	isLink,
+	metaLine,
+	type Restaurant,
+	valuesByUsage,
+} from "#lib/restaurant";
 import {
 	loadRestaurants,
 	onRestaurantsChanged,
 	skippedCount,
 } from "#lib/store";
 import { uiStyles } from "#styles/ui";
+
+/** Kinds show in the current language; other values show as typed. */
+const valueLabel = (group: Group, value: string): string =>
+	group === "kind" && isKind(value) ? t(`kind.${value}`) : value;
 
 @customElement("random-picker")
 export class RandomPicker extends LitElement {
@@ -30,19 +42,133 @@ export class RandomPicker extends LitElement {
 		css`
 			:host {
 				display: grid;
-				gap: 1.5rem;
+				gap: 1.25rem;
 				justify-items: center;
-				padding-top: 2rem;
-				text-align: center;
+				padding-top: 1rem;
+			}
+
+			/* Filter: one panel, a label column beside each row of chips. */
+			.filter {
+				display: grid;
+				gap: 0.875rem;
+				width: 100%;
+				box-sizing: border-box;
+				padding: 1rem 1.25rem;
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius);
+				background: var(--color-surface);
+			}
+
+			.filter-head {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: baseline;
+				gap: 0.25rem 0.75rem;
+			}
+
+			.filter-title {
+				font-size: 1rem;
+			}
+
+			.filter-group {
+				display: grid;
+				grid-template-columns: 5.5rem 1fr;
+				align-items: start;
+				gap: 0.5rem;
+			}
+
+			.filter-group h3 {
+				margin: 0;
+				padding-top: 0.375rem;
+				color: var(--color-muted);
+				font-size: 0.8125rem;
+				font-weight: 600;
+			}
+
+			@media (max-width: 30rem) {
+				.filter-group {
+					grid-template-columns: 1fr;
+					gap: 0.375rem;
+				}
+
+				.filter-group h3 {
+					padding-top: 0;
+				}
+			}
+
+			.filter .chips {
+				gap: 0.375rem;
+			}
+
+			button.tag {
+				min-height: 2rem;
+				padding: 0.25rem 0.75rem;
+				font-size: 0.875rem;
+				line-height: 1.2;
+			}
+
+			button.tag:hover {
+				border-color: var(--color-muted);
+			}
+
+			button.tag.include {
+				border-color: var(--color-success);
+				background: var(--color-success);
+				color: var(--color-surface);
+				font-weight: 600;
+			}
+
+			button.tag.exclude {
+				border-color: var(--color-danger);
+				border-style: dashed;
+				color: var(--color-danger);
+				text-decoration: line-through;
+			}
+
+			.active-filter {
+				padding-top: 0.75rem;
+				border-top: 1px solid var(--color-border);
+				color: var(--color-muted);
+				font-size: 0.875rem;
+			}
+
+			button.link {
+				padding: 0;
+				margin-left: 0.25rem;
+				border: 0;
+				background: none;
+				color: var(--color-primary);
+				font-weight: 600;
+				text-decoration: underline;
+			}
+
+			.no-match {
+				color: var(--color-danger);
+			}
+
+			.count {
+				margin-top: 0.5rem;
 			}
 
 			.pick {
-				padding: 1.25rem 2rem;
+				padding: 1.125rem 2.25rem;
 				font-size: 1.5rem;
 				font-weight: 700;
 				border-radius: 999px;
+				box-shadow: 0 6px 20px -8px var(--color-primary);
 			}
 
+			.pick:not(:disabled):active {
+				transform: translateY(1px);
+			}
+
+			.pick:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+				box-shadow: none;
+			}
+
+			/* Picked cards: equal height, the action sits on the bottom edge. */
 			[aria-live] {
 				display: grid;
 				grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
@@ -50,68 +176,65 @@ export class RandomPicker extends LitElement {
 				width: 100%;
 			}
 
+			[aria-live]:empty {
+				display: none;
+			}
+
 			.result,
 			.empty {
 				width: 100%;
 				box-sizing: border-box;
+			}
+
+			.empty {
 				justify-items: center;
+				text-align: center;
+			}
+
+			.result {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+				padding: 1.25rem;
 			}
 
 			.result h2 {
-				font-size: 1.75rem;
+				font-size: 1.25rem;
+				line-height: 1.3;
 			}
 
-			.result .chips {
-				justify-content: center;
+			.result .meta {
+				color: var(--color-primary);
+				font-size: 0.875rem;
+				font-weight: 600;
+			}
+
+			.result .location,
+			.result .notes {
+				font-size: 0.9375rem;
 			}
 
 			.notes {
 				white-space: pre-wrap;
+				color: var(--color-muted);
 			}
 
-			.filter {
-				display: grid;
-				gap: 0.5rem;
+			.result .chips {
+				margin-top: 0.25rem;
+			}
+
+			.result .chip {
+				font-size: 0.8125rem;
+			}
+
+			.result .foot {
+				margin-top: auto;
+				padding-top: 0.75rem;
+			}
+
+			.result .lock {
 				width: 100%;
-				justify-items: center;
-			}
-
-			.filter-title {
-				font-size: 1rem;
-			}
-
-			.filter .chips {
-				justify-content: center;
-			}
-
-			button.tag {
-				padding: 0.25rem 0.75rem;
-				font-size: 0.875rem;
-			}
-
-			button.tag.include {
-				border-color: var(--color-success);
-				color: var(--color-success);
-				font-weight: 700;
-			}
-
-			button.tag.exclude {
-				border-color: var(--color-danger);
-				color: var(--color-danger);
-				text-decoration: line-through;
-			}
-
-			button.link {
-				padding: 0;
-				border: 0;
-				background: none;
-				color: var(--color-primary);
-				text-decoration: underline;
-			}
-
-			.pick:disabled {
-				opacity: 0.5;
-				cursor: not-allowed;
+				font-weight: 600;
 			}
 
 			.result.locked {
@@ -120,8 +243,10 @@ export class RandomPicker extends LitElement {
 			}
 
 			.locked-label {
+				padding: 0.5rem 0;
 				color: var(--color-success);
 				font-weight: 700;
+				text-align: center;
 			}
 
 			.locked-label:focus {
@@ -150,7 +275,7 @@ export class RandomPicker extends LitElement {
 	private unsubscribe: (() => void) | undefined;
 
 	@state()
-	private filter: TagFilter = EMPTY_FILTER;
+	private filter: Filter = EMPTY_FILTER;
 
 	override connectedCallback(): void {
 		super.connectedCallback();
@@ -176,13 +301,10 @@ export class RandomPicker extends LitElement {
 		return applyFilter(this.restaurants, this.filter);
 	}
 
-	/** Drop filter tags no restaurant uses any more; save only when that changed something. */
+	/** Drop filter values no restaurant uses any more; save only when that changed something. */
 	private pruneFilter(): void {
-		const pruned = pruneFilter(this.filter, tagsByUsage(this.restaurants));
-		if (
-			pruned.include.length !== this.filter.include.length ||
-			pruned.exclude.length !== this.filter.exclude.length
-		) {
+		const pruned = pruneFilter(this.filter, this.restaurants);
+		if (JSON.stringify(pruned) !== JSON.stringify(this.filter)) {
 			saveFilter(pruned);
 		}
 		this.filter = pruned;
@@ -198,7 +320,7 @@ export class RandomPicker extends LitElement {
 			this.locked = undefined;
 	}
 
-	private setFilter(next: TagFilter): void {
+	private setFilter(next: Filter): void {
 		this.filter = next;
 		saveFilter(next);
 		this.keepPickInPool();
@@ -238,11 +360,14 @@ export class RandomPicker extends LitElement {
 				</div>
 			`;
 		}
-		const tags = tagsByUsage(this.restaurants);
+		const groups = GROUPS.map((group) => ({
+			group,
+			values: valuesByUsage(this.restaurants, group),
+		})).filter(({ values }) => values.length > 0);
 		const empty = this.pool.length === 0;
 		return html`
 			${heading}
-			${tags.length > 0 ? this.renderFilter(tags) : nothing}
+			${groups.length > 0 ? this.renderFilter(groups) : nothing}
 			${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
 			<p class="count muted">${this.countText()}</p>
 			<button type="button" class="primary pick" ?disabled=${empty} @click=${this.pick}>
@@ -262,38 +387,66 @@ export class RandomPicker extends LitElement {
 			: t("picker.count.other", { count: total });
 	}
 
-	private renderFilter(tags: string[]) {
+	private renderFilter(groups: { group: Group; values: string[] }[]) {
 		const symbol: Record<TagState, string> = {
 			off: "",
 			include: "✓ ",
 			exclude: "✕ ",
 		};
-		const summary = [
-			...this.filter.include.map((tag) => `${symbol.include}${tag}`),
-			...this.filter.exclude.map((tag) => `${symbol.exclude}${tag}`),
-		].join(", ");
+		const summary = GROUPS.map((group) => {
+			const { include, exclude } = this.filter[group];
+			const values = [
+				...include.map(
+					(value) => `${symbol.include}${valueLabel(group, value)}`,
+				),
+				...exclude.map(
+					(value) => `${symbol.exclude}${valueLabel(group, value)}`,
+				),
+			];
+			return values.length > 0
+				? `${t(`group.${group}`)}: ${values.join(", ")}`
+				: "";
+		})
+			.filter((part) => part !== "")
+			.join("; ");
 		return html`
 			<section class="filter" aria-labelledby="filter-title">
-				<h2 id="filter-title" class="filter-title">${t("filter.title")}</h2>
-				<p class="hint">${t("filter.hint")}</p>
-				<ul class="chips">
-					${tags.map((tag) => {
-						const state = tagState(this.filter, tag);
-						return html`<li>
-							<button
-								type="button"
-								class="chip tag ${state}"
-								data-tag=${tag}
-								data-state=${state}
-								aria-pressed=${state === "off" ? "false" : "true"}
-								aria-label=${t("filter.tagState", { tag, state: t(`filter.state.${state}`) })}
-								@click=${() => this.setFilter(cycleTag(this.filter, tag))}
-							>
-								${symbol[state]}${tag}
-							</button>
-						</li>`;
-					})}
-				</ul>
+				<div class="filter-head">
+					<h2 id="filter-title" class="filter-title">${t("filter.title")}</h2>
+					<p class="hint">${t("filter.hint")}</p>
+				</div>
+				${groups.map(
+					({
+						group,
+						values,
+					}) => html`<div class="filter-group" role="group" aria-labelledby="group-${group}">
+						<h3 id="group-${group}">${t(`group.${group}`)}</h3>
+						<ul class="chips">
+							${values.map((value) => {
+								const state = tagState(this.filter, group, value);
+								const label = valueLabel(group, value);
+								return html`<li>
+									<button
+										type="button"
+										class="chip tag ${state}"
+										data-group=${group}
+										data-tag=${value}
+										data-state=${state}
+										aria-pressed=${state === "off" ? "false" : "true"}
+										aria-label=${t("filter.tagState", {
+											group: t(`group.${group}`),
+											tag: label,
+											state: t(`filter.state.${state}`),
+										})}
+										@click=${() => this.setFilter(cycleTag(this.filter, group, value))}
+									>
+										${symbol[state]}${label}
+									</button>
+								</li>`;
+							})}
+						</ul>
+					</div>`,
+				)}
 				${
 					isFilterActive(this.filter)
 						? html`<p class="active-filter">
@@ -336,11 +489,7 @@ export class RandomPicker extends LitElement {
 		return html`
 			<article class="card result ${this.locked?.id === item.id ? "locked" : ""}">
 				<h2>${item.name}</h2>
-				${
-					item.tags.length > 0
-						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
-						: nothing
-				}
+				${metaLine(item) ? html`<p class="meta">${metaLine(item)}</p>` : nothing}
 				${
 					item.location
 						? html`<p class="location">
@@ -353,7 +502,12 @@ export class RandomPicker extends LitElement {
 						: nothing
 				}
 				${item.notes ? html`<p class="notes">${item.notes}</p>` : nothing}
-				${this.renderLock(item)}
+				${
+					item.tags.length > 0
+						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
+						: nothing
+				}
+				<div class="foot">${this.renderLock(item)}</div>
 			</article>
 		`;
 	}

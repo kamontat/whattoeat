@@ -1,10 +1,11 @@
 import { forgetHistoryMemory } from "#lib/history";
 import {
+	type CleanInput,
+	cleanStored,
 	isNameTaken,
 	isRestaurant,
 	newId,
 	normalizeInput,
-	parseTags,
 	type Restaurant,
 	type RestaurantInput,
 } from "#lib/restaurant";
@@ -47,11 +48,8 @@ export const loadRestaurants = (): Restaurant[] => {
 	}
 	const valid = data.filter(isRestaurant);
 	skipped = data.length - valid.length;
-	// Older data may hold tags that differ only in case; read them in canonical form.
-	return valid.map((item) => ({
-		...item,
-		tags: parseTags(item.tags.join(",")),
-	}));
+	// Older data may hold tags that differ only in case, or no area, cuisine and kinds.
+	return valid.map(cleanStored);
 };
 
 /** True when the last save could not reach localStorage, so changes vanish when the page is left. */
@@ -89,7 +87,7 @@ const requireName = (
 	input: RestaurantInput,
 	list: readonly Restaurant[],
 	exceptId?: string,
-): RestaurantInput => {
+): CleanInput => {
 	const clean = normalizeInput(input);
 	if (clean.name === "") throw new Error("Restaurant name is required");
 	if (isNameTaken(list, clean.name, exceptId))

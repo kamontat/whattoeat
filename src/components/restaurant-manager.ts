@@ -7,8 +7,12 @@ import { getLang, LangController, t } from "#lib/i18n";
 import {
 	isLink,
 	isNameTaken,
+	KINDS,
+	type Kind,
+	metaLine,
 	type Restaurant,
 	tagsByUsage,
+	valuesByUsage,
 } from "#lib/restaurant";
 import {
 	addRestaurant,
@@ -26,9 +30,20 @@ type FormState = {
 	tags: string[];
 	location: string;
 	notes: string;
+	area: string;
+	cuisine: string;
+	kinds: Kind[];
 };
 
-const EMPTY_FORM: FormState = { name: "", tags: [], location: "", notes: "" };
+const EMPTY_FORM: FormState = {
+	name: "",
+	tags: [],
+	location: "",
+	notes: "",
+	area: "",
+	cuisine: "",
+	kinds: [],
+};
 
 @customElement("restaurant-manager")
 export class RestaurantManager extends LitElement {
@@ -63,6 +78,88 @@ export class RestaurantManager extends LitElement {
 
 			.notes {
 				white-space: pre-wrap;
+			}
+
+			form.card {
+				gap: 1rem;
+				padding: 1.25rem;
+			}
+
+			/* Type: each checkbox is a pill that fills in when ticked. */
+			fieldset.kinds {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				margin: 0;
+				padding: 0;
+				border: 0;
+			}
+
+			fieldset.kinds legend {
+				padding: 0;
+				margin-bottom: 0.375rem;
+				font-weight: 600;
+			}
+
+			fieldset.kinds label {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.375rem 0.875rem 0.375rem 0.625rem;
+				border: 1px solid var(--color-border);
+				border-radius: 999px;
+				background: var(--color-bg);
+				font-weight: 500;
+				cursor: pointer;
+			}
+
+			fieldset.kinds label:has(input:checked) {
+				border-color: var(--color-primary);
+				color: var(--color-primary);
+				font-weight: 600;
+			}
+
+			fieldset.kinds label:has(input:focus-visible) {
+				outline: 2px solid var(--color-primary);
+				outline-offset: 2px;
+			}
+
+			fieldset.kinds input {
+				width: 1rem;
+				height: 1rem;
+				margin: 0;
+				padding: 0;
+				accent-color: var(--color-primary);
+			}
+
+			/* Cuisine and area side by side when there is room. */
+			.pair {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+				gap: 1rem;
+			}
+
+			.field {
+				display: grid;
+				align-content: start;
+				gap: 0.25rem;
+			}
+
+			.field > label {
+				font-weight: 600;
+			}
+
+			li.card {
+				gap: 0.375rem;
+			}
+
+			li.card .meta {
+				color: var(--color-primary);
+				font-weight: 600;
+			}
+
+			li.card .actions {
+				margin-top: 0.375rem;
 			}
 		`,
 	];
@@ -130,9 +227,21 @@ export class RestaurantManager extends LitElement {
 
 	private readonly onInput = (event: Event): void => {
 		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
-		const field = target.name as Exclude<keyof FormState, "tags">;
+		const field = target.name as Exclude<keyof FormState, "tags" | "kinds">;
 		this.form = { ...this.form, [field]: target.value };
 		if (field === "name") this.nameError = undefined;
+	};
+
+	private readonly onKindChange = (event: Event): void => {
+		const box = event.target as HTMLInputElement;
+		const kind = box.value as Kind;
+		const kinds = this.form.kinds.filter((item) => item !== kind);
+		this.form = {
+			...this.form,
+			kinds: box.checked
+				? KINDS.filter((item) => item === kind || kinds.includes(item))
+				: kinds,
+		};
 	};
 
 	private readonly onTagsChange = (event: CustomEvent<string[]>): void => {
@@ -155,6 +264,9 @@ export class RestaurantManager extends LitElement {
 			tags,
 			location: this.form.location,
 			notes: this.form.notes,
+			area: this.form.area,
+			cuisine: this.form.cuisine,
+			kinds: this.form.kinds,
 		};
 		const editingId = this.editingId;
 		// Reset before saving so the store's change callback already sees a clean form.
@@ -172,6 +284,9 @@ export class RestaurantManager extends LitElement {
 			tags: item.tags,
 			location: item.location,
 			notes: item.notes,
+			area: item.area,
+			cuisine: item.cuisine,
+			kinds: item.kinds,
 		};
 	}
 
@@ -255,6 +370,29 @@ export class RestaurantManager extends LitElement {
 					/>
 				</label>
 				${this.nameError ? html`<p id="name-error" class="error" role="alert">${t(this.nameError)}</p>` : nothing}
+				<fieldset class="kinds">
+					<legend>${t("group.kind")}</legend>
+					${KINDS.map(
+						(kind) => html`<label>
+							<input
+								type="checkbox"
+								name="kinds"
+								value=${kind}
+								.checked=${live(this.form.kinds.includes(kind))}
+								@change=${this.onKindChange}
+							/>
+							${t(`kind.${kind}`)}
+						</label>`,
+					)}
+				</fieldset>
+				<div class="pair">
+					${this.renderSuggestedField("cuisine", t("group.cuisine"), t("field.cuisineHint"))}
+					${this.renderSuggestedField("area", t("group.area"), t("field.areaHint"))}
+				</div>
+				<label>
+					${t("field.location")}
+					<input id="location" name="location" autocomplete="off" .value=${live(this.form.location)} @input=${this.onInput} />
+				</label>
 				<tag-input
 					.label=${t("field.tags")}
 					.hint=${t("field.tagsHint")}
@@ -262,10 +400,6 @@ export class RestaurantManager extends LitElement {
 					.suggestions=${tagsByUsage(this.restaurants)}
 					@change=${this.onTagsChange}
 				></tag-input>
-				<label>
-					${t("field.location")}
-					<input id="location" name="location" autocomplete="off" .value=${live(this.form.location)} @input=${this.onInput} />
-				</label>
 				<label>
 					${t("field.notes")}
 					<textarea id="notes" name="notes" rows="2" .value=${live(this.form.notes)} @input=${this.onInput}></textarea>
@@ -284,16 +418,36 @@ export class RestaurantManager extends LitElement {
 		`;
 	}
 
+	/** A text field that offers the values other restaurants already use. */
+	private renderSuggestedField(
+		field: "cuisine" | "area",
+		label: string,
+		hint: string,
+	) {
+		return html`<div class="field">
+			<label for=${field}>${label}</label>
+			<input
+				id=${field}
+				name=${field}
+				autocomplete="off"
+				list="${field}-list"
+				aria-describedby="${field}-hint"
+				.value=${live(this.form[field])}
+				@input=${this.onInput}
+			/>
+			<datalist id="${field}-list">
+				${valuesByUsage(this.restaurants, field).map((value) => html`<option value=${value}></option>`)}
+			</datalist>
+			<span id="${field}-hint" class="hint">${hint}</span>
+		</div>`;
+	}
+
 	private renderRow(item: Restaurant) {
 		const confirming = this.confirmingId === item.id;
 		return html`
 			<li class="card" data-id=${item.id}>
 				<span class="name">${item.name}</span>
-				${
-					item.tags.length > 0
-						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
-						: nothing
-				}
+				${metaLine(item) ? html`<span class="meta muted">${metaLine(item)}</span>` : nothing}
 				${
 					item.location
 						? html`<span class="location muted">
@@ -306,6 +460,11 @@ export class RestaurantManager extends LitElement {
 						: nothing
 				}
 				${item.notes ? html`<span class="notes muted">${item.notes}</span>` : nothing}
+				${
+					item.tags.length > 0
+						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
+						: nothing
+				}
 				<div class="actions">
 					${
 						confirming

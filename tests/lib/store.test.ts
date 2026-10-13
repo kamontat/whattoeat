@@ -108,7 +108,15 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 	const [first] = addRestaurant(input, created);
 	const list = updateRestaurant(
 		first!.id,
-		{ name: "Jay Fai 2", tags: [], location: "", notes: "star" },
+		{
+			name: "Jay Fai 2",
+			tags: [],
+			location: "",
+			notes: "star",
+			area: " Old Town ",
+			cuisine: "Thai",
+			kinds: ["dessert", "food"],
+		},
 		edited,
 	);
 	expect(list[0]).toEqual({
@@ -117,6 +125,9 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 		tags: [],
 		location: "",
 		notes: "star",
+		area: "old town",
+		cuisine: "thai",
+		kinds: ["food", "dessert"],
 		createdAt: created.toISOString(),
 		updatedAt: edited.toISOString(),
 	});
@@ -243,6 +254,23 @@ test("stored tags that differ only in case load as one lowercase tag", () => {
 		JSON.stringify([{ ...item, tags: ["Thai", "thai", " BBQ "] }]),
 	);
 	expect(loadRestaurants()[0]?.tags).toEqual(["thai", "bbq"]);
+});
+
+test("restaurants stored before area, cuisine and kinds load with them empty", () => {
+	const old = {
+		id: "a1",
+		name: "Old",
+		tags: ["thai"],
+		location: "",
+		notes: "",
+		createdAt: "2026-10-12T00:00:00.000Z",
+		updatedAt: "2026-10-12T00:00:00.000Z",
+	};
+	localStorage.setItem(STORAGE_KEY, JSON.stringify([old]));
+	expect(loadRestaurants()).toEqual([
+		{ ...old, area: "", cuisine: "", kinds: [] },
+	]);
+	expect(skippedCount()).toBe(0);
 });
 
 test("resetStorage deletes every localStorage entry and notifies subscribers", () => {

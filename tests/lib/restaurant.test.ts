@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import {
+	cleanStored,
 	isLink,
 	isNameTaken,
 	isRestaurant,
@@ -9,6 +10,7 @@ import {
 	parseTags,
 	type Restaurant,
 	tagsByUsage,
+	valuesByUsage,
 } from "#lib/restaurant";
 
 const valid: Restaurant = {
@@ -17,6 +19,9 @@ const valid: Restaurant = {
 	tags: ["thai", "spicy"],
 	location: "Siam Square",
 	notes: "",
+	area: "siam",
+	cuisine: "thai",
+	kinds: ["food"],
 	createdAt: "2026-10-12T00:00:00.000Z",
 	updatedAt: "2026-10-12T00:00:00.000Z",
 };
@@ -77,7 +82,65 @@ test("normalizeInput trims every field and cleans tags", () => {
 		tags: ["street"],
 		location: "Bangkok",
 		notes: "ok",
+		area: "",
+		cuisine: "",
+		kinds: [],
 	});
+});
+
+test("normalizeInput cleans area and cuisine like tags and keeps known kinds in order", () => {
+	expect(
+		normalizeInput({
+			name: "Cafe",
+			tags: [],
+			location: "",
+			notes: "",
+			area: "  Old   Town ",
+			cuisine: " JAPANESE ",
+			kinds: ["dessert", "pizza", "drinks", "dessert"],
+		}),
+	).toMatchObject({
+		area: "old town",
+		cuisine: "japanese",
+		kinds: ["drinks", "dessert"],
+	});
+});
+
+test("isRestaurant accepts an older restaurant without area, cuisine and kinds", () => {
+	const { area: _a, cuisine: _c, kinds: _k, ...old } = valid;
+	expect(isRestaurant(old)).toBe(true);
+});
+
+test("cleanStored fills missing area, cuisine and kinds and normalizes them", () => {
+	const { area: _a, cuisine: _c, kinds: _k, ...old } = valid;
+	expect(cleanStored({ ...old, tags: ["Thai", "THAI"] })).toEqual({
+		...valid,
+		tags: ["thai"],
+		area: "",
+		cuisine: "",
+		kinds: [],
+	});
+	expect(
+		cleanStored({ ...valid, area: " Ari ", kinds: ["drinks", "x", "food"] }),
+	).toEqual({ ...valid, area: "ari", kinds: ["food", "drinks"] });
+});
+
+test("valuesByUsage lists one group's values, most used first, kinds in their fixed order", () => {
+	const list = [
+		{ ...valid, id: "1", area: "ari", cuisine: "", kinds: ["dessert"] },
+		{
+			...valid,
+			id: "2",
+			area: "siam",
+			cuisine: "thai",
+			kinds: ["drinks", "dessert"],
+		},
+		{ ...valid, id: "3", area: "siam", cuisine: "japanese", kinds: [] },
+	] satisfies Restaurant[];
+	expect(valuesByUsage(list, "area")).toEqual(["siam", "ari"]);
+	expect(valuesByUsage(list, "cuisine")).toEqual(["japanese", "thai"]);
+	expect(valuesByUsage(list, "kind")).toEqual(["drinks", "dessert"]);
+	expect(valuesByUsage(list, "tags")).toEqual(["spicy", "thai"]);
 });
 
 test("isRestaurant accepts a valid restaurant", () => {
@@ -95,6 +158,10 @@ test.each([
 	["missing notes", { ...valid, notes: undefined }],
 	["missing createdAt", { ...valid, createdAt: undefined }],
 	["missing updatedAt", { ...valid, updatedAt: undefined }],
+	["numeric area", { ...valid, area: 1 }],
+	["numeric cuisine", { ...valid, cuisine: 1 }],
+	["kinds not an array", { ...valid, kinds: "food" }],
+	["non-string kind", { ...valid, kinds: [1] }],
 	["non-date createdAt", { ...valid, createdAt: "yesterday-ish" }],
 	["non-date updatedAt", { ...valid, updatedAt: "" }],
 ])("isRestaurant rejects %s", (_label, value) => {
