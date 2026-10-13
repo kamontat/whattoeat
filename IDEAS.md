@@ -6,9 +6,6 @@ design spec under `docs/superpowers/specs/`, then delete it here when it ships.
 
 ## Picking
 
-- **Filter by tag before picking.** Choose one or more tags (e.g. `noodle`, `cheap`) and
-  pick only among matching restaurants. Needs a tag picker on the home page and a rule for
-  when no restaurant matches.
 - **Weighted random.** Favourites come up more often, or recently picked places less often.
   Needs a weight or "last picked" field on each restaurant, so the export format version
   goes up.
@@ -24,6 +21,9 @@ design spec under `docs/superpowers/specs/`, then delete it here when it ships.
   cell (for example `;`-separated) and quoting.
 - **Separate English and Thai names.** Show the name that matches the interface language,
   falling back to the other. Changes the data model and the export format.
+- **Rename or merge a tag.** Change a tag everywhere at once, or fold one tag into another
+  (e.g. `noodles` into `noodle`). Needs a tag management view and a rule for updating the
+  filter saved on the home page.
 - **Recover invalid entries in the app.** Show what is in `whattoeat:restaurants:invalid`
   on the Settings page and let the user fix or discard each entry, instead of using browser
   developer tools.
