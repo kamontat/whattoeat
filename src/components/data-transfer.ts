@@ -7,6 +7,7 @@ import {
 	isMemoryOnly,
 	loadRestaurants,
 	onRestaurantsChanged,
+	resetStorage,
 	saveRestaurants,
 } from "#lib/store";
 import {
@@ -67,6 +68,10 @@ export class DataTransferPanel extends LitElement {
 
 	@state()
 	private pasteText = "";
+
+	/** "confirm" while the reset prompt is open, "done" after everything was deleted. */
+	@state()
+	private reset: "confirm" | "done" | undefined;
 
 	private unsubscribe: (() => void) | undefined;
 
@@ -158,6 +163,56 @@ export class DataTransferPanel extends LitElement {
 		this.imported = persisted ? list.length : undefined;
 	}
 
+	private readonly confirmReset = (): void => {
+		resetStorage();
+		this.pending = undefined;
+		this.error = undefined;
+		this.imported = undefined;
+		this.copied = undefined;
+		this.pasteText = "";
+		this.reset = "done";
+	};
+
+	private renderReset() {
+		if (this.reset === "confirm")
+			return html`
+				<p class="reset-prompt" role="alert">${t("settings.resetPrompt")}</p>
+				<div class="actions">
+					<button type="button" class="danger" data-action="reset-confirm" @click=${this.confirmReset}>
+						${t("settings.resetConfirm")}
+					</button>
+					<button
+						type="button"
+						data-action="reset-cancel"
+						@click=${() => {
+							this.reset = undefined;
+						}}
+					>
+						${t("settings.cancel")}
+					</button>
+				</div>
+			`;
+		return html`
+			<div class="actions">
+				<button
+					type="button"
+					class="danger"
+					data-action="reset"
+					@click=${() => {
+						this.reset = "confirm";
+					}}
+				>
+					${t("settings.reset")}
+				</button>
+			</div>
+			${
+				this.reset === "done"
+					? html`<p class="success reset-done" role="status">${t("settings.resetDone")}</p>`
+					: nothing
+			}
+		`;
+	}
+
 	private renderCopied() {
 		if (this.copied === undefined) return nothing;
 		if ("count" in this.copied)
@@ -245,6 +300,10 @@ export class DataTransferPanel extends LitElement {
 						? nothing
 						: html`<p class="success" role="status">${t("settings.imported", { count: this.imported })}</p>`
 				}
+			</section>
+			<section class="card">
+				<h2>${t("settings.resetTitle")}</h2>
+				${this.renderReset()}
 			</section>
 		`;
 	}
