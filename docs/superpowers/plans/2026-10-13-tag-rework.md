@@ -57,7 +57,7 @@ test.each([
 	["lowercases", "Thai", "thai"],
 	["trims", "  thai  ", "thai"],
 	["collapses inner whitespace", "thai \t  food", "thai food"],
-	["composes Unicode to NFC", "café", "café"],
+	["composes Unicode to NFC", "cafe\u0301", "caf\u00e9"],
 	["leaves Thai text alone", "ก๋วยเตี๋ยว", "ก๋วยเตี๋ยว"],
 	["returns empty for blank text", "   ", ""],
 ])("normalizeTag %s", (_label, input, expected) => {
