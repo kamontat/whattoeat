@@ -30,6 +30,7 @@ design spec under `docs/superpowers/specs/`, then delete it here when it ships.
 
 ## Look and feel
 
-- **Dark mode.** A dark palette that follows the system setting, with an optional toggle.
-  The colours are already custom properties in `src/styles/global.css`, so most of the work
-  is choosing the palette and checking contrast.
+- **Rethink the phone header.** The two-row header (name and switches on top, links below)
+  works but looks odd. Options: a menu button that hides the links and switches, a bottom
+  tab bar for the three pages, or one compact settings button that opens language and
+  theme choices.

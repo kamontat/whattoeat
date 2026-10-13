@@ -40,3 +40,15 @@ test.each(pages)("%s links the site icon", async (page) => {
 		).exists(),
 	).toBe(true);
 });
+
+test.each(pages)(
+	"%s loads lib/theme.ts before the stylesheet",
+	async (page) => {
+		const html = await Bun.file(`src/routes/${page}`).text();
+		const theme = html.search(
+			/<script type="module" src="(\.\.\/)+lib\/theme\.ts"><\/script>/,
+		);
+		expect(theme).toBeGreaterThan(-1);
+		expect(theme).toBeLessThan(html.indexOf('<link rel="stylesheet"'));
+	},
+);

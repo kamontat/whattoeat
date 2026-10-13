@@ -2,7 +2,8 @@
 
 Can't decide where to eat? Add the restaurants you like, press one button, and get a random
 pick. The list lives in your browser (`localStorage`); move it between devices with JSON
-export and import on the Settings page. The interface is available in English and Thai.
+export and import on the Settings page. The interface is available in English and Thai,
+in a light or dark theme that follows the system setting unless you pick one in the header.
 
 | Page           | What it does                                   |
 | -------------- | ---------------------------------------------- |
@@ -79,6 +80,7 @@ is sent to a server.
 | ------------------------------- | -------------------------------------------------------------------- |
 | `whattoeat:restaurants`         | The restaurant list (JSON array)                                     |
 | `whattoeat:lang`                | The chosen language, `en` or `th`                                    |
+| `whattoeat:theme`               | The chosen theme, `auto`, `light` or `dark`                          |
 | `whattoeat:restaurants:invalid` | Stored entries that failed validation, kept before a save drops them |
 
 The app never shows the `:invalid` backup. To inspect or recover it, open the browser's
