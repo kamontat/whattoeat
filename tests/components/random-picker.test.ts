@@ -587,3 +587,25 @@ test("warns when the browser could not save the lock", async () => {
 		saveHistory([]);
 	}
 });
+
+test("a picked card shows the type line before the location and keeps Eat here in its footer", async () => {
+	addRestaurant({
+		...base,
+		name: "Cafe",
+		tags: ["latte"],
+		location: "Ari",
+		kinds: ["drinks"],
+	});
+	const el = await mount();
+	pickButton(el)!.click();
+	await el.updateComplete;
+	const card = root(el).querySelector(".result")!;
+	expect([...card.children].map((child) => child.className.trim())).toEqual([
+		"",
+		"meta",
+		"location",
+		"chips",
+		"foot",
+	]);
+	expect(card.querySelector(".foot button.lock")).not.toBeNull();
+});

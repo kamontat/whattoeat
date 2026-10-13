@@ -478,3 +478,22 @@ test("uses the singular when one stored entry could not be read", async () => {
 		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
 	);
 });
+
+test("the form asks for name, type, cuisine and area, location, then tags and notes", async () => {
+	const el = await mount();
+	const form = $<HTMLFormElement>(el, "form")!;
+	const order = [
+		...form.querySelectorAll(
+			"#name, fieldset.kinds, #cuisine, #area, #location, tag-input, #notes",
+		),
+	].map((node) => node.id || node.localName);
+	expect(order).toEqual([
+		"name",
+		"fieldset",
+		"cuisine",
+		"area",
+		"location",
+		"tag-input",
+		"notes",
+	]);
+});

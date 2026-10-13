@@ -80,10 +80,16 @@ export class RestaurantManager extends LitElement {
 				white-space: pre-wrap;
 			}
 
+			form.card {
+				gap: 1rem;
+				padding: 1.25rem;
+			}
+
+			/* Type: each checkbox is a pill that fills in when ticked. */
 			fieldset.kinds {
 				display: flex;
 				flex-wrap: wrap;
-				gap: 0.25rem 1rem;
+				gap: 0.5rem;
 				margin: 0;
 				padding: 0;
 				border: 0;
@@ -91,23 +97,69 @@ export class RestaurantManager extends LitElement {
 
 			fieldset.kinds legend {
 				padding: 0;
-				margin-bottom: 0.25rem;
+				margin-bottom: 0.375rem;
+				font-weight: 600;
 			}
 
 			fieldset.kinds label {
 				display: inline-flex;
 				align-items: center;
-				gap: 0.375rem;
-				font-weight: 400;
+				gap: 0.5rem;
+				padding: 0.375rem 0.875rem 0.375rem 0.625rem;
+				border: 1px solid var(--color-border);
+				border-radius: 999px;
+				background: var(--color-bg);
+				font-weight: 500;
+				cursor: pointer;
+			}
+
+			fieldset.kinds label:has(input:checked) {
+				border-color: var(--color-primary);
+				color: var(--color-primary);
+				font-weight: 600;
+			}
+
+			fieldset.kinds label:has(input:focus-visible) {
+				outline: 2px solid var(--color-primary);
+				outline-offset: 2px;
 			}
 
 			fieldset.kinds input {
-				width: auto;
+				width: 1rem;
+				height: 1rem;
+				margin: 0;
+				padding: 0;
+				accent-color: var(--color-primary);
+			}
+
+			/* Cuisine and area side by side when there is room. */
+			.pair {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+				gap: 1rem;
 			}
 
 			.field {
 				display: grid;
+				align-content: start;
 				gap: 0.25rem;
+			}
+
+			.field > label {
+				font-weight: 600;
+			}
+
+			li.card {
+				gap: 0.375rem;
+			}
+
+			li.card .meta {
+				color: var(--color-primary);
+				font-weight: 600;
+			}
+
+			li.card .actions {
+				margin-top: 0.375rem;
 			}
 		`,
 	];
@@ -318,13 +370,6 @@ export class RestaurantManager extends LitElement {
 					/>
 				</label>
 				${this.nameError ? html`<p id="name-error" class="error" role="alert">${t(this.nameError)}</p>` : nothing}
-				<tag-input
-					.label=${t("field.tags")}
-					.hint=${t("field.tagsHint")}
-					.value=${this.form.tags}
-					.suggestions=${tagsByUsage(this.restaurants)}
-					@change=${this.onTagsChange}
-				></tag-input>
 				<fieldset class="kinds">
 					<legend>${t("group.kind")}</legend>
 					${KINDS.map(
@@ -340,12 +385,21 @@ export class RestaurantManager extends LitElement {
 						</label>`,
 					)}
 				</fieldset>
-				${this.renderSuggestedField("cuisine", t("group.cuisine"), t("field.cuisineHint"))}
-				${this.renderSuggestedField("area", t("group.area"), t("field.areaHint"))}
+				<div class="pair">
+					${this.renderSuggestedField("cuisine", t("group.cuisine"), t("field.cuisineHint"))}
+					${this.renderSuggestedField("area", t("group.area"), t("field.areaHint"))}
+				</div>
 				<label>
 					${t("field.location")}
 					<input id="location" name="location" autocomplete="off" .value=${live(this.form.location)} @input=${this.onInput} />
 				</label>
+				<tag-input
+					.label=${t("field.tags")}
+					.hint=${t("field.tagsHint")}
+					.value=${this.form.tags}
+					.suggestions=${tagsByUsage(this.restaurants)}
+					@change=${this.onTagsChange}
+				></tag-input>
 				<label>
 					${t("field.notes")}
 					<textarea id="notes" name="notes" rows="2" .value=${live(this.form.notes)} @input=${this.onInput}></textarea>
@@ -393,11 +447,6 @@ export class RestaurantManager extends LitElement {
 		return html`
 			<li class="card" data-id=${item.id}>
 				<span class="name">${item.name}</span>
-				${
-					item.tags.length > 0
-						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
-						: nothing
-				}
 				${metaLine(item) ? html`<span class="meta muted">${metaLine(item)}</span>` : nothing}
 				${
 					item.location
@@ -411,6 +460,11 @@ export class RestaurantManager extends LitElement {
 						: nothing
 				}
 				${item.notes ? html`<span class="notes muted">${item.notes}</span>` : nothing}
+				${
+					item.tags.length > 0
+						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
+						: nothing
+				}
 				<div class="actions">
 					${
 						confirming

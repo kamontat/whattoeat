@@ -42,50 +42,28 @@ export class RandomPicker extends LitElement {
 		css`
 			:host {
 				display: grid;
-				gap: 1.5rem;
+				gap: 1.25rem;
 				justify-items: center;
-				padding-top: 2rem;
-				text-align: center;
+				padding-top: 1rem;
 			}
 
-			.pick {
-				padding: 1.25rem 2rem;
-				font-size: 1.5rem;
-				font-weight: 700;
-				border-radius: 999px;
-			}
-
-			[aria-live] {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-				gap: 1rem;
-				width: 100%;
-			}
-
-			.result,
-			.empty {
-				width: 100%;
-				box-sizing: border-box;
-				justify-items: center;
-			}
-
-			.result h2 {
-				font-size: 1.75rem;
-			}
-
-			.result .chips {
-				justify-content: center;
-			}
-
-			.notes {
-				white-space: pre-wrap;
-			}
-
+			/* Filter: one panel, a label column beside each row of chips. */
 			.filter {
 				display: grid;
-				gap: 0.5rem;
+				gap: 0.875rem;
 				width: 100%;
-				justify-items: center;
+				box-sizing: border-box;
+				padding: 1rem 1.25rem;
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius);
+				background: var(--color-surface);
+			}
+
+			.filter-head {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: baseline;
+				gap: 0.25rem 0.75rem;
 			}
 
 			.filter-title {
@@ -94,47 +72,169 @@ export class RandomPicker extends LitElement {
 
 			.filter-group {
 				display: grid;
-				gap: 0.25rem;
-				justify-items: center;
+				grid-template-columns: 5.5rem 1fr;
+				align-items: start;
+				gap: 0.5rem;
 			}
 
 			.filter-group h3 {
-				font-size: 0.875rem;
+				margin: 0;
+				padding-top: 0.375rem;
+				color: var(--color-muted);
+				font-size: 0.8125rem;
 				font-weight: 600;
 			}
 
+			@media (max-width: 30rem) {
+				.filter-group {
+					grid-template-columns: 1fr;
+					gap: 0.375rem;
+				}
+
+				.filter-group h3 {
+					padding-top: 0;
+				}
+			}
+
 			.filter .chips {
-				justify-content: center;
+				gap: 0.375rem;
 			}
 
 			button.tag {
+				min-height: 2rem;
 				padding: 0.25rem 0.75rem;
 				font-size: 0.875rem;
+				line-height: 1.2;
+			}
+
+			button.tag:hover {
+				border-color: var(--color-muted);
 			}
 
 			button.tag.include {
 				border-color: var(--color-success);
-				color: var(--color-success);
-				font-weight: 700;
+				background: var(--color-success);
+				color: var(--color-surface);
+				font-weight: 600;
 			}
 
 			button.tag.exclude {
 				border-color: var(--color-danger);
+				border-style: dashed;
 				color: var(--color-danger);
 				text-decoration: line-through;
 			}
 
+			.active-filter {
+				padding-top: 0.75rem;
+				border-top: 1px solid var(--color-border);
+				color: var(--color-muted);
+				font-size: 0.875rem;
+			}
+
 			button.link {
 				padding: 0;
+				margin-left: 0.25rem;
 				border: 0;
 				background: none;
 				color: var(--color-primary);
+				font-weight: 600;
 				text-decoration: underline;
+			}
+
+			.no-match {
+				color: var(--color-danger);
+			}
+
+			.count {
+				margin-top: 0.5rem;
+			}
+
+			.pick {
+				padding: 1.125rem 2.25rem;
+				font-size: 1.5rem;
+				font-weight: 700;
+				border-radius: 999px;
+				box-shadow: 0 6px 20px -8px var(--color-primary);
+			}
+
+			.pick:not(:disabled):active {
+				transform: translateY(1px);
 			}
 
 			.pick:disabled {
 				opacity: 0.5;
 				cursor: not-allowed;
+				box-shadow: none;
+			}
+
+			/* Picked cards: equal height, the action sits on the bottom edge. */
+			[aria-live] {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+				gap: 1rem;
+				width: 100%;
+			}
+
+			[aria-live]:empty {
+				display: none;
+			}
+
+			.result,
+			.empty {
+				width: 100%;
+				box-sizing: border-box;
+			}
+
+			.empty {
+				justify-items: center;
+				text-align: center;
+			}
+
+			.result {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+				padding: 1.25rem;
+			}
+
+			.result h2 {
+				font-size: 1.25rem;
+				line-height: 1.3;
+			}
+
+			.result .meta {
+				color: var(--color-primary);
+				font-size: 0.875rem;
+				font-weight: 600;
+			}
+
+			.result .location,
+			.result .notes {
+				font-size: 0.9375rem;
+			}
+
+			.notes {
+				white-space: pre-wrap;
+				color: var(--color-muted);
+			}
+
+			.result .chips {
+				margin-top: 0.25rem;
+			}
+
+			.result .chip {
+				font-size: 0.8125rem;
+			}
+
+			.result .foot {
+				margin-top: auto;
+				padding-top: 0.75rem;
+			}
+
+			.result .lock {
+				width: 100%;
+				font-weight: 600;
 			}
 
 			.result.locked {
@@ -143,8 +243,10 @@ export class RandomPicker extends LitElement {
 			}
 
 			.locked-label {
+				padding: 0.5rem 0;
 				color: var(--color-success);
 				font-weight: 700;
+				text-align: center;
 			}
 
 			.locked-label:focus {
@@ -309,8 +411,10 @@ export class RandomPicker extends LitElement {
 			.join("; ");
 		return html`
 			<section class="filter" aria-labelledby="filter-title">
-				<h2 id="filter-title" class="filter-title">${t("filter.title")}</h2>
-				<p class="hint">${t("filter.hint")}</p>
+				<div class="filter-head">
+					<h2 id="filter-title" class="filter-title">${t("filter.title")}</h2>
+					<p class="hint">${t("filter.hint")}</p>
+				</div>
 				${groups.map(
 					({
 						group,
@@ -385,12 +489,7 @@ export class RandomPicker extends LitElement {
 		return html`
 			<article class="card result ${this.locked?.id === item.id ? "locked" : ""}">
 				<h2>${item.name}</h2>
-				${
-					item.tags.length > 0
-						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
-						: nothing
-				}
-				${metaLine(item) ? html`<p class="meta muted">${metaLine(item)}</p>` : nothing}
+				${metaLine(item) ? html`<p class="meta">${metaLine(item)}</p>` : nothing}
 				${
 					item.location
 						? html`<p class="location">
@@ -403,7 +502,12 @@ export class RandomPicker extends LitElement {
 						: nothing
 				}
 				${item.notes ? html`<p class="notes">${item.notes}</p>` : nothing}
-				${this.renderLock(item)}
+				${
+					item.tags.length > 0
+						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
+						: nothing
+				}
+				<div class="foot">${this.renderLock(item)}</div>
 			</article>
 		`;
 	}
