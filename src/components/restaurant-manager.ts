@@ -161,6 +161,8 @@ export class RestaurantManager extends LitElement {
 
 	private startEdit(item: Restaurant): void {
 		this.confirmingId = undefined;
+		// Text typed for the previous form must not become a tag of this restaurant.
+		this.tagInput?.clearText();
 		this.fillForm(item);
 		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	}

@@ -154,10 +154,18 @@ export class TagInput extends LitElement {
 
 	private removeTag(tag: string): void {
 		this.setValue(this.value.filter((item) => item !== tag));
+		// The focused × button is gone after render; keep keyboard users in the field.
+		void this.updateComplete.then(() =>
+			this.renderRoot.querySelector<HTMLInputElement>("input")?.focus(),
+		);
 	}
 
 	private readonly onInput = (event: Event): void => {
 		const text = (event.target as HTMLInputElement).value;
+		if ((event as InputEvent).inputType === "insertFromPaste") {
+			this.add(text);
+			return;
+		}
 		const cut = text.lastIndexOf(",");
 		if (cut >= 0) this.add(text.slice(0, cut));
 		this.text = cut >= 0 ? text.slice(cut + 1) : text;
@@ -167,7 +175,8 @@ export class TagInput extends LitElement {
 
 	private readonly onKeyDown = (event: KeyboardEvent): void => {
 		// Enter also confirms a character in Thai and other input methods; leave that alone.
-		if (event.isComposing) return;
+		// Safari sends that Enter after composition ends, marked only by keyCode 229.
+		if (event.isComposing || event.keyCode === 229) return;
 		const matches = this.visibleSuggestions();
 		switch (event.key) {
 			case "Enter": {

@@ -213,3 +213,33 @@ test("setting value from outside fires no change event", async () => {
 	expect(chips(el)).toEqual(["b"]);
 	expect(changes).toEqual([]);
 });
+
+test("Enter that Safari sends to confirm an input method (keyCode 229) does not add a tag", async () => {
+	const { el } = await mount();
+	await type(el, "ก๋วย");
+	await press(el, "Enter", { keyCode: 229 } as KeyboardEventInit);
+	expect(chips(el)).toEqual([]);
+	expect(box(el).value).toBe("ก๋วย");
+});
+
+test("pasting comma-separated text adds every tag", async () => {
+	const { el, changes } = await mount();
+	box(el).value = "a, B";
+	box(el).dispatchEvent(
+		new InputEvent("input", { inputType: "insertFromPaste" }),
+	);
+	await el.updateComplete;
+	expect(chips(el)).toEqual(["a", "b"]);
+	expect(box(el).value).toBe("");
+	expect(changes).toEqual([["a", "b"]]);
+});
+
+test("removing a chip moves focus to the text box", async () => {
+	const { el } = await mount(["thai", "noodle"]);
+	const remove =
+		el.shadowRoot!.querySelectorAll<HTMLButtonElement>("button.remove")[0]!;
+	remove.focus();
+	remove.click();
+	await el.updateComplete;
+	expect(el.shadowRoot!.activeElement).toBe(box(el));
+});

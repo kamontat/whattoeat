@@ -316,3 +316,17 @@ test("warns when the browser refuses to save", async () => {
 		saveRestaurants([]);
 	}
 });
+
+test("starting an edit drops text left in the tag box", async () => {
+	addRestaurant({ name: "A", tags: ["x"], location: "", notes: "" });
+	addRestaurant({ name: "B", tags: ["y"], location: "", notes: "" });
+	const el = await mount();
+	await typeTags(el, "spi");
+	const editB = [...el.shadowRoot!.querySelectorAll("li[data-id]")]
+		.find((row) => row.querySelector(".name")?.textContent === "B")!
+		.querySelector<HTMLButtonElement>('[data-action="edit"]')!;
+	editB.click();
+	await el.updateComplete;
+	await submit(el);
+	expect(loadRestaurants().find((r) => r.name === "B")?.tags).toEqual(["y"]);
+});
