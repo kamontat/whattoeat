@@ -42,18 +42,30 @@ export class AppHeader extends LitElement {
 	static override styles = [
 		uiStyles,
 		css`
+			/* Phones: brand and switches on top, nav links below. Wider screens: one row. */
 			header {
-				display: flex;
-				flex-wrap: wrap;
+				display: grid;
+				grid-template-columns: auto 1fr;
+				grid-template-areas:
+					"brand controls"
+					"nav nav";
 				align-items: center;
-				justify-content: space-between;
 				gap: 0.75rem;
 				max-width: 40rem;
 				margin: 0 auto;
 				padding: 1rem;
 			}
 
+			@media (min-width: 40rem) {
+				header {
+					grid-template-columns: auto 1fr auto;
+					grid-template-areas: "brand nav controls";
+					gap: 1.5rem;
+				}
+			}
+
 			.brand {
+				grid-area: brand;
 				font-size: 1.25rem;
 				font-weight: 700;
 				color: var(--color-text);
@@ -61,6 +73,7 @@ export class AppHeader extends LitElement {
 			}
 
 			nav {
+				grid-area: nav;
 				display: flex;
 				flex-wrap: wrap;
 				gap: 1rem;
@@ -77,8 +90,10 @@ export class AppHeader extends LitElement {
 			}
 
 			.controls {
+				grid-area: controls;
 				display: flex;
 				flex-wrap: wrap;
+				justify-content: flex-end;
 				gap: 0.5rem;
 			}
 
