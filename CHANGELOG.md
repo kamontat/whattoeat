@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, and build footer
+## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer and data reset
 
 ### Features
 
@@ -33,6 +33,10 @@ What changed in this project and why, newest first.
   with the short commit sha the page was built from (linking to that commit) and the build
   time with its time zone, in English and Thai. The dev server and manual deploys show
   "Development build" instead of the sha and time.
+- Settings has a **Reset** card whose **Delete all data** button, after an in-page warning
+  that names how many restaurants will go, clears every `localStorage` entry: restaurants,
+  theme, language and tag filter. The page resets at once without a reload, in English and
+  Thai.
 
 ### Improvements
 
@@ -83,6 +87,11 @@ What changed in this project and why, newest first.
 - The build time shows in the viewer's own time zone, with the zone name added separately:
   `dateStyle` and `timeStyle` refuse `timeZoneName`, and listing the fields instead spells
   Thai times out as "15 นาฬิกา 30 นาที".
+- Reset calls `localStorage.clear()` rather than removing known keys, so keys added later
+  are covered too. It then fires a `storage` event with `key: null`, the same signal a clear
+  in another tab sends, so the existing theme, language and restaurant listeners reset this
+  tab with no new wiring. The confirmation lives in the page because the browser's
+  `confirm()` can be blocked.
 
 ## 2026-10-12: Site icon, app README and ideas for later
 
