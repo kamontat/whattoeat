@@ -9,6 +9,7 @@ import {
 	onRestaurantsChanged,
 	resetStorage,
 	saveRestaurants,
+	skippedCount,
 } from "#lib/store";
 import {
 	exportFileName,
@@ -53,6 +54,10 @@ export class DataTransferPanel extends LitElement {
 	@state()
 	private count = 0;
 
+	/** Stored entries the last load could not read. */
+	@state()
+	private skipped = 0;
+
 	@state()
 	private pending: Restaurant[] | undefined;
 
@@ -78,8 +83,10 @@ export class DataTransferPanel extends LitElement {
 	override connectedCallback(): void {
 		super.connectedCallback();
 		this.count = loadRestaurants().length;
+		this.skipped = skippedCount();
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.count = loadRestaurants().length;
+			this.skipped = skippedCount();
 		});
 	}
 
@@ -230,6 +237,13 @@ export class DataTransferPanel extends LitElement {
 			<h1>${t("settings.title")}</h1>
 			<p class="count">${t("settings.count", { count: this.count })}</p>
 			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
+			${
+				this.skipped > 0
+					? html`<p class="warning skipped" role="alert">
+							${this.skipped === 1 ? t("storage.skipped.one") : t("storage.skipped.other", { count: this.skipped })}
+						</p>`
+					: nothing
+			}
 			<section class="card">
 				<h2>${t("settings.exportTitle")}</h2>
 				<div class="actions">

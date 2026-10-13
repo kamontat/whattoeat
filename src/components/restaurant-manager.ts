@@ -16,6 +16,7 @@ import {
 	loadRestaurants,
 	onRestaurantsChanged,
 	removeRestaurant,
+	skippedCount,
 	updateRestaurant,
 } from "#lib/store";
 import { uiStyles } from "#styles/ui";
@@ -83,6 +84,10 @@ export class RestaurantManager extends LitElement {
 	@state()
 	private nameError: "manager.nameRequired" | "manager.nameTaken" | undefined;
 
+	/** Stored entries the last load could not read. */
+	@state()
+	private skipped = 0;
+
 	private get tagInput(): TagInput | null {
 		return this.renderRoot.querySelector("tag-input");
 	}
@@ -95,8 +100,10 @@ export class RestaurantManager extends LitElement {
 	override connectedCallback(): void {
 		super.connectedCallback();
 		this.restaurants = loadRestaurants();
+		this.skipped = skippedCount();
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.restaurants = loadRestaurants();
+			this.skipped = skippedCount();
 			if (this.editingId === undefined) return;
 			const editing = this.restaurants.find(
 				(item) => item.id === this.editingId,
@@ -214,6 +221,13 @@ export class RestaurantManager extends LitElement {
 		return html`
 			<h1>${t("manager.title")}</h1>
 			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
+			${
+				this.skipped > 0
+					? html`<p class="warning skipped" role="alert">
+							${this.skipped === 1 ? t("storage.skipped.one") : t("storage.skipped.other", { count: this.skipped })}
+						</p>`
+					: nothing
+			}
 			${this.renderForm()}
 			${
 				sorted.length === 0
