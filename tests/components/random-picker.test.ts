@@ -269,3 +269,51 @@ test("filter labels render in Thai", async () => {
 		"กรองตามแท็ก",
 	);
 });
+
+const countText = (el: HTMLElement) =>
+	root(el).querySelector(".count")?.textContent?.trim();
+
+test("shows how many restaurants there are", async () => {
+	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: "B" });
+	const el = await mount();
+	expect(countText(el)).toBe("2 restaurants");
+});
+
+test("uses the singular for one restaurant", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(countText(el)).toBe("1 restaurant");
+});
+
+test("with a filter, shows how many of all restaurants match", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "B", tags: ["noodle"] });
+	addRestaurant({ ...base, name: "C", tags: ["thai"] });
+	const el = await mount();
+	await cycle(el, "thai");
+	expect(countText(el)).toBe("2 of 3 restaurants match");
+	await cycle(el, "thai");
+	expect(countText(el)).toBe("1 of 3 restaurants match");
+	await cycle(el, "thai");
+	expect(countText(el)).toBe("3 restaurants");
+});
+
+test("the count follows restaurants added after mount", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	addRestaurant({ ...base, name: "B" });
+	await el.updateComplete;
+	expect(countText(el)).toBe("2 restaurants");
+});
+
+test("the count renders in Thai", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: "B" });
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	expect(countText(el)).toBe("2 ร้าน");
+	await cycle(el, "thai");
+	expect(countText(el)).toBe("1 จาก 2 ร้านที่ตรงกัน");
+});

@@ -192,11 +192,22 @@ export class RandomPicker extends LitElement {
 			${heading}
 			${tags.length > 0 ? this.renderFilter(tags) : nothing}
 			${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
+			<p class="count muted">${this.countText()}</p>
 			<button type="button" class="primary pick" ?disabled=${empty} @click=${this.pick}>
 				${this.picked ? t("picker.again") : t("picker.button")}
 			</button>
 			<div aria-live="polite">${this.picked ? this.renderResult(this.picked) : nothing}</div>
 		`;
+	}
+
+	private countText(): string {
+		const total = this.restaurants.length;
+		if (isFilterActive(this.filter)) {
+			return t("picker.countFiltered", { count: this.pool.length, total });
+		}
+		return total === 1
+			? t("picker.count.one")
+			: t("picker.count.other", { count: total });
 	}
 
 	private renderFilter(tags: string[]) {
