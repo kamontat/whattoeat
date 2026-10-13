@@ -1,8 +1,10 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
+import "#components/tag-input";
+import type { TagInput } from "#components/tag-input";
 import { getLang, LangController, t } from "#lib/i18n";
-import { isLink, parseTags, type Restaurant } from "#lib/restaurant";
+import { isLink, type Restaurant, tagsByUsage } from "#lib/restaurant";
 import {
 	addRestaurant,
 	isMemoryOnly,
@@ -15,12 +17,12 @@ import { uiStyles } from "#styles/ui";
 
 type FormState = {
 	name: string;
-	tags: string;
+	tags: string[];
 	location: string;
 	notes: string;
 };
 
-const EMPTY_FORM: FormState = { name: "", tags: "", location: "", notes: "" };
+const EMPTY_FORM: FormState = { name: "", tags: [], location: "", notes: "" };
 
 @customElement("restaurant-manager")
 export class RestaurantManager extends LitElement {
@@ -76,6 +78,10 @@ export class RestaurantManager extends LitElement {
 	@state()
 	private nameError = false;
 
+	private get tagInput(): TagInput | null {
+		return this.renderRoot.querySelector("tag-input");
+	}
+
 	/** `updatedAt` of the restaurant when it was loaded into the form. */
 	private editingUpdatedAt: string | undefined;
 
@@ -107,24 +113,30 @@ export class RestaurantManager extends LitElement {
 		this.form = EMPTY_FORM;
 		this.editingId = undefined;
 		this.nameError = false;
+		this.tagInput?.clearText();
 	}
 
 	private readonly onInput = (event: Event): void => {
 		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
-		const field = target.name as keyof FormState;
+		const field = target.name as Exclude<keyof FormState, "tags">;
 		this.form = { ...this.form, [field]: target.value };
 		if (field === "name") this.nameError = false;
 	};
 
+	private readonly onTagsChange = (event: CustomEvent<string[]>): void => {
+		this.form = { ...this.form, tags: event.detail };
+	};
+
 	private readonly submit = (event: Event): void => {
 		event.preventDefault();
+		const tags = this.tagInput?.commit() ?? this.form.tags;
 		if (this.form.name.trim() === "") {
 			this.nameError = true;
 			return;
 		}
 		const input = {
 			name: this.form.name,
-			tags: parseTags(this.form.tags),
+			tags,
 			location: this.form.location,
 			notes: this.form.notes,
 		};
@@ -141,7 +153,7 @@ export class RestaurantManager extends LitElement {
 		this.nameError = false;
 		this.form = {
 			name: item.name,
-			tags: item.tags.join(", "),
+			tags: item.tags,
 			location: item.location,
 			notes: item.notes,
 		};
@@ -218,11 +230,13 @@ export class RestaurantManager extends LitElement {
 					/>
 				</label>
 				${this.nameError ? html`<p id="name-error" class="error" role="alert">${t("manager.nameRequired")}</p>` : nothing}
-				<label>
-					${t("field.tags")}
-					<input id="tags" name="tags" autocomplete="off" .value=${live(this.form.tags)} @input=${this.onInput} />
-					<span class="hint">${t("field.tagsHint")}</span>
-				</label>
+				<tag-input
+					.label=${t("field.tags")}
+					.hint=${t("field.tagsHint")}
+					.value=${this.form.tags}
+					.suggestions=${tagsByUsage(this.restaurants)}
+					@change=${this.onTagsChange}
+				></tag-input>
 				<label>
 					${t("field.location")}
 					<input id="location" name="location" autocomplete="off" .value=${live(this.form.location)} @input=${this.onInput} />

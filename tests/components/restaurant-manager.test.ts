@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/restaurant-manager";
 import type { RestaurantManager } from "#components/restaurant-manager";
+import type { TagInput } from "#components/tag-input";
 import { setLang } from "#lib/i18n";
 import {
 	addRestaurant,
@@ -34,6 +35,22 @@ const type = (el: RestaurantManager, selector: string, value: string): void => {
 	input.value = value;
 	input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
 };
+
+const tagInput = (el: RestaurantManager) => $<TagInput>(el, "tag-input")!;
+
+const typeTags = async (el: RestaurantManager, text: string): Promise<void> => {
+	const field = tagInput(el);
+	const box = field.shadowRoot!.querySelector<HTMLInputElement>("input")!;
+	box.value = text;
+	box.dispatchEvent(new Event("input"));
+	await field.updateComplete;
+	await el.updateComplete;
+};
+
+const tagChips = (el: RestaurantManager) =>
+	[...tagInput(el).shadowRoot!.querySelectorAll(".chip-text")].map(
+		(c) => c.textContent,
+	);
 
 const submit = async (el: RestaurantManager): Promise<void> => {
 	$<HTMLFormElement>(el, "form")!.dispatchEvent(
@@ -82,7 +99,7 @@ test("typing in the name clears the error", async () => {
 test("adds a restaurant with cleaned tags and resets the form", async () => {
 	const el = await mount();
 	type(el, "#name", " Jay Fai ");
-	type(el, "#tags", " thai, ,noodle ,thai,");
+	await typeTags(el, " Thai, ,noodle ,thai,");
 	type(el, "#location", "Bangkok");
 	type(el, "#notes", "Queue early");
 	await submit(el);
@@ -96,7 +113,41 @@ test("adds a restaurant with cleaned tags and resets the form", async () => {
 	]);
 	expect(rowNames(el)).toEqual(["Jay Fai"]);
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
-	expect($<HTMLInputElement>(el, "#tags")?.value).toBe("");
+	await tagInput(el).updateComplete;
+	expect(tagChips(el)).toEqual([]);
+});
+
+test("a tag typed but not confirmed is saved on submit", async () => {
+	const el = await mount();
+	type(el, "#name", "Jay Fai");
+	await typeTags(el, "Spicy");
+	await submit(el);
+	expect(loadRestaurants()[0]?.tags).toEqual(["spicy"]);
+});
+
+test("a blank name keeps a typed tag as a chip instead of losing it", async () => {
+	const el = await mount();
+	await typeTags(el, "spicy");
+	await submit(el);
+	expect(loadRestaurants()).toEqual([]);
+	await tagInput(el).updateComplete;
+	expect(tagChips(el)).toEqual(["spicy"]);
+});
+
+test("suggests existing tags, most used first", async () => {
+	addRestaurant({
+		name: "A",
+		tags: ["thai", "noodle"],
+		location: "",
+		notes: "",
+	});
+	addRestaurant({ name: "B", tags: ["noodle"], location: "", notes: "" });
+	const el = await mount();
+	expect(tagInput(el).suggestions).toEqual(["noodle", "thai"]);
+	expect(tagInput(el).label).toBe("Tags");
+	expect(tagInput(el).hint).toBe(
+		"Press Enter or comma to add, e.g. thai, noodle",
+	);
 });
 
 test("lists restaurants sorted by name", async () => {
@@ -130,7 +181,8 @@ test("edit fills the form and save updates the restaurant", async () => {
 	const el = await mount();
 	await click(el, 'button[data-action="edit"]');
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Old");
-	expect($<HTMLInputElement>(el, "#tags")?.value).toBe("a, b");
+	await tagInput(el).updateComplete;
+	expect(tagChips(el)).toEqual(["a", "b"]);
 	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("Save");
 	type(el, "#name", "New");
 	await submit(el);
@@ -146,8 +198,14 @@ test("cancel edit resets the form without saving", async () => {
 	const el = await mount();
 	await click(el, 'button[data-action="edit"]');
 	type(el, "#name", "Changed");
+	await typeTags(el, "half");
 	await click(el, 'button[data-action="cancel-edit"]');
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
+	await tagInput(el).updateComplete;
+	expect(
+		tagInput(el).shadowRoot!.querySelector<HTMLInputElement>("input")?.value,
+	).toBe("");
+	expect(tagChips(el)).toEqual([]);
 	expect(loadRestaurants()[0]?.name).toBe("Keep");
 });
 
@@ -181,7 +239,8 @@ test("an edit saved elsewhere reloads the open form instead of being overwritten
 	);
 	await el.updateComplete;
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Theirs");
-	expect($<HTMLInputElement>(el, "#tags")?.value).toBe("new");
+	await tagInput(el).updateComplete;
+	expect(tagChips(el)).toEqual(["new"]);
 	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("Save");
 });
 
