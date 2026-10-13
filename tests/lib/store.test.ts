@@ -6,6 +6,7 @@ import {
 	loadRestaurants,
 	onRestaurantsChanged,
 	removeRestaurant,
+	resetStorage,
 	STORAGE_KEY,
 	saveRestaurants,
 	skippedCount,
@@ -241,4 +242,54 @@ test("stored tags that differ only in case load as one lowercase tag", () => {
 		JSON.stringify([{ ...item, tags: ["Thai", "thai", " BBQ "] }]),
 	);
 	expect(loadRestaurants()[0]?.tags).toEqual(["thai", "bbq"]);
+});
+
+test("resetStorage deletes every localStorage entry and notifies subscribers", () => {
+	addRestaurant(input);
+	localStorage.setItem("whattoeat:theme", "dark");
+	localStorage.setItem("other", "x");
+	let calls = 0;
+	const off = onRestaurantsChanged(() => {
+		calls += 1;
+	});
+	let storageKey: string | null | undefined;
+	const onStorage = (event: StorageEvent): void => {
+		storageKey = event.key;
+	};
+	window.addEventListener("storage", onStorage);
+	try {
+		resetStorage();
+	} finally {
+		off();
+		window.removeEventListener("storage", onStorage);
+	}
+	expect(localStorage.length).toBe(0);
+	expect(loadRestaurants()).toEqual([]);
+	expect(calls).toBeGreaterThan(0);
+	expect(storageKey).toBeNull();
+});
+
+test("resetStorage leaves memory mode", () => {
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: () => null,
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+		},
+		configurable: true,
+	});
+	try {
+		addRestaurant(input);
+		expect(isMemoryOnly()).toBe(true);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+	}
+	resetStorage();
+	expect(isMemoryOnly()).toBe(false);
+	expect(loadRestaurants()).toEqual([]);
 });

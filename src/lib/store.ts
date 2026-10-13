@@ -68,6 +68,21 @@ export const saveRestaurants = (list: Restaurant[]): boolean => {
 	return memory === undefined;
 };
 
+/**
+ * Delete every localStorage entry this origin holds, then announce it the way another tab's
+ * `localStorage.clear()` would, so restaurants, theme and language listeners reset in this tab too.
+ */
+export const resetStorage = (): void => {
+	try {
+		localStorage.clear();
+	} catch {
+		// Storage blocked: only the in-memory list is dropped.
+	}
+	memory = undefined;
+	window.dispatchEvent(new StorageEvent("storage", { key: null }));
+	window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
+};
+
 const requireName = (
 	input: RestaurantInput,
 	list: readonly Restaurant[],

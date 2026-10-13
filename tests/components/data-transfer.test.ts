@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
 import "#components/data-transfer";
 import type { DataTransferPanel } from "#components/data-transfer";
-import { setLang } from "#lib/i18n";
+import { getLang, setLang } from "#lib/i18n";
 import type { Restaurant } from "#lib/restaurant";
 import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
 import { toExportFile } from "#lib/transfer";
@@ -357,5 +357,36 @@ test("uses the singular when one stored entry could not be read", async () => {
 	const el = await mount();
 	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
 		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
+	);
+});
+
+test("reset asks for confirmation and can be cancelled", async () => {
+	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	const el = await mount();
+	expect($(el, 'button[data-action="reset-confirm"]')).toBeNull();
+	await click(el, 'button[data-action="reset"]');
+	expect($(el, ".reset-prompt")?.textContent?.trim()).toBe(
+		"Delete all 1 restaurants and settings saved in this browser? This cannot be undone.",
+	);
+	await click(el, 'button[data-action="reset-cancel"]');
+	expect($(el, 'button[data-action="reset-confirm"]')).toBeNull();
+	expect(loadRestaurants()).toHaveLength(1);
+});
+
+test("confirming reset deletes everything in localStorage", async () => {
+	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	setLang("th");
+	localStorage.setItem("whattoeat:theme", "dark");
+	const el = await mount();
+	await click(el, 'button[data-action="reset"]');
+	await click(el, 'button[data-action="reset-confirm"]');
+	expect(localStorage.length).toBe(0);
+	expect(loadRestaurants()).toEqual([]);
+	// happy-dom reports an English browser, so the language falls back to English.
+	expect(getLang()).toBe("en");
+	await el.updateComplete;
+	expect($(el, ".count")?.textContent?.trim()).toBe("Restaurants saved: 0");
+	expect($(el, ".reset-done")?.textContent?.trim()).toBe(
+		"All saved data was deleted.",
 	);
 });
