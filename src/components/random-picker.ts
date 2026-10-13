@@ -13,7 +13,7 @@ import {
 	tagState,
 } from "#lib/filter";
 import { LangController, t } from "#lib/i18n";
-import { pickRandom } from "#lib/random";
+import { pickOptions } from "#lib/random";
 import { isLink, type Restaurant, tagsByUsage } from "#lib/restaurant";
 import {
 	loadRestaurants,
@@ -43,6 +43,9 @@ export class RandomPicker extends LitElement {
 			}
 
 			[aria-live] {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+				gap: 1rem;
 				width: 100%;
 			}
 
@@ -121,8 +124,9 @@ export class RandomPicker extends LitElement {
 	@state()
 	private skipped = 0;
 
+	/** The options from the last press, emptied when none of them are left in the pool. */
 	@state()
-	private picked: Restaurant | undefined;
+	private picked: Restaurant[] = [];
 
 	private unsubscribe: (() => void) | undefined;
 
@@ -165,10 +169,12 @@ export class RandomPicker extends LitElement {
 		this.filter = pruned;
 	}
 
-	/** Hide the result when the picked restaurant was deleted or is outside the filter. */
+	/** Drop picked restaurants that were deleted or are outside the filter. */
 	private keepPickInPool(): void {
-		const pickedId = this.picked?.id;
-		this.picked = this.pool.find((item) => item.id === pickedId);
+		const pool = this.pool;
+		this.picked = this.picked
+			.map((item) => pool.find((other) => other.id === item.id))
+			.filter((item) => item !== undefined);
 	}
 
 	private setFilter(next: TagFilter): void {
@@ -182,7 +188,11 @@ export class RandomPicker extends LitElement {
 	};
 
 	private readonly pick = (): void => {
-		this.picked = pickRandom(this.pool, this.picked?.id);
+		this.picked = pickOptions(
+			this.pool,
+			2,
+			this.picked.map((item) => item.id),
+		);
 	};
 
 	override render() {
@@ -213,9 +223,9 @@ export class RandomPicker extends LitElement {
 			${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
 			<p class="count muted">${this.countText()}</p>
 			<button type="button" class="primary pick" ?disabled=${empty} @click=${this.pick}>
-				${this.picked ? t("picker.again") : t("picker.button")}
+				${this.picked.length > 0 ? t("picker.again") : t("picker.button")}
 			</button>
-			<div aria-live="polite">${this.picked ? this.renderResult(this.picked) : nothing}</div>
+			<div aria-live="polite">${this.picked.map((item) => this.renderResult(item))}</div>
 		`;
 	}
 

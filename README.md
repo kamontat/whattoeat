@@ -1,13 +1,13 @@
 # What to Eat
 
-Can't decide where to eat? Add the restaurants you like, press one button, and get a random
-pick. The list lives in your browser (`localStorage`); move it between devices with JSON
+Can't decide where to eat? Add the restaurants you like, press one button, and get two random
+options. The list lives in your browser (`localStorage`); move it between devices with JSON
 export and import on the Settings page, as a file or by copy and paste. The interface is available in English and Thai,
 in a light or dark theme that follows the system setting unless you pick one in the header.
 
 | Page           | What it does                                   |
 | -------------- | ---------------------------------------------- |
-| `/`            | Random pick, never the same one twice in a row |
+| `/`            | Two random options, new ones each time when the list allows |
 | `/restaurants` | Add, edit and delete restaurants               |
 | `/settings`    | Export or import JSON as a file or by copy and paste, with replace or merge |
 

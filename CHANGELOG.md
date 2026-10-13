@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer, data reset, and a warning for unreadable saved data
+## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer, data reset, a warning for unreadable saved data, and two random options per pick
 
 ### BREAKING CHANGES
 
@@ -70,6 +70,10 @@ What changed in this project and why, newest first.
 - Tags are case-insensitive: they are stored trimmed, with single spaces and in lowercase,
   so `Thai` and `thai` are one tag. Saved and imported data is cleaned the same way when
   read and written back on the next save; the export format version does not change.
+- The home page shows two different restaurants per press instead of one, side by side and
+  stacked on phones. **Pick again** prefers restaurants that were not in the last pair and
+  reuses them only when the filtered list is too short. A deleted or filtered-out restaurant
+  drops out of the pair while the other stays.
 
 ### Decisions
 
