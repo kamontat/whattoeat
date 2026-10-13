@@ -1,14 +1,17 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/app-header";
 import { setLang } from "#lib/i18n";
+import { setTheme } from "#lib/theme";
 
 beforeEach(() => {
 	setLang("en");
+	setTheme("auto");
 });
 
 afterEach(() => {
 	document.body.innerHTML = "";
 	setLang("en");
+	setTheme("auto");
 	localStorage.clear();
 });
 
@@ -72,4 +75,59 @@ test("translates the browser tab title for the current page", async () => {
 test("the home page title is the app name", async () => {
 	await mount("home");
 	expect(document.title).toBe("What to Eat");
+});
+
+test("renders the theme switch with auto pressed by default", async () => {
+	const el = await mount();
+	const group = el.shadowRoot!.querySelector(".theme");
+	expect(group?.getAttribute("role")).toBe("group");
+	expect(group?.getAttribute("aria-label")).toBe("Theme");
+	const buttons = [
+		...el.shadowRoot!.querySelectorAll<HTMLButtonElement>("button[data-theme]"),
+	];
+	expect(buttons.map((b) => b.getAttribute("data-theme"))).toEqual([
+		"auto",
+		"light",
+		"dark",
+	]);
+	expect(buttons.map((b) => b.getAttribute("aria-label"))).toEqual([
+		"Auto",
+		"Light",
+		"Dark",
+	]);
+	expect(buttons.map((b) => b.getAttribute("aria-pressed"))).toEqual([
+		"true",
+		"false",
+		"false",
+	]);
+});
+
+test("choosing dark marks the button and the page", async () => {
+	const el = await mount();
+	el.shadowRoot!.querySelector<HTMLButtonElement>(
+		'button[data-theme="dark"]',
+	)!.click();
+	await el.updateComplete;
+	expect(
+		el
+			.shadowRoot!.querySelector('button[data-theme="dark"]')
+			?.getAttribute("aria-pressed"),
+	).toBe("true");
+	expect(
+		el
+			.shadowRoot!.querySelector('button[data-theme="auto"]')
+			?.getAttribute("aria-pressed"),
+	).toBe("false");
+	expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
+});
+
+test("theme labels follow the language", async () => {
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	expect(
+		el
+			.shadowRoot!.querySelector('button[data-theme="dark"]')
+			?.getAttribute("aria-label"),
+	).toBe("มืด");
 });

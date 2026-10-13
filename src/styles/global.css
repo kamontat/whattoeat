@@ -1,23 +1,61 @@
 @import "@kcstyles/reset.css";
 
+/* Light palette, used unless the system or the header switch asks for dark. */
 :root {
 	--color-bg: #fff8f0;
 	--color-surface: #ffffff;
 	--color-text: #2b2118;
 	--color-muted: #7a6a5c;
-	--color-primary: #d9480f;
+	--color-primary: #c4440e;
 	--color-primary-text: #ffffff;
 	--color-border: #eaded2;
 	--color-danger: #c0392b;
-	--color-success: #2b8a3e;
+	--color-success: #2b7a3b;
 	--radius: 12px;
 	--font:
 		system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", "Sarabun",
 		"Leelawadee UI", Tahoma, sans-serif;
 
+	color-scheme: light dark;
 	font-family: var(--font);
 	color: var(--color-text);
 	background: var(--color-bg);
+}
+
+:root[data-theme="light"] {
+	color-scheme: light;
+}
+
+/* Dark palette for "auto" on a dark system; keep it in step with the rule below. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--color-bg: #1a1410;
+		--color-surface: #251d17;
+		--color-text: #f5ebe1;
+		--color-muted: #b5a493;
+		--color-primary: #ff8a4c;
+		--color-primary-text: #1a1410;
+		--color-border: #3d3229;
+		--color-danger: #ff6b5b;
+		--color-success: #5bd178;
+
+		color-scheme: dark;
+	}
+}
+
+/* Dark palette chosen with the header switch (`data-theme` set by #lib/theme). */
+:root[data-theme="dark"] {
+	--color-bg: #1a1410;
+	--color-surface: #251d17;
+	--color-text: #f5ebe1;
+	--color-muted: #b5a493;
+	--color-primary: #ff8a4c;
+	--color-primary-text: #1a1410;
+	--color-border: #3d3229;
+	--color-danger: #ff6b5b;
+	--color-success: #5bd178;
+
+	color-scheme: dark;
 }
 
 body {
