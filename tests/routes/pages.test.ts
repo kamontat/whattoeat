@@ -28,6 +28,14 @@ test.each(pages)(
 	},
 );
 
+test.each(pages)("%s loads the app footer after main", async (page) => {
+	const html = await Bun.file(`src/routes/${page}`).text();
+	expect(html).toMatch(
+		/<script type="module" src="(\.\.\/)+components\/app-footer\.ts"><\/script>/,
+	);
+	expect(html.indexOf("<app-footer")).toBeGreaterThan(html.indexOf("</main>"));
+});
+
 test.each(pages)("%s links the site icon", async (page) => {
 	const html = await Bun.file(`src/routes/${page}`).text();
 	const match = html.match(

@@ -59,6 +59,10 @@ export const en = {
 	"import.error.read": "The file could not be read. Choose it again.",
 	"storage.warning":
 		"Your browser is not saving changes. They will be lost when you leave this page.",
+	"footer.source": "Source on GitHub",
+	"footer.changelog": "Changelog",
+	"footer.dev": "Development build",
+	"footer.built": "Built",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -115,6 +119,10 @@ export const th: Record<MessageKey, string> = {
 	"import.error.entries": "ข้อมูลมีร้านอาหารที่ไม่ถูกต้อง",
 	"import.error.read": "อ่านไฟล์ไม่ได้ กรุณาเลือกไฟล์อีกครั้ง",
 	"storage.warning": "เบราว์เซอร์ไม่ได้บันทึกข้อมูล การเปลี่ยนแปลงจะหายไปเมื่อออกจากหน้านี้",
+	"footer.source": "ซอร์สโค้ดบน GitHub",
+	"footer.changelog": "บันทึกการเปลี่ยนแปลง",
+	"footer.dev": "รุ่นพัฒนา",
+	"footer.built": "สร้างเมื่อ",
 };
 
 const dictionaries: Record<Lang, Record<MessageKey, string>> = { en, th };

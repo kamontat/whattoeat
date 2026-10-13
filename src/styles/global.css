@@ -58,11 +58,15 @@
 	color-scheme: dark;
 }
 
+/* Main grows so the footer sits at the bottom of a short page. */
 body {
+	display: flex;
+	flex-direction: column;
 	min-height: 100vh;
 }
 
 main {
+	flex: 1;
 	width: 100%;
 	max-width: 40rem;
 	margin: 0 auto;
