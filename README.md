@@ -2,13 +2,14 @@
 
 Can't decide where to eat? Add the restaurants you like, press one button, and get a random
 pick. The list lives in your browser (`localStorage`); move it between devices with JSON
-export and import on the Settings page. The interface is available in English and Thai.
+export and import on the Settings page, as a file or by copy and paste. The interface is available in English and Thai,
+in a light or dark theme that follows the system setting unless you pick one in the header.
 
 | Page           | What it does                                   |
 | -------------- | ---------------------------------------------- |
 | `/`            | Random pick, never the same one twice in a row |
 | `/restaurants` | Add, edit and delete restaurants               |
-| `/settings`    | Export to JSON, import with replace or merge   |
+| `/settings`    | Export or import JSON as a file or by copy and paste, with replace or merge |
 
 Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static
 [Lit](https://lit.dev/) web components, bundled by [Bun](https://bun.com/) through
@@ -79,11 +80,12 @@ is sent to a server.
 | ------------------------------- | -------------------------------------------------------------------- |
 | `whattoeat:restaurants`         | The restaurant list (JSON array)                                     |
 | `whattoeat:lang`                | The chosen language, `en` or `th`                                    |
+| `whattoeat:theme`               | The chosen theme, `auto`, `light` or `dark`                          |
 | `whattoeat:restaurants:invalid` | Stored entries that failed validation, kept before a save drops them |
 
 The app never shows the `:invalid` backup. To inspect or recover it, open the browser's
 developer tools (Application, then Local Storage) and copy the value; fixed entries can be
-re-imported from **Settings** inside an export file
+re-imported from **Settings** by pasting them inside an export
 (`{ "app": "whattoeat", "version": 1, "restaurants": [...] }`).
 
 Ideas for future work live in [IDEAS.md](IDEAS.md).

@@ -36,10 +36,51 @@ export const normalizeInput = (input: RestaurantInput): RestaurantInput => ({
 	notes: input.notes.trim(),
 });
 
+const nameKey = (name: string): string => name.trim().toLocaleLowerCase();
+
+/** Whether another restaurant (not `exceptId`) already has this name, ignoring case and surrounding spaces. */
+export const isNameTaken = (
+	list: readonly Restaurant[],
+	name: string,
+	exceptId?: string,
+): boolean => {
+	const key = nameKey(name);
+	return list.some(
+		(item) => item.id !== exceptId && nameKey(item.name) === key,
+	);
+};
+
 const isString = (value: unknown): value is string => typeof value === "string";
 
 const isDate = (value: unknown): value is string =>
 	isString(value) && !Number.isNaN(Date.parse(value));
+
+const ID_ALPHABET =
+	"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const ID_LENGTH = 8;
+// The largest multiple of 62 that fits in a byte; bytes from here up would favour the first letters.
+const ID_BYTE_LIMIT = 256 - (256 % ID_ALPHABET.length);
+
+/**
+ * A short random id (8 of 62 characters, about 2×10¹⁴ values), redrawn if it is already
+ * taken. Older UUID ids stay valid: an id only has to be a non-empty string.
+ */
+export const newId = (
+	taken: Iterable<string>,
+	random: (bytes: Uint8Array) => Uint8Array = (bytes) =>
+		crypto.getRandomValues(bytes),
+): string => {
+	const used = new Set(taken);
+	for (;;) {
+		let id = "";
+		while (id.length < ID_LENGTH) {
+			for (const byte of random(new Uint8Array(ID_LENGTH - id.length))) {
+				if (byte < ID_BYTE_LIMIT) id += ID_ALPHABET[byte % ID_ALPHABET.length];
+			}
+		}
+		if (!used.has(id)) return id;
+	}
+};
 
 export const isRestaurant = (value: unknown): value is Restaurant => {
 	if (typeof value !== "object" || value === null) return false;

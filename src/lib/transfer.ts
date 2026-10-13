@@ -31,6 +31,14 @@ export const toExportFile = (
 	restaurants,
 });
 
+/** Export as JSON text: indented for a downloaded file, one line for the clipboard. */
+export const exportJson = (
+	restaurants: Restaurant[],
+	now: Date,
+	{ pretty }: { pretty: boolean },
+): string =>
+	JSON.stringify(toExportFile(restaurants, now), null, pretty ? 2 : undefined);
+
 const pad = (value: number): string => String(value).padStart(2, "0");
 
 export const exportFileName = (now: Date = new Date()): string =>

@@ -1,7 +1,9 @@
 import { expect, test } from "bun:test";
 import {
 	isLink,
+	isNameTaken,
 	isRestaurant,
+	newId,
 	normalizeInput,
 	normalizeTag,
 	parseTags,
@@ -107,4 +109,45 @@ test.each([
 	["", false],
 ])("isLink(%p) is %p", (text, expected) => {
 	expect(isLink(text)).toBe(expected);
+});
+
+test("newId gives 8 letters and digits", () => {
+	for (let i = 0; i < 50; i++) expect(newId([])).toMatch(/^[0-9A-Za-z]{8}$/);
+});
+
+test("newId skips ids that are already taken", () => {
+	// Two draws: the first spells "00000000", which is taken; the second spells "11111111".
+	const draws = [new Uint8Array(8).fill(0), new Uint8Array(8).fill(1)];
+	const random = (bytes: Uint8Array): Uint8Array => {
+		bytes.set(draws.shift()!);
+		return bytes;
+	};
+	expect(newId(["00000000"], random)).toBe("11111111");
+});
+
+test("newId skips bytes that would bias the alphabet", () => {
+	// 248 and above are rejected, so 255 is skipped and 61 maps to the last letter.
+	const draws = [Uint8Array.from([255, 61, 61, 61, 61, 61, 61, 61, 61])];
+	const random = (bytes: Uint8Array): Uint8Array => {
+		const next = draws[0]!.subarray(0, bytes.length);
+		bytes.set(next);
+		draws[0] = draws[0]!.subarray(bytes.length);
+		return bytes;
+	};
+	expect(newId([], random)).toBe("zzzzzzzz");
+});
+
+test("isNameTaken ignores case and surrounding spaces", () => {
+	const list = [{ ...valid, id: "a", name: "Som Tam Nua" }];
+	expect(isNameTaken(list, "  som tam NUA ")).toBe(true);
+	expect(isNameTaken(list, "Som Tam")).toBe(false);
+});
+
+test("isNameTaken lets a restaurant keep its own name", () => {
+	const list = [
+		{ ...valid, id: "a", name: "Som Tam Nua" },
+		{ ...valid, id: "b", name: "Jay Fai" },
+	];
+	expect(isNameTaken(list, "som tam nua", "a")).toBe(false);
+	expect(isNameTaken(list, "jay fai", "a")).toBe(true);
 });

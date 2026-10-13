@@ -4,7 +4,12 @@ import { live } from "lit/directives/live.js";
 import "#components/tag-input";
 import type { TagInput } from "#components/tag-input";
 import { getLang, LangController, t } from "#lib/i18n";
-import { isLink, type Restaurant, tagsByUsage } from "#lib/restaurant";
+import {
+	isLink,
+	isNameTaken,
+	type Restaurant,
+	tagsByUsage,
+} from "#lib/restaurant";
 import {
 	addRestaurant,
 	isMemoryOnly,
@@ -76,7 +81,7 @@ export class RestaurantManager extends LitElement {
 	private confirmingId: string | undefined;
 
 	@state()
-	private nameError = false;
+	private nameError: "manager.nameRequired" | "manager.nameTaken" | undefined;
 
 	private get tagInput(): TagInput | null {
 		return this.renderRoot.querySelector("tag-input");
@@ -112,7 +117,7 @@ export class RestaurantManager extends LitElement {
 	private resetForm(): void {
 		this.form = EMPTY_FORM;
 		this.editingId = undefined;
-		this.nameError = false;
+		this.nameError = undefined;
 		this.tagInput?.clearText();
 	}
 
@@ -120,7 +125,7 @@ export class RestaurantManager extends LitElement {
 		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
 		const field = target.name as Exclude<keyof FormState, "tags">;
 		this.form = { ...this.form, [field]: target.value };
-		if (field === "name") this.nameError = false;
+		if (field === "name") this.nameError = undefined;
 	};
 
 	private readonly onTagsChange = (event: CustomEvent<string[]>): void => {
@@ -131,7 +136,11 @@ export class RestaurantManager extends LitElement {
 		event.preventDefault();
 		const tags = this.tagInput?.commit() ?? this.form.tags;
 		if (this.form.name.trim() === "") {
-			this.nameError = true;
+			this.nameError = "manager.nameRequired";
+			return;
+		}
+		if (isNameTaken(loadRestaurants(), this.form.name, this.editingId)) {
+			this.nameError = "manager.nameTaken";
 			return;
 		}
 		const input = {
@@ -150,7 +159,7 @@ export class RestaurantManager extends LitElement {
 	private fillForm(item: Restaurant): void {
 		this.editingId = item.id;
 		this.editingUpdatedAt = item.updatedAt;
-		this.nameError = false;
+		this.nameError = undefined;
 		this.form = {
 			name: item.name,
 			tags: item.tags,
@@ -231,7 +240,7 @@ export class RestaurantManager extends LitElement {
 						@input=${this.onInput}
 					/>
 				</label>
-				${this.nameError ? html`<p id="name-error" class="error" role="alert">${t("manager.nameRequired")}</p>` : nothing}
+				${this.nameError ? html`<p id="name-error" class="error" role="alert">${t(this.nameError)}</p>` : nothing}
 				<tag-input
 					.label=${t("field.tags")}
 					.hint=${t("field.tagsHint")}

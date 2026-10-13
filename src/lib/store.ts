@@ -1,5 +1,7 @@
 import {
+	isNameTaken,
 	isRestaurant,
+	newId,
 	normalizeInput,
 	parseTags,
 	type Restaurant,
@@ -72,9 +74,15 @@ export const saveRestaurants = (list: Restaurant[]): boolean => {
 	return memory === undefined;
 };
 
-const requireName = (input: RestaurantInput): RestaurantInput => {
+const requireName = (
+	input: RestaurantInput,
+	list: readonly Restaurant[],
+	exceptId?: string,
+): RestaurantInput => {
 	const clean = normalizeInput(input);
 	if (clean.name === "") throw new Error("Restaurant name is required");
+	if (isNameTaken(list, clean.name, exceptId))
+		throw new Error("Restaurant name is already taken");
 	return clean;
 };
 
@@ -82,11 +90,13 @@ export const addRestaurant = (
 	input: RestaurantInput,
 	now: Date = new Date(),
 ): Restaurant[] => {
-	const clean = requireName(input);
+	const existing = loadRestaurants();
+	const clean = requireName(input, existing);
 	const stamp = now.toISOString();
+	const id = newId(existing.map((item) => item.id));
 	const list = [
-		...loadRestaurants(),
-		{ id: crypto.randomUUID(), ...clean, createdAt: stamp, updatedAt: stamp },
+		...existing,
+		{ id, ...clean, createdAt: stamp, updatedAt: stamp },
 	];
 	saveRestaurants(list);
 	return list;
@@ -97,8 +107,9 @@ export const updateRestaurant = (
 	input: RestaurantInput,
 	now: Date = new Date(),
 ): Restaurant[] => {
-	const clean = requireName(input);
-	const list = loadRestaurants().map((item) =>
+	const existing = loadRestaurants();
+	const clean = requireName(input, existing, id);
+	const list = existing.map((item) =>
 		item.id === id ? { ...item, ...clean, updatedAt: now.toISOString() } : item,
 	);
 	saveRestaurants(list);

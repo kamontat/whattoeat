@@ -3,6 +3,7 @@ import type { Restaurant } from "#lib/restaurant";
 import type { ImportError } from "#lib/transfer";
 import {
 	exportFileName,
+	exportJson,
 	mergeRestaurants,
 	parseImport,
 	toExportFile,
@@ -16,6 +17,20 @@ const make = (id: string, name = id): Restaurant => ({
 	notes: "",
 	createdAt: "2026-10-12T00:00:00.000Z",
 	updatedAt: "2026-10-12T00:00:00.000Z",
+});
+
+test("exportJson gives indented or one-line json that imports back", () => {
+	const now = new Date("2026-10-12T10:00:00.000Z");
+	const pretty = exportJson([make("a"), make("b")], now, { pretty: true });
+	const compact = exportJson([make("a"), make("b")], now, { pretty: false });
+	expect(pretty).toContain("\n  ");
+	expect(compact).not.toContain("\n");
+	expect(JSON.parse(pretty)).toEqual(toExportFile([make("a"), make("b")], now));
+	for (const text of [pretty, compact])
+		expect(parseImport(text)).toEqual({
+			ok: true,
+			restaurants: [make("a"), make("b")],
+		});
 });
 
 test("toExportFile wraps restaurants in the versioned envelope", () => {

@@ -2,6 +2,57 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-13: Dark mode and theme switch, and copy and paste import and export
+
+### Features
+
+- The app has a dark palette. It follows the system colour scheme by default, and a new
+  header switch (`◐ ☀ ☾` for auto, light and dark, labelled in English and Thai) forces
+  either one. The choice is saved under `whattoeat:theme`, follows changes made in other
+  tabs, and still works for the session when the browser blocks storage.
+- `tests/styles/palette.test.ts` checks that every text colour pair in both palettes meets
+  WCAG AA (4.5:1) and that the system-dark and chosen-dark rules stay identical.
+- Settings has a **Copy JSON** button that puts the export on the clipboard as one line of
+  JSON. When the browser has no clipboard or refuses it, a read-only text box shows the JSON
+  instead, selected on focus, to copy by hand.
+- Settings can import JSON pasted into an **Or paste JSON** box: **Check** runs the same
+  validation and Replace / Merge / Cancel choice as a file, so a list can move between
+  devices through a chat or notes app without saving a file.
+
+### Improvements
+
+- The light primary colour is slightly darker (`#d9480f` to `#c4440e`), and so is the
+  success colour (`#2b8a3e` to `#2b7a3b`), so links, white button text and success messages
+  meet WCAG AA; before, they measured 4.08, 4.30 and 4.37 to 1.
+- On phones the header is always two rows, with the name and switches on top and the nav
+  links below, instead of wrapping freely into up to three rows. From `40rem` up it is one
+  row.
+- New restaurants get an 8-character id from `0-9A-Za-z` instead of a 36-character UUID,
+  so exported and copied JSON is shorter. Ids are redrawn on a clash with the list.
+- Import messages say "data" instead of "file" in English and Thai, since they now cover
+  pasted text too.
+- The restaurant form refuses a name that is already in the list, ignoring case and
+  surrounding spaces, and says "A restaurant with this name already exists." Editing may keep
+  a restaurant's own name but not take another's. `addRestaurant` and `updateRestaurant`
+  throw on such a name too.
+
+### Decisions
+
+- The theme is applied as `data-theme` on `<html>` by `#lib/theme`, loaded before the
+  stylesheet; with no choice saved there is no attribute and pure CSS
+  (`prefers-color-scheme`) picks the palette, so the default needs no JavaScript.
+- The switch sits in the header next to the language switch rather than only on the
+  Settings page, so it is one tap away on every page.
+- Dark primary buttons use dark text on a light orange, because white on a bright enough
+  orange fails contrast.
+- Copied text is the same JSON as the download, not a base64 string or a share link: it
+  stays readable and editable, and one parser handles both.
+- Existing UUID ids stay valid and are not shortened, because merge matches restaurants by
+  id; rewriting them would make other devices and older exports add duplicates. The export
+  format version does not change.
+- Duplicate names count as the same when they match ignoring case and surrounding spaces,
+  rather than only on exact text. Import does not check names; only adding and editing do.
+
 ## 2026-10-12: Site icon, app README and ideas for later
 
 ### Features

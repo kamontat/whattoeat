@@ -86,13 +86,13 @@ test("addRestaurant normalizes, stamps and saves", () => {
 		createdAt: now.toISOString(),
 		updatedAt: now.toISOString(),
 	});
-	expect(list[0]!.id).not.toBe("");
+	expect(list[0]!.id).toMatch(/^[0-9A-Za-z]{8}$/);
 	expect(loadRestaurants()).toEqual(list);
 });
 
 test("addRestaurant gives every restaurant its own id", () => {
 	addRestaurant(input);
-	const list = addRestaurant(input);
+	const list = addRestaurant({ ...input, name: "Other" });
 	expect(new Set(list.map((item) => item.id)).size).toBe(2);
 });
 
@@ -120,6 +120,25 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 		updatedAt: edited.toISOString(),
 	});
 	expect(loadRestaurants()).toEqual(list);
+});
+
+test("addRestaurant throws on a name already in the list", () => {
+	addRestaurant(input);
+	expect(() => addRestaurant({ ...input, name: " jay FAI " })).toThrow();
+	expect(loadRestaurants()).toHaveLength(1);
+});
+
+test("updateRestaurant throws when renaming to another restaurant's name", () => {
+	addRestaurant(input);
+	const list = addRestaurant({ ...input, name: "Other" });
+	const other = list[1]!;
+	expect(() =>
+		updateRestaurant(other.id, { ...input, name: "jay fai" }),
+	).toThrow();
+	expect(loadRestaurants()[1]!.name).toBe("Other");
+	expect(() =>
+		updateRestaurant(other.id, { ...input, name: "OTHER" }),
+	).not.toThrow();
 });
 
 test("updateRestaurant throws on a blank name", () => {
