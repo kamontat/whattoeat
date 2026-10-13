@@ -1,9 +1,11 @@
 import { expect, test } from "bun:test";
+import type { HistoryEntry } from "#lib/history";
 import type { Restaurant } from "#lib/restaurant";
 import type { ImportError } from "#lib/transfer";
 import {
 	exportFileName,
 	exportJson,
+	mergeHistory,
 	mergeRestaurants,
 	parseImport,
 	toExportFile,
@@ -19,28 +21,51 @@ const make = (id: string, name = id): Restaurant => ({
 	updatedAt: "2026-10-12T00:00:00.000Z",
 });
 
+const lock = (
+	id: string,
+	lockedAt: string,
+	restaurantId = "a",
+): HistoryEntry => ({
+	id,
+	restaurantId,
+	name: restaurantId,
+	lockedAt,
+});
+
 test("exportJson gives indented or one-line json that imports back", () => {
 	const now = new Date("2026-10-12T10:00:00.000Z");
-	const pretty = exportJson([make("a"), make("b")], now, { pretty: true });
-	const compact = exportJson([make("a"), make("b")], now, { pretty: false });
+	const history = [lock("h1", "2026-10-12T09:00:00.000Z")];
+	const pretty = exportJson([make("a"), make("b")], history, now, {
+		pretty: true,
+	});
+	const compact = exportJson([make("a"), make("b")], history, now, {
+		pretty: false,
+	});
 	expect(pretty).toContain("\n  ");
 	expect(compact).not.toContain("\n");
-	expect(JSON.parse(pretty)).toEqual(toExportFile([make("a"), make("b")], now));
+	expect(JSON.parse(pretty)).toEqual(
+		toExportFile([make("a"), make("b")], history, now),
+	);
 	for (const text of [pretty, compact])
 		expect(parseImport(text)).toEqual({
 			ok: true,
 			restaurants: [make("a"), make("b")],
+			history,
 		});
 });
 
-test("toExportFile wraps restaurants in the versioned envelope", () => {
+test("toExportFile wraps restaurants and history in the versioned envelope", () => {
 	const now = new Date("2026-10-12T10:00:00.000Z");
-	expect(toExportFile([make("a")], now)).toEqual({
+	expect(
+		toExportFile([make("a")], [lock("h1", "2026-10-12T09:00:00.000Z")], now),
+	).toEqual({
 		app: "whattoeat",
-		version: 1,
+		version: 2,
 		exportedAt: "2026-10-12T10:00:00.000Z",
 		restaurants: [make("a")],
+		history: [lock("h1", "2026-10-12T09:00:00.000Z")],
 	});
+	expect(toExportFile([], undefined, now).history).toEqual([]);
 });
 
 test("exportFileName uses the local date, zero padded", () => {
@@ -54,6 +79,7 @@ test("an exported file imports back unchanged", () => {
 	expect(parseImport(JSON.stringify(toExportFile(list)))).toEqual({
 		ok: true,
 		restaurants: list,
+		history: [],
 	});
 });
 
@@ -61,6 +87,7 @@ test("an empty restaurants array is a valid import", () => {
 	expect(parseImport(JSON.stringify(toExportFile([])))).toEqual({
 		ok: true,
 		restaurants: [],
+		history: [],
 	});
 });
 
@@ -80,7 +107,7 @@ test.each([
 	],
 	[
 		"future version",
-		JSON.stringify({ app: "whattoeat", version: 2, restaurants: [] }),
+		JSON.stringify({ app: "whattoeat", version: 3, restaurants: [] }),
 		"import.error.version",
 	],
 	[
@@ -169,4 +196,84 @@ test("imported tags are lowercased and merged by case", () => {
 		ok: true,
 		restaurants: [{ ...make("a"), tags: ["thai", "noodle"] }],
 	});
+});
+
+test("a version 1 file imports with no history", () => {
+	expect(
+		parseImport(
+			JSON.stringify({
+				app: "whattoeat",
+				version: 1,
+				restaurants: [make("a")],
+			}),
+		),
+	).toEqual({ ok: true, restaurants: [make("a")], history: undefined });
+});
+
+test.each([
+	["missing", undefined, "import.error.format"],
+	["not an array", { id: "h1" }, "import.error.format"],
+	[
+		"with a bad entry",
+		[{ id: "h1", restaurantId: "a", name: "A", lockedAt: "never" }],
+		"import.error.entries",
+	],
+	[
+		"with duplicate ids",
+		[
+			lock("h1", "2026-10-12T09:00:00.000Z"),
+			lock("h1", "2026-10-11T09:00:00.000Z"),
+		],
+		"import.error.entries",
+	],
+])("a version 2 file with history %s is rejected", (_label, history, error) => {
+	expect(
+		parseImport(
+			JSON.stringify({
+				app: "whattoeat",
+				version: 2,
+				restaurants: [],
+				history,
+			}),
+		),
+	).toEqual({ ok: false, error: error as ImportError });
+});
+
+test("imported history is sorted newest first and loses unknown fields", () => {
+	const result = parseImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 2,
+			restaurants: [],
+			history: [
+				{ ...lock("old", "2026-10-01T09:00:00.000Z"), extra: true },
+				lock("new", "2026-10-12T09:00:00.000Z", "deleted-restaurant"),
+			],
+		}),
+	);
+	expect(result).toEqual({
+		ok: true,
+		restaurants: [],
+		history: [
+			lock("new", "2026-10-12T09:00:00.000Z", "deleted-restaurant"),
+			lock("old", "2026-10-01T09:00:00.000Z"),
+		],
+	});
+});
+
+test("mergeHistory keeps both sides, incoming wins on the same id, newest first", () => {
+	const existing = [
+		lock("a", "2026-10-10T09:00:00.000Z"),
+		{ ...lock("b", "2026-10-05T09:00:00.000Z"), name: "old" },
+	];
+	const incoming = [
+		{ ...lock("b", "2026-10-05T09:00:00.000Z"), name: "new" },
+		lock("c", "2026-10-12T09:00:00.000Z"),
+	];
+	expect(mergeHistory(existing, incoming)).toEqual([
+		lock("c", "2026-10-12T09:00:00.000Z"),
+		lock("a", "2026-10-10T09:00:00.000Z"),
+		{ ...lock("b", "2026-10-05T09:00:00.000Z"), name: "new" },
+	]);
+	expect(existing).toHaveLength(2);
 });
