@@ -57,11 +57,12 @@ export class AppHeader extends LitElement {
 				padding: 1rem;
 			}
 
-			@media (min-width: 40rem) {
+			/* One row only once the header has its full 40rem: brand, four links and switches need about all of it. */
+			@media (min-width: 44rem) {
 				header {
 					grid-template-columns: auto 1fr auto;
 					grid-template-areas: "brand nav controls";
-					gap: 1.5rem;
+					gap: 1rem;
 				}
 			}
 
@@ -77,7 +78,7 @@ export class AppHeader extends LitElement {
 				grid-area: nav;
 				display: flex;
 				flex-wrap: wrap;
-				gap: 1rem;
+				gap: 0.75rem;
 			}
 
 			nav a {
