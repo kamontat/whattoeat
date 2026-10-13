@@ -1,6 +1,7 @@
 import type { AppFooter } from "#components/app-footer";
 import type { AppHeader } from "#components/app-header";
 import type { DataTransferPanel } from "#components/data-transfer";
+import type { LockHistory } from "#components/lock-history";
 import type { RandomPicker } from "#components/random-picker";
 import type { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
@@ -10,6 +11,7 @@ declare global {
 		"app-footer": AppFooter;
 		"app-header": AppHeader;
 		"data-transfer": DataTransferPanel;
+		"lock-history": LockHistory;
 		"random-picker": RandomPicker;
 		"restaurant-manager": RestaurantManager;
 		"tag-input": TagInput;

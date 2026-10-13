@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/app-header";
+import type { Page } from "#components/app-header";
 import { setLang } from "#lib/i18n";
 import { setTheme } from "#lib/theme";
 
@@ -15,7 +16,7 @@ afterEach(() => {
 	localStorage.clear();
 });
 
-const mount = async (current?: "home" | "restaurants" | "settings") => {
+const mount = async (current?: Page) => {
 	const el = document.createElement("app-header");
 	if (current) el.current = current;
 	document.body.append(el);
@@ -23,19 +24,26 @@ const mount = async (current?: "home" | "restaurants" | "settings") => {
 	return el;
 };
 
-test("renders nav links to the three pages", async () => {
+test("renders nav links to the four pages", async () => {
 	const el = await mount();
 	const links = [...el.shadowRoot!.querySelectorAll("nav a")];
 	expect(links.map((a) => a.getAttribute("href"))).toEqual([
 		"./",
 		"./restaurants",
+		"./history",
 		"./settings",
 	]);
 	expect(links.map((a) => a.textContent?.trim())).toEqual([
 		"Home",
 		"Restaurants",
+		"History",
 		"Settings",
 	]);
+});
+
+test("titles the history page", async () => {
+	await mount("history");
+	expect(document.title).toBe("History · What to Eat");
 });
 
 test("marks the current page", async () => {
