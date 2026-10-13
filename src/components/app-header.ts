@@ -17,7 +17,7 @@ import {
 } from "#lib/theme";
 import { uiStyles } from "#styles/ui";
 
-export type Page = "home" | "restaurants" | "settings";
+export type Page = "home" | "restaurants" | "history" | "settings";
 
 const THEME_LABELS: Record<Theme, MessageKey> = {
 	auto: "theme.auto",
@@ -34,6 +34,7 @@ const THEME_ICONS: Record<Theme, string> = {
 const LINKS: readonly { page: Page; href: string; label: MessageKey }[] = [
 	{ page: "home", href: "./", label: "nav.home" },
 	{ page: "restaurants", href: "./restaurants", label: "nav.restaurants" },
+	{ page: "history", href: "./history", label: "nav.history" },
 	{ page: "settings", href: "./settings", label: "nav.settings" },
 ];
 
@@ -56,11 +57,12 @@ export class AppHeader extends LitElement {
 				padding: 1rem;
 			}
 
-			@media (min-width: 40rem) {
+			/* One row only once the header has its full 40rem: brand, four links and switches need about all of it. */
+			@media (min-width: 44rem) {
 				header {
 					grid-template-columns: auto 1fr auto;
 					grid-template-areas: "brand nav controls";
-					gap: 1.5rem;
+					gap: 1rem;
 				}
 			}
 
@@ -76,7 +78,7 @@ export class AppHeader extends LitElement {
 				grid-area: nav;
 				display: flex;
 				flex-wrap: wrap;
-				gap: 1rem;
+				gap: 0.75rem;
 			}
 
 			nav a {

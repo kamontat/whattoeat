@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer, data reset, a warning for unreadable saved data, and two random options per pick
+## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer, data reset, a warning for unreadable saved data, two random options per pick, and a lock history
 
 ### BREAKING CHANGES
 
@@ -50,6 +50,19 @@ What changed in this project and why, newest first.
   time the list changes.", in English and Thai. Saved data that is not JSON, or not a list,
   counts as one; before, it was dropped without any trace. The warning goes after the next
   save or a reset.
+- Each picked card has an **Eat here** button (กินร้านนี้). Pressing it saves a lock with
+  the restaurant, its name and the date and time under `whattoeat:history`, and the card
+  shows "✓ Locked at 12:30". One lock per pick; **Pick again** starts over.
+- A new **History** page (`/history`, linked in the header between Restaurants and
+  Settings) shows the total number of locks, a table of how often and when last each
+  restaurant was locked (deleted restaurants marked "(deleted)"), and every lock newest
+  first with its date and time. **Delete** asks **Delete this lock** / **Cancel** before it
+  removes one.
+- Export files are now `version: 2` and carry the history. Version 1 files still import:
+  **Replace** with one keeps the current history, and **Merge** combines locks by id.
+  **Delete all data** removes the history too, and its prompt now says so.
+- Home, History and Settings warn when the browser could not save the history, the same way
+  they already do for restaurants.
 
 ### Improvements
 
@@ -74,6 +87,8 @@ What changed in this project and why, newest first.
   stacked on phones. **Pick again** prefers restaurants that were not in the last pair and
   reuses them only when the filtered list is too short. A deleted or filtered-out restaurant
   drops out of the pair while the other stays.
+- The header keeps the brand, four nav links and switches on one row from `44rem` up (was
+  `40rem`), with tighter gaps, so adding History did not push Settings onto a second line.
 
 ### Decisions
 
@@ -114,6 +129,11 @@ What changed in this project and why, newest first.
   editing storage by hand, another build of the app, or corruption. Showing them in the app
   to fix or discard, the idea in `IDEAS.md`, was dropped as too much for so rare a case. The
   warning is on every page, not only Settings, because a change on any page deletes them.
+- History is its own list instead of lock times stored on each restaurant, so deleting or
+  renaming a restaurant keeps its history and the restaurant format did not change. Each
+  lock keeps the name it had when locked; the stats show the current name.
+- The lock is a button inside the card rather than a clickable card, because the card already
+  holds a map link and nested controls break keyboard and screen reader use.
 
 ## 2026-10-12: Site icon, app README and ideas for later
 

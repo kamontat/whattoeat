@@ -12,7 +12,8 @@ import {
 	type TagState,
 	tagState,
 } from "#lib/filter";
-import { LangController, t } from "#lib/i18n";
+import { addLock, isHistoryMemoryOnly } from "#lib/history";
+import { getLang, LangController, t } from "#lib/i18n";
 import { pickOptions } from "#lib/random";
 import { isLink, type Restaurant, tagsByUsage } from "#lib/restaurant";
 import {
@@ -112,6 +113,20 @@ export class RandomPicker extends LitElement {
 				opacity: 0.5;
 				cursor: not-allowed;
 			}
+
+			.result.locked {
+				border-color: var(--color-success);
+				box-shadow: 0 0 0 1px var(--color-success);
+			}
+
+			.locked-label {
+				color: var(--color-success);
+				font-weight: 700;
+			}
+
+			.locked-label:focus {
+				outline: none;
+			}
 		`,
 	];
 
@@ -127,6 +142,10 @@ export class RandomPicker extends LitElement {
 	/** The options from the last press, emptied when none of them are left in the pool. */
 	@state()
 	private picked: Restaurant[] = [];
+
+	/** The card the user chose with "Eat here" for this pick, and when. */
+	@state()
+	private locked: { id: string; at: Date } | undefined;
 
 	private unsubscribe: (() => void) | undefined;
 
@@ -175,6 +194,8 @@ export class RandomPicker extends LitElement {
 		this.picked = this.picked
 			.map((item) => pool.find((other) => other.id === item.id))
 			.filter((item) => item !== undefined);
+		if (!this.picked.some((item) => item.id === this.locked?.id))
+			this.locked = undefined;
 	}
 
 	private setFilter(next: TagFilter): void {
@@ -188,6 +209,7 @@ export class RandomPicker extends LitElement {
 	};
 
 	private readonly pick = (): void => {
+		this.locked = undefined;
 		this.picked = pickOptions(
 			this.pool,
 			2,
@@ -205,6 +227,7 @@ export class RandomPicker extends LitElement {
 						</p>`
 					: nothing
 			}
+			${isHistoryMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 		`;
 		if (this.restaurants.length === 0) {
 			return html`
@@ -285,9 +308,33 @@ export class RandomPicker extends LitElement {
 		`;
 	}
 
+	private lock(item: Restaurant): void {
+		// A second press before the re-render must not save a second lock.
+		if (this.locked !== undefined) return;
+		const entry = addLock(item);
+		this.locked = { id: item.id, at: new Date(entry.lockedAt) };
+		// The pressed button is gone after the render, so move focus to the label that replaced it.
+		void this.updateComplete.then(() => {
+			this.renderRoot.querySelector<HTMLElement>(".locked-label")?.focus();
+		});
+	}
+
+	private renderLock(item: Restaurant) {
+		if (this.locked === undefined)
+			return html`<button type="button" class="primary lock" data-id=${item.id} @click=${() => this.lock(item)}>
+				${t("picker.lock")}
+			</button>`;
+		if (this.locked.id !== item.id) return nothing;
+		const time = new Intl.DateTimeFormat(getLang(), {
+			hour: "2-digit",
+			minute: "2-digit",
+		}).format(this.locked.at);
+		return html`<p class="locked-label" tabindex="-1">${t("picker.locked", { time })}</p>`;
+	}
+
 	private renderResult(item: Restaurant) {
 		return html`
-			<article class="card result">
+			<article class="card result ${this.locked?.id === item.id ? "locked" : ""}">
 				<h2>${item.name}</h2>
 				${
 					item.tags.length > 0
@@ -306,6 +353,7 @@ export class RandomPicker extends LitElement {
 						: nothing
 				}
 				${item.notes ? html`<p class="notes">${item.notes}</p>` : nothing}
+				${this.renderLock(item)}
 			</article>
 		`;
 	}

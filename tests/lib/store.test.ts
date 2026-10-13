@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
+import { addLock, HISTORY_KEY, loadHistory } from "#lib/history";
 import {
 	addRestaurant,
 	CHANGE_EVENT,
@@ -292,4 +293,30 @@ test("resetStorage leaves memory mode", () => {
 	resetStorage();
 	expect(isMemoryOnly()).toBe(false);
 	expect(loadRestaurants()).toEqual([]);
+});
+
+test("resetStorage also forgets history kept in memory", () => {
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: () => null,
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+			clear: () => {},
+		},
+		configurable: true,
+	});
+	try {
+		addLock({ id: "r1", name: "A" });
+		expect(loadHistory()).toHaveLength(1);
+		resetStorage();
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+	}
+	expect(loadHistory()).toEqual([]);
+	expect(localStorage.getItem(HISTORY_KEY)).toBeNull();
 });

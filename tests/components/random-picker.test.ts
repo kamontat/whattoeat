@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/random-picker";
 import { FILTER_KEY } from "#lib/filter";
-import { setLang } from "#lib/i18n";
+import { loadHistory, saveHistory } from "#lib/history";
+import { getLang, setLang } from "#lib/i18n";
 import { addRestaurant, removeRestaurant } from "#lib/store";
 
 const base = { tags: [], location: "", notes: "" };
@@ -362,4 +363,139 @@ test("uses the singular when one stored entry could not be read", async () => {
 	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
 		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
 	);
+});
+
+const lockButtons = (el: HTMLElement) => [
+	...root(el).querySelectorAll<HTMLButtonElement>("button.lock"),
+];
+const pickOnce = async (
+	el: HTMLElement & { updateComplete: Promise<boolean> },
+) => {
+	pickButton(el)!.click();
+	await el.updateComplete;
+};
+
+test("each picked card has an Eat here button", async () => {
+	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: "B" });
+	const el = await mount();
+	expect(lockButtons(el)).toHaveLength(0);
+	await pickOnce(el);
+	expect(lockButtons(el).map((b) => b.textContent?.trim())).toEqual([
+		"Eat here",
+		"Eat here",
+	]);
+});
+
+test("Eat here saves a lock and marks only that card", async () => {
+	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: "B" });
+	const el = await mount();
+	await pickOnce(el);
+	const chosen = pickedNames(el)[1];
+	lockButtons(el)[1]!.click();
+	await el.updateComplete;
+	const history = loadHistory();
+	expect(history).toHaveLength(1);
+	expect(history[0]!.name).toBe(chosen!);
+	const time = new Intl.DateTimeFormat(getLang(), {
+		hour: "2-digit",
+		minute: "2-digit",
+	}).format(new Date(history[0]!.lockedAt));
+	const locked = root(el).querySelectorAll(".result.locked");
+	expect(locked).toHaveLength(1);
+	expect(locked[0]!.querySelector("h2")?.textContent).toBe(chosen!);
+	expect(locked[0]!.querySelector(".locked-label")?.textContent?.trim()).toBe(
+		`✓ Locked at ${time}`,
+	);
+	expect(lockButtons(el)).toHaveLength(0);
+	expect(pickedNames(el)).toHaveLength(2);
+});
+
+test("a double press saves one lock", async () => {
+	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: "B" });
+	const el = await mount();
+	await pickOnce(el);
+	const [first, second] = lockButtons(el);
+	first!.click();
+	second!.click();
+	await el.updateComplete;
+	expect(loadHistory()).toHaveLength(1);
+});
+
+test("focus moves to the locked label", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	await pickOnce(el);
+	lockButtons(el)[0]!.click();
+	await el.updateComplete;
+	await el.updateComplete;
+	expect(root(el).activeElement?.classList.contains("locked-label")).toBe(true);
+});
+
+test("Pick again brings the Eat here buttons back", async () => {
+	for (const name of ["A", "B", "C", "D"]) addRestaurant({ ...base, name });
+	const el = await mount();
+	await pickOnce(el);
+	lockButtons(el)[0]!.click();
+	await el.updateComplete;
+	await pickOnce(el);
+	expect(lockButtons(el)).toHaveLength(2);
+	expect(root(el).querySelector(".locked-label")).toBeNull();
+	expect(loadHistory()).toHaveLength(1);
+});
+
+test("deleting the locked restaurant clears the label but keeps the lock", async () => {
+	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: "B" });
+	const list = addRestaurant({ ...base, name: "C" });
+	const el = await mount();
+	await pickOnce(el);
+	const [first = ""] = pickedNames(el);
+	lockButtons(el)[0]!.click();
+	await el.updateComplete;
+	removeRestaurant(list.find((r) => r.name === first)!.id);
+	await el.updateComplete;
+	expect(root(el).querySelector(".locked-label")).toBeNull();
+	expect(lockButtons(el)).toHaveLength(1);
+	expect(loadHistory()[0]!.name).toBe(first);
+});
+
+test("Eat here renders in Thai", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	setLang("th");
+	await pickOnce(el);
+	expect(lockButtons(el)[0]?.textContent?.trim()).toBe("กินร้านนี้");
+});
+
+test("warns when the browser could not save the lock", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	await pickOnce(el);
+	expect(root(el).querySelector(".warning")).toBeNull();
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: (key: string) => real.getItem(key),
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+		},
+		configurable: true,
+	});
+	try {
+		lockButtons(el)[0]!.click();
+		await el.updateComplete;
+		expect(root(el).querySelector(".warning")?.textContent?.trim()).toBe(
+			"Your browser is not saving changes. They will be lost when you leave this page.",
+		);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		saveHistory([]);
+	}
 });
