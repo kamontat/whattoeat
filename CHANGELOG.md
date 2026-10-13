@@ -31,6 +31,10 @@ What changed in this project and why, newest first.
   so exported and copied JSON is shorter. Ids are redrawn on a clash with the list.
 - Import messages say "data" instead of "file" in English and Thai, since they now cover
   pasted text too.
+- The restaurant form refuses a name that is already in the list, ignoring case and
+  surrounding spaces, and says "A restaurant with this name already exists." Editing may keep
+  a restaurant's own name but not take another's. `addRestaurant` and `updateRestaurant`
+  throw on such a name too.
 
 ### Decisions
 
@@ -46,6 +50,8 @@ What changed in this project and why, newest first.
 - Existing UUID ids stay valid and are not shortened, because merge matches restaurants by
   id; rewriting them would make other devices and older exports add duplicates. The export
   format version does not change.
+- Duplicate names count as the same when they match ignoring case and surrounding spaces,
+  rather than only on exact text. Import does not check names; only adding and editing do.
 
 ## 2026-10-12: Site icon, app README and ideas for later
 

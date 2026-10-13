@@ -71,6 +71,39 @@ test("a blank name shows an error and saves nothing", async () => {
 	expect(loadRestaurants()).toEqual([]);
 });
 
+test("a name already in the list shows an error and saves nothing", async () => {
+	addRestaurant({ name: "Jay Fai", tags: [], location: "", notes: "" });
+	const el = await mount();
+	type(el, "#name", "  jay fai ");
+	await submit(el);
+	expect($(el, "#name-error")?.textContent?.trim()).toBe(
+		"A restaurant with this name already exists.",
+	);
+	expect($(el, "#name")?.getAttribute("aria-invalid")).toBe("true");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("  jay fai ");
+	expect(loadRestaurants()).toHaveLength(1);
+});
+
+test("editing can keep the name but not take another one", async () => {
+	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "B", tags: [], location: "", notes: "" });
+	const el = await mount();
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	type(el, "#name", "b");
+	await submit(el);
+	expect($(el, "#name-error")?.textContent?.trim()).toBe(
+		"A restaurant with this name already exists.",
+	);
+	type(el, "#name", "A");
+	type(el, "#notes", "kept");
+	await submit(el);
+	expect($(el, "#name-error")).toBeNull();
+	expect(loadRestaurants()).toMatchObject([
+		{ name: "A", notes: "kept" },
+		{ name: "B" },
+	]);
+});
+
 test("typing in the name clears the error", async () => {
 	const el = await mount();
 	await submit(el);

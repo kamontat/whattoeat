@@ -2,7 +2,12 @@ import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import { getLang, LangController, t } from "#lib/i18n";
-import { isLink, parseTags, type Restaurant } from "#lib/restaurant";
+import {
+	isLink,
+	isNameTaken,
+	parseTags,
+	type Restaurant,
+} from "#lib/restaurant";
 import {
 	addRestaurant,
 	isMemoryOnly,
@@ -74,7 +79,7 @@ export class RestaurantManager extends LitElement {
 	private confirmingId: string | undefined;
 
 	@state()
-	private nameError = false;
+	private nameError: "manager.nameRequired" | "manager.nameTaken" | undefined;
 
 	/** `updatedAt` of the restaurant when it was loaded into the form. */
 	private editingUpdatedAt: string | undefined;
@@ -106,20 +111,24 @@ export class RestaurantManager extends LitElement {
 	private resetForm(): void {
 		this.form = EMPTY_FORM;
 		this.editingId = undefined;
-		this.nameError = false;
+		this.nameError = undefined;
 	}
 
 	private readonly onInput = (event: Event): void => {
 		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
 		const field = target.name as keyof FormState;
 		this.form = { ...this.form, [field]: target.value };
-		if (field === "name") this.nameError = false;
+		if (field === "name") this.nameError = undefined;
 	};
 
 	private readonly submit = (event: Event): void => {
 		event.preventDefault();
 		if (this.form.name.trim() === "") {
-			this.nameError = true;
+			this.nameError = "manager.nameRequired";
+			return;
+		}
+		if (isNameTaken(loadRestaurants(), this.form.name, this.editingId)) {
+			this.nameError = "manager.nameTaken";
 			return;
 		}
 		const input = {
@@ -138,7 +147,7 @@ export class RestaurantManager extends LitElement {
 	private fillForm(item: Restaurant): void {
 		this.editingId = item.id;
 		this.editingUpdatedAt = item.updatedAt;
-		this.nameError = false;
+		this.nameError = undefined;
 		this.form = {
 			name: item.name,
 			tags: item.tags.join(", "),
@@ -217,7 +226,7 @@ export class RestaurantManager extends LitElement {
 						@input=${this.onInput}
 					/>
 				</label>
-				${this.nameError ? html`<p id="name-error" class="error" role="alert">${t("manager.nameRequired")}</p>` : nothing}
+				${this.nameError ? html`<p id="name-error" class="error" role="alert">${t(this.nameError)}</p>` : nothing}
 				<label>
 					${t("field.tags")}
 					<input id="tags" name="tags" autocomplete="off" .value=${live(this.form.tags)} @input=${this.onInput} />

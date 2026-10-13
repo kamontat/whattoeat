@@ -32,6 +32,20 @@ export const normalizeInput = (input: RestaurantInput): RestaurantInput => ({
 	notes: input.notes.trim(),
 });
 
+const nameKey = (name: string): string => name.trim().toLocaleLowerCase();
+
+/** Whether another restaurant (not `exceptId`) already has this name, ignoring case and surrounding spaces. */
+export const isNameTaken = (
+	list: readonly Restaurant[],
+	name: string,
+	exceptId?: string,
+): boolean => {
+	const key = nameKey(name);
+	return list.some(
+		(item) => item.id !== exceptId && nameKey(item.name) === key,
+	);
+};
+
 const isString = (value: unknown): value is string => typeof value === "string";
 
 const isDate = (value: unknown): value is string =>
