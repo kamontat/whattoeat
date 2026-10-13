@@ -20,6 +20,8 @@ afterEach(() => {
 	localStorage.clear();
 });
 
+const blank = { tags: [], location: "", notes: "" };
+
 const mount = async () => {
 	const el = document.createElement("restaurant-manager");
 	document.body.append(el);
@@ -224,6 +226,97 @@ test("edit fills the form and save updates the restaurant", async () => {
 	]);
 	expect(loadRestaurants()).toHaveLength(1);
 	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("Add");
+});
+
+const kindBox = (el: RestaurantManager, kind: string) =>
+	$<HTMLInputElement>(el, `input[name="kinds"][value="${kind}"]`)!;
+
+const toggleKind = async (
+	el: RestaurantManager,
+	kind: string,
+): Promise<void> => {
+	kindBox(el, kind).click();
+	await el.updateComplete;
+};
+
+test("adds a restaurant with its type, cuisine and area", async () => {
+	const el = await mount();
+	type(el, "#name", "Cafe");
+	await toggleKind(el, "dessert");
+	await toggleKind(el, "drinks");
+	type(el, "#cuisine", " Japanese ");
+	type(el, "#area", "Ari");
+	await submit(el);
+	expect(loadRestaurants()).toMatchObject([
+		{
+			name: "Cafe",
+			kinds: ["drinks", "dessert"],
+			cuisine: "japanese",
+			area: "ari",
+		},
+	]);
+	expect($(el, "li[data-id] .meta")?.textContent?.trim()).toBe(
+		"Drinks, Dessert · japanese · ari",
+	);
+	expect(kindBox(el, "drinks").checked).toBe(false);
+	expect($<HTMLInputElement>(el, "#area")?.value).toBe("");
+});
+
+test("type boxes are labelled and a second click unticks", async () => {
+	const el = await mount();
+	expect($(el, "fieldset.kinds legend")?.textContent?.trim()).toBe("Type");
+	expect(
+		[...el.shadowRoot!.querySelectorAll("fieldset.kinds label")].map((l) =>
+			l.textContent?.trim(),
+		),
+	).toEqual(["Food", "Drinks", "Dessert"]);
+	type(el, "#name", "Shop");
+	await toggleKind(el, "food");
+	await toggleKind(el, "food");
+	await submit(el);
+	expect(loadRestaurants()[0]?.kinds).toEqual([]);
+});
+
+test("suggests cuisines and areas already used, most used first", async () => {
+	addRestaurant({ ...blank, name: "A", cuisine: "thai", area: "siam" });
+	addRestaurant({ ...blank, name: "B", cuisine: "thai", area: "ari" });
+	addRestaurant({ ...blank, name: "C", cuisine: "lao", area: "ari" });
+	const el = await mount();
+	const options = (id: string) =>
+		[...el.shadowRoot!.querySelectorAll(`datalist#${id} option`)].map((o) =>
+			o.getAttribute("value"),
+		);
+	expect($(el, "#cuisine")?.getAttribute("list")).toBe("cuisine-list");
+	expect(options("cuisine-list")).toEqual(["thai", "lao"]);
+	expect(options("area-list")).toEqual(["ari", "siam"]);
+});
+
+test("edit fills type, cuisine and area", async () => {
+	addRestaurant({
+		...blank,
+		name: "Old",
+		kinds: ["food"],
+		cuisine: "thai",
+		area: "siam",
+	});
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	expect(kindBox(el, "food").checked).toBe(true);
+	expect(kindBox(el, "drinks").checked).toBe(false);
+	expect($<HTMLInputElement>(el, "#cuisine")?.value).toBe("thai");
+	expect($<HTMLInputElement>(el, "#area")?.value).toBe("siam");
+	await toggleKind(el, "drinks");
+	await submit(el);
+	expect(loadRestaurants()[0]?.kinds).toEqual(["food", "drinks"]);
+});
+
+test("type, cuisine and area labels render in Thai", async () => {
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	expect($(el, "fieldset.kinds legend")?.textContent?.trim()).toBe("ประเภท");
+	expect($(el, 'label[for="cuisine"]')?.textContent?.trim()).toBe("สัญชาติอาหาร");
+	expect($(el, 'label[for="area"]')?.textContent?.trim()).toBe("ย่าน");
 });
 
 test("cancel edit resets the form without saving", async () => {

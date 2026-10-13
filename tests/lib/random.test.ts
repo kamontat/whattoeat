@@ -8,6 +8,9 @@ const make = (id: string): Restaurant => ({
 	tags: [],
 	location: "",
 	notes: "",
+	area: "",
+	cuisine: "",
+	kinds: [],
 	createdAt: "2026-10-12T00:00:00.000Z",
 	updatedAt: "2026-10-12T00:00:00.000Z",
 });

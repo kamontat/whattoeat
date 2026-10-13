@@ -4,24 +4,36 @@ import {
 	applyFilter,
 	cycleTag,
 	EMPTY_FILTER,
+	type Filter,
 	isFilterActive,
 	loadFilter,
 	pruneFilter,
 	saveFilter,
-	type TagFilter,
 	type TagState,
 	tagState,
 } from "#lib/filter";
 import { addLock, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
 import { pickOptions } from "#lib/random";
-import { isLink, type Restaurant, tagsByUsage } from "#lib/restaurant";
+import {
+	GROUPS,
+	type Group,
+	isKind,
+	isLink,
+	metaLine,
+	type Restaurant,
+	valuesByUsage,
+} from "#lib/restaurant";
 import {
 	loadRestaurants,
 	onRestaurantsChanged,
 	skippedCount,
 } from "#lib/store";
 import { uiStyles } from "#styles/ui";
+
+/** Kinds show in the current language; other values show as typed. */
+const valueLabel = (group: Group, value: string): string =>
+	group === "kind" && isKind(value) ? t(`kind.${value}`) : value;
 
 @customElement("random-picker")
 export class RandomPicker extends LitElement {
@@ -78,6 +90,17 @@ export class RandomPicker extends LitElement {
 
 			.filter-title {
 				font-size: 1rem;
+			}
+
+			.filter-group {
+				display: grid;
+				gap: 0.25rem;
+				justify-items: center;
+			}
+
+			.filter-group h3 {
+				font-size: 0.875rem;
+				font-weight: 600;
 			}
 
 			.filter .chips {
@@ -150,7 +173,7 @@ export class RandomPicker extends LitElement {
 	private unsubscribe: (() => void) | undefined;
 
 	@state()
-	private filter: TagFilter = EMPTY_FILTER;
+	private filter: Filter = EMPTY_FILTER;
 
 	override connectedCallback(): void {
 		super.connectedCallback();
@@ -176,13 +199,10 @@ export class RandomPicker extends LitElement {
 		return applyFilter(this.restaurants, this.filter);
 	}
 
-	/** Drop filter tags no restaurant uses any more; save only when that changed something. */
+	/** Drop filter values no restaurant uses any more; save only when that changed something. */
 	private pruneFilter(): void {
-		const pruned = pruneFilter(this.filter, tagsByUsage(this.restaurants));
-		if (
-			pruned.include.length !== this.filter.include.length ||
-			pruned.exclude.length !== this.filter.exclude.length
-		) {
+		const pruned = pruneFilter(this.filter, this.restaurants);
+		if (JSON.stringify(pruned) !== JSON.stringify(this.filter)) {
 			saveFilter(pruned);
 		}
 		this.filter = pruned;
@@ -198,7 +218,7 @@ export class RandomPicker extends LitElement {
 			this.locked = undefined;
 	}
 
-	private setFilter(next: TagFilter): void {
+	private setFilter(next: Filter): void {
 		this.filter = next;
 		saveFilter(next);
 		this.keepPickInPool();
@@ -238,11 +258,14 @@ export class RandomPicker extends LitElement {
 				</div>
 			`;
 		}
-		const tags = tagsByUsage(this.restaurants);
+		const groups = GROUPS.map((group) => ({
+			group,
+			values: valuesByUsage(this.restaurants, group),
+		})).filter(({ values }) => values.length > 0);
 		const empty = this.pool.length === 0;
 		return html`
 			${heading}
-			${tags.length > 0 ? this.renderFilter(tags) : nothing}
+			${groups.length > 0 ? this.renderFilter(groups) : nothing}
 			${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
 			<p class="count muted">${this.countText()}</p>
 			<button type="button" class="primary pick" ?disabled=${empty} @click=${this.pick}>
@@ -262,38 +285,64 @@ export class RandomPicker extends LitElement {
 			: t("picker.count.other", { count: total });
 	}
 
-	private renderFilter(tags: string[]) {
+	private renderFilter(groups: { group: Group; values: string[] }[]) {
 		const symbol: Record<TagState, string> = {
 			off: "",
 			include: "✓ ",
 			exclude: "✕ ",
 		};
-		const summary = [
-			...this.filter.include.map((tag) => `${symbol.include}${tag}`),
-			...this.filter.exclude.map((tag) => `${symbol.exclude}${tag}`),
-		].join(", ");
+		const summary = GROUPS.map((group) => {
+			const { include, exclude } = this.filter[group];
+			const values = [
+				...include.map(
+					(value) => `${symbol.include}${valueLabel(group, value)}`,
+				),
+				...exclude.map(
+					(value) => `${symbol.exclude}${valueLabel(group, value)}`,
+				),
+			];
+			return values.length > 0
+				? `${t(`group.${group}`)}: ${values.join(", ")}`
+				: "";
+		})
+			.filter((part) => part !== "")
+			.join("; ");
 		return html`
 			<section class="filter" aria-labelledby="filter-title">
 				<h2 id="filter-title" class="filter-title">${t("filter.title")}</h2>
 				<p class="hint">${t("filter.hint")}</p>
-				<ul class="chips">
-					${tags.map((tag) => {
-						const state = tagState(this.filter, tag);
-						return html`<li>
-							<button
-								type="button"
-								class="chip tag ${state}"
-								data-tag=${tag}
-								data-state=${state}
-								aria-pressed=${state === "off" ? "false" : "true"}
-								aria-label=${t("filter.tagState", { tag, state: t(`filter.state.${state}`) })}
-								@click=${() => this.setFilter(cycleTag(this.filter, tag))}
-							>
-								${symbol[state]}${tag}
-							</button>
-						</li>`;
-					})}
-				</ul>
+				${groups.map(
+					({
+						group,
+						values,
+					}) => html`<div class="filter-group" role="group" aria-labelledby="group-${group}">
+						<h3 id="group-${group}">${t(`group.${group}`)}</h3>
+						<ul class="chips">
+							${values.map((value) => {
+								const state = tagState(this.filter, group, value);
+								const label = valueLabel(group, value);
+								return html`<li>
+									<button
+										type="button"
+										class="chip tag ${state}"
+										data-group=${group}
+										data-tag=${value}
+										data-state=${state}
+										aria-pressed=${state === "off" ? "false" : "true"}
+										aria-label=${t("filter.tagState", {
+											group: t(`group.${group}`),
+											tag: label,
+											state: t(`filter.state.${state}`),
+										})}
+										@click=${() => this.setFilter(cycleTag(this.filter, group, value))}
+									>
+										${symbol[state]}${label}
+									</button>
+								</li>`;
+							})}
+						</ul>
+					</div>`,
+				)}
 				${
 					isFilterActive(this.filter)
 						? html`<p class="active-filter">
@@ -341,6 +390,7 @@ export class RandomPicker extends LitElement {
 						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
 						: nothing
 				}
+				${metaLine(item) ? html`<p class="meta muted">${metaLine(item)}</p>` : nothing}
 				${
 					item.location
 						? html`<p class="location">

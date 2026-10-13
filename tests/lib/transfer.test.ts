@@ -17,6 +17,9 @@ const make = (id: string, name = id): Restaurant => ({
 	tags: [],
 	location: "",
 	notes: "",
+	area: "",
+	cuisine: "",
+	kinds: [],
 	createdAt: "2026-10-12T00:00:00.000Z",
 	updatedAt: "2026-10-12T00:00:00.000Z",
 });
@@ -170,6 +173,29 @@ test("imported entries are normalized like typed input and lose unknown fields",
 		ok: true,
 		restaurants: [{ ...make("a", "Foo"), tags: ["thai"], location: "x" }],
 		history: undefined,
+	});
+});
+
+test("an entry without area, cuisine and kinds imports with them empty, unknown kinds are dropped", () => {
+	const { area: _a, cuisine: _c, kinds: _k, ...old } = make("a");
+	const result = parseImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 2,
+			restaurants: [
+				old,
+				{ ...make("b"), cuisine: " Thai ", kinds: ["x", "drinks"] },
+			],
+			history: [],
+		}),
+	);
+	expect(result).toEqual({
+		ok: true,
+		restaurants: [
+			make("a"),
+			{ ...make("b"), cuisine: "thai", kinds: ["drinks"] },
+		],
+		history: [],
 	});
 });
 
