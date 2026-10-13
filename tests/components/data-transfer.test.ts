@@ -464,3 +464,40 @@ test("confirming reset deletes the history too", async () => {
 	expect(localStorage.getItem(HISTORY_KEY)).toBeNull();
 	expect(loadHistory()).toEqual([]);
 });
+
+test("an import whose history the browser refuses to store warns", async () => {
+	const el = await mount();
+	el.readImport(
+		JSON.stringify(
+			toExportFile(
+				[make("x", "X")],
+				[lock("theirs", "2026-10-12T09:00:00.000Z")],
+			),
+		),
+	);
+	await el.updateComplete;
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: (key: string) => real.getItem(key),
+			setItem: (key: string, value: string) => {
+				if (key === HISTORY_KEY) throw new Error("QuotaExceededError");
+				real.setItem(key, value);
+			},
+		},
+		configurable: true,
+	});
+	try {
+		await click(el, 'button[data-action="replace"]');
+		expect($(el, ".success")).toBeNull();
+		expect($(el, ".warning")?.textContent?.trim()).toBe(
+			"Your browser is not saving changes. They will be lost when you leave this page.",
+		);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		saveHistory([]);
+	}
+});

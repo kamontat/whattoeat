@@ -1,7 +1,9 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import { repeat } from "lit/directives/repeat.js";
 import {
 	type HistoryEntry,
+	isHistoryMemoryOnly,
 	loadHistory,
 	onHistoryChanged,
 	removeLock,
@@ -24,6 +26,10 @@ export class LockHistory extends LitElement {
 
 			h1 {
 				font-size: 1.5rem;
+			}
+
+			h1:focus {
+				outline: none;
 			}
 
 			section {
@@ -142,33 +148,49 @@ export class LockHistory extends LitElement {
 	}
 
 	/** Swapping a row's buttons removes the focused one, so move focus to its replacement. */
-	private focusAfterRender(id: string, action: string): void {
+	private focusAfterRender(find: () => Element | null | undefined): void {
 		void this.updateComplete.then(() => {
-			this.renderRoot
-				.querySelector<HTMLElement>(
-					`li[data-id="${id}"] [data-action="${action}"]`,
-				)
-				?.focus();
+			const target = find();
+			if (target instanceof HTMLElement) target.focus();
 		});
+	}
+
+	/** Found by walking the rows, so an imported id with quotes cannot break a selector. */
+	private rowAction(id: string, action: string): Element | undefined {
+		const row = [...this.renderRoot.querySelectorAll("li[data-id]")].find(
+			(item) => item.getAttribute("data-id") === id,
+		);
+		return row?.querySelector(`[data-action="${action}"]`) ?? undefined;
 	}
 
 	private askDelete(id: string): void {
 		this.confirmingId = id;
-		this.focusAfterRender(id, "confirm-delete");
+		this.focusAfterRender(() => this.rowAction(id, "confirm-delete"));
 	}
 
 	private cancelDelete(id: string): void {
 		this.confirmingId = undefined;
-		this.focusAfterRender(id, "delete");
+		this.focusAfterRender(() => this.rowAction(id, "delete"));
 	}
 
+	/** Focus goes to the next lock's Delete, else the previous one's, else the heading. */
 	private confirmDelete(id: string): void {
 		this.confirmingId = undefined;
+		const index = this.history.findIndex((entry) => entry.id === id);
+		const neighbour = this.history[index + 1] ?? this.history[index - 1];
 		removeLock(id);
+		this.focusAfterRender(() =>
+			neighbour === undefined
+				? this.renderRoot.querySelector("h1")
+				: this.rowAction(neighbour.id, "delete"),
+		);
 	}
 
 	override render() {
-		const heading = html`<h1>${t("history.title")}</h1>`;
+		const heading = html`
+			<h1 tabindex="-1">${t("history.title")}</h1>
+			${isHistoryMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
+		`;
 		if (this.history.length === 0)
 			return html`
 				${heading}
@@ -215,7 +237,11 @@ export class LockHistory extends LitElement {
 			<section aria-labelledby="locks-title">
 				<h2 id="locks-title">${t("history.listTitle")}</h2>
 				<ul class="locks">
-					${this.history.map((entry) => this.renderLock(entry, dayTime))}
+					${repeat(
+						this.history,
+						(entry) => entry.id,
+						(entry) => this.renderLock(entry, dayTime),
+					)}
 				</ul>
 			</section>
 		`;

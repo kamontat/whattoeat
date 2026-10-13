@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/random-picker";
 import { FILTER_KEY } from "#lib/filter";
-import { loadHistory } from "#lib/history";
+import { loadHistory, saveHistory } from "#lib/history";
 import { getLang, setLang } from "#lib/i18n";
 import { addRestaurant, removeRestaurant } from "#lib/store";
 
@@ -468,4 +468,34 @@ test("Eat here renders in Thai", async () => {
 	setLang("th");
 	await pickOnce(el);
 	expect(lockButtons(el)[0]?.textContent?.trim()).toBe("กินร้านนี้");
+});
+
+test("warns when the browser could not save the lock", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	await pickOnce(el);
+	expect(root(el).querySelector(".warning")).toBeNull();
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: (key: string) => real.getItem(key),
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+		},
+		configurable: true,
+	});
+	try {
+		lockButtons(el)[0]!.click();
+		await el.updateComplete;
+		expect(root(el).querySelector(".warning")?.textContent?.trim()).toBe(
+			"Your browser is not saving changes. They will be lost when you leave this page.",
+		);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		saveHistory([]);
+	}
 });

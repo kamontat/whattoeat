@@ -12,7 +12,7 @@ import {
 	type TagState,
 	tagState,
 } from "#lib/filter";
-import { addLock } from "#lib/history";
+import { addLock, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
 import { pickOptions } from "#lib/random";
 import { isLink, type Restaurant, tagsByUsage } from "#lib/restaurant";
@@ -227,6 +227,7 @@ export class RandomPicker extends LitElement {
 						</p>`
 					: nothing
 			}
+			${isHistoryMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 		`;
 		if (this.restaurants.length === 0) {
 			return html`

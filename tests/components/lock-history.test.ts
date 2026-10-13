@@ -189,3 +189,56 @@ test("renders in Thai", async () => {
 	expect(text(root(el).querySelector(".total"))).toBe("เลือกไปแล้ว 4 ครั้ง");
 	expect(text(action(el, "h1", "delete"))).toBe("ลบ");
 });
+
+const deleteLock = async (el: LockHistory, id: string) => {
+	action(el, id, "delete")!.click();
+	await el.updateComplete;
+	action(el, id, "confirm-delete")!.click();
+	await el.updateComplete;
+	await el.updateComplete;
+};
+
+test("after a delete, focus moves to the next lock's Delete button", async () => {
+	const el = await mount();
+	await deleteLock(el, "h2");
+	expect(root(el).activeElement).toBe(action(el, "h3", "delete")!);
+});
+
+test("after deleting the last lock in the list, focus moves to the one before", async () => {
+	const el = await mount();
+	await deleteLock(el, "h4");
+	expect(root(el).activeElement).toBe(action(el, "h3", "delete")!);
+});
+
+test("after deleting the only lock, focus moves to the heading", async () => {
+	saveHistory([lock("h1", "r2", "Som Tam Nua", "2026-10-12T05:18:00.000Z")]);
+	const el = await mount();
+	await deleteLock(el, "h1");
+	expect(root(el).activeElement).toBe(root(el).querySelector("h1"));
+});
+
+test("warns when the browser could not save a delete", async () => {
+	const el = await mount();
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: (key: string) => real.getItem(key),
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+		},
+		configurable: true,
+	});
+	try {
+		await deleteLock(el, "h2");
+		expect(text(root(el).querySelector(".warning"))).toBe(
+			"Your browser is not saving changes. They will be lost when you leave this page.",
+		);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		saveHistory([]);
+	}
+});

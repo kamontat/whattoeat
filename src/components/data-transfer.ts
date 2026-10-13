@@ -1,7 +1,12 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
-import { type HistoryEntry, loadHistory, saveHistory } from "#lib/history";
+import {
+	type HistoryEntry,
+	isHistoryMemoryOnly,
+	loadHistory,
+	saveHistory,
+} from "#lib/history";
 import { LangController, t } from "#lib/i18n";
 import type { Restaurant } from "#lib/restaurant";
 import {
@@ -255,7 +260,7 @@ export class DataTransferPanel extends LitElement {
 		return html`
 			<h1>${t("settings.title")}</h1>
 			<p class="count">${t("settings.count", { count: this.count })}</p>
-			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
+			${isMemoryOnly() || isHistoryMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
 				this.skipped > 0
 					? html`<p class="warning skipped" role="alert">

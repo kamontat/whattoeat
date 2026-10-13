@@ -76,6 +76,9 @@ export const saveHistory = (list: HistoryEntry[]): boolean => {
 	return memory === undefined;
 };
 
+/** True when the last save could not reach localStorage, so history vanishes when the page is left. */
+export const isHistoryMemoryOnly = (): boolean => memory !== undefined;
+
 /** Drop the in-memory fallback; `resetStorage` calls this when it wipes everything. */
 export const forgetHistoryMemory = (): void => {
 	memory = undefined;

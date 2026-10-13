@@ -5,6 +5,7 @@ import {
 	HISTORY_KEY,
 	type HistoryEntry,
 	isHistoryEntry,
+	isHistoryMemoryOnly,
 	loadHistory,
 	onHistoryChanged,
 	removeLock,
@@ -234,4 +235,29 @@ test("summarize uses the current name, or the newest locked name for a deleted r
 
 test("summarize of no history is empty", () => {
 	expect(summarize([], [restaurant("r1", "A")])).toEqual([]);
+});
+
+test("isHistoryMemoryOnly is true only while history could not be saved", () => {
+	expect(isHistoryMemoryOnly()).toBe(false);
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: () => null,
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+		},
+		configurable: true,
+	});
+	try {
+		addLock(restaurant("r1", "A"));
+		expect(isHistoryMemoryOnly()).toBe(true);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+	}
+	saveHistory([]);
+	expect(isHistoryMemoryOnly()).toBe(false);
 });
