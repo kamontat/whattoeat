@@ -1,14 +1,16 @@
 # What to Eat
 
 Can't decide where to eat? Add the restaurants you like, press one button, and get two random
-options. The list lives in your browser (`localStorage`); move it between devices with JSON
-export and import on the Settings page, as a file or by copy and paste. The interface is available in English and Thai,
+options. Press **Eat here** on one to save it to your history with the date and time. The
+list and the history live in your browser (`localStorage`); move them between devices with
+JSON export and import on the Settings page, as a file or by copy and paste. The interface is available in English and Thai,
 in a light or dark theme that follows the system setting unless you pick one in the header.
 
 | Page           | What it does                                   |
 | -------------- | ---------------------------------------------- |
-| `/`            | Two random options, new ones each time when the list allows |
+| `/`            | Two random options; press Eat here to lock one into History |
 | `/restaurants` | Add, edit and delete restaurants               |
+| `/history`     | Every lock with its date and time, stats per restaurant, delete a lock |
 | `/settings`    | Export or import JSON as a file or by copy and paste, with replace or merge |
 
 Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static
@@ -79,6 +81,7 @@ is sent to a server.
 | Key                     | Holds                                       |
 | ----------------------- | ------------------------------------------- |
 | `whattoeat:restaurants` | The restaurant list (JSON array)            |
+| `whattoeat:history`     | Locks from **Eat here**, newest first (JSON array) |
 | `whattoeat:lang`        | The chosen language, `en` or `th`           |
 | `whattoeat:theme`       | The chosen theme, `auto`, `light` or `dark` |
 
@@ -96,7 +99,7 @@ Ideas for future work live in [IDEAS.md](IDEAS.md).
 ```text
 .
 ├── src/                 # application code
-│   ├── routes/          # HTML pages: index, restaurants, settings
+│   ├── routes/          # HTML pages: index, restaurants, history, settings
 │   ├── assets/          # files pages link to, e.g. favicon.svg
 │   ├── components/      # Lit components        (import as #components/*)
 │   ├── lib/             # shared TypeScript     (import as #lib/*), e.g. gtm.ts
