@@ -2,8 +2,6 @@ import { newId, type Restaurant } from "#lib/restaurant";
 
 export const HISTORY_KEY = "whattoeat:history";
 export const HISTORY_EVENT = "whattoeat:history-changed";
-/** History keeps at least this many of the newest visits, however old they are. */
-export const HISTORY_KEEP_COUNT = 1000;
 
 /** One "Eat here" press: which restaurant, its name at that moment, and when. */
 export type HistoryEntry = {
@@ -59,23 +57,6 @@ export const cleanEntry = (entry: HistoryEntry): HistoryEntry => ({
 export const newestFirst = (list: readonly HistoryEntry[]): HistoryEntry[] =>
 	[...list].sort((a, b) => Date.parse(b.visitedAt) - Date.parse(a.visitedAt));
 
-/**
- * Keep every visit from the last year, or the newest `HISTORY_KEEP_COUNT`, whichever is more.
- * Returns the kept visits newest first.
- */
-export const pruneHistory = (
-	list: readonly HistoryEntry[],
-	now: Date = new Date(),
-): HistoryEntry[] => {
-	const cutoff = new Date(now);
-	cutoff.setFullYear(cutoff.getFullYear() - 1);
-	return newestFirst(list).filter(
-		(item, index) =>
-			index < HISTORY_KEEP_COUNT ||
-			Date.parse(item.visitedAt) >= cutoff.getTime(),
-	);
-};
-
 /** Unreadable stored history is skipped without a warning; the next save drops it. */
 export const loadHistory = (): HistoryEntry[] => {
 	if (memory !== undefined) return memory;
@@ -93,12 +74,8 @@ export const loadHistory = (): HistoryEntry[] => {
 	);
 };
 
-/**
- * Saves the visits `pruneHistory` keeps. Returns `false` when localStorage refused the write and
- * history is only kept in memory.
- */
-export const saveHistory = (all: readonly HistoryEntry[]): boolean => {
-	const list = pruneHistory(all);
+/** Returns `false` when localStorage refused the write and history is only kept in memory. */
+export const saveHistory = (list: HistoryEntry[]): boolean => {
 	try {
 		localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
 		memory = undefined;

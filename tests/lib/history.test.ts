@@ -8,7 +8,6 @@ import {
 	isHistoryMemoryOnly,
 	loadHistory,
 	onHistoryChanged,
-	pruneHistory,
 	removeVisit,
 	saveHistory,
 	summarize,
@@ -280,44 +279,4 @@ test("isHistoryMemoryOnly is true only while history could not be saved", () => 
 	}
 	saveHistory([]);
 	expect(isHistoryMemoryOnly()).toBe(false);
-});
-
-/** `count` visits one hour apart, newest first, the newest at `newest`. */
-const hourly = (count: number, newest: string): HistoryEntry[] =>
-	Array.from({ length: count }, (_, index) =>
-		entry(
-			`h${index}`,
-			"r1",
-			"A",
-			new Date(Date.parse(newest) - index * 3_600_000).toISOString(),
-		),
-	);
-
-test("pruneHistory keeps the newest 1000 visits however old they are", () => {
-	const old = hourly(1200, "2020-01-01T00:00:00.000Z");
-	const kept = pruneHistory(old, new Date("2026-10-14T00:00:00.000Z"));
-	expect(kept).toHaveLength(1000);
-	expect(kept.at(-1)?.id).toBe("h999");
-});
-
-test("pruneHistory keeps every visit from the last year even past 1000", () => {
-	const recent = hourly(1500, "2026-10-13T00:00:00.000Z");
-	const kept = pruneHistory(recent, new Date("2026-10-14T00:00:00.000Z"));
-	expect(kept).toHaveLength(1500);
-});
-
-test("pruneHistory drops visits older than a year beyond the newest 1000", () => {
-	const list = [
-		...hourly(1000, "2026-10-13T00:00:00.000Z"),
-		entry("edge", "r1", "A", "2025-10-14T00:00:00.000Z"),
-		entry("old", "r1", "A", "2025-10-13T23:59:59.000Z"),
-	];
-	const kept = pruneHistory(list, new Date("2026-10-14T00:00:00.000Z"));
-	expect(kept).toHaveLength(1001);
-	expect(kept.at(-1)?.id).toBe("edge");
-});
-
-test("saveHistory stores only what pruneHistory keeps", () => {
-	saveHistory(hourly(1001, "2020-01-01T00:00:00.000Z"));
-	expect(loadHistory()).toHaveLength(1000);
 });
