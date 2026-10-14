@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/restaurant-manager";
 import type { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
+import { saveGroups } from "#lib/groups";
 import { setLang } from "#lib/i18n";
 import {
 	addRestaurant,
@@ -38,16 +39,24 @@ const type = (el: RestaurantManager, selector: string, value: string): void => {
 	input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
 };
 
-const tagInput = (el: RestaurantManager) => $<TagInput>(el, "tag-input")!;
+const groupInput = (el: RestaurantManager, group: string) =>
+	$<TagInput>(el, `tag-input[data-group="${group}"]`)!;
+const tagInput = (el: RestaurantManager) => groupInput(el, "tags");
 
-const typeTags = async (el: RestaurantManager, text: string): Promise<void> => {
-	const field = tagInput(el);
+const typeInto = async (
+	el: RestaurantManager,
+	group: string,
+	text: string,
+): Promise<void> => {
+	const field = groupInput(el, group);
 	const box = field.shadowRoot!.querySelector<HTMLInputElement>("input")!;
 	box.value = text;
 	box.dispatchEvent(new Event("input"));
 	await field.updateComplete;
 	await el.updateComplete;
 };
+const typeTags = (el: RestaurantManager, text: string) =>
+	typeInto(el, "tags", text);
 
 const tagChips = (el: RestaurantManager) =>
 	[...tagInput(el).shadowRoot!.querySelectorAll(".chip-text")].map(
@@ -239,29 +248,6 @@ const toggleKind = async (
 	await el.updateComplete;
 };
 
-test("adds a restaurant with its type, cuisine and area", async () => {
-	const el = await mount();
-	type(el, "#name", "Cafe");
-	await toggleKind(el, "dessert");
-	await toggleKind(el, "drinks");
-	type(el, "#cuisine", " Japanese ");
-	type(el, "#area", "Ari");
-	await submit(el);
-	expect(loadRestaurants()).toMatchObject([
-		{
-			name: "Cafe",
-			kinds: ["drinks", "dessert"],
-			cuisine: "japanese",
-			area: "ari",
-		},
-	]);
-	expect($(el, "li[data-id] .meta")?.textContent?.trim()).toBe(
-		"Drinks, Dessert · japanese · ari",
-	);
-	expect(kindBox(el, "drinks").checked).toBe(false);
-	expect($<HTMLInputElement>(el, "#area")?.value).toBe("");
-});
-
 test("type boxes are labelled and a second click unticks", async () => {
 	const el = await mount();
 	expect($(el, "fieldset.kinds legend")?.textContent?.trim()).toBe("Type");
@@ -277,46 +263,108 @@ test("type boxes are labelled and a second click unticks", async () => {
 	expect(loadRestaurants()[0]?.kinds).toEqual([]);
 });
 
-test("suggests cuisines and areas already used, most used first", async () => {
-	addRestaurant({ ...blank, name: "A", cuisine: "thai", area: "siam" });
-	addRestaurant({ ...blank, name: "B", cuisine: "thai", area: "ari" });
-	addRestaurant({ ...blank, name: "C", cuisine: "lao", area: "ari" });
+test("adds a restaurant with several cuisines and areas, committing text left in each box", async () => {
 	const el = await mount();
-	const options = (id: string) =>
-		[...el.shadowRoot!.querySelectorAll(`datalist#${id} option`)].map((o) =>
-			o.getAttribute("value"),
-		);
-	expect($(el, "#cuisine")?.getAttribute("list")).toBe("cuisine-list");
-	expect(options("cuisine-list")).toEqual(["thai", "lao"]);
-	expect(options("area-list")).toEqual(["ari", "siam"]);
+	type(el, "#name", "Cafe");
+	await typeInto(el, "cuisine", "Thai, Japanese");
+	await typeInto(el, "area", "Siam");
+	await submit(el);
+	expect(loadRestaurants()[0]?.groups).toEqual({
+		cuisine: ["thai", "japanese"],
+		area: ["siam"],
+	});
 });
 
-test("edit fills type, cuisine and area", async () => {
+test("each custom group gets its own input, in stored order, before plain tags", async () => {
+	saveGroups([
+		{ id: "g2", name: "Vibe" },
+		{ id: "g1", name: "Price" },
+	]);
+	const el = await mount();
+	const groups = [...el.shadowRoot!.querySelectorAll("tag-input")].map(
+		(input) => [input.getAttribute("data-group"), input.label],
+	);
+	expect(groups).toEqual([
+		["cuisine", "Cuisine"],
+		["area", "Area"],
+		["g2", "Vibe"],
+		["g1", "Price"],
+		["tags", "Tags"],
+	]);
+});
+
+test("saves custom group values and shows them as labelled chips", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const el = await mount();
+	type(el, "#name", "Cafe");
+	await typeInto(el, "g1", "cheap");
+	await typeTags(el, "spicy");
+	await submit(el);
+	expect(loadRestaurants()[0]).toMatchObject({
+		groups: { g1: ["cheap"] },
+		tags: ["spicy"],
+	});
+	const chips = [...el.shadowRoot!.querySelectorAll("li[data-id] .chip")].map(
+		(c) => c.textContent,
+	);
+	expect(chips).toEqual(["Price: cheap", "spicy"]);
+});
+
+test("suggests each group's values, most used first", async () => {
 	addRestaurant({
 		...blank,
-		name: "Old",
-		kinds: ["food"],
-		cuisine: "thai",
-		area: "siam",
+		name: "A",
+		groups: { cuisine: ["thai"], area: ["siam"] },
+	});
+	addRestaurant({
+		...blank,
+		name: "B",
+		groups: { cuisine: ["thai", "lao"], area: ["ari"] },
 	});
 	const el = await mount();
-	await click(el, 'button[data-action="edit"]');
-	expect(kindBox(el, "food").checked).toBe(true);
-	expect(kindBox(el, "drinks").checked).toBe(false);
-	expect($<HTMLInputElement>(el, "#cuisine")?.value).toBe("thai");
-	expect($<HTMLInputElement>(el, "#area")?.value).toBe("siam");
-	await toggleKind(el, "drinks");
-	await submit(el);
-	expect(loadRestaurants()[0]?.kinds).toEqual(["food", "drinks"]);
+	expect(groupInput(el, "cuisine").suggestions).toEqual(["thai", "lao"]);
+	expect(groupInput(el, "area").suggestions).toEqual(["ari", "siam"]);
 });
 
-test("type, cuisine and area labels render in Thai", async () => {
+test("edit fills type and every group", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	addRestaurant({
+		...blank,
+		name: "A",
+		kinds: ["food"],
+		groups: { cuisine: ["thai"], g1: ["cheap"] },
+	});
+	const el = await mount();
+	await click(el, '[data-action="edit"]');
+	expect(groupInput(el, "cuisine").value).toEqual(["thai"]);
+	expect(groupInput(el, "g1").value).toEqual(["cheap"]);
+	expect(groupInput(el, "area").value).toEqual([]);
+});
+
+test("a group added in another tab shows up in the open form", async () => {
+	const el = await mount();
+	saveGroups([{ id: "g1", name: "Price" }]);
+	await el.updateComplete;
+	expect(groupInput(el, "g1")).not.toBeNull();
+});
+
+test("a group renamed in another tab relabels its input and keeps the values typed so far", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const el = await mount();
+	await typeInto(el, "g1", "cheap,");
+	saveGroups([{ id: "g1", name: "Cost" }]);
+	await el.updateComplete;
+	expect(groupInput(el, "g1").label).toBe("Cost");
+	expect(groupInput(el, "g1").value).toEqual(["cheap"]);
+});
+
+test("type and group labels render in Thai", async () => {
 	const el = await mount();
 	setLang("th");
 	await el.updateComplete;
 	expect($(el, "fieldset.kinds legend")?.textContent?.trim()).toBe("ประเภท");
-	expect($(el, 'label[for="cuisine"]')?.textContent?.trim()).toBe("สัญชาติอาหาร");
-	expect($(el, 'label[for="area"]')?.textContent?.trim()).toBe("ย่าน");
+	expect(groupInput(el, "cuisine").label).toBe("สัญชาติอาหาร");
+	expect(groupInput(el, "area").label).toBe("ย่าน");
 });
 
 test("cancel edit resets the form without saving", async () => {
@@ -479,21 +527,25 @@ test("uses the singular when one stored entry could not be read", async () => {
 	);
 });
 
-test("the form asks for name, type, cuisine and area, location, then tags and notes", async () => {
+test("the form asks for name, type, groups, location, then tags and notes", async () => {
 	const el = await mount();
-	const form = $<HTMLFormElement>(el, "form")!;
 	const order = [
-		...form.querySelectorAll(
-			"#name, fieldset.kinds, #cuisine, #area, #location, tag-input, #notes",
+		...el.shadowRoot!.querySelectorAll(
+			"#name, fieldset.kinds, tag-input, #location, #notes",
 		),
-	].map((node) => node.id || node.localName);
+	].map(
+		(node) =>
+			(node instanceof HTMLElement && node.getAttribute("data-group")) ||
+			node.id ||
+			node.className,
+	);
 	expect(order).toEqual([
 		"name",
-		"fieldset",
+		"kinds",
 		"cuisine",
 		"area",
 		"location",
-		"tag-input",
+		"tags",
 		"notes",
 	]);
 });

@@ -3,7 +3,14 @@ import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import "#components/tag-input";
 import type { TagInput } from "#components/tag-input";
-import { getLang, LangController, t } from "#lib/i18n";
+import {
+	customChips,
+	type GroupDef,
+	groupLabel,
+	loadGroups,
+	onGroupsChanged,
+} from "#lib/groups";
+import { getLang, LangController, type MessageKey, t } from "#lib/i18n";
 import {
 	isLink,
 	isNameTaken,
@@ -11,7 +18,7 @@ import {
 	type Kind,
 	metaLine,
 	type Restaurant,
-	tagsByUsage,
+	VALUE_GROUPS,
 	valuesByUsage,
 } from "#lib/restaurant";
 import {
@@ -27,22 +34,26 @@ import { uiStyles } from "#styles/ui";
 
 type FormState = {
 	name: string;
-	tags: string[];
 	location: string;
 	notes: string;
-	area: string;
-	cuisine: string;
 	kinds: Kind[];
+	tags: string[];
+	/** Values by group id: cuisine, area and custom groups. */
+	groups: Record<string, string[]>;
 };
 
 const EMPTY_FORM: FormState = {
 	name: "",
-	tags: [],
 	location: "",
 	notes: "",
-	area: "",
-	cuisine: "",
 	kinds: [],
+	tags: [],
+	groups: {},
+};
+
+const HINTS: Record<string, MessageKey> = {
+	cuisine: "field.cuisineHint",
+	area: "field.areaHint",
 };
 
 @customElement("restaurant-manager")
@@ -139,16 +150,6 @@ export class RestaurantManager extends LitElement {
 				gap: 1rem;
 			}
 
-			.field {
-				display: grid;
-				align-content: start;
-				gap: 0.25rem;
-			}
-
-			.field > label {
-				font-weight: 600;
-			}
-
 			li.card {
 				gap: 0.375rem;
 			}
@@ -185,19 +186,25 @@ export class RestaurantManager extends LitElement {
 	@state()
 	private skipped = 0;
 
-	private get tagInput(): TagInput | null {
-		return this.renderRoot.querySelector("tag-input");
+	/** The group definitions saved so far, in their stored order. */
+	@state()
+	private defs: GroupDef[] = [];
+
+	private get tagInputs(): TagInput[] {
+		return [...this.renderRoot.querySelectorAll("tag-input")];
 	}
 
 	/** `updatedAt` of the restaurant when it was loaded into the form. */
 	private editingUpdatedAt: string | undefined;
 
 	private unsubscribe: (() => void) | undefined;
+	private unsubscribeGroups: (() => void) | undefined;
 
 	override connectedCallback(): void {
 		super.connectedCallback();
 		this.restaurants = loadRestaurants();
 		this.skipped = skippedCount();
+		this.defs = loadGroups();
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.restaurants = loadRestaurants();
 			this.skipped = skippedCount();
@@ -210,24 +217,30 @@ export class RestaurantManager extends LitElement {
 			else if (editing.updatedAt !== this.editingUpdatedAt)
 				this.fillForm(editing);
 		});
+		this.unsubscribeGroups = onGroupsChanged(() => {
+			this.defs = loadGroups();
+			this.restaurants = loadRestaurants();
+		});
 	}
 
 	override disconnectedCallback(): void {
 		super.disconnectedCallback();
 		this.unsubscribe?.();
 		this.unsubscribe = undefined;
+		this.unsubscribeGroups?.();
+		this.unsubscribeGroups = undefined;
 	}
 
 	private resetForm(): void {
 		this.form = EMPTY_FORM;
 		this.editingId = undefined;
 		this.nameError = undefined;
-		this.tagInput?.clearText();
+		for (const input of this.tagInputs) input.clearText();
 	}
 
 	private readonly onInput = (event: Event): void => {
 		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
-		const field = target.name as Exclude<keyof FormState, "tags" | "kinds">;
+		const field = target.name as "name" | "location" | "notes";
 		this.form = { ...this.form, [field]: target.value };
 		if (field === "name") this.nameError = undefined;
 	};
@@ -244,13 +257,24 @@ export class RestaurantManager extends LitElement {
 		};
 	};
 
-	private readonly onTagsChange = (event: CustomEvent<string[]>): void => {
-		this.form = { ...this.form, tags: event.detail };
-	};
+	private onValuesChange(group: string, values: string[]): void {
+		this.form =
+			group === "tags"
+				? { ...this.form, tags: values }
+				: { ...this.form, groups: { ...this.form.groups, [group]: values } };
+	}
 
 	private readonly submit = (event: Event): void => {
 		event.preventDefault();
-		const tags = this.tagInput?.commit() ?? this.form.tags;
+		// Text still in a box counts as a value, the same as pressing Enter.
+		let tags = this.form.tags;
+		const groups: Record<string, string[]> = {};
+		for (const input of this.tagInputs) {
+			const group = input.getAttribute("data-group") ?? "tags";
+			const values = input.commit();
+			if (group === "tags") tags = values;
+			else groups[group] = values;
+		}
 		if (this.form.name.trim() === "") {
 			this.nameError = "manager.nameRequired";
 			return;
@@ -261,12 +285,11 @@ export class RestaurantManager extends LitElement {
 		}
 		const input = {
 			name: this.form.name,
-			tags,
 			location: this.form.location,
 			notes: this.form.notes,
-			area: this.form.area,
-			cuisine: this.form.cuisine,
 			kinds: this.form.kinds,
+			tags,
+			groups,
 		};
 		const editingId = this.editingId;
 		// Reset before saving so the store's change callback already sees a clean form.
@@ -281,19 +304,18 @@ export class RestaurantManager extends LitElement {
 		this.nameError = undefined;
 		this.form = {
 			name: item.name,
-			tags: item.tags,
 			location: item.location,
 			notes: item.notes,
-			area: item.area,
-			cuisine: item.cuisine,
 			kinds: item.kinds,
+			tags: item.tags,
+			groups: { ...item.groups },
 		};
 	}
 
 	private startEdit(item: Restaurant): void {
 		this.confirmingId = undefined;
-		// Text typed for the previous form must not become a tag of this restaurant.
-		this.tagInput?.clearText();
+		// Text typed for the previous form must not become a value of this restaurant.
+		for (const input of this.tagInputs) input.clearText();
 		this.fillForm(item);
 		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	}
@@ -386,20 +408,13 @@ export class RestaurantManager extends LitElement {
 					)}
 				</fieldset>
 				<div class="pair">
-					${this.renderSuggestedField("cuisine", t("group.cuisine"), t("field.cuisineHint"))}
-					${this.renderSuggestedField("area", t("group.area"), t("field.areaHint"))}
+					${[...VALUE_GROUPS, ...this.defs.map((def) => def.id)].map((group) => this.renderGroupInput(group))}
 				</div>
 				<label>
 					${t("field.location")}
 					<input id="location" name="location" autocomplete="off" .value=${live(this.form.location)} @input=${this.onInput} />
 				</label>
-				<tag-input
-					.label=${t("field.tags")}
-					.hint=${t("field.tagsHint")}
-					.value=${this.form.tags}
-					.suggestions=${tagsByUsage(this.restaurants)}
-					@change=${this.onTagsChange}
-				></tag-input>
+				${this.renderGroupInput("tags")}
 				<label>
 					${t("field.notes")}
 					<textarea id="notes" name="notes" rows="2" .value=${live(this.form.notes)} @input=${this.onInput}></textarea>
@@ -418,28 +433,22 @@ export class RestaurantManager extends LitElement {
 		`;
 	}
 
-	/** A text field that offers the values other restaurants already use. */
-	private renderSuggestedField(
-		field: "cuisine" | "area",
-		label: string,
-		hint: string,
-	) {
-		return html`<div class="field">
-			<label for=${field}>${label}</label>
-			<input
-				id=${field}
-				name=${field}
-				autocomplete="off"
-				list="${field}-list"
-				aria-describedby="${field}-hint"
-				.value=${live(this.form[field])}
-				@input=${this.onInput}
-			/>
-			<datalist id="${field}-list">
-				${valuesByUsage(this.restaurants, field).map((value) => html`<option value=${value}></option>`)}
-			</datalist>
-			<span id="${field}-hint" class="hint">${hint}</span>
-		</div>`;
+	/** A chip input for one group, suggesting the values other restaurants already use. */
+	private renderGroupInput(group: string) {
+		const hint =
+			group === "tags"
+				? t("field.tagsHint")
+				: t(HINTS[group] ?? "field.groupHint");
+		const value =
+			group === "tags" ? this.form.tags : (this.form.groups[group] ?? []);
+		return html`<tag-input
+			data-group=${group}
+			.label=${groupLabel(group, this.defs)}
+			.hint=${hint}
+			.value=${value}
+			.suggestions=${valuesByUsage(this.restaurants, group)}
+			@change=${(event: CustomEvent<string[]>) => this.onValuesChange(group, event.detail)}
+		></tag-input>`;
 	}
 
 	private renderRow(item: Restaurant) {
@@ -460,11 +469,15 @@ export class RestaurantManager extends LitElement {
 						: nothing
 				}
 				${item.notes ? html`<span class="notes muted">${item.notes}</span>` : nothing}
-				${
-					item.tags.length > 0
-						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
-						: nothing
-				}
+				${(() => {
+					const chips = customChips(item, this.defs);
+					return chips.length + item.tags.length > 0
+						? html`<ul class="chips">
+								${chips.map((chip) => html`<li class="chip group-chip">${chip}</li>`)}
+								${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}
+							</ul>`
+						: nothing;
+				})()}
 				<div class="actions">
 					${
 						confirming
