@@ -78,19 +78,20 @@ Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): sta
 Everything is kept in the browser's `localStorage`, per device and per browser. Nothing
 is sent to a server.
 
-| Key                     | Holds                                       |
-| ----------------------- | ------------------------------------------- |
-| `whattoeat:restaurants` | The restaurant list (JSON array)            |
-| `whattoeat:history`     | Visits from **Eat here**, newest first (JSON array) |
-| `whattoeat:lang`        | The chosen language, `en` or `th`           |
-| `whattoeat:theme`       | The chosen theme, `auto`, `light` or `dark` |
+| Key                     | Holds                                                      |
+| ----------------------- | ---------------------------------------------------------- |
+| `whattoeat:restaurants` | The restaurant list (JSON array)                           |
+| `whattoeat:history`     | Visits from **Eat here**, newest first (JSON array)        |
+| `whattoeat:lang`        | The chosen language, `en` or `th`                          |
+| `whattoeat:theme`       | The chosen theme, `auto`, `light` or `dark`                |
+| `whattoeat:groups`      | Custom groups, like "price" (JSON array of `{ id, name }`) |
 
 A stored entry that fails validation is skipped when the list loads, and every page shows a
 warning with how many were skipped. The next change to the list saves only the valid entries,
 so the skipped ones are gone after that. To keep one, copy the value from the browser's
 developer tools (Application, then Local Storage) before changing the list; fixed entries can
 be re-imported from **Settings** by pasting them inside an export
-(`{ "app": "whattoeat", "version": 1, "restaurants": [...] }`).
+(`{ "app": "whattoeat", "version": 4, "restaurants": [...], "history": [], "groups": [] }`).
 
 Ideas for future work live in [IDEAS.md](IDEAS.md).
 
