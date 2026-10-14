@@ -6,7 +6,7 @@ import {
 	isHistoryMemoryOnly,
 	loadHistory,
 	onHistoryChanged,
-	removeLock,
+	removeVisit,
 	summarize,
 } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
@@ -14,8 +14,8 @@ import type { Restaurant } from "#lib/restaurant";
 import { loadRestaurants, onRestaurantsChanged } from "#lib/store";
 import { uiStyles } from "#styles/ui";
 
-@customElement("lock-history")
-export class LockHistory extends LitElement {
+@customElement("visit-history")
+export class VisitHistory extends LitElement {
 	static override styles = [
 		uiStyles,
 		css`
@@ -77,7 +77,7 @@ export class LockHistory extends LitElement {
 				text-align: right;
 			}
 
-			.locks {
+			.visits {
 				display: grid;
 				gap: 0.5rem;
 				margin: 0;
@@ -85,20 +85,20 @@ export class LockHistory extends LitElement {
 				list-style: none;
 			}
 
-			.lock {
+			.visit {
 				display: flex;
 				flex-wrap: wrap;
 				align-items: center;
 				gap: 0.5rem 1rem;
 			}
 
-			.lock .what {
+			.visit .what {
 				flex: 1 1 12rem;
 				display: grid;
 				gap: 0.125rem;
 			}
 
-			.lock .name {
+			.visit .name {
 				font-weight: 600;
 			}
 
@@ -121,7 +121,7 @@ export class LockHistory extends LitElement {
 	@state()
 	private restaurants: Restaurant[] = [];
 
-	/** The lock whose Delete was pressed and now waits for confirmation. */
+	/** The visit whose Delete was pressed and now waits for confirmation. */
 	@state()
 	private confirmingId: string | undefined;
 
@@ -173,12 +173,12 @@ export class LockHistory extends LitElement {
 		this.focusAfterRender(() => this.rowAction(id, "delete"));
 	}
 
-	/** Focus goes to the next lock's Delete, else the previous one's, else the heading. */
+	/** Focus goes to the next visit's Delete, else the previous one's, else the heading. */
 	private confirmDelete(id: string): void {
 		this.confirmingId = undefined;
 		const index = this.history.findIndex((entry) => entry.id === id);
 		const neighbour = this.history[index + 1] ?? this.history[index - 1];
-		removeLock(id);
+		removeVisit(id);
 		this.focusAfterRender(() =>
 			neighbour === undefined
 				? this.renderRoot.querySelector("h1")
@@ -227,33 +227,33 @@ export class LockHistory extends LitElement {
 								(row) => html`<tr>
 									<td>${row.name}${row.deleted ? html` <span class="muted">${t("history.deleted")}</span>` : nothing}</td>
 									<td class="num">${row.count}</td>
-									<td>${day.format(new Date(row.lastLockedAt))}</td>
+									<td>${day.format(new Date(row.lastVisitedAt))}</td>
 								</tr>`,
 							)}
 						</tbody>
 					</table>
 				</div>
 			</section>
-			<section aria-labelledby="locks-title">
-				<h2 id="locks-title">${t("history.listTitle")}</h2>
-				<ul class="locks">
+			<section aria-labelledby="visits-title">
+				<h2 id="visits-title">${t("history.listTitle")}</h2>
+				<ul class="visits">
 					${repeat(
 						this.history,
 						(entry) => entry.id,
-						(entry) => this.renderLock(entry, dayTime),
+						(entry) => this.renderVisit(entry, dayTime),
 					)}
 				</ul>
 			</section>
 		`;
 	}
 
-	private renderLock(entry: HistoryEntry, format: Intl.DateTimeFormat) {
+	private renderVisit(entry: HistoryEntry, format: Intl.DateTimeFormat) {
 		const confirming = this.confirmingId === entry.id;
 		return html`
-			<li class="card lock" data-id=${entry.id}>
+			<li class="card visit" data-id=${entry.id}>
 				<div class="what">
 					<span class="name">${entry.name}</span>
-					<time class="muted" datetime=${entry.lockedAt}>${format.format(new Date(entry.lockedAt))}</time>
+					<time class="muted" datetime=${entry.visitedAt}>${format.format(new Date(entry.visitedAt))}</time>
 				</div>
 				<div class="actions">
 					${

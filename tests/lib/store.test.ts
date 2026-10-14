@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import { addLock, HISTORY_KEY, loadHistory } from "#lib/history";
+import { addVisit, HISTORY_KEY, loadHistory } from "#lib/history";
 import {
 	addRestaurant,
 	CHANGE_EVENT,
@@ -336,7 +336,7 @@ test("resetStorage also forgets history kept in memory", () => {
 		configurable: true,
 	});
 	try {
-		addLock({ id: "r1", name: "A" });
+		addVisit({ id: "r1", name: "A" });
 		expect(loadHistory()).toHaveLength(1);
 		resetStorage();
 	} finally {

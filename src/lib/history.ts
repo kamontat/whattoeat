@@ -8,7 +8,7 @@ export type HistoryEntry = {
 	id: string;
 	restaurantId: string;
 	name: string;
-	lockedAt: string;
+	visitedAt: string;
 };
 
 /** One row of the History page's stats table. */
@@ -16,7 +16,7 @@ export type HistoryStat = {
 	restaurantId: string;
 	name: string;
 	count: number;
-	lastLockedAt: string;
+	lastVisitedAt: string;
 	deleted: boolean;
 };
 
@@ -33,9 +33,17 @@ export const isHistoryEntry = (value: unknown): value is HistoryEntry => {
 		isFilled(item.id) &&
 		isFilled(item.restaurantId) &&
 		isFilled(item.name) &&
-		typeof item.lockedAt === "string" &&
-		!Number.isNaN(Date.parse(item.lockedAt))
+		typeof item.visitedAt === "string" &&
+		!Number.isNaN(Date.parse(item.visitedAt))
 	);
+};
+
+/** History saved before visits were renamed from locks, and version 2 exports, name the time `lockedAt`. */
+export const renameLockedAt = (value: unknown): unknown => {
+	if (typeof value !== "object" || value === null || "visitedAt" in value)
+		return value;
+	const { lockedAt, ...rest } = value as Record<string, unknown>;
+	return lockedAt === undefined ? value : { ...rest, visitedAt: lockedAt };
 };
 
 /** Keep only the known fields, so stored and imported data stays small and predictable. */
@@ -43,11 +51,11 @@ export const cleanEntry = (entry: HistoryEntry): HistoryEntry => ({
 	id: entry.id,
 	restaurantId: entry.restaurantId,
 	name: entry.name,
-	lockedAt: entry.lockedAt,
+	visitedAt: entry.visitedAt,
 });
 
 export const newestFirst = (list: readonly HistoryEntry[]): HistoryEntry[] =>
-	[...list].sort((a, b) => Date.parse(b.lockedAt) - Date.parse(a.lockedAt));
+	[...list].sort((a, b) => Date.parse(b.visitedAt) - Date.parse(a.visitedAt));
 
 /** Unreadable stored history is skipped without a warning; the next save drops it. */
 export const loadHistory = (): HistoryEntry[] => {
@@ -61,7 +69,9 @@ export const loadHistory = (): HistoryEntry[] => {
 		return [];
 	}
 	if (!Array.isArray(data)) return [];
-	return newestFirst(data.filter(isHistoryEntry).map(cleanEntry));
+	return newestFirst(
+		data.map(renameLockedAt).filter(isHistoryEntry).map(cleanEntry),
+	);
 };
 
 /** Returns `false` when localStorage refused the write and history is only kept in memory. */
@@ -84,7 +94,7 @@ export const forgetHistoryMemory = (): void => {
 	memory = undefined;
 };
 
-export const addLock = (
+export const addVisit = (
 	restaurant: Pick<Restaurant, "id" | "name">,
 	now: Date = new Date(),
 ): HistoryEntry => {
@@ -93,13 +103,13 @@ export const addLock = (
 		id: newId(existing.map((item) => item.id)),
 		restaurantId: restaurant.id,
 		name: restaurant.name,
-		lockedAt: now.toISOString(),
+		visitedAt: now.toISOString(),
 	};
 	saveHistory(newestFirst([entry, ...existing]));
 	return entry;
 };
 
-export const removeLock = (id: string): HistoryEntry[] => {
+export const removeVisit = (id: string): HistoryEntry[] => {
 	const list = loadHistory().filter((item) => item.id !== id);
 	saveHistory(list);
 	return list;
@@ -122,8 +132,8 @@ export const onHistoryChanged = (callback: () => void): (() => void) => {
 };
 
 /**
- * One row per restaurant: most locked first, ties by the latest lock. A restaurant that still
- * exists shows its current name; a deleted one shows the name from its newest lock.
+ * One row per restaurant: most visited first, ties by the latest visit. A restaurant that still
+ * exists shows its current name; a deleted one shows the name from its newest visit.
  */
 export const summarize = (
 	history: readonly HistoryEntry[],
@@ -141,13 +151,13 @@ export const summarize = (
 			restaurantId: entry.restaurantId,
 			name: current?.name ?? entry.name,
 			count: 1,
-			lastLockedAt: entry.lockedAt,
+			lastVisitedAt: entry.visitedAt,
 			deleted: current === undefined,
 		});
 	}
 	return [...rows.values()].sort(
 		(a, b) =>
 			b.count - a.count ||
-			Date.parse(b.lastLockedAt) - Date.parse(a.lastLockedAt),
+			Date.parse(b.lastVisitedAt) - Date.parse(a.lastVisitedAt),
 	);
 };

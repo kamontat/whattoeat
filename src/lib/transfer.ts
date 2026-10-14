@@ -3,6 +3,7 @@ import {
 	type HistoryEntry,
 	isHistoryEntry,
 	newestFirst,
+	renameLockedAt,
 } from "#lib/history";
 import {
 	isRestaurant,
@@ -11,10 +12,13 @@ import {
 	type Restaurant,
 } from "#lib/restaurant";
 
-export const EXPORT_VERSION = 2;
+export const EXPORT_VERSION = 3;
 
-/** Version 1 files predate history; they still import, with no history. */
-const READABLE_VERSIONS: readonly unknown[] = [1, EXPORT_VERSION];
+/**
+ * Version 1 files predate history; they still import, with no history. Version 2 files call
+ * each visit's time `lockedAt`.
+ */
+const READABLE_VERSIONS: readonly unknown[] = [1, 2, EXPORT_VERSION];
 
 export type ExportFile = {
 	app: "whattoeat";
@@ -112,9 +116,10 @@ export const parseImport = (text: string): ImportResult => {
 		return { ok: false, error: "import.error.entries" };
 	let history: HistoryEntry[] | undefined;
 	if (file.version !== 1) {
-		const entries = file.history;
-		if (!Array.isArray(entries))
+		if (!Array.isArray(file.history))
 			return { ok: false, error: "import.error.format" };
+		const entries =
+			file.version === 2 ? file.history.map(renameLockedAt) : file.history;
 		if (
 			!entries.every(isHistoryEntry) ||
 			new Set(entries.map((item) => item.id)).size !== entries.length
@@ -157,7 +162,7 @@ export const mergeRestaurants = (
 	return [...byId.values()];
 };
 
-/** Incoming locks replace existing ones with the same id; the result is newest first. */
+/** Incoming visits replace existing ones with the same id; the result is newest first. */
 export const mergeHistory = (
 	existing: HistoryEntry[],
 	incoming: HistoryEntry[],

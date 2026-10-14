@@ -453,8 +453,8 @@ test("uses the singular when one stored entry could not be read", async () => {
 	);
 });
 
-const lockButtons = (el: HTMLElement) => [
-	...root(el).querySelectorAll<HTMLButtonElement>("button.lock"),
+const visitButtons = (el: HTMLElement) => [
+	...root(el).querySelectorAll<HTMLButtonElement>("button.visit"),
 ];
 const pickOnce = async (
 	el: HTMLElement & { updateComplete: Promise<boolean> },
@@ -467,21 +467,21 @@ test("each picked card has an Eat here button", async () => {
 	addRestaurant({ ...base, name: "A" });
 	addRestaurant({ ...base, name: "B" });
 	const el = await mount();
-	expect(lockButtons(el)).toHaveLength(0);
+	expect(visitButtons(el)).toHaveLength(0);
 	await pickOnce(el);
-	expect(lockButtons(el).map((b) => b.textContent?.trim())).toEqual([
+	expect(visitButtons(el).map((b) => b.textContent?.trim())).toEqual([
 		"Eat here",
 		"Eat here",
 	]);
 });
 
-test("Eat here saves a lock and marks only that card", async () => {
+test("Eat here saves a visit and marks only that card", async () => {
 	addRestaurant({ ...base, name: "A" });
 	addRestaurant({ ...base, name: "B" });
 	const el = await mount();
 	await pickOnce(el);
 	const chosen = pickedNames(el)[1];
-	lockButtons(el)[1]!.click();
+	visitButtons(el)[1]!.click();
 	await el.updateComplete;
 	const history = loadHistory();
 	expect(history).toHaveLength(1);
@@ -489,64 +489,66 @@ test("Eat here saves a lock and marks only that card", async () => {
 	const time = new Intl.DateTimeFormat(getLang(), {
 		hour: "2-digit",
 		minute: "2-digit",
-	}).format(new Date(history[0]!.lockedAt));
-	const locked = root(el).querySelectorAll(".result.locked");
-	expect(locked).toHaveLength(1);
-	expect(locked[0]!.querySelector("h2")?.textContent).toBe(chosen!);
-	expect(locked[0]!.querySelector(".locked-label")?.textContent?.trim()).toBe(
-		`✓ Locked at ${time}`,
+	}).format(new Date(history[0]!.visitedAt));
+	const visited = root(el).querySelectorAll(".result.visited");
+	expect(visited).toHaveLength(1);
+	expect(visited[0]!.querySelector("h2")?.textContent).toBe(chosen!);
+	expect(visited[0]!.querySelector(".visited-label")?.textContent?.trim()).toBe(
+		`✓ Going here · ${time}`,
 	);
-	expect(lockButtons(el)).toHaveLength(0);
+	expect(visitButtons(el)).toHaveLength(0);
 	expect(pickedNames(el)).toHaveLength(2);
 });
 
-test("a double press saves one lock", async () => {
+test("a double press saves one visit", async () => {
 	addRestaurant({ ...base, name: "A" });
 	addRestaurant({ ...base, name: "B" });
 	const el = await mount();
 	await pickOnce(el);
-	const [first, second] = lockButtons(el);
+	const [first, second] = visitButtons(el);
 	first!.click();
 	second!.click();
 	await el.updateComplete;
 	expect(loadHistory()).toHaveLength(1);
 });
 
-test("focus moves to the locked label", async () => {
+test("focus moves to the visited label", async () => {
 	addRestaurant({ ...base, name: "A" });
 	const el = await mount();
 	await pickOnce(el);
-	lockButtons(el)[0]!.click();
+	visitButtons(el)[0]!.click();
 	await el.updateComplete;
 	await el.updateComplete;
-	expect(root(el).activeElement?.classList.contains("locked-label")).toBe(true);
+	expect(root(el).activeElement?.classList.contains("visited-label")).toBe(
+		true,
+	);
 });
 
 test("Pick again brings the Eat here buttons back", async () => {
 	for (const name of ["A", "B", "C", "D"]) addRestaurant({ ...base, name });
 	const el = await mount();
 	await pickOnce(el);
-	lockButtons(el)[0]!.click();
+	visitButtons(el)[0]!.click();
 	await el.updateComplete;
 	await pickOnce(el);
-	expect(lockButtons(el)).toHaveLength(2);
-	expect(root(el).querySelector(".locked-label")).toBeNull();
+	expect(visitButtons(el)).toHaveLength(2);
+	expect(root(el).querySelector(".visited-label")).toBeNull();
 	expect(loadHistory()).toHaveLength(1);
 });
 
-test("deleting the locked restaurant clears the label but keeps the lock", async () => {
+test("deleting the visited restaurant clears the label but keeps the visit", async () => {
 	addRestaurant({ ...base, name: "A" });
 	addRestaurant({ ...base, name: "B" });
 	const list = addRestaurant({ ...base, name: "C" });
 	const el = await mount();
 	await pickOnce(el);
 	const [first = ""] = pickedNames(el);
-	lockButtons(el)[0]!.click();
+	visitButtons(el)[0]!.click();
 	await el.updateComplete;
 	removeRestaurant(list.find((r) => r.name === first)!.id);
 	await el.updateComplete;
-	expect(root(el).querySelector(".locked-label")).toBeNull();
-	expect(lockButtons(el)).toHaveLength(1);
+	expect(root(el).querySelector(".visited-label")).toBeNull();
+	expect(visitButtons(el)).toHaveLength(1);
 	expect(loadHistory()[0]!.name).toBe(first);
 });
 
@@ -555,10 +557,10 @@ test("Eat here renders in Thai", async () => {
 	const el = await mount();
 	setLang("th");
 	await pickOnce(el);
-	expect(lockButtons(el)[0]?.textContent?.trim()).toBe("กินร้านนี้");
+	expect(visitButtons(el)[0]?.textContent?.trim()).toBe("กินร้านนี้");
 });
 
-test("warns when the browser could not save the lock", async () => {
+test("warns when the browser could not save the visit", async () => {
 	addRestaurant({ ...base, name: "A" });
 	const el = await mount();
 	await pickOnce(el);
@@ -574,7 +576,7 @@ test("warns when the browser could not save the lock", async () => {
 		configurable: true,
 	});
 	try {
-		lockButtons(el)[0]!.click();
+		visitButtons(el)[0]!.click();
 		await el.updateComplete;
 		expect(root(el).querySelector(".warning")?.textContent?.trim()).toBe(
 			"Your browser is not saving changes. They will be lost when you leave this page.",
@@ -607,5 +609,5 @@ test("a picked card shows the type line before the location and keeps Eat here i
 		"chips",
 		"foot",
 	]);
-	expect(card.querySelector(".foot button.lock")).not.toBeNull();
+	expect(card.querySelector(".foot button.visit")).not.toBeNull();
 });

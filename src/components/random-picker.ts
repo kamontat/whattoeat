@@ -12,7 +12,7 @@ import {
 	type TagState,
 	tagState,
 } from "#lib/filter";
-import { addLock, isHistoryMemoryOnly } from "#lib/history";
+import { addVisit, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
 import { pickOptions } from "#lib/random";
 import {
@@ -232,24 +232,24 @@ export class RandomPicker extends LitElement {
 				padding-top: 0.75rem;
 			}
 
-			.result .lock {
+			.result .visit {
 				width: 100%;
 				font-weight: 600;
 			}
 
-			.result.locked {
+			.result.visited {
 				border-color: var(--color-success);
 				box-shadow: 0 0 0 1px var(--color-success);
 			}
 
-			.locked-label {
+			.visited-label {
 				padding: 0.5rem 0;
 				color: var(--color-success);
 				font-weight: 700;
 				text-align: center;
 			}
 
-			.locked-label:focus {
+			.visited-label:focus {
 				outline: none;
 			}
 		`,
@@ -270,7 +270,7 @@ export class RandomPicker extends LitElement {
 
 	/** The card the user chose with "Eat here" for this pick, and when. */
 	@state()
-	private locked: { id: string; at: Date } | undefined;
+	private visited: { id: string; at: Date } | undefined;
 
 	private unsubscribe: (() => void) | undefined;
 
@@ -316,8 +316,8 @@ export class RandomPicker extends LitElement {
 		this.picked = this.picked
 			.map((item) => pool.find((other) => other.id === item.id))
 			.filter((item) => item !== undefined);
-		if (!this.picked.some((item) => item.id === this.locked?.id))
-			this.locked = undefined;
+		if (!this.picked.some((item) => item.id === this.visited?.id))
+			this.visited = undefined;
 	}
 
 	private setFilter(next: Filter): void {
@@ -331,7 +331,7 @@ export class RandomPicker extends LitElement {
 	};
 
 	private readonly pick = (): void => {
-		this.locked = undefined;
+		this.visited = undefined;
 		this.picked = pickOptions(
 			this.pool,
 			2,
@@ -461,33 +461,33 @@ export class RandomPicker extends LitElement {
 		`;
 	}
 
-	private lock(item: Restaurant): void {
-		// A second press before the re-render must not save a second lock.
-		if (this.locked !== undefined) return;
-		const entry = addLock(item);
-		this.locked = { id: item.id, at: new Date(entry.lockedAt) };
+	private visit(item: Restaurant): void {
+		// A second press before the re-render must not save a second visit.
+		if (this.visited !== undefined) return;
+		const entry = addVisit(item);
+		this.visited = { id: item.id, at: new Date(entry.visitedAt) };
 		// The pressed button is gone after the render, so move focus to the label that replaced it.
 		void this.updateComplete.then(() => {
-			this.renderRoot.querySelector<HTMLElement>(".locked-label")?.focus();
+			this.renderRoot.querySelector<HTMLElement>(".visited-label")?.focus();
 		});
 	}
 
-	private renderLock(item: Restaurant) {
-		if (this.locked === undefined)
-			return html`<button type="button" class="primary lock" data-id=${item.id} @click=${() => this.lock(item)}>
-				${t("picker.lock")}
+	private renderVisit(item: Restaurant) {
+		if (this.visited === undefined)
+			return html`<button type="button" class="primary visit" data-id=${item.id} @click=${() => this.visit(item)}>
+				${t("picker.visit")}
 			</button>`;
-		if (this.locked.id !== item.id) return nothing;
+		if (this.visited.id !== item.id) return nothing;
 		const time = new Intl.DateTimeFormat(getLang(), {
 			hour: "2-digit",
 			minute: "2-digit",
-		}).format(this.locked.at);
-		return html`<p class="locked-label" tabindex="-1">${t("picker.locked", { time })}</p>`;
+		}).format(this.visited.at);
+		return html`<p class="visited-label" tabindex="-1">${t("picker.visited", { time })}</p>`;
 	}
 
 	private renderResult(item: Restaurant) {
 		return html`
-			<article class="card result ${this.locked?.id === item.id ? "locked" : ""}">
+			<article class="card result ${this.visited?.id === item.id ? "visited" : ""}">
 				<h2>${item.name}</h2>
 				${metaLine(item) ? html`<p class="meta">${metaLine(item)}</p>` : nothing}
 				${
@@ -507,7 +507,7 @@ export class RandomPicker extends LitElement {
 						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
 						: nothing
 				}
-				<div class="foot">${this.renderLock(item)}</div>
+				<div class="foot">${this.renderVisit(item)}</div>
 			</article>
 		`;
 	}

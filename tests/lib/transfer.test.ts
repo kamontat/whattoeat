@@ -24,20 +24,20 @@ const make = (id: string, name = id): Restaurant => ({
 	updatedAt: "2026-10-12T00:00:00.000Z",
 });
 
-const lock = (
+const visit = (
 	id: string,
-	lockedAt: string,
+	visitedAt: string,
 	restaurantId = "a",
 ): HistoryEntry => ({
 	id,
 	restaurantId,
 	name: restaurantId,
-	lockedAt,
+	visitedAt,
 });
 
 test("exportJson gives indented or one-line json that imports back", () => {
 	const now = new Date("2026-10-12T10:00:00.000Z");
-	const history = [lock("h1", "2026-10-12T09:00:00.000Z")];
+	const history = [visit("h1", "2026-10-12T09:00:00.000Z")];
 	const pretty = exportJson([make("a"), make("b")], history, now, {
 		pretty: true,
 	});
@@ -60,13 +60,13 @@ test("exportJson gives indented or one-line json that imports back", () => {
 test("toExportFile wraps restaurants and history in the versioned envelope", () => {
 	const now = new Date("2026-10-12T10:00:00.000Z");
 	expect(
-		toExportFile([make("a")], [lock("h1", "2026-10-12T09:00:00.000Z")], now),
+		toExportFile([make("a")], [visit("h1", "2026-10-12T09:00:00.000Z")], now),
 	).toEqual({
 		app: "whattoeat",
-		version: 2,
+		version: 3,
 		exportedAt: "2026-10-12T10:00:00.000Z",
 		restaurants: [make("a")],
-		history: [lock("h1", "2026-10-12T09:00:00.000Z")],
+		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 	});
 	expect(toExportFile([], undefined, now).history).toEqual([]);
 });
@@ -110,7 +110,7 @@ test.each([
 	],
 	[
 		"future version",
-		JSON.stringify({ app: "whattoeat", version: 3, restaurants: [] }),
+		JSON.stringify({ app: "whattoeat", version: 4, restaurants: [] }),
 		"import.error.version",
 	],
 	[
@@ -273,23 +273,23 @@ test.each([
 	["not an array", { id: "h1" }, "import.error.format"],
 	[
 		"with a bad entry",
-		[{ id: "h1", restaurantId: "a", name: "A", lockedAt: "never" }],
+		[{ id: "h1", restaurantId: "a", name: "A", visitedAt: "never" }],
 		"import.error.entries",
 	],
 	[
 		"with duplicate ids",
 		[
-			lock("h1", "2026-10-12T09:00:00.000Z"),
-			lock("h1", "2026-10-11T09:00:00.000Z"),
+			visit("h1", "2026-10-12T09:00:00.000Z"),
+			visit("h1", "2026-10-11T09:00:00.000Z"),
 		],
 		"import.error.entries",
 	],
-])("a version 2 file with history %s is rejected", (_label, history, error) => {
+])("a version 3 file with history %s is rejected", (_label, history, error) => {
 	expect(
 		parseImport(
 			JSON.stringify({
 				app: "whattoeat",
-				version: 2,
+				version: 3,
 				restaurants: [],
 				history,
 			}),
@@ -301,11 +301,11 @@ test("imported history is sorted newest first and loses unknown fields", () => {
 	const result = parseImport(
 		JSON.stringify({
 			app: "whattoeat",
-			version: 2,
+			version: 3,
 			restaurants: [],
 			history: [
-				{ ...lock("old", "2026-10-01T09:00:00.000Z"), extra: true },
-				lock("new", "2026-10-12T09:00:00.000Z", "deleted-restaurant"),
+				{ ...visit("old", "2026-10-01T09:00:00.000Z"), extra: true },
+				visit("new", "2026-10-12T09:00:00.000Z", "deleted-restaurant"),
 			],
 		}),
 	);
@@ -313,25 +313,57 @@ test("imported history is sorted newest first and loses unknown fields", () => {
 		ok: true,
 		restaurants: [],
 		history: [
-			lock("new", "2026-10-12T09:00:00.000Z", "deleted-restaurant"),
-			lock("old", "2026-10-01T09:00:00.000Z"),
+			visit("new", "2026-10-12T09:00:00.000Z", "deleted-restaurant"),
+			visit("old", "2026-10-01T09:00:00.000Z"),
 		],
 	});
 });
 
+test("a version 2 file reads each entry's lockedAt as its visit time", () => {
+	const { visitedAt, ...rest } = visit("h1", "2026-10-12T09:00:00.000Z");
+	expect(
+		parseImport(
+			JSON.stringify({
+				app: "whattoeat",
+				version: 2,
+				restaurants: [],
+				history: [{ ...rest, lockedAt: visitedAt }],
+			}),
+		),
+	).toEqual({
+		ok: true,
+		restaurants: [],
+		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
+	});
+});
+
+test("a version 3 entry with only lockedAt is rejected", () => {
+	const { visitedAt, ...rest } = visit("h1", "2026-10-12T09:00:00.000Z");
+	expect(
+		parseImport(
+			JSON.stringify({
+				app: "whattoeat",
+				version: 3,
+				restaurants: [],
+				history: [{ ...rest, lockedAt: visitedAt }],
+			}),
+		),
+	).toEqual({ ok: false, error: "import.error.entries" });
+});
+
 test("mergeHistory keeps both sides, incoming wins on the same id, newest first", () => {
 	const existing = [
-		lock("a", "2026-10-10T09:00:00.000Z"),
-		{ ...lock("b", "2026-10-05T09:00:00.000Z"), name: "old" },
+		visit("a", "2026-10-10T09:00:00.000Z"),
+		{ ...visit("b", "2026-10-05T09:00:00.000Z"), name: "old" },
 	];
 	const incoming = [
-		{ ...lock("b", "2026-10-05T09:00:00.000Z"), name: "new" },
-		lock("c", "2026-10-12T09:00:00.000Z"),
+		{ ...visit("b", "2026-10-05T09:00:00.000Z"), name: "new" },
+		visit("c", "2026-10-12T09:00:00.000Z"),
 	];
 	expect(mergeHistory(existing, incoming)).toEqual([
-		lock("c", "2026-10-12T09:00:00.000Z"),
-		lock("a", "2026-10-10T09:00:00.000Z"),
-		{ ...lock("b", "2026-10-05T09:00:00.000Z"), name: "new" },
+		visit("c", "2026-10-12T09:00:00.000Z"),
+		visit("a", "2026-10-10T09:00:00.000Z"),
+		{ ...visit("b", "2026-10-05T09:00:00.000Z"), name: "new" },
 	]);
 	expect(existing).toHaveLength(2);
 });

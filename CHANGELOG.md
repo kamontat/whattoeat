@@ -2,7 +2,24 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-14: Import renames restaurants whose name is already used
+## 2026-10-14: Import renames restaurants whose name is already used, and history locks are now visits
+
+### BREAKING CHANGES
+
+- Exports are now `version: 3`, with each history entry's time in `visitedAt`. A build from
+  before this change cannot import them and says "This export version is not supported."
+- In code, `<lock-history>` is now `<visit-history>` (`src/components/visit-history.ts`), and
+  `addLock`, `removeLock`, `lockedAt` and `lastLockedAt` are now `addVisit`, `removeVisit`,
+  `visitedAt` and `lastVisitedAt`. The `picker.lock` and `picker.locked` messages are now
+  `picker.visit` and `picker.visited`.
+
+### Improvements
+
+- History speaks of visits instead of locks: "No visits yet.", "4 visits in total", "Visits"
+  and "Delete this visit". After **Eat here**, the card shows "✓ Going here · 12:30". The
+  Thai text already said เลือก and is unchanged.
+- History saved in the browser with `lockedAt` still loads, and version 2 exports still
+  import, their `lockedAt` read as `visitedAt`.
 
 ### Bug fixes
 
@@ -18,6 +35,10 @@ What changed in this project and why, newest first.
 - Only incoming restaurants are renamed; saved ones keep their names, so a merge never
   changes what is already on the list. A suffix was chosen over skipping or rejecting the
   clashing entries, because two places can share a name and both are worth keeping.
+- "Lock" was the design's word for pressing **Eat here** and read oddly in the app. "Pick"
+  and "choose" were rejected because **Pick again** already means a new random pair; a visit
+  is what each entry records. The rename covers the code and the stored field too, so the
+  words match everywhere, with old data read rather than migrated.
 
 ## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer, data reset, a warning for unreadable saved data, two random options per pick, a lock history, and filtering by type, cuisine and area
 
