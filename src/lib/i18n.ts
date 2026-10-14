@@ -89,7 +89,9 @@ export const en = {
 	"tags.moveUp": "Move {group} up",
 	"tags.moveDown": "Move {group} down",
 	"tags.delete": "Delete",
-	"tags.deleteGroupPrompt":
+	"tags.deleteGroupPrompt.one":
+		"Delete the group {group}? Its values on 1 restaurant become plain tags.",
+	"tags.deleteGroupPrompt.other":
 		"Delete the group {group}? Its values on {count} restaurants become plain tags.",
 	"tags.confirmDelete": "Confirm delete",
 	"tags.renameGroupLabel": "Rename {group}",
@@ -104,11 +106,14 @@ export const en = {
 	"tags.move": "Move to…",
 	"tags.moveLabel": "Move {value} to",
 	"tags.renameLabel": "New name for {value}",
-	"tags.mergePrompt":
+	"tags.mergePrompt.one":
+		"{to} already exists. Merge {from} into {to} on 1 restaurant?",
+	"tags.mergePrompt.other":
 		"{to} already exists. Merge {from} into {to} on {count} restaurants?",
 	"tags.confirmMerge": "Merge",
 	"tags.confirmMove": "Move",
-	"tags.deleteValuePrompt": "Remove {value} from {count} restaurants?",
+	"tags.deleteValuePrompt.one": "Remove {value} from 1 restaurant?",
+	"tags.deleteValuePrompt.other": "Remove {value} from {count} restaurants?",
 	"tags.valueRequired": "Value is required.",
 	"tags.valueComma": "A value cannot contain a comma.",
 	"tags.renameValueLabel": "Rename {value}",
@@ -237,7 +242,9 @@ export const th: Record<MessageKey, string> = {
 	"tags.moveUp": "เลื่อน {group} ขึ้น",
 	"tags.moveDown": "เลื่อน {group} ลง",
 	"tags.delete": "ลบ",
-	"tags.deleteGroupPrompt":
+	"tags.deleteGroupPrompt.one":
+		"ลบกลุ่ม {group} หรือไม่ ค่าในร้าน 1 ร้านจะกลายเป็นแท็กทั่วไป",
+	"tags.deleteGroupPrompt.other":
 		"ลบกลุ่ม {group} หรือไม่ ค่าในร้าน {count} ร้านจะกลายเป็นแท็กทั่วไป",
 	"tags.confirmDelete": "ยืนยันการลบ",
 	"tags.renameGroupLabel": "เปลี่ยนชื่อ {group}",
@@ -252,10 +259,13 @@ export const th: Record<MessageKey, string> = {
 	"tags.move": "ย้ายไป…",
 	"tags.moveLabel": "ย้าย {value} ไปที่",
 	"tags.renameLabel": "ชื่อใหม่ของ {value}",
-	"tags.mergePrompt": "มี {to} อยู่แล้ว รวม {from} เข้ากับ {to} ใน {count} ร้านหรือไม่",
+	"tags.mergePrompt.one": "มี {to} อยู่แล้ว รวม {from} เข้ากับ {to} ใน 1 ร้านหรือไม่",
+	"tags.mergePrompt.other":
+		"มี {to} อยู่แล้ว รวม {from} เข้ากับ {to} ใน {count} ร้านหรือไม่",
 	"tags.confirmMerge": "รวม",
 	"tags.confirmMove": "ย้าย",
-	"tags.deleteValuePrompt": "ลบ {value} ออกจาก {count} ร้านหรือไม่",
+	"tags.deleteValuePrompt.one": "ลบ {value} ออกจาก 1 ร้านหรือไม่",
+	"tags.deleteValuePrompt.other": "ลบ {value} ออกจาก {count} ร้านหรือไม่",
 	"tags.valueRequired": "กรุณาใส่ค่า",
 	"tags.valueComma": "ค่าต้องไม่มีจุลภาค",
 	"tags.renameValueLabel": "เปลี่ยนชื่อ {value}",

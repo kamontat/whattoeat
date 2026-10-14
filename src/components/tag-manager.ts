@@ -1,6 +1,7 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
+import { repeat } from "lit/directives/repeat.js";
 import {
 	dropFilterGroup,
 	dropFilterValue,
@@ -16,6 +17,7 @@ import {
 	deleteValue,
 	type GroupDef,
 	groupLabel,
+	isGroupsMemoryOnly,
 	loadGroups,
 	moveGroup,
 	moveValue,
@@ -36,9 +38,11 @@ import {
 	VALUE_GROUPS,
 } from "#lib/restaurant";
 import {
+	isMemoryOnly,
 	loadRestaurants,
 	onRestaurantsChanged,
 	saveRestaurants,
+	skippedCount,
 } from "#lib/store";
 import { uiStyles } from "#styles/ui";
 
@@ -106,7 +110,35 @@ export class TagManager extends LitElement {
 				font-weight: 600;
 			}
 
-			li.value .actions {
+			/* An open prompt sits where the row's buttons were, on one wrapping row. */
+			.prompt {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.prompt label {
+				display: flex;
+				align-items: center;
+				font-weight: 400;
+			}
+
+			.prompt select {
+				font: inherit;
+				padding: 0.5rem 0.75rem;
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius);
+				background: var(--color-surface);
+				color: inherit;
+			}
+
+			.prompt .error {
+				flex-basis: 100%;
+			}
+
+			li.value .actions,
+			li.value .prompt {
 				margin-left: auto;
 			}
 		`,
@@ -119,6 +151,8 @@ export class TagManager extends LitElement {
 	@state() private prompt: Prompt | undefined;
 	@state() private newName = "";
 	@state() private addError: NameError | undefined;
+	/** Stored restaurants the last load could not read. */
+	@state() private skipped = 0;
 
 	private unsubscribe: (() => void)[] = [];
 
@@ -140,6 +174,7 @@ export class TagManager extends LitElement {
 	private reload(): void {
 		this.defs = loadGroups();
 		this.restaurants = loadRestaurants();
+		this.skipped = skippedCount();
 	}
 
 	/** Runs `find` after the next render and focuses what it returns, for actions that remove the focused button. */
@@ -150,11 +185,18 @@ export class TagManager extends LitElement {
 		});
 	}
 
+	// Group ids and values are compared as attributes rather than put into a selector, where a
+	// quote or backslash in a stored value would break it.
+	private groupCard(group: string): Element | undefined {
+		return [...this.renderRoot.querySelectorAll("section.group")].find(
+			(section) => section.getAttribute("data-group") === group,
+		);
+	}
+
 	private groupAction(group: string, action: string): Element | undefined {
 		return (
-			this.renderRoot.querySelector(
-				`section.group[data-group="${group}"] [data-action="${action}"]`,
-			) ?? undefined
+			this.groupCard(group)?.querySelector(`[data-action="${action}"]`) ??
+			undefined
 		);
 	}
 
@@ -183,12 +225,25 @@ export class TagManager extends LitElement {
 
 	private startRename(id: string, label: string): void {
 		this.prompt = { kind: "rename-group", id, text: label };
-		this.focusAfterRender(() => this.renderRoot.querySelector(`#rename-${id}`));
+		this.focusAfterRender(() => this.groupCard(id)?.querySelector("input"));
 	}
 
 	private cancelRename(id: string): void {
 		this.prompt = undefined;
 		this.focusAfterRender(() => this.groupAction(id, "rename-group"));
+	}
+
+	/** Moves a custom group and keeps focus on the button that moved it, or the other arrow once it is disabled. */
+	private moveGroupBy(id: string, step: -1 | 1): void {
+		saveGroups(moveGroup(this.defs, id, step));
+		const [action, other] =
+			step < 0 ? ["move-up", "move-down"] : ["move-down", "move-up"];
+		this.focusAfterRender(() => {
+			const button = this.groupAction(id, action);
+			return button instanceof HTMLButtonElement && button.disabled
+				? this.groupAction(id, other)
+				: button;
+		});
 	}
 
 	private askDeleteGroup(id: string): void {
@@ -213,11 +268,9 @@ export class TagManager extends LitElement {
 	}
 
 	private valueRow(group: string, value: string): Element | undefined {
-		return (
-			this.renderRoot.querySelector(
-				`section.group[data-group="${group}"] li.value[data-value="${value}"]`,
-			) ?? undefined
-		);
+		return [
+			...(this.groupCard(group)?.querySelectorAll("li.value") ?? []),
+		].find((row) => row.getAttribute("data-value") === value);
 	}
 
 	private startRenameValue(group: string, value: string): void {
@@ -349,6 +402,14 @@ export class TagManager extends LitElement {
 		return html`
 			<h1>${t("tags.title")}</h1>
 			<p class="muted">${t("tags.intro")}</p>
+			${isMemoryOnly() || isGroupsMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
+			${
+				this.skipped > 0
+					? html`<p class="warning skipped" role="alert">
+							${this.skipped === 1 ? t("storage.skipped.one") : t("storage.skipped.other", { count: this.skipped })}
+						</p>`
+					: nothing
+			}
 			${
 				this.restaurants.length === 0
 					? html`<div class="card empty">
@@ -357,7 +418,11 @@ export class TagManager extends LitElement {
 						</div>`
 					: nothing
 			}
-			${groups.map((group) => this.renderGroup(group))}
+			${repeat(
+				groups,
+				(group) => group,
+				(group) => this.renderGroup(group),
+			)}
 			${this.renderAddGroup()}
 		`;
 	}
@@ -395,24 +460,25 @@ export class TagManager extends LitElement {
 		const prompt = this.prompt;
 		if (prompt?.kind === "rename-group" && prompt.id === group)
 			return html`<form
-				class="rename"
+				class="rename prompt"
 				@submit=${(event: Event) => {
 					event.preventDefault();
 					this.saveGroupName(group, prompt.text);
 				}}
 			>
-				<label class="visually-hidden" for="rename-${group}">${t("tags.addLabel")}</label>
-				<input
-					id="rename-${group}"
-					.value=${live(prompt.text)}
-					@input=${(event: Event) => {
-						this.prompt = {
-							kind: "rename-group",
-							id: prompt.id,
-							text: (event.target as HTMLInputElement).value,
-						};
-					}}
-				/>
+				<label>
+					<span class="visually-hidden">${t("tags.addLabel")}</span>
+					<input
+						.value=${live(prompt.text)}
+						@input=${(event: Event) => {
+							this.prompt = {
+								kind: "rename-group",
+								id: prompt.id,
+								text: (event.target as HTMLInputElement).value,
+							};
+						}}
+					/>
+				</label>
 				<button type="submit" class="primary" data-action="save-group-name">${t("tags.save")}</button>
 				<button type="button" data-action="cancel" @click=${() => this.cancelRename(group)}>${t("tags.cancel")}</button>
 				${prompt.error ? html`<p class="error" role="alert">${t(prompt.error)}</p>` : nothing}
@@ -435,14 +501,14 @@ export class TagManager extends LitElement {
 				data-action="move-up"
 				aria-label=${t("tags.moveUp", { group: label })}
 				?disabled=${index === 0}
-				@click=${() => saveGroups(moveGroup(this.defs, group, -1))}
+				@click=${() => this.moveGroupBy(group, -1)}
 			>↑</button>
 			<button
 				type="button"
 				data-action="move-down"
 				aria-label=${t("tags.moveDown", { group: label })}
 				?disabled=${index === this.defs.length - 1}
-				@click=${() => saveGroups(moveGroup(this.defs, group, 1))}
+				@click=${() => this.moveGroupBy(group, 1)}
 			>↓</button>
 			<button
 				type="button"
@@ -459,8 +525,9 @@ export class TagManager extends LitElement {
 	private renderGroupPrompt(group: string, label: string) {
 		const prompt = this.prompt;
 		if (prompt?.kind !== "delete-group" || prompt.id !== group) return nothing;
+		const count = usingGroup(this.restaurants, group);
 		return html`<div role="alert">
-			<p>${t("tags.deleteGroupPrompt", { group: label, count: usingGroup(this.restaurants, group) })}</p>
+			<p>${count === 1 ? t("tags.deleteGroupPrompt.one", { group: label }) : t("tags.deleteGroupPrompt.other", { group: label, count })}</p>
 			<div class="actions">
 				<button type="button" class="danger" data-action="confirm-delete-group" @click=${() => this.confirmDeleteGroup(group)}>
 					${t("tags.confirmDelete")}
@@ -529,14 +596,14 @@ export class TagManager extends LitElement {
 		switch (prompt.kind) {
 			case "rename-value":
 				return html`<form
-					class="rename"
+					class="rename prompt"
 					@submit=${(event: Event) => {
 						event.preventDefault();
 						this.saveValueName(group, value, prompt.text);
 					}}
 				>
-					<label class="visually-hidden">
-						${t("tags.renameLabel", { value })}
+					<label>
+						<span class="visually-hidden">${t("tags.renameLabel", { value })}</span>
 						<input
 							.value=${live(prompt.text)}
 							@input=${(event: Event) => {
@@ -554,8 +621,8 @@ export class TagManager extends LitElement {
 					${prompt.error ? html`<p class="error" role="alert">${t(prompt.error)}</p>` : nothing}
 				</form>`;
 			case "merge":
-				return html`<div role="alert">
-					<p>${t("tags.mergePrompt", { from: value, to: prompt.to, count })}</p>
+				return html`<div class="prompt" role="alert">
+					<p>${count === 1 ? t("tags.mergePrompt.one", { from: value, to: prompt.to }) : t("tags.mergePrompt.other", { from: value, to: prompt.to, count })}</p>
 					<div class="actions">
 						<button type="button" class="primary" data-action="confirm-merge" @click=${() => this.applyRename(group, value, prompt.to)}>
 							${t("tags.confirmMerge")}
@@ -565,13 +632,14 @@ export class TagManager extends LitElement {
 				</div>`;
 			case "move-value":
 				return html`<form
+					class="prompt"
 					@submit=${(event: Event) => {
 						event.preventDefault();
 						this.applyMove(group, value, prompt.to);
 					}}
 				>
-					<label class="visually-hidden">
-						${t("tags.moveLabel", { value })}
+					<label>
+						<span class="visually-hidden">${t("tags.moveLabel", { value })}</span>
 						<select
 							name="target"
 							.value=${live(prompt.to)}
@@ -594,8 +662,8 @@ export class TagManager extends LitElement {
 					<button type="button" data-action="cancel" @click=${() => this.cancelMoveValue(group, value)}>${t("tags.cancel")}</button>
 				</form>`;
 			case "delete-value":
-				return html`<div role="alert">
-					<p>${t("tags.deleteValuePrompt", { value, count })}</p>
+				return html`<div class="prompt" role="alert">
+					<p>${count === 1 ? t("tags.deleteValuePrompt.one", { value }) : t("tags.deleteValuePrompt.other", { value, count })}</p>
 					<div class="actions">
 						<button type="button" class="danger" data-action="confirm-delete-value" @click=${() => this.applyDelete(group, value)}>
 							${t("tags.confirmDelete")}

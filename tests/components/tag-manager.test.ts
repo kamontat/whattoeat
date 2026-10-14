@@ -2,9 +2,9 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/tag-manager";
 import type { TagManager } from "#components/tag-manager";
 import { FILTER_KEY } from "#lib/filter";
-import { loadGroups, saveGroups } from "#lib/groups";
+import { forgetGroupsMemory, loadGroups, saveGroups } from "#lib/groups";
 import { setLang } from "#lib/i18n";
-import { addRestaurant, loadRestaurants } from "#lib/store";
+import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
 
 const base = { tags: [], location: "", notes: "" };
 
@@ -143,7 +143,7 @@ test("deleting a group asks first, then turns its values into tags and drops its
 	const el = await mount();
 	await click(el, card(el, "g1"), "delete-group");
 	expect(card(el, "g1").textContent).toContain(
-		"Its values on 1 restaurants become plain tags.",
+		"Its values on 1 restaurant become plain tags.",
 	);
 	await click(el, card(el, "g1"), "confirm-delete-group");
 	expect(loadGroups()).toEqual([]);
@@ -238,7 +238,7 @@ test("renaming onto an existing value asks to merge, and merging keeps one copy"
 	);
 	await click(el, valueRow(el, "g1", "noodles"), "save-value");
 	expect(valueRow(el, "g1", "noodles").textContent).toContain(
-		"noodle already exists. Merge noodles into noodle on 1 restaurants?",
+		"noodle already exists. Merge noodles into noodle on 1 restaurant?",
 	);
 	await click(el, valueRow(el, "g1", "noodles"), "confirm-merge");
 	expect(loadRestaurants()[0]?.groups["g1"]).toEqual(["noodle"]);
@@ -267,7 +267,7 @@ test("deleting a value asks first, then removes it everywhere", async () => {
 	const el = await mount();
 	await click(el, valueRow(el, "tags", "spicy"), "delete-value");
 	expect(valueRow(el, "tags", "spicy").textContent).toContain(
-		"Remove spicy from 1 restaurants?",
+		"Remove spicy from 1 restaurant?",
 	);
 	await click(el, valueRow(el, "tags", "spicy"), "confirm-delete-value");
 	expect(loadRestaurants()[0]?.tags).toEqual(["hot"]);
@@ -284,4 +284,145 @@ test("cancel closes a value prompt without changes", async () => {
 		),
 	).toBeNull();
 	expect(loadRestaurants()[0]?.tags).toEqual(["spicy"]);
+});
+
+test("prompts count more than one restaurant in the plural", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["spicy"] });
+	addRestaurant({ ...base, name: "B", tags: ["spicy"] });
+	const el = await mount();
+	await click(el, valueRow(el, "tags", "spicy"), "delete-value");
+	expect(valueRow(el, "tags", "spicy").textContent).toContain(
+		"Remove spicy from 2 restaurants?",
+	);
+});
+
+test("the rename and move controls are not hidden with their label text", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	addRestaurant({ ...base, name: "A", tags: ["spicy", "hot"] });
+	const el = await mount();
+	const shown = () => {
+		const controls = [...el.shadowRoot!.querySelectorAll("input, select")];
+		// The add-group field plus the control of the prompt just opened.
+		expect(controls.length).toBe(2);
+		for (const control of controls)
+			expect(control.closest(".visually-hidden")).toBeNull();
+	};
+	await click(el, card(el, "g1"), "rename-group");
+	shown();
+	await click(el, valueRow(el, "tags", "spicy"), "rename-value");
+	shown();
+	expect(
+		valueRow(el, "tags", "spicy").querySelector("label")?.textContent,
+	).toContain("New name for spicy");
+	await click(el, valueRow(el, "tags", "hot"), "move-value");
+	shown();
+	expect(
+		valueRow(el, "tags", "hot").querySelector("label")?.textContent,
+	).toContain("Move hot to");
+});
+
+const focused = (el: TagManager) => el.shadowRoot!.activeElement;
+const settle = async (el: TagManager) => {
+	await el.updateComplete;
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	await el.updateComplete;
+};
+
+test("moving a group keeps focus on the moved group's button, or the other arrow at an end", async () => {
+	saveGroups([
+		{ id: "g1", name: "Price" },
+		{ id: "g2", name: "Vibe" },
+		{ id: "g3", name: "Dish" },
+	]);
+	const el = await mount();
+	await click(el, card(el, "g3"), "move-up");
+	await settle(el);
+	expect(loadGroups().map((def) => def.id)).toEqual(["g1", "g3", "g2"]);
+	expect(focused(el)).toBe(
+		card(el, "g3").querySelector('[data-action="move-up"]'),
+	);
+	await click(el, card(el, "g3"), "move-up");
+	await settle(el);
+	expect(loadGroups().map((def) => def.id)).toEqual(["g3", "g1", "g2"]);
+	expect(focused(el)).toBe(
+		card(el, "g3").querySelector('[data-action="move-down"]'),
+	);
+	await click(el, card(el, "g1"), "move-down");
+	await settle(el);
+	expect(loadGroups().map((def) => def.id)).toEqual(["g3", "g2", "g1"]);
+	expect(focused(el)).toBe(
+		card(el, "g1").querySelector('[data-action="move-up"]'),
+	);
+});
+
+test("focus follows a value whose text has a double quote or backslash", async () => {
+	addRestaurant({ ...base, name: "A", tags: ['say "hi"', "a\\b"] });
+	const el = await mount();
+	const row = (value: string) =>
+		[...card(el, "tags").querySelectorAll("li.value")].find(
+			(li) => li.getAttribute("data-value") === value,
+		)!;
+	for (const value of ['say "hi"', "a\\b"]) {
+		await click(el, row(value), "rename-value");
+		await settle(el);
+		expect(focused(el)).toBe(row(value).querySelector("input"));
+		await click(el, row(value), "cancel");
+		await settle(el);
+		expect(focused(el)).toBe(
+			row(value).querySelector('[data-action="rename-value"]'),
+		);
+	}
+});
+
+test("warns about stored restaurants that could not be read", async () => {
+	localStorage.setItem(
+		"whattoeat:restaurants",
+		JSON.stringify([{ name: "broken" }, null]),
+	);
+	const el = await mount();
+	expect($(el, ".skipped")?.textContent?.trim()).toBe(
+		"2 saved restaurants could not be read and were skipped. They will be removed the next time the list changes.",
+	);
+});
+
+const withFullStorage = async (run: () => Promise<void>) => {
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: () => null,
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+		},
+		configurable: true,
+	});
+	try {
+		await run();
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		saveRestaurants([]);
+		forgetGroupsMemory();
+	}
+};
+
+test("warns when the browser refuses to save restaurants or groups", async () => {
+	const el = await mount();
+	expect($(el, ".warning")).toBeNull();
+	await withFullStorage(async () => {
+		saveGroups([{ id: "g1", name: "Price" }]);
+		await el.updateComplete;
+		expect($(el, ".warning")?.textContent?.trim()).toBe(
+			"Your browser is not saving changes. They will be lost when you leave this page.",
+		);
+	});
+	await withFullStorage(async () => {
+		addRestaurant({ ...base, name: "Lost" });
+		await el.updateComplete;
+		expect($(el, ".warning")?.textContent?.trim()).toBe(
+			"Your browser is not saving changes. They will be lost when you leave this page.",
+		);
+	});
 });
