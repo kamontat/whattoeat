@@ -12,13 +12,19 @@ import {
 	type TagState,
 	tagState,
 } from "#lib/filter";
+import {
+	allGroupIds,
+	customChips,
+	type GroupDef,
+	groupLabel,
+	loadGroups,
+	onGroupsChanged,
+	valueLabel,
+} from "#lib/groups";
 import { addVisit, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
 import { pickOptions } from "#lib/random";
 import {
-	GROUPS,
-	type Group,
-	isKind,
 	isLink,
 	metaLine,
 	type Restaurant,
@@ -30,10 +36,6 @@ import {
 	skippedCount,
 } from "#lib/store";
 import { uiStyles } from "#styles/ui";
-
-/** Kinds show in the current language; other values show as typed. */
-const valueLabel = (group: Group, value: string): string =>
-	group === "kind" && isKind(value) ? t(`kind.${value}`) : value;
 
 @customElement("random-picker")
 export class RandomPicker extends LitElement {
@@ -264,6 +266,10 @@ export class RandomPicker extends LitElement {
 	@state()
 	private skipped = 0;
 
+	/** The group definitions saved so far, in their stored order. */
+	@state()
+	private defs: GroupDef[] = [];
+
 	/** The options from the last press, emptied when none of them are left in the pool. */
 	@state()
 	private picked: Restaurant[] = [];
@@ -273,6 +279,7 @@ export class RandomPicker extends LitElement {
 	private visited: { id: string; at: Date } | undefined;
 
 	private unsubscribe: (() => void) | undefined;
+	private unsubscribeGroups: (() => void) | undefined;
 
 	@state()
 	private filter: Filter = EMPTY_FILTER;
@@ -281,11 +288,18 @@ export class RandomPicker extends LitElement {
 		super.connectedCallback();
 		this.restaurants = loadRestaurants();
 		this.skipped = skippedCount();
+		this.defs = loadGroups();
 		this.filter = loadFilter();
 		this.pruneFilter();
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.restaurants = loadRestaurants();
 			this.skipped = skippedCount();
+			this.pruneFilter();
+			this.keepPickInPool();
+		});
+		this.unsubscribeGroups = onGroupsChanged(() => {
+			this.defs = loadGroups();
+			this.restaurants = loadRestaurants();
 			this.pruneFilter();
 			this.keepPickInPool();
 		});
@@ -295,6 +309,8 @@ export class RandomPicker extends LitElement {
 		super.disconnectedCallback();
 		this.unsubscribe?.();
 		this.unsubscribe = undefined;
+		this.unsubscribeGroups?.();
+		this.unsubscribeGroups = undefined;
 	}
 
 	private get pool(): Restaurant[] {
@@ -303,7 +319,11 @@ export class RandomPicker extends LitElement {
 
 	/** Drop filter values no restaurant uses any more; save only when that changed something. */
 	private pruneFilter(): void {
-		const pruned = pruneFilter(this.filter, this.restaurants);
+		const pruned = pruneFilter(
+			this.filter,
+			this.restaurants,
+			allGroupIds(this.defs),
+		);
 		if (JSON.stringify(pruned) !== JSON.stringify(this.filter)) {
 			saveFilter(pruned);
 		}
@@ -360,10 +380,12 @@ export class RandomPicker extends LitElement {
 				</div>
 			`;
 		}
-		const groups = GROUPS.map((group) => ({
-			group,
-			values: valuesByUsage(this.restaurants, group),
-		})).filter(({ values }) => values.length > 0);
+		const groups = allGroupIds(this.defs)
+			.map((group) => ({
+				group,
+				values: valuesByUsage(this.restaurants, group),
+			}))
+			.filter(({ values }) => values.length > 0);
 		const empty = this.pool.length === 0;
 		return html`
 			${heading}
@@ -387,26 +409,31 @@ export class RandomPicker extends LitElement {
 			: t("picker.count.other", { count: total });
 	}
 
-	private renderFilter(groups: { group: Group; values: string[] }[]) {
+	private renderFilter(groups: { group: string; values: string[] }[]) {
 		const symbol: Record<TagState, string> = {
 			off: "",
 			include: "✓ ",
 			exclude: "✕ ",
 		};
-		const summary = GROUPS.map((group) => {
-			const { include, exclude } = this.filter[group];
-			const values = [
-				...include.map(
-					(value) => `${symbol.include}${valueLabel(group, value)}`,
-				),
-				...exclude.map(
-					(value) => `${symbol.exclude}${valueLabel(group, value)}`,
-				),
-			];
-			return values.length > 0
-				? `${t(`group.${group}`)}: ${values.join(", ")}`
-				: "";
-		})
+		const summary = allGroupIds(this.defs)
+			.map((group) => {
+				const filterGroup = Object.hasOwn(this.filter, group)
+					? this.filter[group]
+					: undefined;
+				if (filterGroup === undefined) return "";
+				const { include, exclude } = filterGroup;
+				const values = [
+					...include.map(
+						(value) => `${symbol.include}${valueLabel(group, value)}`,
+					),
+					...exclude.map(
+						(value) => `${symbol.exclude}${valueLabel(group, value)}`,
+					),
+				];
+				return values.length > 0
+					? `${groupLabel(group, this.defs)}: ${values.join(", ")}`
+					: "";
+			})
 			.filter((part) => part !== "")
 			.join("; ");
 		return html`
@@ -420,7 +447,7 @@ export class RandomPicker extends LitElement {
 						group,
 						values,
 					}) => html`<div class="filter-group" role="group" aria-labelledby="group-${group}">
-						<h3 id="group-${group}">${t(`group.${group}`)}</h3>
+						<h3 id="group-${group}">${groupLabel(group, this.defs)}</h3>
 						<ul class="chips">
 							${values.map((value) => {
 								const state = tagState(this.filter, group, value);
@@ -434,7 +461,7 @@ export class RandomPicker extends LitElement {
 										data-state=${state}
 										aria-pressed=${state === "off" ? "false" : "true"}
 										aria-label=${t("filter.tagState", {
-											group: t(`group.${group}`),
+											group: groupLabel(group, this.defs),
 											tag: label,
 											state: t(`filter.state.${state}`),
 										})}
@@ -502,11 +529,15 @@ export class RandomPicker extends LitElement {
 						: nothing
 				}
 				${item.notes ? html`<p class="notes">${item.notes}</p>` : nothing}
-				${
-					item.tags.length > 0
-						? html`<ul class="chips">${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}</ul>`
-						: nothing
-				}
+				${(() => {
+					const chips = customChips(item, this.defs);
+					return chips.length + item.tags.length > 0
+						? html`<ul class="chips">
+								${chips.map((chip) => html`<li class="chip group-chip">${chip}</li>`)}
+								${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}
+							</ul>`
+						: nothing;
+				})()}
 				<div class="foot">${this.renderVisit(item)}</div>
 			</article>
 		`;
