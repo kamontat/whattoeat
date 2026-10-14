@@ -2,6 +2,13 @@ import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import {
+	type GroupDef,
+	loadGroups,
+	mergeGroupDefs,
+	remapGroups,
+	saveGroups,
+} from "#lib/groups";
+import {
 	type HistoryEntry,
 	isHistoryMemoryOnly,
 	loadHistory,
@@ -65,10 +72,17 @@ export class DataTransferPanel extends LitElement {
 	@state()
 	private skipped = 0;
 
-	/** A checked import waiting for Replace or Merge; `history` is `undefined` for a version 1 file. */
+	/**
+	 * A checked import waiting for Replace or Merge; `history` is `undefined` for a version 1
+	 * file, `groups` for a version 1–3 file.
+	 */
 	@state()
 	private pending:
-		| { restaurants: Restaurant[]; history: HistoryEntry[] | undefined }
+		| {
+				restaurants: Restaurant[];
+				history: HistoryEntry[] | undefined;
+				groups: GroupDef[] | undefined;
+		  }
 		| undefined;
 
 	@state()
@@ -114,6 +128,7 @@ export class DataTransferPanel extends LitElement {
 			this.pending = {
 				restaurants: result.restaurants,
 				history: result.history,
+				groups: result.groups,
 			};
 			this.error = undefined;
 		} else {
@@ -142,9 +157,15 @@ export class DataTransferPanel extends LitElement {
 
 	private readonly exportData = (): void => {
 		const now = new Date();
-		const json = exportJson(loadRestaurants(), loadHistory(), now, {
-			pretty: true,
-		});
+		const json = exportJson(
+			loadRestaurants(),
+			loadHistory(),
+			loadGroups(),
+			now,
+			{
+				pretty: true,
+			},
+		);
 		const url = URL.createObjectURL(
 			new Blob([json], { type: "application/json" }),
 		);
@@ -158,9 +179,15 @@ export class DataTransferPanel extends LitElement {
 
 	private readonly copyData = async (): Promise<void> => {
 		const restaurants = loadRestaurants();
-		const json = exportJson(restaurants, loadHistory(), new Date(), {
-			pretty: false,
-		});
+		const json = exportJson(
+			restaurants,
+			loadHistory(),
+			loadGroups(),
+			new Date(),
+			{
+				pretty: false,
+			},
+		);
 		try {
 			// The clipboard is missing outside secure contexts and can be refused by permission.
 			if (!navigator.clipboard) throw new Error("no clipboard");
@@ -177,12 +204,24 @@ export class DataTransferPanel extends LitElement {
 
 	private apply(mode: "replace" | "merge"): void {
 		if (this.pending === undefined) return;
-		const { restaurants, history } = this.pending;
+		const { restaurants, history, groups } = this.pending;
+		let incoming = restaurants;
+		let persisted = true;
+		// Groups first, so loading restaurants after the save already knows every group id.
+		// A file without a group list (versions 1–3) keeps the current groups.
+		if (groups !== undefined) {
+			const next =
+				mode === "replace"
+					? { groups, remap: {} }
+					: mergeGroupDefs(loadGroups(), groups);
+			incoming = remapGroups(restaurants, next.remap);
+			persisted = saveGroups(next.groups);
+		}
 		const list =
 			mode === "replace"
-				? restaurants
-				: mergeRestaurants(loadRestaurants(), restaurants);
-		let persisted = saveRestaurants(list);
+				? incoming
+				: mergeRestaurants(loadRestaurants(), incoming);
+		persisted = saveRestaurants(list) && persisted;
 		// A version 1 file has no history, so the saved history stays as it is.
 		if (history !== undefined) {
 			const visits =

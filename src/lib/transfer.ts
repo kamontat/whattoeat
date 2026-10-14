@@ -1,4 +1,10 @@
 import {
+	type GroupDef,
+	isGroupDef,
+	mergeGroupDefs,
+	remapGroups,
+} from "#lib/groups";
+import {
 	cleanEntry,
 	type HistoryEntry,
 	isHistoryEntry,
@@ -6,19 +12,20 @@ import {
 	renameLockedAt,
 } from "#lib/history";
 import {
+	cleanStored,
 	isRestaurant,
 	nameKey,
-	normalizeInput,
 	type Restaurant,
 } from "#lib/restaurant";
 
-export const EXPORT_VERSION = 3;
+export const EXPORT_VERSION = 4;
 
 /**
  * Version 1 files predate history; they still import, with no history. Version 2 files call
- * each visit's time `lockedAt`.
+ * each visit's time `lockedAt`. Versions 1–3 have no group list and keep area and cuisine as
+ * single strings.
  */
-const READABLE_VERSIONS: readonly unknown[] = [1, 2, EXPORT_VERSION];
+const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3, EXPORT_VERSION];
 
 export type ExportFile = {
 	app: "whattoeat";
@@ -26,6 +33,7 @@ export type ExportFile = {
 	exportedAt: string;
 	restaurants: Restaurant[];
 	history: HistoryEntry[];
+	groups: GroupDef[];
 };
 
 /** Each error is an i18n message key, so the UI can show it directly with `t(error)`. */
@@ -42,12 +50,15 @@ export type ImportResult =
 			restaurants: Restaurant[];
 			/** `undefined` for a version 1 file, which has no history. */
 			history: HistoryEntry[] | undefined;
+			/** `undefined` for versions 1–3, which have no group list; the current groups stay. */
+			groups: GroupDef[] | undefined;
 	  }
 	| { ok: false; error: ImportError };
 
 export const toExportFile = (
 	restaurants: Restaurant[],
 	history: HistoryEntry[] = [],
+	groups: GroupDef[] = [],
 	now: Date = new Date(),
 ): ExportFile => ({
 	app: "whattoeat",
@@ -55,17 +66,19 @@ export const toExportFile = (
 	exportedAt: now.toISOString(),
 	restaurants,
 	history,
+	groups,
 });
 
 /** Export as JSON text: indented for a downloaded file, one line for the clipboard. */
 export const exportJson = (
 	restaurants: Restaurant[],
 	history: HistoryEntry[],
+	groups: GroupDef[],
 	now: Date,
 	{ pretty }: { pretty: boolean },
 ): string =>
 	JSON.stringify(
-		toExportFile(restaurants, history, now),
+		toExportFile(restaurants, history, groups, now),
 		null,
 		pretty ? 2 : undefined,
 	);
@@ -127,19 +140,32 @@ export const parseImport = (text: string): ImportResult => {
 			return { ok: false, error: "import.error.entries" };
 		history = newestFirst(entries.map(cleanEntry));
 	}
+	let groups: GroupDef[] | undefined;
+	if (file.version === EXPORT_VERSION) {
+		if (!Array.isArray(file.groups))
+			return { ok: false, error: "import.error.format" };
+		if (
+			!file.groups.every(isGroupDef) ||
+			new Set(file.groups.map((item) => item.id)).size !== file.groups.length
+		)
+			return { ok: false, error: "import.error.entries" };
+		groups = file.groups.map(({ id, name }) => ({ id, name: name.trim() }));
+	}
+	// A file's own repeated names, or names of built-in groups, fold into one group.
+	const own = mergeGroupDefs([], groups ?? []);
+	const ids = (groups ?? []).map((item) => item.id);
 	// Clean imported text the same way as typed input, and keep only known fields.
 	return {
 		ok: true,
 		restaurants: renameTaken(
-			restaurants.map((item) => ({
-				id: item.id,
-				...normalizeInput(item),
-				createdAt: item.createdAt,
-				updatedAt: item.updatedAt,
-			})),
+			remapGroups(
+				restaurants.map((item) => cleanStored(item, ids)),
+				own.remap,
+			),
 			new Set(),
 		),
 		history,
+		groups: groups === undefined ? undefined : own.groups,
 	};
 };
 

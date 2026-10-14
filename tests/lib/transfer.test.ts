@@ -37,37 +37,44 @@ const visit = (
 test("exportJson gives indented or one-line json that imports back", () => {
 	const now = new Date("2026-10-12T10:00:00.000Z");
 	const history = [visit("h1", "2026-10-12T09:00:00.000Z")];
-	const pretty = exportJson([make("a"), make("b")], history, now, {
+	const pretty = exportJson([make("a"), make("b")], history, [], now, {
 		pretty: true,
 	});
-	const compact = exportJson([make("a"), make("b")], history, now, {
+	const compact = exportJson([make("a"), make("b")], history, [], now, {
 		pretty: false,
 	});
 	expect(pretty).toContain("\n  ");
 	expect(compact).not.toContain("\n");
 	expect(JSON.parse(pretty)).toEqual(
-		toExportFile([make("a"), make("b")], history, now),
+		toExportFile([make("a"), make("b")], history, [], now),
 	);
 	for (const text of [pretty, compact])
 		expect(parseImport(text)).toEqual({
 			ok: true,
 			restaurants: [make("a"), make("b")],
 			history,
+			groups: [],
 		});
 });
 
 test("toExportFile wraps restaurants and history in the versioned envelope", () => {
 	const now = new Date("2026-10-12T10:00:00.000Z");
 	expect(
-		toExportFile([make("a")], [visit("h1", "2026-10-12T09:00:00.000Z")], now),
+		toExportFile(
+			[make("a")],
+			[visit("h1", "2026-10-12T09:00:00.000Z")],
+			[],
+			now,
+		),
 	).toEqual({
 		app: "whattoeat",
-		version: 3,
+		version: 4,
 		exportedAt: "2026-10-12T10:00:00.000Z",
 		restaurants: [make("a")],
 		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
+		groups: [],
 	});
-	expect(toExportFile([], undefined, now).history).toEqual([]);
+	expect(toExportFile([], undefined, [], now).history).toEqual([]);
 });
 
 test("exportFileName uses the local date, zero padded", () => {
@@ -82,6 +89,7 @@ test("an exported file imports back unchanged", () => {
 		ok: true,
 		restaurants: list,
 		history: [],
+		groups: [],
 	});
 });
 
@@ -90,6 +98,7 @@ test("an empty restaurants array is a valid import", () => {
 		ok: true,
 		restaurants: [],
 		history: [],
+		groups: [],
 	});
 });
 
@@ -109,7 +118,7 @@ test.each([
 	],
 	[
 		"future version",
-		JSON.stringify({ app: "whattoeat", version: 4, restaurants: [] }),
+		JSON.stringify({ app: "whattoeat", version: 5, restaurants: [] }),
 		"import.error.version",
 	],
 	[
@@ -137,6 +146,93 @@ test.each([
 	],
 ])("rejects %s", (_label, text, error) => {
 	expect(parseImport(text)).toEqual({ ok: false, error: error as ImportError });
+});
+
+const price = { id: "g1", name: "Price" };
+
+const file = (version: number, restaurants: unknown[], extra: object = {}) =>
+	JSON.stringify({
+		app: "whattoeat",
+		version,
+		exportedAt: "2026-10-14T00:00:00.000Z",
+		restaurants,
+		history: [],
+		...extra,
+	});
+
+test("a version 4 file round-trips its groups", () => {
+	const item = { ...make("a"), groups: { g1: ["cheap"] } };
+	const result = parseImport(
+		exportJson([item], [], [price], new Date(), { pretty: false }),
+	);
+	expect(result).toEqual({
+		ok: true,
+		restaurants: [item],
+		history: [],
+		groups: [price],
+	});
+});
+
+test("a version 3 file imports with old area and cuisine moved into groups and no groups list", () => {
+	const { groups: _g, ...old } = make("a");
+	const result = parseImport(file(3, [{ ...old, cuisine: "Thai", area: "" }]));
+	expect(result).toMatchObject({
+		ok: true,
+		restaurants: [{ id: "a", groups: { cuisine: ["thai"] } }],
+		groups: undefined,
+	});
+});
+
+test.each([
+	["groups is missing", {}, "import.error.format"],
+	["groups is not an array", { groups: {} }, "import.error.format"],
+	[
+		"a group has a reserved id",
+		{ groups: [{ id: "area", name: "X" }] },
+		"import.error.entries",
+	],
+	[
+		"a group has a blank name",
+		{ groups: [{ id: "g1", name: " " }] },
+		"import.error.entries",
+	],
+	[
+		"two groups share an id",
+		{ groups: [price, { id: "g1", name: "Other" }] },
+		"import.error.entries",
+	],
+])("a version 4 file is rejected when %s", (_label, extra, error) => {
+	expect(parseImport(file(4, [], extra))).toEqual({
+		ok: false,
+		error: error as ImportError,
+	});
+});
+
+test("values of a group the file does not define import as tags", () => {
+	const result = parseImport(
+		file(4, [{ ...make("a"), groups: { gone: ["cosy"] } }], { groups: [] }),
+	);
+	expect(result).toMatchObject({
+		ok: true,
+		restaurants: [{ tags: ["cosy"], groups: {} }],
+	});
+});
+
+test("a file group named like a built-in merges into it", () => {
+	const result = parseImport(
+		file(
+			4,
+			[{ ...make("a"), groups: { x1: ["Thai"], cuisine: ["thai", "lao"] } }],
+			{
+				groups: [{ id: "x1", name: "สัญชาติอาหาร" }],
+			},
+		),
+	);
+	expect(result).toMatchObject({
+		ok: true,
+		groups: [],
+		restaurants: [{ groups: { cuisine: ["thai", "lao"] } }],
+	});
 });
 
 test("merge replaces same id in place and appends new ids", () => {
@@ -202,11 +298,12 @@ test("imported entries are normalized like typed input and lose unknown fields",
 		ok: true,
 		restaurants: [{ ...make("a", "Foo"), tags: ["thai"], location: "x" }],
 		history: undefined,
+		groups: undefined,
 	});
 });
 
 test("an entry without area, cuisine and kinds imports with them empty, unknown kinds are dropped", () => {
-	const { area: _a, cuisine: _c, kinds: _k, ...old } = make("a");
+	const { kinds: _k, ...old } = make("a");
 	const result = parseImport(
 		JSON.stringify({
 			app: "whattoeat",
@@ -222,9 +319,10 @@ test("an entry without area, cuisine and kinds imports with them empty, unknown 
 		ok: true,
 		restaurants: [
 			make("a"),
-			{ ...make("b"), cuisine: "thai", kinds: ["drinks"] },
+			{ ...make("b"), groups: { cuisine: ["thai"] }, kinds: ["drinks"] },
 		],
 		history: [],
+		groups: undefined,
 	});
 });
 
@@ -252,6 +350,7 @@ test("imported tags are lowercased and merged by case", () => {
 		ok: true,
 		restaurants: [{ ...make("a"), tags: ["thai", "noodle"] }],
 		history: undefined,
+		groups: undefined,
 	});
 });
 
@@ -264,7 +363,12 @@ test("a version 1 file imports with no history", () => {
 				restaurants: [make("a")],
 			}),
 		),
-	).toEqual({ ok: true, restaurants: [make("a")], history: undefined });
+	).toEqual({
+		ok: true,
+		restaurants: [make("a")],
+		history: undefined,
+		groups: undefined,
+	});
 });
 
 test.each([
@@ -315,6 +419,7 @@ test("imported history is sorted newest first and loses unknown fields", () => {
 			visit("new", "2026-10-12T09:00:00.000Z", "deleted-restaurant"),
 			visit("old", "2026-10-01T09:00:00.000Z"),
 		],
+		groups: undefined,
 	});
 });
 
@@ -333,6 +438,7 @@ test("a version 2 file reads each entry's lockedAt as its visit time", () => {
 		ok: true,
 		restaurants: [],
 		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
+		groups: undefined,
 	});
 });
 
