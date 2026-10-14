@@ -58,15 +58,6 @@ export class AppHeader extends LitElement {
 				padding: 1rem;
 			}
 
-			/* One row only once the header has its full 40rem: brand, four links and switches need about all of it. */
-			@media (min-width: 44rem) {
-				header {
-					grid-template-columns: auto 1fr auto;
-					grid-template-areas: "brand nav controls";
-					gap: 1rem;
-				}
-			}
-
 			.brand {
 				grid-area: brand;
 				font-size: 1.25rem;
@@ -122,6 +113,27 @@ export class AppHeader extends LitElement {
 				background: var(--color-text);
 				border-color: var(--color-text);
 				color: var(--color-surface);
+			}
+
+			/*
+			 * One row only once the header has its full 40rem. Brand, five links and switches need
+			 * about all of it in English, so the gaps and switch padding are tighter here than on
+			 * phones; the nav takes the free column and wraps inside it rather than pushing it wider.
+			 */
+			@media (min-width: 44rem) {
+				header {
+					grid-template-columns: auto minmax(0, 1fr) auto;
+					grid-template-areas: "brand nav controls";
+					gap: 0.75rem;
+				}
+
+				nav {
+					gap: 0.25rem 0.5rem;
+				}
+
+				.switch button {
+					padding-inline: 0.5rem;
+				}
 			}
 		`,
 	];
