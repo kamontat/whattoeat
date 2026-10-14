@@ -24,18 +24,20 @@ const mount = async (current?: Page) => {
 	return el;
 };
 
-test("renders nav links to the four pages", async () => {
+test("renders nav links to the five pages", async () => {
 	const el = await mount();
 	const links = [...el.shadowRoot!.querySelectorAll("nav a")];
 	expect(links.map((a) => a.getAttribute("href"))).toEqual([
 		"./",
 		"./restaurants",
+		"./tags",
 		"./history",
 		"./settings",
 	]);
 	expect(links.map((a) => a.textContent?.trim())).toEqual([
 		"Home",
 		"Restaurants",
+		"Tags",
 		"History",
 		"Settings",
 	]);

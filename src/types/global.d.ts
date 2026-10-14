@@ -4,6 +4,7 @@ import type { DataTransferPanel } from "#components/data-transfer";
 import type { RandomPicker } from "#components/random-picker";
 import type { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
+import type { TagManager } from "#components/tag-manager";
 import type { VisitHistory } from "#components/visit-history";
 
 declare global {
@@ -15,6 +16,7 @@ declare global {
 		"random-picker": RandomPicker;
 		"restaurant-manager": RestaurantManager;
 		"tag-input": TagInput;
+		"tag-manager": TagManager;
 	}
 }
 

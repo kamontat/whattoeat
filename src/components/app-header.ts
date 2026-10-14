@@ -17,7 +17,7 @@ import {
 } from "#lib/theme";
 import { uiStyles } from "#styles/ui";
 
-export type Page = "home" | "restaurants" | "history" | "settings";
+export type Page = "home" | "restaurants" | "tags" | "history" | "settings";
 
 const THEME_LABELS: Record<Theme, MessageKey> = {
 	auto: "theme.auto",
@@ -34,6 +34,7 @@ const THEME_ICONS: Record<Theme, string> = {
 const LINKS: readonly { page: Page; href: string; label: MessageKey }[] = [
 	{ page: "home", href: "./", label: "nav.home" },
 	{ page: "restaurants", href: "./restaurants", label: "nav.restaurants" },
+	{ page: "tags", href: "./tags", label: "nav.tags" },
 	{ page: "history", href: "./history", label: "nav.history" },
 	{ page: "settings", href: "./settings", label: "nav.settings" },
 ];
