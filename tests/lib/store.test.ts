@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
+import { GROUPS_KEY, loadGroups, saveGroups } from "#lib/groups";
 import { addVisit, HISTORY_KEY, loadHistory } from "#lib/history";
 import {
 	addRestaurant,
@@ -84,6 +85,7 @@ test("addRestaurant normalizes, stamps and saves", () => {
 		tags: ["street"],
 		location: "Bangkok",
 		notes: "",
+		groups: {},
 		createdAt: now.toISOString(),
 		updatedAt: now.toISOString(),
 	});
@@ -113,8 +115,7 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 			tags: [],
 			location: "",
 			notes: "star",
-			area: " Old Town ",
-			cuisine: "Thai",
+			groups: { area: [" Old Town "], cuisine: ["Thai"] },
 			kinds: ["dessert", "food"],
 		},
 		edited,
@@ -125,8 +126,7 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 		tags: [],
 		location: "",
 		notes: "star",
-		area: "old town",
-		cuisine: "thai",
+		groups: { area: ["old town"], cuisine: ["thai"] },
 		kinds: ["food", "dessert"],
 		createdAt: created.toISOString(),
 		updatedAt: edited.toISOString(),
@@ -256,21 +256,55 @@ test("stored tags that differ only in case load as one lowercase tag", () => {
 	expect(loadRestaurants()[0]?.tags).toEqual(["thai", "bbq"]);
 });
 
-test("restaurants stored before area, cuisine and kinds load with them empty", () => {
+test("restaurants stored before groups load with old area and cuisine moved into groups", () => {
 	const old = {
 		id: "a1",
 		name: "Old",
 		tags: ["thai"],
 		location: "",
 		notes: "",
+		area: "Siam",
+		cuisine: "",
 		createdAt: "2026-10-12T00:00:00.000Z",
 		updatedAt: "2026-10-12T00:00:00.000Z",
 	};
 	localStorage.setItem(STORAGE_KEY, JSON.stringify([old]));
+	const { area: _a, cuisine: _c, ...rest } = old;
 	expect(loadRestaurants()).toEqual([
-		{ ...old, area: "", cuisine: "", kinds: [] },
+		{ ...rest, groups: { area: ["siam"] }, kinds: [] },
 	]);
 	expect(skippedCount()).toBe(0);
+});
+
+test("values of a stored custom group load, values of a missing group load as tags", () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const [item] = addRestaurant({ ...input });
+	localStorage.setItem(
+		STORAGE_KEY,
+		JSON.stringify([{ ...item, groups: { g1: ["cheap"], gone: ["cosy"] } }]),
+	);
+	expect(loadRestaurants()[0]).toMatchObject({
+		groups: { g1: ["cheap"] },
+		tags: ["street", "cosy"],
+	});
+});
+
+test("saving values for a group deleted meanwhile keeps them as tags", () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const formGroups = { g1: ["cheap"], cuisine: ["thai"] };
+	saveGroups([]); // another tab deleted the group while the form was open
+	const [item] = addRestaurant({ ...input, groups: formGroups });
+	expect(item).toMatchObject({
+		groups: { cuisine: ["thai"] },
+		tags: ["street", "cheap"],
+	});
+});
+
+test("resetStorage also clears stored groups", () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	resetStorage();
+	expect(localStorage.getItem(GROUPS_KEY)).toBeNull();
+	expect(loadGroups()).toEqual([]);
 });
 
 test("resetStorage deletes every localStorage entry and notifies subscribers", () => {
