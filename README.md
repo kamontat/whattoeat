@@ -8,9 +8,9 @@ in a light or dark theme that follows the system setting unless you pick one in 
 
 | Page           | What it does                                   |
 | -------------- | ---------------------------------------------- |
-| `/`            | Two random options; press Eat here to lock one into History |
+| `/`            | Two random options; press Eat here to save a visit to History |
 | `/restaurants` | Add, edit and delete restaurants               |
-| `/history`     | Every lock with its date and time, stats per restaurant, delete a lock |
+| `/history`     | Every visit with its date and time, stats per restaurant, delete a visit |
 | `/settings`    | Export or import JSON as a file or by copy and paste, with replace or merge |
 
 Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static
@@ -81,7 +81,7 @@ is sent to a server.
 | Key                     | Holds                                       |
 | ----------------------- | ------------------------------------------- |
 | `whattoeat:restaurants` | The restaurant list (JSON array)            |
-| `whattoeat:history`     | Locks from **Eat here**, newest first (JSON array) |
+| `whattoeat:history`     | Visits from **Eat here**, newest first (JSON array) |
 | `whattoeat:lang`        | The chosen language, `en` or `th`           |
 | `whattoeat:theme`       | The chosen theme, `auto`, `light` or `dark` |
 

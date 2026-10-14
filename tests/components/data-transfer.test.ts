@@ -25,11 +25,11 @@ const make = (id: string, name = id): Restaurant => ({
 	updatedAt: "2026-10-12T00:00:00.000Z",
 });
 
-const lock = (id: string, lockedAt: string): HistoryEntry => ({
+const visit = (id: string, visitedAt: string): HistoryEntry => ({
 	id,
 	restaurantId: "x",
 	name: "X",
-	lockedAt,
+	visitedAt,
 });
 
 beforeEach(() => {
@@ -71,7 +71,7 @@ test("shows the saved restaurant count and keeps it current", async () => {
 
 test("export downloads a json file of the stored list", async () => {
 	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
-	saveHistory([lock("h1", "2026-10-12T09:00:00.000Z")]);
+	saveHistory([visit("h1", "2026-10-12T09:00:00.000Z")]);
 	const blobs: Blob[] = [];
 	const create = spyOn(URL, "createObjectURL").mockImplementation(
 		(blob: Blob | MediaSource) => {
@@ -93,9 +93,9 @@ test("export downloads a json file of the stored list", async () => {
 		const file = JSON.parse(await blobs[0]!.text());
 		expect(file).toMatchObject({
 			app: "whattoeat",
-			version: 2,
+			version: 3,
 			restaurants: loadRestaurants(),
-			history: [lock("h1", "2026-10-12T09:00:00.000Z")],
+			history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 		});
 	} finally {
 		create.mockRestore();
@@ -271,7 +271,7 @@ const flush = async (el: DataTransferPanel): Promise<void> => {
 
 test("copy puts one-line export json on the clipboard", async () => {
 	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
-	saveHistory([lock("h1", "2026-10-12T09:00:00.000Z")]);
+	saveHistory([visit("h1", "2026-10-12T09:00:00.000Z")]);
 	let copied = "";
 	setClipboard(async (text) => {
 		copied = text;
@@ -282,9 +282,9 @@ test("copy puts one-line export json on the clipboard", async () => {
 	expect(copied).not.toContain("\n");
 	expect(JSON.parse(copied)).toMatchObject({
 		app: "whattoeat",
-		version: 2,
+		version: 3,
 		restaurants: loadRestaurants(),
-		history: [lock("h1", "2026-10-12T09:00:00.000Z")],
+		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 	});
 	expect($(el, ".copied")?.textContent?.trim()).toBe(
 		"Copied 1 restaurants to the clipboard.",
@@ -411,14 +411,14 @@ test("confirming reset deletes everything in localStorage", async () => {
 	);
 });
 
-test("replace with a version 2 file replaces history too", async () => {
-	saveHistory([lock("mine", "2026-10-01T09:00:00.000Z")]);
+test("replace with a version 3 file replaces history too", async () => {
+	saveHistory([visit("mine", "2026-10-01T09:00:00.000Z")]);
 	const el = await mount();
 	el.readImport(
 		JSON.stringify(
 			toExportFile(
 				[make("x", "X")],
-				[lock("theirs", "2026-10-12T09:00:00.000Z")],
+				[visit("theirs", "2026-10-12T09:00:00.000Z")],
 			),
 		),
 	);
@@ -428,7 +428,7 @@ test("replace with a version 2 file replaces history too", async () => {
 });
 
 test("replace with a version 1 file keeps the current history", async () => {
-	saveHistory([lock("mine", "2026-10-01T09:00:00.000Z")]);
+	saveHistory([visit("mine", "2026-10-01T09:00:00.000Z")]);
 	const el = await mount();
 	el.readImport(
 		JSON.stringify({
@@ -444,13 +444,13 @@ test("replace with a version 1 file keeps the current history", async () => {
 });
 
 test("merge combines history newest first", async () => {
-	saveHistory([lock("mine", "2026-10-01T09:00:00.000Z")]);
+	saveHistory([visit("mine", "2026-10-01T09:00:00.000Z")]);
 	const el = await mount();
 	el.readImport(
 		JSON.stringify(
 			toExportFile(
 				[make("x", "X")],
-				[lock("theirs", "2026-10-12T09:00:00.000Z")],
+				[visit("theirs", "2026-10-12T09:00:00.000Z")],
 			),
 		),
 	);
@@ -460,7 +460,7 @@ test("merge combines history newest first", async () => {
 });
 
 test("confirming reset deletes the history too", async () => {
-	saveHistory([lock("mine", "2026-10-01T09:00:00.000Z")]);
+	saveHistory([visit("mine", "2026-10-01T09:00:00.000Z")]);
 	const el = await mount();
 	await click(el, 'button[data-action="reset"]');
 	await click(el, 'button[data-action="reset-confirm"]');
@@ -474,7 +474,7 @@ test("an import whose history the browser refuses to store warns", async () => {
 		JSON.stringify(
 			toExportFile(
 				[make("x", "X")],
-				[lock("theirs", "2026-10-12T09:00:00.000Z")],
+				[visit("theirs", "2026-10-12T09:00:00.000Z")],
 			),
 		),
 	);

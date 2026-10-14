@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import "#components/lock-history";
-import type { LockHistory } from "#components/lock-history";
+import "#components/visit-history";
+import type { VisitHistory } from "#components/visit-history";
 import {
 	HISTORY_KEY,
 	type HistoryEntry,
@@ -24,18 +24,18 @@ const restaurant = (id: string, name: string): Restaurant => ({
 	updatedAt: "2026-10-01T00:00:00.000Z",
 });
 
-const lock = (
+const visit = (
 	id: string,
 	restaurantId: string,
 	name: string,
-	lockedAt: string,
-): HistoryEntry => ({ id, restaurantId, name, lockedAt });
+	visitedAt: string,
+): HistoryEntry => ({ id, restaurantId, name, visitedAt });
 
 const sample = (): HistoryEntry[] => [
-	lock("h1", "r2", "Som Tam Nua", "2026-10-12T05:18:00.000Z"),
-	lock("h2", "r4", "Ramen Champion", "2026-10-11T12:42:00.000Z"),
-	lock("h3", "r2", "Som Tam Nua", "2026-10-09T05:05:00.000Z"),
-	lock("h4", "gone", "Pad Thai Fai Ta Lu", "2026-10-06T11:30:00.000Z"),
+	visit("h1", "r2", "Som Tam Nua", "2026-10-12T05:18:00.000Z"),
+	visit("h2", "r4", "Ramen Champion", "2026-10-11T12:42:00.000Z"),
+	visit("h3", "r2", "Som Tam Nua", "2026-10-09T05:05:00.000Z"),
+	visit("h4", "gone", "Pad Thai Fai Ta Lu", "2026-10-06T11:30:00.000Z"),
 ];
 
 beforeEach(() => {
@@ -54,27 +54,27 @@ afterEach(() => {
 });
 
 const mount = async () => {
-	const el = document.createElement("lock-history");
+	const el = document.createElement("visit-history");
 	document.body.append(el);
 	await el.updateComplete;
 	return el;
 };
 
-const root = (el: LockHistory) => el.shadowRoot!;
+const root = (el: VisitHistory) => el.shadowRoot!;
 const text = (node: Element | null | undefined) =>
 	node?.textContent?.replace(/\s+/g, " ").trim();
-const rows = (el: LockHistory) =>
+const rows = (el: VisitHistory) =>
 	[...root(el).querySelectorAll("tbody tr")].map((tr) =>
 		[...tr.querySelectorAll("td")].map((td) => text(td)),
 	);
-const lockIds = (el: LockHistory) =>
+const visitIds = (el: VisitHistory) =>
 	[...root(el).querySelectorAll("li[data-id]")].map((li) =>
 		li.getAttribute("data-id"),
 	);
-const lockRow = (el: LockHistory, id: string) =>
+const visitRow = (el: VisitHistory, id: string) =>
 	root(el).querySelector<HTMLLIElement>(`li[data-id="${id}"]`);
-const action = (el: LockHistory, id: string, name: string) =>
-	lockRow(el, id)?.querySelector<HTMLButtonElement>(`[data-action="${name}"]`);
+const action = (el: VisitHistory, id: string, name: string) =>
+	visitRow(el, id)?.querySelector<HTMLButtonElement>(`[data-action="${name}"]`);
 
 const day = (iso: string) =>
 	new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(iso));
@@ -87,7 +87,7 @@ const dayTime = (iso: string) =>
 test("shows the page heading, the total and one stats row per restaurant", async () => {
 	const el = await mount();
 	expect(text(root(el).querySelector("h1"))).toBe("History");
-	expect(text(root(el).querySelector(".total"))).toBe("4 locks in total");
+	expect(text(root(el).querySelector(".total"))).toBe("4 visits in total");
 	expect(
 		[...root(el).querySelectorAll("thead th")].map((th) => text(th)),
 	).toEqual(["Restaurant", "Times", "Last time"]);
@@ -98,29 +98,29 @@ test("shows the page heading, the total and one stats row per restaurant", async
 	]);
 });
 
-test("uses the singular for one lock", async () => {
-	saveHistory([lock("h1", "r2", "Som Tam Nua", "2026-10-12T05:18:00.000Z")]);
+test("uses the singular for one visit", async () => {
+	saveHistory([visit("h1", "r2", "Som Tam Nua", "2026-10-12T05:18:00.000Z")]);
 	const el = await mount();
-	expect(text(root(el).querySelector(".total"))).toBe("1 lock in total");
+	expect(text(root(el).querySelector(".total"))).toBe("1 visit in total");
 });
 
-test("lists every lock newest first with its date and time", async () => {
+test("lists every visit newest first with its date and time", async () => {
 	const el = await mount();
-	expect(lockIds(el)).toEqual(["h1", "h2", "h3", "h4"]);
-	const first = lockRow(el, "h1")!;
+	expect(visitIds(el)).toEqual(["h1", "h2", "h3", "h4"]);
+	const first = visitRow(el, "h1")!;
 	expect(text(first.querySelector(".name"))).toBe("Som Tam Nua");
 	const time = first.querySelector("time");
 	expect(time?.getAttribute("datetime")).toBe("2026-10-12T05:18:00.000Z");
 	expect(text(time)).toBe(dayTime("2026-10-12T05:18:00.000Z"));
 });
 
-test("the lock list keeps the name a restaurant had when it was locked", async () => {
+test("the visit list keeps the name a restaurant had when it was visited", async () => {
 	saveRestaurants([
 		restaurant("r2", "Som Tam Nua Siam"),
 		restaurant("r4", "Ramen Champion"),
 	]);
 	const el = await mount();
-	expect(text(lockRow(el, "h1")?.querySelector(".name"))).toBe("Som Tam Nua");
+	expect(text(visitRow(el, "h1")?.querySelector(".name"))).toBe("Som Tam Nua");
 	expect(rows(el)[0]![0]).toBe("Som Tam Nua Siam");
 });
 
@@ -129,7 +129,7 @@ test("delete asks first and can be cancelled", async () => {
 	action(el, "h2", "delete")!.click();
 	await el.updateComplete;
 	expect(action(el, "h2", "delete")).toBeNull();
-	expect(text(action(el, "h2", "confirm-delete"))).toBe("Delete this lock");
+	expect(text(action(el, "h2", "confirm-delete"))).toBe("Delete this visit");
 	await el.updateComplete;
 	expect(root(el).activeElement).toBe(action(el, "h2", "confirm-delete")!);
 	action(el, "h2", "cancel-delete")!.click();
@@ -139,25 +139,25 @@ test("delete asks first and can be cancelled", async () => {
 	expect(loadHistory()).toHaveLength(4);
 });
 
-test("confirming delete removes the lock and updates the stats", async () => {
+test("confirming delete removes the visit and updates the stats", async () => {
 	const el = await mount();
 	action(el, "h2", "delete")!.click();
 	await el.updateComplete;
 	action(el, "h2", "confirm-delete")!.click();
 	await el.updateComplete;
-	expect(lockRow(el, "h2")).toBeNull();
+	expect(visitRow(el, "h2")).toBeNull();
 	expect(loadHistory().map((item) => item.id)).toEqual(["h1", "h3", "h4"]);
-	expect(text(root(el).querySelector(".total"))).toBe("3 locks in total");
+	expect(text(root(el).querySelector(".total"))).toBe("3 visits in total");
 	expect(rows(el).map((row) => row[0])).toEqual([
 		"Som Tam Nua",
 		"Pad Thai Fai Ta Lu (deleted)",
 	]);
 });
 
-test("with no locks shows a link to pick and no stats", async () => {
+test("with no visits shows a link to pick and no stats", async () => {
 	saveHistory([]);
 	const el = await mount();
-	expect(text(root(el).querySelector(".empty p"))).toBe("No locks yet.");
+	expect(text(root(el).querySelector(".empty p"))).toBe("No visits yet.");
 	const link = root(el).querySelector(".empty a");
 	expect(link?.getAttribute("href")).toBe("./");
 	expect(text(link)).toBe("Pick a restaurant");
@@ -169,12 +169,12 @@ test("follows changes from another tab", async () => {
 	localStorage.setItem(
 		HISTORY_KEY,
 		JSON.stringify([
-			lock("x", "r4", "Ramen Champion", "2026-10-13T05:00:00.000Z"),
+			visit("x", "r4", "Ramen Champion", "2026-10-13T05:00:00.000Z"),
 		]),
 	);
 	window.dispatchEvent(new StorageEvent("storage", { key: HISTORY_KEY }));
 	await el.updateComplete;
-	expect(lockIds(el)).toEqual(["x"]);
+	expect(visitIds(el)).toEqual(["x"]);
 });
 
 test("follows restaurant renames and deletes", async () => {
@@ -193,7 +193,7 @@ test("renders in Thai", async () => {
 	expect(text(action(el, "h1", "delete"))).toBe("ลบ");
 });
 
-const deleteLock = async (el: LockHistory, id: string) => {
+const deleteVisit = async (el: VisitHistory, id: string) => {
 	action(el, id, "delete")!.click();
 	await el.updateComplete;
 	action(el, id, "confirm-delete")!.click();
@@ -201,22 +201,22 @@ const deleteLock = async (el: LockHistory, id: string) => {
 	await el.updateComplete;
 };
 
-test("after a delete, focus moves to the next lock's Delete button", async () => {
+test("after a delete, focus moves to the next visit's Delete button", async () => {
 	const el = await mount();
-	await deleteLock(el, "h2");
+	await deleteVisit(el, "h2");
 	expect(root(el).activeElement).toBe(action(el, "h3", "delete")!);
 });
 
-test("after deleting the last lock in the list, focus moves to the one before", async () => {
+test("after deleting the last visit in the list, focus moves to the one before", async () => {
 	const el = await mount();
-	await deleteLock(el, "h4");
+	await deleteVisit(el, "h4");
 	expect(root(el).activeElement).toBe(action(el, "h3", "delete")!);
 });
 
-test("after deleting the only lock, focus moves to the heading", async () => {
-	saveHistory([lock("h1", "r2", "Som Tam Nua", "2026-10-12T05:18:00.000Z")]);
+test("after deleting the only visit, focus moves to the heading", async () => {
+	saveHistory([visit("h1", "r2", "Som Tam Nua", "2026-10-12T05:18:00.000Z")]);
 	const el = await mount();
-	await deleteLock(el, "h1");
+	await deleteVisit(el, "h1");
 	expect(root(el).activeElement).toBe(root(el).querySelector("h1"));
 });
 
@@ -233,7 +233,7 @@ test("warns when the browser could not save a delete", async () => {
 		configurable: true,
 	});
 	try {
-		await deleteLock(el, "h2");
+		await deleteVisit(el, "h2");
 		expect(text(root(el).querySelector(".warning"))).toBe(
 			"Your browser is not saving changes. They will be lost when you leave this page.",
 		);

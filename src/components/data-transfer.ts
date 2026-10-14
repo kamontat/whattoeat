@@ -185,9 +185,9 @@ export class DataTransferPanel extends LitElement {
 		let persisted = saveRestaurants(list);
 		// A version 1 file has no history, so the saved history stays as it is.
 		if (history !== undefined) {
-			const locks =
+			const visits =
 				mode === "replace" ? history : mergeHistory(loadHistory(), history);
-			persisted = saveHistory(locks) && persisted;
+			persisted = saveHistory(visits) && persisted;
 		}
 		this.pending = undefined;
 		this.pasteText = "";

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import {
-	addLock,
+	addVisit,
 	HISTORY_EVENT,
 	HISTORY_KEY,
 	type HistoryEntry,
@@ -8,7 +8,7 @@ import {
 	isHistoryMemoryOnly,
 	loadHistory,
 	onHistoryChanged,
-	removeLock,
+	removeVisit,
 	saveHistory,
 	summarize,
 } from "#lib/history";
@@ -18,8 +18,8 @@ const entry = (
 	id: string,
 	restaurantId: string,
 	name: string,
-	lockedAt: string,
-): HistoryEntry => ({ id, restaurantId, name, lockedAt });
+	visitedAt: string,
+): HistoryEntry => ({ id, restaurantId, name, visitedAt });
 
 const restaurant = (id: string, name: string): Restaurant => ({
 	id,
@@ -65,14 +65,14 @@ test("skips entries that are not valid and drops unknown fields", () => {
 				id: "b",
 				restaurantId: "r1",
 				name: " ",
-				lockedAt: "2026-10-13T05:00:00.000Z",
+				visitedAt: "2026-10-13T05:00:00.000Z",
 			},
-			{ id: "c", restaurantId: "r1", name: "C", lockedAt: "yesterday" },
+			{ id: "c", restaurantId: "r1", name: "C", visitedAt: "yesterday" },
 			{
 				id: "",
 				restaurantId: "r1",
 				name: "D",
-				lockedAt: "2026-10-13T05:00:00.000Z",
+				visitedAt: "2026-10-13T05:00:00.000Z",
 			},
 			null,
 		]),
@@ -91,10 +91,26 @@ test("isHistoryEntry needs ids, a name and a readable time", () => {
 			id: "a",
 			restaurantId: "",
 			name: "A",
-			lockedAt: "2026-10-13T05:00:00.000Z",
+			visitedAt: "2026-10-13T05:00:00.000Z",
 		}),
 	).toBe(false);
 	expect(isHistoryEntry("a")).toBe(false);
+});
+
+test("loads entries saved with lockedAt before the rename to visitedAt", () => {
+	const { visitedAt, ...rest } = entry(
+		"a",
+		"r1",
+		"A",
+		"2026-10-13T05:00:00.000Z",
+	);
+	localStorage.setItem(
+		HISTORY_KEY,
+		JSON.stringify([{ ...rest, lockedAt: visitedAt }]),
+	);
+	expect(loadHistory()).toEqual([
+		entry("a", "r1", "A", "2026-10-13T05:00:00.000Z"),
+	]);
 });
 
 test("loads newest first even when stored out of order", () => {
@@ -109,16 +125,16 @@ test("loads newest first even when stored out of order", () => {
 	expect(loadHistory().map((item) => item.id)).toEqual(["new", "mid", "old"]);
 });
 
-test("addLock saves the restaurant id, its name and the time, newest first", () => {
-	addLock(restaurant("r1", "Jay Fai"), new Date("2026-10-12T12:00:00.000Z"));
-	const added = addLock(
+test("addVisit saves the restaurant id, its name and the time, newest first", () => {
+	addVisit(restaurant("r1", "Jay Fai"), new Date("2026-10-12T12:00:00.000Z"));
+	const added = addVisit(
 		restaurant("r2", "Thipsamai"),
 		new Date("2026-10-13T12:30:00.000Z"),
 	);
 	expect(added).toMatchObject({
 		restaurantId: "r2",
 		name: "Thipsamai",
-		lockedAt: "2026-10-13T12:30:00.000Z",
+		visitedAt: "2026-10-13T12:30:00.000Z",
 	});
 	expect(added.id).toMatch(/^[0-9A-Za-z]{8}$/);
 	const stored = JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]");
@@ -129,23 +145,23 @@ test("addLock saves the restaurant id, its name and the time, newest first", () 
 	expect(loadHistory()).toEqual(stored);
 });
 
-test("addLock gives every entry a different id", () => {
+test("addVisit gives every entry a different id", () => {
 	const ids = new Set(
-		Array.from({ length: 20 }, () => addLock(restaurant("r1", "A")).id),
+		Array.from({ length: 20 }, () => addVisit(restaurant("r1", "A")).id),
 	);
 	expect(ids.size).toBe(20);
 });
 
-test("removeLock deletes only that entry", () => {
+test("removeVisit deletes only that entry", () => {
 	saveHistory([
 		entry("a", "r1", "A", "2026-10-13T05:00:00.000Z"),
 		entry("b", "r1", "A", "2026-10-12T05:00:00.000Z"),
 	]);
-	expect(removeLock("a").map((item) => item.id)).toEqual(["b"]);
+	expect(removeVisit("a").map((item) => item.id)).toEqual(["b"]);
 	expect(loadHistory().map((item) => item.id)).toEqual(["b"]);
 });
 
-test("addLock falls back to memory when localStorage throws", () => {
+test("addVisit falls back to memory when localStorage throws", () => {
 	const real = globalThis.localStorage;
 	Object.defineProperty(globalThis, "localStorage", {
 		value: {
@@ -157,7 +173,7 @@ test("addLock falls back to memory when localStorage throws", () => {
 		configurable: true,
 	});
 	try {
-		const added = addLock(restaurant("r1", "A"));
+		const added = addVisit(restaurant("r1", "A"));
 		expect(loadHistory()).toEqual([added]);
 		expect(saveHistory(loadHistory())).toBe(false);
 	} finally {
@@ -201,27 +217,27 @@ test("summarize counts per restaurant, most first, ties by latest", () => {
 			restaurantId: "r1",
 			name: "A",
 			count: 2,
-			lastLockedAt: "2026-10-13T05:00:00.000Z",
+			lastVisitedAt: "2026-10-13T05:00:00.000Z",
 			deleted: false,
 		},
 		{
 			restaurantId: "r2",
 			name: "B",
 			count: 1,
-			lastLockedAt: "2026-10-12T05:00:00.000Z",
+			lastVisitedAt: "2026-10-12T05:00:00.000Z",
 			deleted: false,
 		},
 		{
 			restaurantId: "r3",
 			name: "C",
 			count: 1,
-			lastLockedAt: "2026-10-11T05:00:00.000Z",
+			lastVisitedAt: "2026-10-11T05:00:00.000Z",
 			deleted: false,
 		},
 	]);
 });
 
-test("summarize uses the current name, or the newest locked name for a deleted restaurant", () => {
+test("summarize uses the current name, or the newest visited name for a deleted restaurant", () => {
 	const stats = summarize(
 		[
 			entry("1", "r1", "Old name", "2026-10-13T05:00:00.000Z"),
@@ -253,7 +269,7 @@ test("isHistoryMemoryOnly is true only while history could not be saved", () => 
 		configurable: true,
 	});
 	try {
-		addLock(restaurant("r1", "A"));
+		addVisit(restaurant("r1", "A"));
 		expect(isHistoryMemoryOnly()).toBe(true);
 	} finally {
 		Object.defineProperty(globalThis, "localStorage", {
