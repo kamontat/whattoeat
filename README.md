@@ -12,6 +12,7 @@ in a light or dark theme that follows the system setting unless you pick one in 
 | `/restaurants` | Add, edit and delete restaurants               |
 | `/history`     | Every visit with its date and time, stats per restaurant, delete a visit |
 | `/settings`    | Export or import JSON as a file or by copy and paste, with replace or merge |
+| `/tags`        | Groups and their values: counts, add, rename, reorder and delete groups; rename, merge, move and delete values |
 
 Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static
 [Lit](https://lit.dev/) web components, bundled by [Bun](https://bun.com/) through
@@ -100,7 +101,7 @@ Ideas for future work live in [IDEAS.md](IDEAS.md).
 ```text
 .
 ├── src/                 # application code
-│   ├── routes/          # HTML pages: index, restaurants, history, settings
+│   ├── routes/          # HTML pages: index, restaurants, history, settings, tags
 │   ├── assets/          # files pages link to, e.g. favicon.svg
 │   ├── components/      # Lit components        (import as #components/*)
 │   ├── lib/             # shared TypeScript     (import as #lib/*), e.g. gtm.ts
