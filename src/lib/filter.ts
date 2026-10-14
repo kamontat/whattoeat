@@ -155,3 +155,78 @@ export const saveFilter = (filter: Filter): void => {
 		// Storage blocked: the filter lasts for this page only.
 	}
 };
+
+/** Set one group's lists; an empty group is removed. An item in both lists stays included. */
+const withGroup = (
+	filter: Filter,
+	group: string,
+	next: GroupFilter,
+): Filter => {
+	const rest = Object.fromEntries(
+		Object.entries(filter).filter(([id]) => id !== group),
+	);
+	const include = [...new Set(next.include)];
+	const exclude = [...new Set(next.exclude)].filter(
+		(item) => !include.includes(item),
+	);
+	return include.length + exclude.length > 0
+		? { ...rest, [group]: { include, exclude } }
+		: rest;
+};
+
+export const renameFilterValue = (
+	filter: Filter,
+	group: string,
+	from: string,
+	to: string,
+): Filter => {
+	const current = groupFilter(filter, group);
+	const swap = (list: string[]): string[] =>
+		list.map((item) => (item === from ? to : item));
+	return withGroup(filter, group, {
+		include: swap(current.include),
+		exclude: swap(current.exclude),
+	});
+};
+
+export const dropFilterValue = (
+	filter: Filter,
+	group: string,
+	value: string,
+): Filter => {
+	const current = groupFilter(filter, group);
+	const keep = (item: string): boolean => item !== value;
+	return withGroup(filter, group, {
+		include: current.include.filter(keep),
+		exclude: current.exclude.filter(keep),
+	});
+};
+
+/** Carry a value's state to another group; plain tags are not filtered, so it is dropped there. */
+export const moveFilterValue = (
+	filter: Filter,
+	from: string,
+	value: string,
+	to: string,
+): Filter => {
+	const state = tagState(filter, from, value);
+	const dropped = dropFilterValue(filter, from, value);
+	if (state === "off" || to === "tags") return dropped;
+	const target = groupFilter(dropped, to);
+	return withGroup(dropped, to, {
+		include: state === "include" ? [...target.include, value] : target.include,
+		exclude: state === "exclude" ? [...target.exclude, value] : target.exclude,
+	});
+};
+
+export const dropFilterGroup = (filter: Filter, group: string): Filter =>
+	withGroup(filter, group, EMPTY_GROUP);
+
+/** Call `callback` when another tab saves the filter. Returns an unsubscribe function. */
+export const onFilterChanged = (callback: () => void): (() => void) => {
+	const onStorage = (event: StorageEvent): void => {
+		if (event.key === FILTER_KEY) callback();
+	};
+	window.addEventListener("storage", onStorage);
+	return () => window.removeEventListener("storage", onStorage);
+};

@@ -2,12 +2,17 @@ import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
 import {
 	applyFilter,
 	cycleTag,
+	dropFilterGroup,
+	dropFilterValue,
 	EMPTY_FILTER,
 	FILTER_KEY,
 	type Filter,
 	isFilterActive,
 	loadFilter,
+	moveFilterValue,
+	onFilterChanged,
 	pruneFilter,
+	renameFilterValue,
 	saveFilter,
 	tagState,
 } from "#lib/filter";
@@ -259,4 +264,55 @@ test("saveFilter does not throw when storage refuses the write", () => {
 	} finally {
 		spy.mockRestore();
 	}
+});
+
+const f = (include: string[], exclude: string[] = []) => ({ include, exclude });
+
+test("renameFilterValue renames in its own list and keeps one copy", () => {
+	expect(
+		renameFilterValue(
+			{ g1: f(["noodles", "noodle"]), g2: f(["noodles"]) },
+			"g1",
+			"noodles",
+			"noodle",
+		),
+	).toEqual({ g1: f(["noodle"]), g2: f(["noodles"]) });
+	expect(renameFilterValue({ g1: f([], ["a"]) }, "g1", "a", "b")).toEqual({
+		g1: f([], ["b"]),
+	});
+});
+
+test("renameFilterValue onto a value in the other list keeps it included", () => {
+	expect(renameFilterValue({ g1: f(["b"], ["a"]) }, "g1", "a", "b")).toEqual({
+		g1: f(["b"]),
+	});
+});
+
+test("moveFilterValue carries the state to the target group, or drops it for tags", () => {
+	expect(moveFilterValue({ g1: f(["cheap"]) }, "g1", "cheap", "g2")).toEqual({
+		g2: f(["cheap"]),
+	});
+	expect(
+		moveFilterValue({ g1: f([], ["cheap"]) }, "g1", "cheap", "tags"),
+	).toEqual({});
+});
+
+test("dropFilterValue and dropFilterGroup remove and tidy up", () => {
+	expect(dropFilterValue({ g1: f(["a", "b"]) }, "g1", "a")).toEqual({
+		g1: f(["b"]),
+	});
+	expect(dropFilterValue({ g1: f(["a"]) }, "g1", "a")).toEqual({});
+	expect(dropFilterGroup({ g1: f(["a"]), area: f(["siam"]) }, "g1")).toEqual({
+		area: f(["siam"]),
+	});
+});
+
+test("onFilterChanged fires for filter storage events only", () => {
+	let count = 0;
+	const stop = onFilterChanged(() => count++);
+	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	window.dispatchEvent(new StorageEvent("storage", { key: "other" }));
+	stop();
+	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	expect(count).toBe(1);
 });
