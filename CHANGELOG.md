@@ -2,6 +2,23 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-14: Import renames restaurants whose name is already used
+
+### Bug fixes
+
+- Import no longer creates two restaurants with the same name, which the add form has never
+  allowed. An imported restaurant whose name is already used (ignoring case and surrounding
+  spaces) gets the first free ` - <n>` suffix, counting from 1: `Somtam`, `Somtam - 1`,
+  `Somtam - 2`. This covers a name repeated inside one file, on both Replace and Merge, and a
+  name already saved, on Merge. An entry that replaces the restaurant with the same id keeps
+  its name.
+
+### Decisions
+
+- Only incoming restaurants are renamed; saved ones keep their names, so a merge never
+  changes what is already on the list. A suffix was chosen over skipping or rejecting the
+  clashing entries, because two places can share a name and both are worth keeping.
+
 ## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer, data reset, a warning for unreadable saved data, two random options per pick, a lock history, and filtering by type, cuisine and area
 
 ### BREAKING CHANGES
