@@ -1,5 +1,6 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import { restaurantChips } from "#components/restaurant-chips";
 import {
 	applyFilter,
 	cycleTag,
@@ -14,7 +15,6 @@ import {
 } from "#lib/filter";
 import {
 	allGroupIds,
-	customChips,
 	type GroupDef,
 	groupLabel,
 	loadGroups,
@@ -529,15 +529,7 @@ export class RandomPicker extends LitElement {
 						: nothing
 				}
 				${item.notes ? html`<p class="notes">${item.notes}</p>` : nothing}
-				${(() => {
-					const chips = customChips(item, this.defs);
-					return chips.length + item.tags.length > 0
-						? html`<ul class="chips">
-								${chips.map((chip) => html`<li class="chip group-chip">${chip}</li>`)}
-								${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}
-							</ul>`
-						: nothing;
-				})()}
+				${restaurantChips(item, this.defs)}
 				<div class="foot">${this.renderVisit(item)}</div>
 			</article>
 		`;

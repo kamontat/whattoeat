@@ -1,10 +1,10 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
+import { restaurantChips } from "#components/restaurant-chips";
 import "#components/tag-input";
 import type { TagInput } from "#components/tag-input";
 import {
-	customChips,
 	type GroupDef,
 	groupLabel,
 	loadGroups,
@@ -471,15 +471,7 @@ export class RestaurantManager extends LitElement {
 						: nothing
 				}
 				${item.notes ? html`<span class="notes muted">${item.notes}</span>` : nothing}
-				${(() => {
-					const chips = customChips(item, this.defs);
-					return chips.length + item.tags.length > 0
-						? html`<ul class="chips">
-								${chips.map((chip) => html`<li class="chip group-chip">${chip}</li>`)}
-								${item.tags.map((tag) => html`<li class="chip">${tag}</li>`)}
-							</ul>`
-						: nothing;
-				})()}
+				${restaurantChips(item, this.defs)}
 				<div class="actions">
 					${
 						confirming
