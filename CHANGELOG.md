@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-14: Import renames restaurants whose name is already used, and history locks are now visits
+## 2026-10-14: Import renames restaurants whose name is already used, history locks are now visits, and clearing old history
 
 ### BREAKING CHANGES
 
@@ -12,6 +12,16 @@ What changed in this project and why, newest first.
   `addLock`, `removeLock`, `lockedAt` and `lastLockedAt` are now `addVisit`, `removeVisit`,
   `visitedAt` and `lastVisitedAt`. The `picker.lock` and `picker.locked` messages are now
   `picker.visit` and `picker.visited`.
+
+### Features
+
+- The History page has a **Clear history** section between Stats and Visits, with
+  **Older than 1 week**, **Older than 1 month**, **Older than 1 year** and **All** (ล้างประวัติ:
+  เก่ากว่า 1 สัปดาห์, 1 เดือน, 1 ปี, ทั้งหมด). Each shows how many visits it would delete, such
+  as "Older than 1 month (12)", and is disabled at 0. Pressing one asks "Delete 12 visits
+  older than 1 month? This cannot be undone." with **Delete visits** / **Cancel** first. A
+  week is 7 days, a month and a year are calendar ones, and a visit exactly at the cutoff is
+  kept.
 
 ### Improvements
 
@@ -39,6 +49,12 @@ What changed in this project and why, newest first.
   and "choose" were rejected because **Pick again** already means a new random pair; a visit
   is what each entry records. The rename covers the code and the stored field too, so the
   words match everywhere, with old data read rather than migrated.
+- History is never cleaned up automatically. Keeping a year or the newest 1000 visits,
+  whichever is more, was built first and dropped: visits should only disappear when someone
+  asks, and size is no concern, since a visit is about 105 characters and two a day for a
+  year come to about 77 KB of the roughly 5 MB browsers allow. The clear section sits above
+  the visit list so a long history does not push it out of reach.
+- `IDEAS.md` no longer lists pick history, which shipped as visit history.
 
 ## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer, data reset, a warning for unreadable saved data, two random options per pick, a lock history, and filtering by type, cuisine and area
 
