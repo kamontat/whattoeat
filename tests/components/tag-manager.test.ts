@@ -44,6 +44,10 @@ const typeIn = async (
 	input.dispatchEvent(new Event("input"));
 	await el.updateComplete;
 };
+const valueRow = (el: TagManager, group: string, value: string) =>
+	card(el, group).querySelector<HTMLElement>(
+		`li.value[data-value="${value}"]`,
+	)!;
 
 test("shows a card per group in order, ending with plain tags", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
@@ -168,4 +172,116 @@ test("renders in Thai", async () => {
 	setLang("th");
 	const el = await mount();
 	expect(cardTitles(el)).toEqual(["ประเภท", "สัญชาติอาหาร", "ย่าน", "แท็ก"]);
+});
+
+test("Type values show counts only", async () => {
+	addRestaurant({ ...base, name: "A", kinds: ["food"] });
+	const el = await mount();
+	expect(valueRow(el, "kind", "food").querySelector("button")).toBeNull();
+	expect(valueRow(el, "kind", "food").querySelector(".name")?.textContent).toBe(
+		"Food",
+	);
+});
+
+test("renaming a value changes it on every restaurant and in the saved filter", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
+	addRestaurant({ ...base, name: "B", groups: { cuisine: ["thia", "lao"] } });
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
+	);
+	const el = await mount();
+	await click(el, valueRow(el, "cuisine", "thia"), "rename-value");
+	await typeIn(
+		el,
+		valueRow(el, "cuisine", "thia").querySelector("input")!,
+		" Thai ",
+	);
+	await click(el, valueRow(el, "cuisine", "thia"), "save-value");
+	expect(loadRestaurants().map((item) => item.groups["cuisine"])).toEqual([
+		["thai"],
+		["thai", "lao"],
+	]);
+	expect(JSON.parse(localStorage.getItem(FILTER_KEY)!)).toEqual({
+		cuisine: { include: ["thai"], exclude: [] },
+	});
+});
+
+test("renaming to blank text or text with a comma shows an error and changes nothing", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	await click(el, valueRow(el, "cuisine", "thai"), "rename-value");
+	const input = valueRow(el, "cuisine", "thai").querySelector("input")!;
+	await typeIn(el, input, "  ");
+	await click(el, valueRow(el, "cuisine", "thai"), "save-value");
+	expect(
+		valueRow(el, "cuisine", "thai").querySelector(".error")?.textContent,
+	).toBe("Value is required.");
+	await typeIn(el, input, "thai, lao");
+	await click(el, valueRow(el, "cuisine", "thai"), "save-value");
+	expect(
+		valueRow(el, "cuisine", "thai").querySelector(".error")?.textContent,
+	).toBe("A value cannot contain a comma.");
+	expect(loadRestaurants()[0]?.groups["cuisine"]).toEqual(["thai"]);
+});
+
+test("renaming onto an existing value asks to merge, and merging keeps one copy", async () => {
+	// The group must exist before the restaurant, or its values are saved as plain tags.
+	saveGroups([{ id: "g1", name: "Dish" }]);
+	addRestaurant({ ...base, name: "A", groups: { g1: ["noodles", "noodle"] } });
+	const el = await mount();
+	await click(el, valueRow(el, "g1", "noodles"), "rename-value");
+	await typeIn(
+		el,
+		valueRow(el, "g1", "noodles").querySelector("input")!,
+		"noodle",
+	);
+	await click(el, valueRow(el, "g1", "noodles"), "save-value");
+	expect(valueRow(el, "g1", "noodles").textContent).toContain(
+		"noodle already exists. Merge noodles into noodle on 1 restaurants?",
+	);
+	await click(el, valueRow(el, "g1", "noodles"), "confirm-merge");
+	expect(loadRestaurants()[0]?.groups["g1"]).toEqual(["noodle"]);
+});
+
+test("moving a value offers every group but Type and its own, and moves it", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	addRestaurant({ ...base, name: "A", groups: { area: ["cheap"] } });
+	const el = await mount();
+	await click(el, valueRow(el, "area", "cheap"), "move-value");
+	const select = valueRow(el, "area", "cheap").querySelector("select")!;
+	expect([...select.options].map((option) => option.value)).toEqual([
+		"cuisine",
+		"g1",
+		"tags",
+	]);
+	select.value = "g1";
+	select.dispatchEvent(new Event("change"));
+	await el.updateComplete;
+	await click(el, valueRow(el, "area", "cheap"), "confirm-move");
+	expect(loadRestaurants()[0]?.groups).toEqual({ g1: ["cheap"] });
+});
+
+test("deleting a value asks first, then removes it everywhere", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["spicy", "hot"] });
+	const el = await mount();
+	await click(el, valueRow(el, "tags", "spicy"), "delete-value");
+	expect(valueRow(el, "tags", "spicy").textContent).toContain(
+		"Remove spicy from 1 restaurants?",
+	);
+	await click(el, valueRow(el, "tags", "spicy"), "confirm-delete-value");
+	expect(loadRestaurants()[0]?.tags).toEqual(["hot"]);
+});
+
+test("cancel closes a value prompt without changes", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["spicy"] });
+	const el = await mount();
+	await click(el, valueRow(el, "tags", "spicy"), "delete-value");
+	await click(el, valueRow(el, "tags", "spicy"), "cancel");
+	expect(
+		valueRow(el, "tags", "spicy").querySelector(
+			'[data-action="confirm-delete-value"]',
+		),
+	).toBeNull();
+	expect(loadRestaurants()[0]?.tags).toEqual(["spicy"]);
 });
