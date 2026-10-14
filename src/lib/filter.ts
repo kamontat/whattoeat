@@ -1,6 +1,4 @@
 import {
-	GROUPS,
-	type Group,
 	groupValues,
 	isKind,
 	normalizeTag,
@@ -9,17 +7,20 @@ import {
 } from "#lib/restaurant";
 
 export type GroupFilter = { include: string[]; exclude: string[] };
-export type Filter = Record<Group, GroupFilter>;
+/** Include and exclude lists by group id. Plain tags are never filtered, so `tags` is never a key. */
+export type Filter = Record<string, GroupFilter>;
 export type TagState = "off" | "include" | "exclude";
 
 const EMPTY_GROUP: GroupFilter = { include: [], exclude: [] };
 
-export const EMPTY_FILTER: Filter = {
-	kind: EMPTY_GROUP,
-	cuisine: EMPTY_GROUP,
-	area: EMPTY_GROUP,
-};
+export const EMPTY_FILTER: Filter = {};
 export const FILTER_KEY = "whattoeat:filter";
+
+const groupFilter = (filter: Filter, group: string): GroupFilter =>
+	Object.hasOwn(filter, group) ? (filter[group] ?? EMPTY_GROUP) : EMPTY_GROUP;
+
+const isEmptyGroup = (filter: GroupFilter): boolean =>
+	filter.include.length === 0 && filter.exclude.length === 0;
 
 const matchesGroup = (values: string[], filter: GroupFilter): boolean =>
 	(filter.include.length === 0 ||
@@ -35,35 +36,34 @@ export const applyFilter = (
 	filter: Filter,
 ): Restaurant[] =>
 	list.filter((item) =>
-		GROUPS.every((group) =>
-			matchesGroup(groupValues(item, group), filter[group]),
+		Object.entries(filter).every(([group, value]) =>
+			matchesGroup(groupValues(item, group), value),
 		),
 	);
 
 export const isFilterActive = (filter: Filter): boolean =>
-	GROUPS.some(
-		(group) =>
-			filter[group].include.length > 0 || filter[group].exclude.length > 0,
-	);
+	Object.values(filter).some((group) => !isEmptyGroup(group));
 
 export const tagState = (
 	filter: Filter,
-	group: Group,
+	group: string,
 	value: string,
 ): TagState => {
-	if (filter[group].include.includes(value)) return "include";
-	if (filter[group].exclude.includes(value)) return "exclude";
+	const current = groupFilter(filter, group);
+	if (current.include.includes(value)) return "include";
+	if (current.exclude.includes(value)) return "exclude";
 	return "off";
 };
 
 /** Move one value to its next state: off, include, exclude, then off again. */
 export const cycleTag = (
 	filter: Filter,
-	group: Group,
+	group: string,
 	value: string,
 ): Filter => {
-	const include = filter[group].include.filter((item) => item !== value);
-	const exclude = filter[group].exclude.filter((item) => item !== value);
+	const current = groupFilter(filter, group);
+	const include = current.include.filter((item) => item !== value);
+	const exclude = current.exclude.filter((item) => item !== value);
 	const next = ((): GroupFilter => {
 		switch (tagState(filter, group, value)) {
 			case "off":
@@ -77,24 +77,30 @@ export const cycleTag = (
 	return { ...filter, [group]: next };
 };
 
-/** Drop values no restaurant in the list uses in that group any more. */
+/** Keep only groups in `groupIds` (never tags), values some restaurant still uses, and non-empty groups. */
 export const pruneFilter = (
 	filter: Filter,
 	list: readonly Restaurant[],
-): Filter => {
-	const pruned = { ...filter };
-	for (const group of GROUPS) {
-		const known = valuesByUsage(list, group);
-		const keep = (value: string): boolean => known.includes(value);
-		pruned[group] = {
-			include: filter[group].include.filter(keep),
-			exclude: filter[group].exclude.filter(keep),
-		};
-	}
-	return pruned;
-};
+	groupIds: readonly string[],
+): Filter =>
+	Object.fromEntries(
+		Object.entries(filter)
+			.filter(([group]) => group !== "tags" && groupIds.includes(group))
+			.map(([group, value]): [string, GroupFilter] => {
+				const known = valuesByUsage(list, group);
+				const keep = (item: string): boolean => known.includes(item);
+				return [
+					group,
+					{
+						include: value.include.filter(keep),
+						exclude: value.exclude.filter(keep),
+					},
+				];
+			})
+			.filter(([, value]) => !isEmptyGroup(value)),
+	);
 
-const toValues = (value: unknown, group: Group): string[] => {
+const toValues = (value: unknown, group: string): string[] => {
 	if (!Array.isArray(value)) return [];
 	const values = new Set<string>();
 	for (const item of value) {
@@ -106,7 +112,7 @@ const toValues = (value: unknown, group: Group): string[] => {
 	return [...values];
 };
 
-const toGroup = (value: unknown, group: Group): GroupFilter => {
+const toGroup = (value: unknown, group: string): GroupFilter => {
 	if (typeof value !== "object" || value === null) return EMPTY_GROUP;
 	const raw = value as Partial<Record<keyof GroupFilter, unknown>>;
 	const include = toValues(raw.include, group);
@@ -120,7 +126,7 @@ const toGroup = (value: unknown, group: Group): GroupFilter => {
 
 /**
  * The saved filter, or the empty filter when nothing valid is stored. A value in both lists
- * stays included. Tags are not filtered, so an older tag-only filter loads as empty.
+ * stays included. Any group id but `tags`; empty groups are dropped.
  */
 export const loadFilter = (): Filter => {
 	let data: unknown;
@@ -133,9 +139,13 @@ export const loadFilter = (): Filter => {
 		return EMPTY_FILTER;
 	}
 	const raw = data as Record<string, unknown>;
-	const filter = { ...EMPTY_FILTER };
-	for (const group of GROUPS) filter[group] = toGroup(raw[group], group);
-	return filter;
+	const entries: [string, GroupFilter][] = [];
+	for (const [group, value] of Object.entries(raw)) {
+		if (group === "tags") continue;
+		const clean = toGroup(value, group);
+		if (!isEmptyGroup(clean)) entries.push([group, clean]);
+	}
+	return Object.fromEntries(entries);
 };
 
 export const saveFilter = (filter: Filter): void => {

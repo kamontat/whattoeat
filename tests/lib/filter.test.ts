@@ -74,8 +74,29 @@ test("a filter can match nothing", () => {
 	).toEqual([]);
 });
 
-test("the filter has type, cuisine and area groups, not tags", () => {
-	expect(Object.keys(EMPTY_FILTER).sort()).toEqual(["area", "cuisine", "kind"]);
+test("the empty filter has no groups", () => {
+	expect(EMPTY_FILTER).toEqual({});
+});
+
+test("a custom group filters like a built-in one", () => {
+	const items = [
+		make("A", { groups: { g1: ["cheap"] } }),
+		make("B", { groups: { g1: ["fancy"] } }),
+		make("C"),
+	];
+	expect(
+		names(applyFilter(items, { g1: { include: ["cheap"], exclude: [] } })),
+	).toEqual(["A"]);
+	expect(
+		names(applyFilter(items, { g1: { include: [], exclude: ["cheap"] } })),
+	).toEqual(["B", "C"]);
+});
+
+test("cycleTag works on a group missing from the filter", () => {
+	expect(cycleTag({}, "g1", "cheap")).toEqual({
+		g1: { include: ["cheap"], exclude: [] },
+	});
+	expect(tagState({}, "g1", "cheap")).toBe("off");
 });
 
 test("tags do not affect the filter", () => {
@@ -84,10 +105,19 @@ test("tags do not affect the filter", () => {
 });
 
 const places = [
-	make("Noodle", { area: "siam", cuisine: "thai", kinds: ["food"] }),
-	make("Cafe", { area: "ari", cuisine: "", kinds: ["drinks", "dessert"] }),
-	make("Sushi", { area: "siam", cuisine: "japanese", kinds: ["food"] }),
-	make("Bingsu", { area: "siam", cuisine: "korean", kinds: ["dessert"] }),
+	make("Noodle", {
+		groups: { area: ["siam"], cuisine: ["thai"] },
+		kinds: ["food"],
+	}),
+	make("Cafe", { groups: { area: ["ari"] }, kinds: ["drinks", "dessert"] }),
+	make("Sushi", {
+		groups: { area: ["siam"], cuisine: ["japanese"] },
+		kinds: ["food"],
+	}),
+	make("Bingsu", {
+		groups: { area: ["siam"], cuisine: ["korean"] },
+		kinds: ["dessert"],
+	}),
 ];
 
 test("values in one group match any, groups must all match", () => {
@@ -118,7 +148,10 @@ test("cycleTag goes off, include, exclude, off", () => {
 	expect(excluded).toEqual(kinds([], ["food"]));
 	expect(tagState(excluded, "kind", "food")).toBe("exclude");
 	const off = cycleTag(excluded, "kind", "food");
-	expect(off).toEqual(EMPTY_FILTER);
+	// cycleTag always sets the group's key, even back to empty; it stays functionally
+	// equivalent to EMPTY_FILTER (isFilterActive, matchesGroup, tagState all treat an empty
+	// group the same as an absent one), but is not deep-equal to it.
+	expect(off).toEqual(kinds([]));
 	expect(tagState(off, "kind", "food")).toBe("off");
 });
 
@@ -132,22 +165,55 @@ test("cycleTag leaves other values and groups alone", () => {
 	expect(tagState(start, "cuisine", "thai")).toBe("off");
 });
 
-test("pruneFilter drops values no restaurant uses in that group any more", () => {
-	const filter: Filter = {
-		...kinds(["food"], ["dessert"]),
-		area: { include: ["siam"], exclude: ["gone"] },
-	};
-	expect(pruneFilter(filter, [make("A", { kinds: ["food"] })])).toEqual(
-		kinds(["food"]),
-	);
-	expect(pruneFilter(filter, places)).toEqual({
-		...kinds(["food"], ["dessert"]),
-		area: { include: ["siam"], exclude: [] },
+test("pruneFilter drops unknown groups, tags, unused values and empty groups", () => {
+	const items = [make("A", { kinds: ["food"], groups: { g1: ["cheap"] } })];
+	expect(
+		pruneFilter(
+			{
+				kind: { include: ["food", "drinks"], exclude: [] },
+				g1: { include: [], exclude: ["cheap", "gone"] },
+				gone: { include: ["x"], exclude: [] },
+				tags: { include: ["thai"], exclude: [] },
+				area: { include: [], exclude: [] },
+			},
+			items,
+			["kind", "cuisine", "area", "g1"],
+		),
+	).toEqual({
+		kind: { include: ["food"], exclude: [] },
+		g1: { include: [], exclude: ["cheap"] },
 	});
 });
 
 test("loadFilter gives the empty filter when nothing is stored", () => {
 	expect(loadFilter()).toEqual(EMPTY_FILTER);
+});
+
+test("loadFilter keeps any group id except tags", () => {
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({
+			kind: { include: ["food"], exclude: [] },
+			g1: { include: [" Cheap "], exclude: [] },
+			tags: { include: ["thai"], exclude: [] },
+		}),
+	);
+	expect(loadFilter()).toEqual({
+		kind: { include: ["food"], exclude: [] },
+		g1: { include: ["cheap"], exclude: [] },
+	});
+});
+
+test("a saved filter of the old shape loads with its empty groups dropped", () => {
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({
+			kind: { include: [], exclude: [] },
+			cuisine: { include: ["thai"], exclude: [] },
+			area: { include: [], exclude: [] },
+		}),
+	);
+	expect(loadFilter()).toEqual({ cuisine: { include: ["thai"], exclude: [] } });
 });
 
 test.each([
