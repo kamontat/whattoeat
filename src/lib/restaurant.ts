@@ -137,7 +137,7 @@ export const cleanStored = (
 				location: item.location,
 				notes: item.notes,
 				tags: item.tags,
-				kinds: item.kinds,
+				...(item.kinds !== undefined ? { kinds: item.kinds } : {}),
 				groups,
 			},
 			customIds,
