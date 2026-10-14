@@ -308,6 +308,30 @@ test("a filter saved in another tab is picked up without dropping values not yet
 	);
 });
 
+test("a value renamed in another tab keeps the picked card on screen", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
+	);
+	const el = await mount();
+	pickButton(el)!.click();
+	await el.updateComplete;
+	expect(pickedNames(el)).toEqual(["A"]);
+	// Another tab renames thia to thai: the filter arrives before the restaurants.
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({ cuisine: { include: ["thai"], exclude: [] } }),
+	);
+	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	await el.updateComplete;
+	expect(pickedNames(el)).toEqual(["A"]);
+	const [item] = loadRestaurants();
+	saveRestaurants([{ ...item!, groups: { cuisine: ["thai"] } }]);
+	await el.updateComplete;
+	expect(pickedNames(el)).toEqual(["A"]);
+});
+
 test("the result keeps only picks that still match the filter", async () => {
 	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
 	addRestaurant({ ...base, name: "B", groups: { area: ["noodle"] } });

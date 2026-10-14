@@ -306,10 +306,10 @@ export class RandomPicker extends LitElement {
 			this.keepPickInPool();
 		});
 		// Another tab saved the filter (for example after renaming a value): take it as it is.
-		// Pruning waits for the restaurant change that follows.
+		// Pruning, and dropping picks outside the filter, wait for the restaurant change that
+		// follows: until it lands, a renamed value matches no restaurant and would drop every pick.
 		this.unsubscribeFilter = onFilterChanged(() => {
 			this.filter = loadFilter();
-			this.keepPickInPool();
 		});
 	}
 
