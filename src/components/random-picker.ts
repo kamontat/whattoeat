@@ -8,6 +8,7 @@ import {
 	type Filter,
 	isFilterActive,
 	loadFilter,
+	onFilterChanged,
 	pruneFilter,
 	saveFilter,
 	type TagState,
@@ -280,6 +281,7 @@ export class RandomPicker extends LitElement {
 
 	private unsubscribe: (() => void) | undefined;
 	private unsubscribeGroups: (() => void) | undefined;
+	private unsubscribeFilter: (() => void) | undefined;
 
 	@state()
 	private filter: Filter = EMPTY_FILTER;
@@ -303,6 +305,12 @@ export class RandomPicker extends LitElement {
 			this.pruneFilter();
 			this.keepPickInPool();
 		});
+		// Another tab saved the filter (for example after renaming a value): take it as it is.
+		// Pruning waits for the restaurant change that follows.
+		this.unsubscribeFilter = onFilterChanged(() => {
+			this.filter = loadFilter();
+			this.keepPickInPool();
+		});
 	}
 
 	override disconnectedCallback(): void {
@@ -311,6 +319,8 @@ export class RandomPicker extends LitElement {
 		this.unsubscribe = undefined;
 		this.unsubscribeGroups?.();
 		this.unsubscribeGroups = undefined;
+		this.unsubscribeFilter?.();
+		this.unsubscribeFilter = undefined;
 	}
 
 	private get pool(): Restaurant[] {
