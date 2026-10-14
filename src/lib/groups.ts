@@ -21,13 +21,20 @@ export const GROUPS_EVENT = "whattoeat:groups-changed";
 /** Set when localStorage refused a write; the list then lives in memory for this session. */
 let memory: GroupDef[] | undefined;
 
+/** Ids a group may never take: the reserved built-ins, plus `__proto__`, which bracket assignment
+ * (`obj[id] = ...`) would treat as the prototype setter instead of an own property. */
+const FORBIDDEN_GROUP_IDS: readonly string[] = [
+	...RESERVED_GROUP_IDS,
+	"__proto__",
+];
+
 export const isGroupDef = (value: unknown): value is GroupDef => {
 	if (typeof value !== "object" || value === null) return false;
 	const item = value as Partial<Record<keyof GroupDef, unknown>>;
 	return (
 		typeof item.id === "string" &&
 		item.id !== "" &&
-		!RESERVED_GROUP_IDS.includes(item.id) &&
+		!FORBIDDEN_GROUP_IDS.includes(item.id) &&
 		typeof item.name === "string" &&
 		item.name.trim() !== ""
 	);
@@ -277,18 +284,24 @@ export const moveGroup = (
 
 const unique = (values: readonly string[]): string[] => [...new Set(values)];
 
-/** Set one group's values; an empty list removes the key. `tags` sets plain tags. */
+/**
+ * Set one group's values; an empty list removes the key. `tags` sets plain tags. Built from a
+ * single `Object.fromEntries` call, never bracket assignment: a group id of `__proto__` would
+ * otherwise set the object's prototype instead of an own property.
+ */
 const withValues = (
 	item: Restaurant,
 	group: string,
 	values: string[],
 ): Restaurant => {
 	if (group === "tags") return { ...item, tags: values };
-	const groups = Object.fromEntries(
-		Object.entries(item.groups).filter(([id]) => id !== group),
-	);
-	if (values.length > 0) groups[group] = values;
-	return { ...item, groups };
+	const kept = Object.entries(item.groups).filter(([id]) => id !== group);
+	return {
+		...item,
+		groups: Object.fromEntries(
+			values.length > 0 ? [...kept, [group, values]] : kept,
+		),
+	};
 };
 
 /** Apply `edit` to every restaurant that has `value` in `group`, stamping `updatedAt`. */

@@ -30,7 +30,7 @@ import {
 	valueLabel,
 } from "#lib/groups";
 import { setLang } from "#lib/i18n";
-import type { Restaurant } from "#lib/restaurant";
+import { groupValues, type Restaurant } from "#lib/restaurant";
 
 const make = (id: string, groups: Restaurant["groups"] = {}): Restaurant => ({
 	id,
@@ -77,7 +77,7 @@ test("loadGroups skips invalid entries and repeated ids, and trims names", () =>
 });
 
 test("isGroupDef rejects reserved ids", () => {
-	for (const id of ["kind", "cuisine", "area", "tags"])
+	for (const id of ["kind", "cuisine", "area", "tags", "__proto__"])
 		expect(isGroupDef({ id, name: "X" })).toBe(false);
 	expect(isGroupDef(price)).toBe(true);
 });
@@ -363,4 +363,12 @@ test("deleteValue removes a value everywhere and leaves others untouched", () =>
 		{ ...list[0]!, groups: {}, updatedAt: STAMP },
 		list[1]!,
 	]);
+});
+
+test('moveValue into a group id of "__proto__" keeps the value as an own property, not a prototype change', () => {
+	const list = [make("a", { g1: ["cheap"] })];
+	const [result] = moveValue(list, "g1", "cheap", "__proto__", NOW);
+	expect(Object.hasOwn(result!.groups, "__proto__")).toBe(true);
+	expect(groupValues(result!, "__proto__")).toEqual(["cheap"]);
+	expect(Object.getPrototypeOf(result!.groups)).toBe(Object.prototype);
 });
