@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
 import "#components/data-transfer";
 import type { DataTransferPanel } from "#components/data-transfer";
-import { loadGroups, saveGroups } from "#lib/groups";
+import {
+	forgetGroupsMemory,
+	GROUPS_KEY,
+	loadGroups,
+	saveGroups,
+} from "#lib/groups";
 import {
 	HISTORY_KEY,
 	type HistoryEntry,
@@ -466,6 +471,35 @@ test("confirming reset deletes the history too", async () => {
 	await click(el, 'button[data-action="reset-confirm"]');
 	expect(localStorage.getItem(HISTORY_KEY)).toBeNull();
 	expect(loadHistory()).toEqual([]);
+});
+
+test("warns when the browser refuses to save the group list", async () => {
+	const el = await mount();
+	expect($(el, ".warning")).toBeNull();
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: (key: string) => real.getItem(key),
+			setItem: (key: string, value: string) => {
+				if (key === GROUPS_KEY) throw new Error("QuotaExceededError");
+				real.setItem(key, value);
+			},
+		},
+		configurable: true,
+	});
+	try {
+		saveGroups([{ id: "g1", name: "Price" }]);
+		await el.updateComplete;
+		expect($(el, ".warning")?.textContent?.trim()).toBe(
+			"Your browser is not saving changes. They will be lost when you leave this page.",
+		);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		forgetGroupsMemory();
+	}
 });
 
 test("an import whose history the browser refuses to store warns", async () => {
