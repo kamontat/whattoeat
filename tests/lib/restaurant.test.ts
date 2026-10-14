@@ -1,14 +1,18 @@
 import { expect, test } from "bun:test";
+import { setLang } from "#lib/i18n";
 import {
 	cleanStored,
+	groupValues,
 	isLink,
 	isNameTaken,
 	isRestaurant,
+	metaLine,
 	newId,
 	normalizeInput,
 	normalizeTag,
 	parseTags,
 	type Restaurant,
+	type StoredRestaurant,
 	tagsByUsage,
 	valuesByUsage,
 } from "#lib/restaurant";
@@ -19,8 +23,7 @@ const valid: Restaurant = {
 	tags: ["thai", "spicy"],
 	location: "Siam Square",
 	notes: "",
-	area: "siam",
-	cuisine: "thai",
+	groups: { area: ["siam"], cuisine: ["thai"] },
 	kinds: ["food"],
 	createdAt: "2026-10-12T00:00:00.000Z",
 	updatedAt: "2026-10-12T00:00:00.000Z",
@@ -82,65 +85,138 @@ test("normalizeInput trims every field and cleans tags", () => {
 		tags: ["street"],
 		location: "Bangkok",
 		notes: "ok",
-		area: "",
-		cuisine: "",
+		groups: {},
 		kinds: [],
 	});
 });
 
-test("normalizeInput cleans area and cuisine like tags and keeps known kinds in order", () => {
+test("normalizeInput cleans group values like tags, drops empty groups and keeps known kinds in order", () => {
 	expect(
-		normalizeInput({
-			name: "Cafe",
-			tags: [],
-			location: "",
-			notes: "",
-			area: "  Old   Town ",
-			cuisine: " JAPANESE ",
-			kinds: ["dessert", "pizza", "drinks", "dessert"],
-		}),
+		normalizeInput(
+			{
+				name: "Cafe",
+				tags: [],
+				location: "",
+				notes: "",
+				groups: {
+					area: ["  Old   Town ", "old town"],
+					cuisine: [" JAPANESE ", "Thai"],
+					g1: ["  "],
+				},
+				kinds: ["dessert", "pizza", "drinks", "dessert"],
+			},
+			["g1"],
+		),
 	).toMatchObject({
-		area: "old town",
-		cuisine: "japanese",
+		groups: { area: ["old town"], cuisine: ["japanese", "thai"] },
 		kinds: ["drinks", "dessert"],
 	});
 });
 
-test("isRestaurant accepts an older restaurant without area, cuisine and kinds", () => {
-	const { area: _a, cuisine: _c, kinds: _k, ...old } = valid;
-	expect(isRestaurant(old)).toBe(true);
+test("normalizeInput moves values of unknown groups into tags", () => {
+	expect(
+		normalizeInput(
+			{
+				name: "Cafe",
+				tags: ["spicy"],
+				location: "",
+				notes: "",
+				groups: { gone: ["Cheap"], kind: ["food"], g1: ["cosy"] },
+			},
+			["g1"],
+		),
+	).toMatchObject({
+		tags: ["spicy", "cheap", "food"],
+		groups: { g1: ["cosy"] },
+	});
 });
 
-test("cleanStored fills missing area, cuisine and kinds and normalizes them", () => {
-	const { area: _a, cuisine: _c, kinds: _k, ...old } = valid;
-	expect(cleanStored({ ...old, tags: ["Thai", "THAI"] })).toEqual({
-		...valid,
-		tags: ["thai"],
-		area: "",
-		cuisine: "",
-		kinds: [],
-	});
+test("isRestaurant accepts the old shape with area and cuisine strings and no kinds", () => {
+	const { groups: _g, kinds: _k, ...rest } = valid;
+	expect(isRestaurant({ ...rest, area: "siam", cuisine: "thai" })).toBe(true);
+	expect(isRestaurant(rest)).toBe(true);
+});
+
+test.each([
+	["groups is an array", []],
+	["groups is null", null],
+	["a group is not an array", { cuisine: "thai" }],
+	["a group holds a number", { cuisine: [1] }],
+])("isRestaurant rejects a restaurant whose %s", (_label, groups) => {
+	expect(isRestaurant({ ...valid, groups })).toBe(false);
+});
+
+test("cleanStored moves old area and cuisine strings into groups", () => {
+	const { groups: _g, kinds: _k, ...rest } = valid;
 	expect(
-		cleanStored({ ...valid, area: " Ari ", kinds: ["drinks", "x", "food"] }),
-	).toEqual({ ...valid, area: "ari", kinds: ["food", "drinks"] });
+		cleanStored({
+			...rest,
+			tags: ["Thai", "THAI"],
+			area: " Ari ",
+			cuisine: "",
+		}),
+	).toEqual({ ...valid, tags: ["thai"], groups: { area: ["ari"] }, kinds: [] });
+});
+
+test("cleanStored keeps known custom groups and moves unknown ones into tags", () => {
+	expect(
+		cleanStored(
+			{ ...valid, groups: { ...valid.groups, g1: ["cheap"], gone: ["cosy"] } },
+			["g1"],
+		),
+	).toEqual({
+		...valid,
+		tags: ["thai", "spicy", "cosy"],
+		groups: { ...valid.groups, g1: ["cheap"] },
+	});
+});
+
+test("cleanStored keeps only known fields and trims text", () => {
+	expect(
+		cleanStored({ ...valid, name: " Som ", extra: 1 } as StoredRestaurant),
+	).toEqual({ ...valid, name: "Som" });
+});
+
+test("groupValues reads kinds, tags and any group, and never a prototype member", () => {
+	expect(groupValues(valid, "kind")).toEqual(["food"]);
+	expect(groupValues(valid, "tags")).toEqual(["thai", "spicy"]);
+	expect(groupValues(valid, "cuisine")).toEqual(["thai"]);
+	expect(groupValues(valid, "g1")).toEqual([]);
+	expect(groupValues(valid, "constructor")).toEqual([]);
 });
 
 test("valuesByUsage lists one group's values, most used first, kinds in their fixed order", () => {
 	const list = [
-		{ ...valid, id: "1", area: "ari", cuisine: "", kinds: ["dessert"] },
+		{ ...valid, id: "1", groups: { area: ["ari"] }, kinds: ["dessert"] },
 		{
 			...valid,
 			id: "2",
-			area: "siam",
-			cuisine: "thai",
+			groups: { area: ["siam"], cuisine: ["thai", "japanese"] },
 			kinds: ["drinks", "dessert"],
 		},
-		{ ...valid, id: "3", area: "siam", cuisine: "japanese", kinds: [] },
+		{
+			...valid,
+			id: "3",
+			groups: { area: ["siam"], cuisine: ["japanese"] },
+			kinds: [],
+		},
 	] satisfies Restaurant[];
 	expect(valuesByUsage(list, "area")).toEqual(["siam", "ari"]);
 	expect(valuesByUsage(list, "cuisine")).toEqual(["japanese", "thai"]);
 	expect(valuesByUsage(list, "kind")).toEqual(["drinks", "dessert"]);
 	expect(valuesByUsage(list, "tags")).toEqual(["spicy", "thai"]);
+});
+
+test("metaLine joins several cuisines and areas with commas", () => {
+	setLang("en");
+	expect(
+		metaLine({
+			...valid,
+			kinds: ["food", "drinks"],
+			groups: { cuisine: ["thai", "japanese"], area: ["siam"] },
+		}),
+	).toBe("Food, Drinks · thai, japanese · siam");
+	expect(metaLine({ ...valid, kinds: [], groups: {} })).toBe("");
 });
 
 test("isRestaurant accepts a valid restaurant", () => {
