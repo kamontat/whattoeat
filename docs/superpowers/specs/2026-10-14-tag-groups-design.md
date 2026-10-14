@@ -52,6 +52,8 @@ export type Restaurant = {
   first-seen order, the same rule as tags today.
 - The same text may appear in two groups (cuisine `thai` and tag `thai`); they are separate
   values.
+- `BUILT_IN_GROUPS = ["kind", "cuisine", "area"] as const` lives here, so `restaurant.ts` never
+  imports `groups.ts`.
 - `groupValues(item, groupId)` returns `item.kinds` for `kind`, `item.tags` for `tags`, and
   `item.groups[groupId] ?? []` for anything else.
 
@@ -59,7 +61,6 @@ export type Restaurant = {
 
 ```ts
 export type GroupDef = { id: string; name: string };
-export const BUILT_IN_GROUPS = ["kind", "cuisine", "area"] as const;
 export const GROUPS_KEY = "whattoeat:groups";
 export const GROUPS_EVENT = "whattoeat:groups-changed";
 ```
@@ -100,16 +101,29 @@ save; no separate migration step.
 - `EXPORT_VERSION = 4`. The file gains `groups: GroupDef[]`.
 - Versions 1–3 have no `groups` field; their restaurants are cleaned as above, with old
   `cuisine` and `area` strings moved into `groups`.
-- A version 4 file must have a `groups` array of valid `GroupDef`s with unique ids, or the
-  import fails with `import.error.entries`.
-- Merging group definitions into the existing ones:
-  - Same id: the file's name replaces the existing name. If that name is now taken by another
-    group, the two are merged into the existing one (below).
-  - New id whose name matches an existing group ignoring case: merged into the existing
-    group. The file's restaurants have that id rewritten to the existing id before they are
-    merged.
+- A version 4 file must have a `groups` array of valid `GroupDef`s (non-empty `id` that is not
+  `kind`, `cuisine`, `area` or `tags`; non-blank `name`) with unique ids, or the import fails
+  with `import.error.entries`.
+- `mergeGroupDefs(existing, incoming)` returns the merged list and an id remap. For each
+  incoming group, in file order:
+  - Same id as an existing group: the file's name replaces the existing name, unless another
+    group already uses that name; then the existing name stays.
+  - New id whose name matches a custom group ignoring case: merged into that group (the id
+    is remapped to it).
+  - New id whose name matches the Cuisine or Area label in either language: merged into that
+    built-in group.
+  - New id whose name matches the Type or Tags label in either language: kept, renamed to the first
+    free `<name> - <n>`.
   - Otherwise: appended, keeping the file's order.
-- Restaurants are merged as today (same id replaces, names made unique).
+- `parseImport` runs `mergeGroupDefs([], fileGroups)` so a file's own duplicate names are
+  merged, and rewrites its restaurants' group ids by the remap.
+- Replace: a version 4 file replaces the group list; a version 1–3 file keeps the current one
+  (like history).
+- Merge: `mergeGroupDefs(current, fileGroups)`, then the remap is applied to the incoming
+  restaurants before they are merged as today (same id replaces, names made unique). A
+  restaurant that ends up with the same value twice in one group keeps one copy.
+- Groups are saved before restaurants, so the restaurant load that follows the save already
+  knows every group id.
 
 ## Restaurant form
 
