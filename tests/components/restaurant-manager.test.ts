@@ -358,6 +358,20 @@ test("a group renamed in another tab relabels its input and keeps the values typ
 	expect(groupInput(el, "g1").value).toEqual(["cheap"]);
 });
 
+test("a custom group deleted in another tab before submit moves its typed values into tags", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const el = await mount();
+	type(el, "#name", "Cafe");
+	await typeInto(el, "g1", "cheap,");
+	// Another tab deletes the group while this form is still open.
+	saveGroups([]);
+	await el.updateComplete;
+	await submit(el);
+	const saved = loadRestaurants()[0];
+	expect(saved?.tags).toContain("cheap");
+	expect(saved?.groups["g1"]).toBeUndefined();
+});
+
 test("type and group labels render in Thai", async () => {
 	const el = await mount();
 	setLang("th");

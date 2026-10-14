@@ -268,7 +268,9 @@ export class RestaurantManager extends LitElement {
 		event.preventDefault();
 		// Text still in a box counts as a value, the same as pressing Enter.
 		let tags = this.form.tags;
-		const groups: Record<string, string[]> = {};
+		// A group deleted elsewhere while this form was open unmounts its input, but its values
+		// stay in form state until submit demotes them to tags (normalizeInput drops unknown ids).
+		const groups: Record<string, string[]> = { ...this.form.groups };
 		for (const input of this.tagInputs) {
 			const group = input.getAttribute("data-group") ?? "tags";
 			const values = input.commit();
