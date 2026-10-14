@@ -89,7 +89,8 @@ export const cleanStored = (item: StoredRestaurant): Restaurant => ({
 	kinds: cleanKinds(item.kinds),
 });
 
-const nameKey = (name: string): string => name.trim().toLocaleLowerCase();
+export const nameKey = (name: string): string =>
+	name.trim().toLocaleLowerCase();
 
 /** Whether another restaurant (not `exceptId`) already has this name, ignoring case and surrounding spaces. */
 export const isNameTaken = (

@@ -150,6 +150,36 @@ test("merge replaces same id in place and appends new ids", () => {
 	]);
 });
 
+test("merge suffixes an incoming name already used by another id", () => {
+	const existing = [make("a", "Somtam"), make("b", "Somtam - 1")];
+	const incoming = [make("c", "somtam "), make("d", "Somtam")];
+	expect(mergeRestaurants(existing, incoming)).toEqual([
+		make("a", "Somtam"),
+		make("b", "Somtam - 1"),
+		make("c", "somtam - 2"),
+		make("d", "Somtam - 3"),
+	]);
+});
+
+test("merge keeps the name of an entry that replaces the same id", () => {
+	const existing = [make("a", "Somtam"), make("b", "Pho")];
+	const incoming = [make("a", "Somtam"), make("b", "Somtam")];
+	expect(mergeRestaurants(existing, incoming)).toEqual([
+		make("a", "Somtam"),
+		make("b", "Somtam - 1"),
+	]);
+});
+
+test("import suffixes repeated names within one file", () => {
+	const list = [make("a", "Somtam"), make("b", "Somtam"), make("c", "Somtam")];
+	const result = parseImport(JSON.stringify(toExportFile(list)));
+	expect(result.ok && result.restaurants.map((item) => item.name)).toEqual([
+		"Somtam",
+		"Somtam - 1",
+		"Somtam - 2",
+	]);
+});
+
 test("merge does not mutate its inputs", () => {
 	const existing = [make("a")];
 	const incoming = [make("b")];
