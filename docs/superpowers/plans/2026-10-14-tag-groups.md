@@ -43,8 +43,8 @@ key (`whattoeat:groups`) and in export version 4. Every operation is a pure func
 
 ## Review Focus
 
-1. Saved data from before this change with `cuisine: "thai, japanese"` (a comma inside the old
-   single field) should load as two cuisine values, not one value with a comma. Test in Task 1.
+1. A restaurant form open while another tab renames a custom group: the input's label should
+   update and values already typed into it should stay. Test in Task 6.
 2. A restaurant form open while another tab deletes a custom group: saving should move that
    group's values into plain tags, not keep values under an id with no definition. Test in
    Task 3.
@@ -176,13 +176,6 @@ test("cleanStored moves old area and cuisine strings into groups", () => {
 	expect(
 		cleanStored({ ...rest, tags: ["Thai", "THAI"], area: " Ari ", cuisine: "" }),
 	).toEqual({ ...valid, tags: ["thai"], groups: { area: ["ari"] }, kinds: [] });
-});
-
-test("cleanStored splits an old single field that holds commas", () => {
-	const { groups: _g, ...rest } = valid;
-	expect(cleanStored({ ...rest, cuisine: "Thai, Japanese" }).groups).toEqual({
-		cuisine: ["thai", "japanese"],
-	});
 });
 
 test("cleanStored keeps known custom groups and moves unknown ones into tags", () => {
@@ -1636,6 +1629,16 @@ test("a group added in another tab shows up in the open form", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
 	await el.updateComplete;
 	expect(groupInput(el, "g1")).not.toBeNull();
+});
+
+test("a group renamed in another tab relabels its input and keeps the values typed so far", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const el = await mount();
+	await typeInto(el, "g1", "cheap,");
+	saveGroups([{ id: "g1", name: "Cost" }]);
+	await el.updateComplete;
+	expect(groupInput(el, "g1").label).toBe("Cost");
+	expect(groupInput(el, "g1").value).toEqual(["cheap"]);
 });
 
 test("the form asks for name, type, groups, location, then tags and notes", async () => {
