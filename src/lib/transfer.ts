@@ -4,7 +4,12 @@ import {
 	isHistoryEntry,
 	newestFirst,
 } from "#lib/history";
-import { isRestaurant, normalizeInput, type Restaurant } from "#lib/restaurant";
+import {
+	isRestaurant,
+	nameKey,
+	normalizeInput,
+	type Restaurant,
+} from "#lib/restaurant";
 
 export const EXPORT_VERSION = 2;
 
@@ -66,6 +71,22 @@ const pad = (value: number): string => String(value).padStart(2, "0");
 export const exportFileName = (now: Date = new Date()): string =>
 	`whattoeat-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}.json`;
 
+/**
+ * Give each restaurant whose name is in `taken` (or used earlier in the list) the first free
+ * `<name> - <n>`, counting from 1. Names compare ignoring case and surrounding spaces.
+ */
+const renameTaken = (list: Restaurant[], taken: Set<string>): Restaurant[] =>
+	list.map((item) => {
+		let name = item.name;
+		if (taken.has(nameKey(name))) {
+			let count = 1;
+			while (taken.has(nameKey(`${name.trim()} - ${count}`))) count++;
+			name = `${name.trim()} - ${count}`;
+		}
+		taken.add(nameKey(name));
+		return name === item.name ? item : { ...item, name };
+	});
+
 /** Validate an export file. All or nothing: one invalid entry rejects the whole file. */
 export const parseImport = (text: string): ImportResult => {
 	let data: unknown;
@@ -104,23 +125,35 @@ export const parseImport = (text: string): ImportResult => {
 	// Clean imported text the same way as typed input, and keep only known fields.
 	return {
 		ok: true,
-		restaurants: restaurants.map((item) => ({
-			id: item.id,
-			...normalizeInput(item),
-			createdAt: item.createdAt,
-			updatedAt: item.updatedAt,
-		})),
+		restaurants: renameTaken(
+			restaurants.map((item) => ({
+				id: item.id,
+				...normalizeInput(item),
+				createdAt: item.createdAt,
+				updatedAt: item.updatedAt,
+			})),
+			new Set(),
+		),
 		history,
 	};
 };
 
-/** Incoming restaurants replace existing ones with the same id (keeping their position); new ids are appended. */
+/**
+ * Incoming restaurants replace existing ones with the same id (keeping their position); new ids
+ * are appended. An incoming name another restaurant already uses gets a ` - <n>` suffix.
+ */
 export const mergeRestaurants = (
 	existing: Restaurant[],
 	incoming: Restaurant[],
 ): Restaurant[] => {
+	const replaced = new Set(incoming.map((item) => item.id));
+	const taken = new Set(
+		existing
+			.filter((item) => !replaced.has(item.id))
+			.map((item) => nameKey(item.name)),
+	);
 	const byId = new Map(existing.map((item) => [item.id, item]));
-	for (const item of incoming) byId.set(item.id, item);
+	for (const item of renameTaken(incoming, taken)) byId.set(item.id, item);
 	return [...byId.values()];
 };
 
