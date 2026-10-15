@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/tag-input";
-import type { TagInput } from "#components/tag-input";
+import { TagInput } from "#components/tag-input";
 import { setLang } from "#lib/i18n";
 
 beforeEach(() => {
@@ -242,4 +242,14 @@ test("removing a chip moves focus to the text box", async () => {
 	remove.click();
 	await el.updateComplete;
 	expect(el.shadowRoot!.activeElement).toBe(box(el));
+});
+
+test("keeps its rows packed at the top when a grid cell stretches it", () => {
+	// Two inputs side by side share one row height; without this the shorter one spreads
+	// its label, box and hint apart. happy-dom has no layout, so check the rule itself.
+	const css = [TagInput.styles]
+		.flat()
+		.map((sheet) => (sheet as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(/:host\s*\{[^}]*align-content:\s*start/);
 });
