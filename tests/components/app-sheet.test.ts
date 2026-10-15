@@ -85,6 +85,36 @@ test("closing the dialog directly (Esc or backdrop) updates open and fires once"
 	expect(document.activeElement).toBe(opener);
 });
 
+test("tapping the backdrop closes the sheet", async () => {
+	const { opener, sheet } = await mount();
+	opener.focus();
+	sheet.open = true;
+	await sheet.updateComplete;
+	let events = 0;
+	sheet.addEventListener("sheet-close", () => events++);
+	dialog(sheet).dispatchEvent(new MouseEvent("click", { bubbles: true }));
+	await settle(sheet);
+	expect(dialog(sheet).open).toBe(false);
+	expect(sheet.open).toBe(false);
+	expect(events).toBe(1);
+	expect(document.activeElement).toBe(opener);
+});
+
+test("a click inside the sheet does not close it", async () => {
+	const { sheet } = await mount();
+	sheet.open = true;
+	await sheet.updateComplete;
+	let events = 0;
+	sheet.addEventListener("sheet-close", () => events++);
+	sheet
+		.querySelector("p")!
+		.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+	await settle(sheet);
+	expect(dialog(sheet).open).toBe(true);
+	expect(sheet.open).toBe(true);
+	expect(events).toBe(0);
+});
+
 test("setting open to false closes it", async () => {
 	const { sheet } = await mount();
 	sheet.open = true;
