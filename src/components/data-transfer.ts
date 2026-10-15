@@ -164,6 +164,14 @@ export class DataTransferPanel extends LitElement {
 		this.unsubscribeGroups = undefined;
 	}
 
+	/** Runs `find` after the next render and focuses what it returns, for actions that change which controls are shown. */
+	private focusAfterRender(find: () => Element | null | undefined): void {
+		void this.updateComplete.then(() => {
+			const target = find();
+			if (target instanceof HTMLElement) target.focus();
+		});
+	}
+
 	/** Validate an export file's text and hold it until the user picks Replace or Merge. */
 	readImport(text: string): void {
 		const result = parseImport(text);
@@ -277,6 +285,20 @@ export class DataTransferPanel extends LitElement {
 		this.imported = persisted ? list.length : undefined;
 	}
 
+	private readonly askReset = (): void => {
+		this.reset = "confirm";
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector('[data-action="reset-confirm"]'),
+		);
+	};
+
+	private readonly cancelReset = (): void => {
+		this.reset = undefined;
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector('[data-action="reset"]'),
+		);
+	};
+
 	private readonly confirmReset = (): void => {
 		resetStorage();
 		this.pending = undefined;
@@ -296,13 +318,7 @@ export class DataTransferPanel extends LitElement {
 						<button type="button" class="danger" data-action="reset-confirm" @click=${this.confirmReset}>
 							${t("settings.resetConfirm")}
 						</button>
-						<button
-							type="button"
-							data-action="reset-cancel"
-							@click=${() => {
-								this.reset = undefined;
-							}}
-						>
+						<button type="button" data-action="reset-cancel" @click=${this.cancelReset}>
 							${t("settings.cancel")}
 						</button>
 					</div>
@@ -314,9 +330,7 @@ export class DataTransferPanel extends LitElement {
 					type="button"
 					class="item danger"
 					data-action="reset"
-					@click=${() => {
-						this.reset = "confirm";
-					}}
+					@click=${this.askReset}
 				>
 					<span class="lead">${icon("trash", 22)}</span>
 					<span class="grow"><b>${t("settings.reset")}</b></span>

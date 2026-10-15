@@ -398,6 +398,18 @@ test("reset asks for confirmation and can be cancelled", async () => {
 	expect(loadRestaurants()).toHaveLength(1);
 });
 
+test("reset moves focus to the confirm button, cancel moves it back", async () => {
+	const el = await mount();
+	await click(el, 'button[data-action="reset"]');
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+		"reset-confirm",
+	);
+	await click(el, 'button[data-action="reset-cancel"]');
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+		"reset",
+	);
+});
+
 test("confirming reset deletes everything in localStorage", async () => {
 	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
 	setLang("th");
