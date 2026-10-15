@@ -57,7 +57,7 @@ page keeps the three directions that were compared.
 | Phone navigation   | Floating tab bar at the bottom with four tabs: Home, Restaurants, History, Settings. Icon above a visible text label           |
 | Tags page          | Stays its own route, reached by a "Tags" link on Restaurants and a back link to Restaurants. The Restaurants tab is current     |
 | Wide screens       | From 48 rem (768 px): the four links move into a top bar beside the brand; no bottom bar                                       |
-| Language and theme | Always in Settings. From 64 rem (1024 px) also as compact switches at the end of the top bar                                   |
+| Language and theme | Always in Settings. From 72 rem (1152 px) also as compact switches at the end of the top bar                                   |
 | Footer             | Source, changelog and build info move into an "About" section at the end of Settings; no footer on other pages                 |
 | Home, phone        | Title, filter chips, the two picks stacked (no "or"), the pick button pinned above the tab bar                                 |
 | Home, desktop      | Filter always open in a left panel; picks side by side; pick button beside the title                                           |
@@ -72,7 +72,7 @@ page keeps the three directions that were compared.
 | Confirmations      | Keep the current inline confirmation wording, now inside sheets or panels; no `window.confirm`                                  |
 | Icons              | Inline SVG in `src/lib/icons.ts`, `aria-hidden="true"`, always next to visible text or with an accessible name                |
 | Installable        | Web app manifest, `theme-color` and Apple meta tags so the site can be added to the home screen. Offline is out of scope       |
-| Delivery           | One spec and plan, five pull requests stacked in order (see Delivery)                                                          |
+| Delivery           | One spec; one plan per stage, written when the stage starts; five pull requests stacked in order (see Delivery)               |
 
 ## Visual system
 
@@ -101,13 +101,15 @@ visible edge. Large titles (32 px) on each page, like iOS large titles.
 | `--color-accent`       | `#ffc533` | `#ffc533` | Eat here, current tab, included chips            |                                        |
 | `--color-accent-text`  | `#1c1712` | `#1c1712` | Text on accent                                   | ≥ 4.5 : 1 on accent                    |
 | `--color-control`      | `#8c7b6a` | `#8a7a69` | Edges of inputs, chips, secondary buttons        | ≥ 3 : 1 on bg and surface (1.4.11)     |
-| `--color-divider`      | `#eedfc3` | `#362c23` | Row dividers only                                | none                                   |
-| `--color-focus`        | ink/yellow| yellow    | Focus ring (light: `#1c1712`, dark: `#ffc533`)   | ≥ 3 : 1 on bg and surface              |
-| `--color-success`      | tuned     | tuned     | "Going here" label                               | ≥ 4.5 : 1 on bg and surface            |
+| `--color-border`       | `#eedfc3` | `#362c23` | Row dividers and decorative lines only           | none                                   |
+| `--color-danger`       | `#b8231a` | `#ff6a4d` | Destructive text and edges (same as link)        | ≥ 4.5 : 1 on bg, surface, surface-2    |
+| `--color-focus`        | `#1c1712` | `#ffc533` | Focus ring                                       | ≥ 3 : 1 on bg and surface              |
+| `--color-success`      | `#2b6e35` | `#6fd08a` | "Going here" label, done messages                | ≥ 4.5 : 1 on bg, surface, surface-2    |
 
-Measured so far: chili text `#b8231a` 5.8 : 1 on bg; text on chili 4.7 : 1; ink on yellow
-11.3 : 1; control edge 3.7–4.5 : 1; dark primary 5.9–6.5 : 1. Values marked "tuned" are chosen
-in stage 1 to pass the tested rule. `tests/styles/palette.test.ts` grows to check every rule
+`--color-border` and `--color-danger` keep today's names so components not yet redesigned keep
+working. Measured: lowest text pair 5.0 : 1 (light success on surface-2); primary on bg 4.5 : 1
+(light) and 6.5 : 1 (dark); text on chili 4.7 : 1; ink on yellow 11.3 : 1; control edge
+3.7–4.5 : 1; focus 10.6–17.1 : 1. `tests/styles/palette.test.ts` grows to check every rule
 above in all three palette blocks.
 
 Other tokens:
@@ -151,7 +153,7 @@ Every page gets:
 - `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`;
   never `maximum-scale` or `user-scalable=no` (WCAG 1.4.4).
 - `<meta name="theme-color">` twice, one per `prefers-color-scheme`.
-- `<link rel="preload">` for the regular Anuphan woff2.
+- No font preload: the fonts are inlined in the bundled CSS (see Font).
 - `<link rel="manifest">`, `apple-touch-icon`, `apple-mobile-web-app-capable` and `-title`
   (stage 5).
 - `<main id="main">` so the skip link has a target.
@@ -170,9 +172,11 @@ One component, one `<header>`, one `<nav aria-label="Main">` with four links:
   current tab has `aria-current="page"` and a yellow pill behind icon and label.
 - Wide (≥ 48 rem): a 76 px top bar on the surface colour with the logo and "What to Eat" on
   the left and the four links as a rounded group on the right, the current one in yellow.
-- From 64 rem the top bar also shows the language switch (EN / ไทย) and the theme switch
-  (Auto / Light / Dark) after the links, as compact segmented controls with the same radio
-  semantics as Settings and visible group labels for screen readers ("Language", "Theme").
+- From 72 rem (1152 px) the top bar also shows the language switch (EN / ไทย) and the theme
+  switch after the links, as compact segmented controls with the same radio semantics as
+  Settings and group labels for screen readers ("Language", "Theme"). The compact theme
+  switch shows icons with visually hidden text. Below 72 rem the brand, four links and both
+  switches do not fit on one row, so the switches stay in Settings only.
 - Pages pad their bottom by the tab bar height (phones) so nothing hides behind it.
 - `current` takes `home | restaurants | tags | history | settings`; `tags` marks Restaurants.
 - Keeps setting `document.title` per page.
@@ -331,19 +335,22 @@ add, edit, filter, tags), keyboard only on desktop, 200 % zoom, 320 px width, bo
 
 ## Font
 
-- Anuphan woff2 files (Latin and Thai subsets, 400, 500, 600, 700, or the variable font if
-  smaller) committed under `src/assets/fonts/` with its OFL licence file.
-- `@font-face` in `global.css` with `unicode-range` per subset and `font-display: swap`.
-  Shadow roots inherit `font-family` from `:root`.
-- Stage 1 first confirms `bun-server build` copies the font files to `dist/` with working
-  URLs; if not, the `build-and-deploy` skill covers adding them as statics.
+- Anuphan is a variable font (weights 100–700): one woff2 per script. The Thai (19 KB) and
+  Latin (35 KB) files are committed under `src/assets/fonts/` with the OFL licence file.
+- `@font-face` in `global.css` with `unicode-range` per subset, `font-weight: 400 700` and
+  `font-display: swap`. Shadow roots inherit `font-family` from `:root`.
+- Checked on 2026-10-15: `bun-server build` inlines fonts referenced from `global.css` as
+  base64 data URIs in the bundled CSS (about 73 KB before compression). That costs no extra
+  request and keeps the fonts available offline, so no preload and no static copy are needed.
+  Serving them as statics does not work: Bun refuses a CSS `url()` it cannot resolve.
 
 ## Installable app
 
 - `src/assets/manifest.webmanifest`: name, short name, `start_url: "./"`, `display:
   "standalone"`, theme and background colours, icons (SVG plus 192 and 512 PNG, maskable).
 - PNG icons generated once from `favicon.svg` and committed.
-- Same build check as the font files.
+- Stage 5 first checks how `bun-server build` handles a linked `.webmanifest` and PNG icons;
+  if they are not emitted, the `build-and-deploy` skill covers adding them with `--statics`.
 - Offline support (a service worker) is left as a new item in `IDEAS.md`.
 
 ## i18n
