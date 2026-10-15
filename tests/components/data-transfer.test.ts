@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
 import "#components/data-transfer";
 import type { DataTransferPanel } from "#components/data-transfer";
+import { loadGroups, saveGroups } from "#lib/groups";
 import {
 	HISTORY_KEY,
 	type HistoryEntry,
@@ -17,8 +18,7 @@ const make = (id: string, name = id): Restaurant => ({
 	name,
 	tags: [],
 	location: "",
-	area: "",
-	cuisine: "",
+	groups: {},
 	kinds: [],
 	notes: "",
 	createdAt: "2026-10-12T00:00:00.000Z",
@@ -93,7 +93,7 @@ test("export downloads a json file of the stored list", async () => {
 		const file = JSON.parse(await blobs[0]!.text());
 		expect(file).toMatchObject({
 			app: "whattoeat",
-			version: 3,
+			version: 4,
 			restaurants: loadRestaurants(),
 			history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 		});
@@ -282,7 +282,7 @@ test("copy puts one-line export json on the clipboard", async () => {
 	expect(copied).not.toContain("\n");
 	expect(JSON.parse(copied)).toMatchObject({
 		app: "whattoeat",
-		version: 3,
+		version: 4,
 		restaurants: loadRestaurants(),
 		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 	});
@@ -503,4 +503,61 @@ test("an import whose history the browser refuses to store warns", async () => {
 		});
 		saveHistory([]);
 	}
+});
+
+test("replace with a version 4 file replaces the groups and keeps their values", async () => {
+	saveGroups([{ id: "old", name: "Old" }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 4,
+			exportedAt: "2026-10-14T00:00:00.000Z",
+			restaurants: [{ ...make("a"), groups: { g1: ["cheap"] } }],
+			history: [],
+			groups: [{ id: "g1", name: "Price" }],
+		}),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="replace"]');
+	expect(loadGroups()).toEqual([{ id: "g1", name: "Price" }]);
+	expect(loadRestaurants()[0]?.groups).toEqual({ g1: ["cheap"] });
+});
+
+test("merge folds a file group into an existing one with the same name", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 4,
+			exportedAt: "2026-10-14T00:00:00.000Z",
+			restaurants: [{ ...make("b"), groups: { x9: ["cheap"] } }],
+			history: [],
+			groups: [{ id: "x9", name: "price" }],
+		}),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="merge"]');
+	expect(loadGroups()).toEqual([{ id: "g1", name: "Price" }]);
+	expect(loadRestaurants().find((item) => item.id === "b")?.groups).toEqual({
+		g1: ["cheap"],
+	});
+});
+
+test("replace with a version 3 file keeps the current groups", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 3,
+			exportedAt: "2026-10-14T00:00:00.000Z",
+			restaurants: [],
+			history: [],
+		}),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="replace"]');
+	expect(loadGroups()).toEqual([{ id: "g1", name: "Price" }]);
 });

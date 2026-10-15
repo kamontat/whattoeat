@@ -16,9 +16,11 @@ export class TagInput extends LitElement {
 	static override styles = [
 		uiStyles,
 		css`
+			/* A grid cell may stretch the host; keep label, box and hint together at the top. */
 			:host {
 				position: relative;
 				display: grid;
+				align-content: start;
 				gap: 0.25rem;
 			}
 

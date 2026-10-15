@@ -1,3 +1,4 @@
+import { customGroupIds, forgetGroupsMemory, loadGroups } from "#lib/groups";
 import { forgetHistoryMemory } from "#lib/history";
 import {
 	type CleanInput,
@@ -48,8 +49,10 @@ export const loadRestaurants = (): Restaurant[] => {
 	}
 	const valid = data.filter(isRestaurant);
 	skipped = data.length - valid.length;
-	// Older data may hold tags that differ only in case, or no area, cuisine and kinds.
-	return valid.map(cleanStored);
+	// Older data may hold tags that differ only in case, area and cuisine strings, or values of
+	// a group deleted since; cleaning fixes all three.
+	const ids = customGroupIds(loadGroups());
+	return valid.map((item) => cleanStored(item, ids));
 };
 
 /** True when the last save could not reach localStorage, so changes vanish when the page is left. */
@@ -73,6 +76,7 @@ export const saveRestaurants = (list: Restaurant[]): boolean => {
  */
 export const resetStorage = (): void => {
 	forgetHistoryMemory();
+	forgetGroupsMemory();
 	try {
 		localStorage.clear();
 	} catch {
@@ -88,7 +92,7 @@ const requireName = (
 	list: readonly Restaurant[],
 	exceptId?: string,
 ): CleanInput => {
-	const clean = normalizeInput(input);
+	const clean = normalizeInput(input, customGroupIds(loadGroups()));
 	if (clean.name === "") throw new Error("Restaurant name is required");
 	if (isNameTaken(list, clean.name, exceptId))
 		throw new Error("Restaurant name is already taken");

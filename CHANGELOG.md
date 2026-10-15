@@ -2,6 +2,53 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-15: Cuisine, area and custom groups as tag groups
+
+### BREAKING CHANGES
+
+- Exports are now `version: 4` and carry a `groups` list. A build from before this change
+  cannot import them and says "This export version is not supported."
+- Restaurants are saved with a `groups` map (`{ "cuisine": [...], "area": [...] }`) instead
+  of single `cuisine` and `area` strings. A build from before this change shows restaurants
+  saved by this one without a cuisine or area.
+- In code, `Restaurant.cuisine` and `Restaurant.area` are gone; read values with
+  `groupValues(item, "cuisine")`. `GROUPS`, `Group` and `ValueGroup` are removed from
+  `#lib/restaurant` (use `allGroupIds` from `#lib/groups`), `Filter` is keyed by any group
+  id with `EMPTY_FILTER = {}`, and `exportJson` and `toExportFile` take the group list as a
+  new argument.
+
+### Features
+
+- A restaurant can have several cuisines and several areas, like `thai, japanese`. The home
+  filter matches any of them.
+- Custom groups, like "price" or "vibe", stored under `whattoeat:groups` and exported with
+  the restaurants. Each one gets its own field in the restaurant form and its own row in the
+  home filter, and its values show on restaurants as `Price: cheap` chips before the plain
+  tags.
+
+### Improvements
+
+- Cuisine and Area in the restaurant form are chip inputs like Tags, suggesting the values
+  other restaurants already use, most used first.
+- Saved restaurants with the old `cuisine` and `area` strings, and exports of versions 1 to
+  3, load with those strings moved into the new groups. Nothing has to be re-entered.
+- Importing a version 4 file merges its groups into yours: a group with the same name (in any
+  case) is folded into the existing one, and a group named like Cuisine or Area, in English
+  or Thai, is folded into that built-in group.
+
+### Decisions
+
+- Cuisine, area, type and tags are all labels, so they share one model, but Type keeps its
+  fixed three values and translated names, and plain tags keep their meaning (shown, not
+  filtered). A `groups` map was chosen over turning `tags` into an object, which would have
+  changed what `tags` means in older files, and over prefixed tags like `cuisine:thai`,
+  which need parsing everywhere and rewrite every restaurant when a group is renamed.
+- Type, Cuisine and Area are fixed groups that cannot be renamed or deleted, so their labels
+  stay translated. Restaurants refer to custom groups by id, so renaming a group never
+  touches a restaurant.
+- Values of a group that no longer exists (deleted in another tab, or missing from an
+  imported file) become plain tags instead of being dropped.
+
 ## 2026-10-14: Import renames restaurants whose name is already used, history locks are now visits, and clearing old history
 
 ### BREAKING CHANGES
