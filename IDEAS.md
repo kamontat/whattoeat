@@ -15,10 +15,6 @@ design spec under `docs/superpowers/specs/`, then delete it here when it ships.
 - **Cloud sync or a shared list.** One list for a group or across devices without manual
   export and import. Needs a backend (for example Cloudflare KV or D1 behind the Worker),
   sign-in or share links, and conflict handling; the biggest change on this list.
-- **CSV import and export.** Edit the list in a spreadsheet. Needs a rule for tags inside one
-  cell (for example `;`-separated) and quoting.
-- **Separate English and Thai names.** Show the name that matches the interface language,
-  falling back to the other. Changes the data model and the export format.
 
 ## Look and feel
 
