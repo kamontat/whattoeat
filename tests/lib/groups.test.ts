@@ -1,9 +1,13 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import {
+	addGroup,
 	allGroupIds,
 	builtInGroupNamed,
+	checkValue,
 	customChips,
 	customGroupIds,
+	deleteGroup,
+	deleteValue,
 	GROUPS_EVENT,
 	GROUPS_KEY,
 	groupLabel,
@@ -12,13 +16,21 @@ import {
 	isGroupsMemoryOnly,
 	loadGroups,
 	mergeGroupDefs,
+	moveGroup,
+	moveValue,
 	onGroupsChanged,
+	type Result,
 	remapGroups,
+	renameGroup,
+	renameValue,
 	saveGroups,
+	usingGroup,
+	type ValueError,
+	valueCounts,
 	valueLabel,
 } from "#lib/groups";
 import { setLang } from "#lib/i18n";
-import type { Restaurant } from "#lib/restaurant";
+import { groupValues, type Restaurant } from "#lib/restaurant";
 
 const make = (id: string, groups: Restaurant["groups"] = {}): Restaurant => ({
 	id,
@@ -65,7 +77,7 @@ test("loadGroups skips invalid entries and repeated ids, and trims names", () =>
 });
 
 test("isGroupDef rejects reserved ids", () => {
-	for (const id of ["kind", "cuisine", "area", "tags"])
+	for (const id of ["kind", "cuisine", "area", "tags", "__proto__"])
 		expect(isGroupDef({ id, name: "X" })).toBe(false);
 	expect(isGroupDef(price)).toBe(true);
 });
@@ -228,4 +240,135 @@ test("remapGroups moves values to the new id and keeps one copy of each", () => 
 			{ x1: "g1" },
 		),
 	).toEqual([make("a", { g1: ["cheap", "fast"], area: ["siam"] })]);
+});
+
+const NOW = new Date("2026-10-15T00:00:00.000Z");
+const STAMP = NOW.toISOString();
+
+test("valueCounts counts restaurants per value, most used first", () => {
+	const list = [
+		make("a", { g1: ["cheap"] }),
+		make("b", { g1: ["cheap", "fancy"] }),
+	];
+	expect(valueCounts(list, "g1")).toEqual([
+		{ value: "cheap", count: 2 },
+		{ value: "fancy", count: 1 },
+	]);
+	expect(usingGroup(list, "g1")).toBe(2);
+	expect(usingGroup(list, "area")).toBe(0);
+});
+
+test("addGroup trims, refuses blank and taken names, and makes a free id", () => {
+	expect(addGroup([price], "  ")).toEqual({
+		ok: false,
+		error: "tags.nameRequired",
+	});
+	expect(addGroup([price], "PRICE")).toEqual({
+		ok: false,
+		error: "tags.nameTaken",
+	});
+	expect(addGroup([price], "Cuisine")).toEqual({
+		ok: false,
+		error: "tags.nameTaken",
+	});
+	const result = addGroup([price], " Vibe ");
+	expect(result.ok && result.value[1]?.name).toBe("Vibe");
+	expect(result.ok && result.value[1]?.id).toMatch(/^[0-9A-Za-z]{8}$/);
+});
+
+test("renameGroup lets a group keep its name in other case, refuses another's", () => {
+	expect(renameGroup([price, vibe], "g1", "PRICE")).toEqual({
+		ok: true,
+		value: [{ id: "g1", name: "PRICE" }, vibe],
+	});
+	expect(renameGroup([price, vibe], "g1", "vibe")).toEqual({
+		ok: false,
+		error: "tags.nameTaken",
+	});
+});
+
+test("moveGroup swaps with a neighbour and stops at the ends", () => {
+	expect(moveGroup([price, vibe], "g2", -1)).toEqual([vibe, price]);
+	expect(moveGroup([price, vibe], "g1", -1)).toEqual([price, vibe]);
+	expect(moveGroup([price, vibe], "g2", 1)).toEqual([price, vibe]);
+});
+
+test("deleteGroup turns its values into tags on the restaurants that had them", () => {
+	const list = [
+		{
+			...make("a", { g1: ["cheap"], area: ["siam"] }),
+			tags: ["cheap", "spicy"],
+		},
+		make("b", { area: ["ari"] }),
+	];
+	const result = deleteGroup(list, [price, vibe], "g1", NOW);
+	expect(result.groups).toEqual([vibe]);
+	expect(result.restaurants).toEqual([
+		{
+			...list[0]!,
+			groups: { area: ["siam"] },
+			tags: ["cheap", "spicy"],
+			updatedAt: STAMP,
+		},
+		list[1]!,
+	]);
+});
+
+test.each<[string, Result<string, ValueError>]>([
+	["  ", { ok: false, error: "tags.valueRequired" }],
+	["a, b", { ok: false, error: "tags.valueComma" }],
+	[" Rice  Noodle ", { ok: true, value: "rice noodle" }],
+])("checkValue(%p)", (text, expected) => {
+	expect(checkValue(text)).toEqual(expected);
+});
+
+test("renameValue renames in one group only and merges into an existing value", () => {
+	const list = [
+		{ ...make("a", { g1: ["noodles", "noodle"] }), tags: ["noodles"] },
+		make("b", { g1: ["noodles"] }),
+		make("c", { g1: ["rice"] }),
+	];
+	expect(renameValue(list, "g1", "noodles", "noodle", NOW)).toEqual([
+		{ ...list[0]!, groups: { g1: ["noodle"] }, updatedAt: STAMP },
+		{ ...list[1]!, groups: { g1: ["noodle"] }, updatedAt: STAMP },
+		list[2]!,
+	]);
+});
+
+test("renameValue works on plain tags", () => {
+	const list = [{ ...make("a"), tags: ["Thai".toLowerCase()] }];
+	expect(renameValue(list, "tags", "thai", "thai food", NOW)[0]?.tags).toEqual([
+		"thai food",
+	]);
+});
+
+test("moveValue moves a value to another group or to tags, once", () => {
+	const list = [
+		make("a", { g1: ["cheap"], g2: ["cheap"] }),
+		make("b", { g1: ["cheap", "fast"] }),
+	];
+	expect(moveValue(list, "g1", "cheap", "g2", NOW)).toEqual([
+		{ ...list[0]!, groups: { g2: ["cheap"] }, updatedAt: STAMP },
+		{ ...list[1]!, groups: { g1: ["fast"], g2: ["cheap"] }, updatedAt: STAMP },
+	]);
+	expect(moveValue(list, "g1", "fast", "tags", NOW)[1]).toMatchObject({
+		groups: { g1: ["cheap"] },
+		tags: ["fast"],
+	});
+});
+
+test("deleteValue removes a value everywhere and leaves others untouched", () => {
+	const list = [make("a", { g1: ["cheap"] }), make("b", { g1: ["fast"] })];
+	expect(deleteValue(list, "g1", "cheap", NOW)).toEqual([
+		{ ...list[0]!, groups: {}, updatedAt: STAMP },
+		list[1]!,
+	]);
+});
+
+test('moveValue into a group id of "__proto__" keeps the value as an own property, not a prototype change', () => {
+	const list = [make("a", { g1: ["cheap"] })];
+	const [result] = moveValue(list, "g1", "cheap", "__proto__", NOW);
+	expect(Object.hasOwn(result!.groups, "__proto__")).toBe(true);
+	expect(groupValues(result!, "__proto__")).toEqual(["cheap"]);
+	expect(Object.getPrototypeOf(result!.groups)).toBe(Object.prototype);
 });

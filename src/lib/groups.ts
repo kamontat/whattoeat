@@ -4,9 +4,12 @@ import {
 	groupValues,
 	isKind,
 	nameKey,
+	newId,
+	normalizeTag,
 	parseTags,
 	RESERVED_GROUP_IDS,
 	type Restaurant,
+	valuesByUsage,
 } from "#lib/restaurant";
 
 /** A group people made themselves, like "price". Built-in groups are never stored. */
@@ -18,13 +21,20 @@ export const GROUPS_EVENT = "whattoeat:groups-changed";
 /** Set when localStorage refused a write; the list then lives in memory for this session. */
 let memory: GroupDef[] | undefined;
 
+/** Ids a group may never take: the reserved built-ins, plus `__proto__`, which bracket assignment
+ * (`obj[id] = ...`) would treat as the prototype setter instead of an own property. */
+const FORBIDDEN_GROUP_IDS: readonly string[] = [
+	...RESERVED_GROUP_IDS,
+	"__proto__",
+];
+
 export const isGroupDef = (value: unknown): value is GroupDef => {
 	if (typeof value !== "object" || value === null) return false;
 	const item = value as Partial<Record<keyof GroupDef, unknown>>;
 	return (
 		typeof item.id === "string" &&
 		item.id !== "" &&
-		!RESERVED_GROUP_IDS.includes(item.id) &&
+		!FORBIDDEN_GROUP_IDS.includes(item.id) &&
 		typeof item.name === "string" &&
 		item.name.trim() !== ""
 	);
@@ -194,3 +204,205 @@ export const remapGroups = (
 			),
 		};
 	});
+
+export type ValueCount = { value: string; count: number };
+
+/** Each value of one group with how many restaurants have it, most used first, ties by name. */
+export const valueCounts = (
+	list: readonly Restaurant[],
+	group: string,
+): ValueCount[] =>
+	valuesByUsage(list, group).map((value) => ({
+		value,
+		count: list.filter((item) => groupValues(item, group).includes(value))
+			.length,
+	}));
+
+/** How many restaurants have any value in a group. */
+export const usingGroup = (
+	list: readonly Restaurant[],
+	group: string,
+): number => list.filter((item) => groupValues(item, group).length > 0).length;
+
+export type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
+export type NameError = "tags.nameRequired" | "tags.nameTaken";
+export type ValueError = "tags.valueRequired" | "tags.valueComma";
+
+const checkName = (
+	defs: readonly GroupDef[],
+	name: string,
+	exceptId?: string,
+): Result<string, NameError> => {
+	const clean = name.trim();
+	if (clean === "") return { ok: false, error: "tags.nameRequired" };
+	if (isGroupNameTaken(defs, clean, exceptId))
+		return { ok: false, error: "tags.nameTaken" };
+	return { ok: true, value: clean };
+};
+
+export const addGroup = (
+	defs: readonly GroupDef[],
+	name: string,
+): Result<GroupDef[], NameError> => {
+	const checked = checkName(defs, name);
+	if (!checked.ok) return checked;
+	const id = newId([...RESERVED_GROUP_IDS, ...customGroupIds(defs)]);
+	return { ok: true, value: [...defs, { id, name: checked.value }] };
+};
+
+export const renameGroup = (
+	defs: readonly GroupDef[],
+	id: string,
+	name: string,
+): Result<GroupDef[], NameError> => {
+	const checked = checkName(defs, name, id);
+	if (!checked.ok) return checked;
+	return {
+		ok: true,
+		value: defs.map((def) =>
+			def.id === id ? { ...def, name: checked.value } : def,
+		),
+	};
+};
+
+/** Swap a group with its neighbour; at either end nothing changes. */
+export const moveGroup = (
+	defs: readonly GroupDef[],
+	id: string,
+	offset: -1 | 1,
+): GroupDef[] => {
+	const from = defs.findIndex((def) => def.id === id);
+	const to = from + offset;
+	const next = [...defs];
+	const a = next[from];
+	const b = next[to];
+	if (from < 0 || a === undefined || b === undefined) return next;
+	next[from] = b;
+	next[to] = a;
+	return next;
+};
+
+const unique = (values: readonly string[]): string[] => [...new Set(values)];
+
+/**
+ * Set one group's values; an empty list removes the key. `tags` sets plain tags. Built from a
+ * single `Object.fromEntries` call, never bracket assignment: a group id of `__proto__` would
+ * otherwise set the object's prototype instead of an own property.
+ */
+const withValues = (
+	item: Restaurant,
+	group: string,
+	values: string[],
+): Restaurant => {
+	if (group === "tags") return { ...item, tags: values };
+	const kept = Object.entries(item.groups).filter(([id]) => id !== group);
+	return {
+		...item,
+		groups: Object.fromEntries(
+			values.length > 0 ? [...kept, [group, values]] : kept,
+		),
+	};
+};
+
+/** Apply `edit` to every restaurant that has `value` in `group`, stamping `updatedAt`. */
+const editWhere = (
+	list: readonly Restaurant[],
+	group: string,
+	value: string,
+	now: Date,
+	edit: (item: Restaurant) => Restaurant,
+): Restaurant[] =>
+	list.map((item) =>
+		groupValues(item, group).includes(value)
+			? { ...edit(item), updatedAt: now.toISOString() }
+			: item,
+	);
+
+/** Normalized value text, refusing blank text and commas (commas separate values). */
+export const checkValue = (text: string): Result<string, ValueError> => {
+	if (text.includes(",")) return { ok: false, error: "tags.valueComma" };
+	const value = normalizeTag(text);
+	if (value === "") return { ok: false, error: "tags.valueRequired" };
+	return { ok: true, value };
+};
+
+/** Rename a value in one group; when `to` is already there, the two merge into one. */
+export const renameValue = (
+	list: readonly Restaurant[],
+	group: string,
+	from: string,
+	to: string,
+	now: Date,
+): Restaurant[] =>
+	from === to
+		? [...list]
+		: editWhere(list, group, from, now, (item) =>
+				withValues(
+					item,
+					group,
+					unique(
+						groupValues(item, group).map((value) =>
+							value === from ? to : value,
+						),
+					),
+				),
+			);
+
+/** Move a value from one group to another (or to plain tags); a restaurant keeps one copy. */
+export const moveValue = (
+	list: readonly Restaurant[],
+	from: string,
+	value: string,
+	to: string,
+	now: Date,
+): Restaurant[] =>
+	from === to
+		? [...list]
+		: editWhere(list, from, value, now, (item) => {
+				const removed = withValues(
+					item,
+					from,
+					groupValues(item, from).filter((other) => other !== value),
+				);
+				return withValues(
+					removed,
+					to,
+					unique([...groupValues(removed, to), value]),
+				);
+			});
+
+export const deleteValue = (
+	list: readonly Restaurant[],
+	group: string,
+	value: string,
+	now: Date,
+): Restaurant[] =>
+	editWhere(list, group, value, now, (item) =>
+		withValues(
+			item,
+			group,
+			groupValues(item, group).filter((other) => other !== value),
+		),
+	);
+
+/** Remove a custom group; its values become plain tags on every restaurant that had them. */
+export const deleteGroup = (
+	list: readonly Restaurant[],
+	defs: readonly GroupDef[],
+	id: string,
+	now: Date,
+): { restaurants: Restaurant[]; groups: GroupDef[] } => ({
+	restaurants: list.map((item) => {
+		const values = groupValues(item, id);
+		if (values.length === 0) return item;
+		return {
+			...withValues(
+				withValues(item, id, []),
+				"tags",
+				unique([...item.tags, ...values]),
+			),
+			updatedAt: now.toISOString(),
+		};
+	}),
+	groups: defs.filter((def) => def.id !== id),
+});

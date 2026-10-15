@@ -19,9 +19,6 @@ design spec under `docs/superpowers/specs/`, then delete it here when it ships.
   cell (for example `;`-separated) and quoting.
 - **Separate English and Thai names.** Show the name that matches the interface language,
   falling back to the other. Changes the data model and the export format.
-- **Rename or merge a tag.** Change a tag everywhere at once, or fold one tag into another
-  (e.g. `noodles` into `noodle`). Needs a tag management view and a rule for updating the
-  filter saved on the home page.
 
 ## Look and feel
 

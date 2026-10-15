@@ -3,8 +3,10 @@ import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import {
 	type GroupDef,
+	isGroupsMemoryOnly,
 	loadGroups,
 	mergeGroupDefs,
+	onGroupsChanged,
 	remapGroups,
 	saveGroups,
 } from "#lib/groups";
@@ -103,6 +105,7 @@ export class DataTransferPanel extends LitElement {
 	private reset: "confirm" | "done" | undefined;
 
 	private unsubscribe: (() => void) | undefined;
+	private unsubscribeGroups: (() => void) | undefined;
 
 	override connectedCallback(): void {
 		super.connectedCallback();
@@ -112,12 +115,16 @@ export class DataTransferPanel extends LitElement {
 			this.count = loadRestaurants().length;
 			this.skipped = skippedCount();
 		});
+		// A group list the browser refused to store turns the storage warning on.
+		this.unsubscribeGroups = onGroupsChanged(() => this.requestUpdate());
 	}
 
 	override disconnectedCallback(): void {
 		super.disconnectedCallback();
 		this.unsubscribe?.();
 		this.unsubscribe = undefined;
+		this.unsubscribeGroups?.();
+		this.unsubscribeGroups = undefined;
 	}
 
 	/** Validate an export file's text and hold it until the user picks Replace or Merge. */
@@ -299,7 +306,7 @@ export class DataTransferPanel extends LitElement {
 		return html`
 			<h1>${t("settings.title")}</h1>
 			<p class="count">${t("settings.count", { count: this.count })}</p>
-			${isMemoryOnly() || isHistoryMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
+			${isMemoryOnly() || isHistoryMemoryOnly() || isGroupsMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
 				this.skipped > 0
 					? html`<p class="warning skipped" role="alert">

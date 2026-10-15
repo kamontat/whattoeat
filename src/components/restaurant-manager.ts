@@ -1,6 +1,7 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
+import { repeat } from "lit/directives/repeat.js";
 import { restaurantChips } from "#components/restaurant-chips";
 import "#components/tag-input";
 import type { TagInput } from "#components/tag-input";
@@ -270,13 +271,17 @@ export class RestaurantManager extends LitElement {
 		let tags = this.form.tags;
 		// A group deleted elsewhere while this form was open unmounts its input, but its values
 		// stay in form state until submit demotes them to tags (normalizeInput drops unknown ids).
-		const groups: Record<string, string[]> = { ...this.form.groups };
+		const typed: [string, string[]][] = [];
 		for (const input of this.tagInputs) {
 			const group = input.getAttribute("data-group") ?? "tags";
 			const values = input.commit();
 			if (group === "tags") tags = values;
-			else groups[group] = values;
+			else typed.push([group, values]);
 		}
+		const groups: Record<string, string[]> = {
+			...this.form.groups,
+			...Object.fromEntries(typed),
+		};
 		if (this.form.name.trim() === "") {
 			this.nameError = "manager.nameRequired";
 			return;
@@ -410,7 +415,11 @@ export class RestaurantManager extends LitElement {
 					)}
 				</fieldset>
 				<div class="pair">
-					${[...VALUE_GROUPS, ...this.defs.map((def) => def.id)].map((group) => this.renderGroupInput(group))}
+					${repeat(
+						[...VALUE_GROUPS, ...this.defs.map((def) => def.id)],
+						(group) => group,
+						(group) => this.renderGroupInput(group),
+					)}
 				</div>
 				<label>
 					${t("field.location")}
@@ -440,9 +449,18 @@ export class RestaurantManager extends LitElement {
 		const hint =
 			group === "tags"
 				? t("field.tagsHint")
-				: t(HINTS[group] ?? "field.groupHint");
+				: t(
+						Object.hasOwn(HINTS, group)
+							? (HINTS[group] ?? "field.groupHint")
+							: "field.groupHint",
+					);
+		const groups = this.form.groups;
 		const value =
-			group === "tags" ? this.form.tags : (this.form.groups[group] ?? []);
+			group === "tags"
+				? this.form.tags
+				: Object.hasOwn(groups, group)
+					? (groups[group] ?? [])
+					: [];
 		return html`<tag-input
 			data-group=${group}
 			.label=${groupLabel(group, this.defs)}

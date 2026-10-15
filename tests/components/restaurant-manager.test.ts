@@ -372,6 +372,34 @@ test("a custom group deleted in another tab before submit moves its typed values
 	expect(saved?.groups["g1"]).toBeUndefined();
 });
 
+test("text typed in a group's box stays with that group when another tab reorders the groups", async () => {
+	saveGroups([
+		{ id: "g1", name: "Price" },
+		{ id: "g2", name: "Vibe" },
+	]);
+	const el = await mount();
+	type(el, "#name", "Cafe");
+	await typeInto(el, "g1", "cheap");
+	saveGroups([
+		{ id: "g2", name: "Vibe" },
+		{ id: "g1", name: "Price" },
+	]);
+	await el.updateComplete;
+	await submit(el);
+	const saved = loadRestaurants()[0];
+	expect(saved?.groups["g1"]).toEqual(["cheap"]);
+	expect(saved?.groups["g2"]).toBeUndefined();
+});
+
+test("a group whose id names an Object member gets the plain hint and no values", async () => {
+	saveGroups([{ id: "constructor", name: "Odd" }]);
+	const el = await mount();
+	expect(groupInput(el, "constructor").hint).toBe(
+		"Press Enter or comma to add",
+	);
+	expect(groupInput(el, "constructor").value).toEqual([]);
+});
+
 test("type and group labels render in Thai", async () => {
 	const el = await mount();
 	setLang("th");

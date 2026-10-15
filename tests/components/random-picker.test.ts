@@ -4,7 +4,12 @@ import { FILTER_KEY } from "#lib/filter";
 import { saveGroups } from "#lib/groups";
 import { loadHistory, saveHistory } from "#lib/history";
 import { getLang, setLang } from "#lib/i18n";
-import { addRestaurant, removeRestaurant } from "#lib/store";
+import {
+	addRestaurant,
+	loadRestaurants,
+	removeRestaurant,
+	saveRestaurants,
+} from "#lib/store";
 
 const base = { tags: [], location: "", notes: "" };
 
@@ -276,6 +281,55 @@ test("saved filter values no longer used by any restaurant are dropped", async (
 		...emptyFilter,
 		area: { include: ["thai"], exclude: [] },
 	});
+});
+
+test("a filter saved in another tab is picked up without dropping values not yet loaded", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
+	);
+	const el = await mount();
+	// Another tab renames thia to thai: filter first, then restaurants.
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({ cuisine: { include: ["thai"], exclude: [] } }),
+	);
+	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	await el.updateComplete;
+	const [item] = loadRestaurants();
+	saveRestaurants([{ ...item!, groups: { cuisine: ["thai"] } }]);
+	await el.updateComplete;
+	expect(JSON.parse(localStorage.getItem(FILTER_KEY)!)).toEqual({
+		cuisine: { include: ["thai"], exclude: [] },
+	});
+	expect(tagButton(el, "thai", "cuisine")?.getAttribute("data-state")).toBe(
+		"include",
+	);
+});
+
+test("a value renamed in another tab keeps the picked card on screen", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
+	);
+	const el = await mount();
+	pickButton(el)!.click();
+	await el.updateComplete;
+	expect(pickedNames(el)).toEqual(["A"]);
+	// Another tab renames thia to thai: the filter arrives before the restaurants.
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({ cuisine: { include: ["thai"], exclude: [] } }),
+	);
+	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	await el.updateComplete;
+	expect(pickedNames(el)).toEqual(["A"]);
+	const [item] = loadRestaurants();
+	saveRestaurants([{ ...item!, groups: { cuisine: ["thai"] } }]);
+	await el.updateComplete;
+	expect(pickedNames(el)).toEqual(["A"]);
 });
 
 test("the result keeps only picks that still match the filter", async () => {
