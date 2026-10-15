@@ -26,13 +26,13 @@ const mount = async () => {
 const $ = <T extends Element>(el: TagManager, selector: string) =>
 	el.shadowRoot!.querySelector<T>(selector);
 const card = (el: TagManager, group: string) =>
-	$<HTMLElement>(el, `section.group[data-group="${group}"]`)!;
+	$<HTMLElement>(el, `section.tag-group[data-group="${group}"]`)!;
 const click = async (el: TagManager, root: ParentNode, action: string) => {
 	root.querySelector<HTMLButtonElement>(`[data-action="${action}"]`)!.click();
 	await el.updateComplete;
 };
 const cardTitles = (el: TagManager) =>
-	[...el.shadowRoot!.querySelectorAll("section.group h2")].map((h) =>
+	[...el.shadowRoot!.querySelectorAll("section.tag-group h2")].map((h) =>
 		h.textContent?.trim(),
 	);
 const typeIn = async (

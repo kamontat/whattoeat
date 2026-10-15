@@ -75,7 +75,7 @@ export class TagManager extends LitElement {
 				font-size: 1.5rem;
 			}
 
-			section.group {
+			section.tag-group {
 				gap: 0.75rem;
 			}
 
@@ -188,7 +188,7 @@ export class TagManager extends LitElement {
 	// Group ids and values are compared as attributes rather than put into a selector, where a
 	// quote or backslash in a stored value would break it.
 	private groupCard(group: string): Element | undefined {
-		return [...this.renderRoot.querySelectorAll("section.group")].find(
+		return [...this.renderRoot.querySelectorAll("section.tag-group")].find(
 			(section) => section.getAttribute("data-group") === group,
 		);
 	}
@@ -439,7 +439,7 @@ export class TagManager extends LitElement {
 				this.prompt?.kind === "delete-group") &&
 			this.prompt.id === group;
 		return html`
-			<section class="card group" data-group=${group} aria-label=${label}>
+			<section class="card tag-group" data-group=${group} aria-label=${label}>
 				<div class="group-head">
 					${this.renderGroupTitle(group, label)}
 					${custom && !promptOpen ? this.renderGroupActions(group, label, index) : nothing}

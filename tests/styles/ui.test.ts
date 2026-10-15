@@ -28,3 +28,38 @@ test("grouped list rows keep a visible divider and no outline override", () => {
 	expect(css).toMatch(/\.item \+ \.item[^{]*\{[^}]*border-top:/);
 	expect(css).not.toMatch(/outline:\s*none/);
 });
+
+// Components not yet redesigned keep their own layouts; none of them may use a class name
+// from the shared grouped-list or segmented-control styles, or it picks up that look too.
+const LEGACY_COMPONENTS = [
+	"random-picker.ts",
+	"restaurant-manager.ts",
+	"tag-manager.ts",
+	"visit-history.ts",
+	"tag-input.ts",
+	"restaurant-chips.ts",
+];
+const RESERVED_CLASSES = [
+	"group",
+	"item",
+	"seg",
+	"group-label",
+	"lead",
+	"trail",
+	"grow",
+];
+
+test("not-yet-redesigned components never use a class name reserved by the shared grouped-list or segmented-control styles", async () => {
+	for (const file of LEGACY_COMPONENTS) {
+		const source = await Bun.file(`src/components/${file}`).text();
+		for (const match of source.matchAll(/class="([^"]*)"/g)) {
+			const tokens = match[1]!.split(/\s+/).filter(Boolean);
+			for (const reserved of RESERVED_CLASSES) {
+				expect(
+					tokens,
+					`${file}: class="${match[1]}" should not use the reserved class "${reserved}"`,
+				).not.toContain(reserved);
+			}
+		}
+	}
+});
