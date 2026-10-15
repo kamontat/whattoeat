@@ -115,6 +115,42 @@ export const removeVisit = (id: string): HistoryEntry[] => {
 	return list;
 };
 
+/** How old a visit must be for the History page's clear buttons to delete it; `all` deletes every one. */
+export const CLEAR_RANGES = ["week", "month", "year", "all"] as const;
+export type ClearRange = (typeof CLEAR_RANGES)[number];
+
+/** Visits before this time are older than `range`. */
+const cutoff = (range: ClearRange, now: Date): number => {
+	if (range === "all") return Number.POSITIVE_INFINITY;
+	const date = new Date(now);
+	if (range === "week") date.setDate(date.getDate() - 7);
+	else if (range === "month") date.setMonth(date.getMonth() - 1);
+	else date.setFullYear(date.getFullYear() - 1);
+	return date.getTime();
+};
+
+const isOlderThan = (entry: HistoryEntry, before: number): boolean =>
+	Date.parse(entry.visitedAt) < before;
+
+export const countOlderThan = (
+	list: readonly HistoryEntry[],
+	range: ClearRange,
+	now: Date = new Date(),
+): number => {
+	const before = cutoff(range, now);
+	return list.filter((item) => isOlderThan(item, before)).length;
+};
+
+export const removeVisitsOlderThan = (
+	range: ClearRange,
+	now: Date = new Date(),
+): HistoryEntry[] => {
+	const before = cutoff(range, now);
+	const list = loadHistory().filter((item) => !isOlderThan(item, before));
+	saveHistory(list);
+	return list;
+};
+
 /**
  * Call `callback` after every save in this tab and every change from another tab (a `null` key is
  * what `localStorage.clear()` sends). Returns an unsubscribe function.

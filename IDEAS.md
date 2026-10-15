@@ -9,8 +9,6 @@ design spec under `docs/superpowers/specs/`, then delete it here when it ships.
 - **Weighted random.** Favourites come up more often, or recently picked places less often.
   Needs a weight or "last picked" field on each restaurant, so the export format version
   goes up.
-- **Pick history.** A short list of past picks with dates, so "we had this yesterday" is
-  visible. Adds a second stored list and decides how long history is kept.
 
 ## Data
 

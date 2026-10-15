@@ -244,3 +244,102 @@ test("warns when the browser could not save a delete", async () => {
 		saveHistory([]);
 	}
 });
+
+const daysAgo = (days: number) =>
+	new Date(Date.now() - days * 86_400_000).toISOString();
+/** One visit 1 day, 10 days, 60 days and 400 days old. */
+const spread = (): HistoryEntry[] => [
+	visit("d1", "r2", "Som Tam Nua", daysAgo(1)),
+	visit("d10", "r2", "Som Tam Nua", daysAgo(10)),
+	visit("d60", "r4", "Ramen Champion", daysAgo(60)),
+	visit("d400", "r4", "Ramen Champion", daysAgo(400)),
+];
+const clearButton = (el: VisitHistory, range: string) =>
+	root(el).querySelector<HTMLButtonElement>(`[data-clear="${range}"]`);
+const clearAction = (el: VisitHistory, name: string) =>
+	root(el).querySelector<HTMLButtonElement>(`.clear [data-action="${name}"]`);
+
+test("the clear section shows how many visits each range would delete", async () => {
+	saveHistory(spread());
+	const el = await mount();
+	expect(text(root(el).querySelector("#clear-title"))).toBe("Clear history");
+	expect(
+		["week", "month", "year", "all"].map((range) =>
+			text(clearButton(el, range)),
+		),
+	).toEqual([
+		"Older than 1 week (3)",
+		"Older than 1 month (2)",
+		"Older than 1 year (1)",
+		"All (4)",
+	]);
+});
+
+test("a range with nothing to delete is disabled", async () => {
+	saveHistory([visit("d1", "r2", "Som Tam Nua", daysAgo(1))]);
+	const el = await mount();
+	expect(clearButton(el, "week")!.disabled).toBe(true);
+	expect(clearButton(el, "all")!.disabled).toBe(false);
+});
+
+test("clearing asks first, then deletes only the older visits", async () => {
+	saveHistory(spread());
+	const el = await mount();
+	clearButton(el, "month")!.click();
+	await el.updateComplete;
+	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
+		"Delete 2 visits older than 1 month? This cannot be undone.",
+	);
+	expect(loadHistory()).toHaveLength(4);
+	clearAction(el, "clear-confirm")!.click();
+	await el.updateComplete;
+	await el.updateComplete;
+	expect(loadHistory().map((item) => item.id)).toEqual(["d1", "d10"]);
+	expect(root(el).querySelector(".clear-prompt")).toBeNull();
+	expect(root(el).activeElement).toBe(root(el).querySelector("h1"));
+});
+
+test("clearing all asks with its own wording and empties the history", async () => {
+	saveHistory(spread());
+	const el = await mount();
+	clearButton(el, "all")!.click();
+	await el.updateComplete;
+	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
+		"Delete all 4 visits? This cannot be undone.",
+	);
+	clearAction(el, "clear-confirm")!.click();
+	await el.updateComplete;
+	expect(loadHistory()).toEqual([]);
+	expect(text(root(el).querySelector(".empty p"))).toBe("No visits yet.");
+});
+
+test("cancelling a clear keeps every visit and returns focus to its button", async () => {
+	saveHistory(spread());
+	const el = await mount();
+	clearButton(el, "year")!.click();
+	await el.updateComplete;
+	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
+		"Delete 1 visit older than 1 year? This cannot be undone.",
+	);
+	clearAction(el, "clear-cancel")!.click();
+	await el.updateComplete;
+	await el.updateComplete;
+	expect(loadHistory()).toHaveLength(4);
+	expect(root(el).querySelector(".clear-prompt")).toBeNull();
+	expect(root(el).activeElement).toBe(clearButton(el, "year"));
+});
+
+test("the clear section is translated to Thai", async () => {
+	saveHistory(spread());
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	expect(text(root(el).querySelector("#clear-title"))).toBe("ล้างประวัติ");
+	expect(text(clearButton(el, "week"))).toBe("เก่ากว่า 1 สัปดาห์ (3)");
+	expect(text(clearButton(el, "all"))).toBe("ทั้งหมด (4)");
+	clearButton(el, "all")!.click();
+	await el.updateComplete;
+	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
+		"ลบประวัติทั้งหมด 4 รายการหรือไม่ การลบนี้ย้อนกลับไม่ได้",
+	);
+});
