@@ -42,6 +42,20 @@ export const en = {
 	"history.cancel": "Cancel",
 	"history.empty": "No visits yet.",
 	"history.emptyLink": "Pick a restaurant",
+	"history.clearTitle": "Clear history",
+	"history.clearOlder": "Older than {range}",
+	"history.clearAll": "All",
+	"history.range.week": "1 week",
+	"history.range.month": "1 month",
+	"history.range.year": "1 year",
+	"history.clearPrompt.one":
+		"Delete 1 visit older than {range}? This cannot be undone.",
+	"history.clearPrompt.other":
+		"Delete {count} visits older than {range}? This cannot be undone.",
+	"history.clearAllPrompt.one": "Delete the only visit? This cannot be undone.",
+	"history.clearAllPrompt.other":
+		"Delete all {count} visits? This cannot be undone.",
+	"history.clearConfirm": "Delete visits",
 	"filter.title": "Filter",
 	"filter.hint": "Tap once to include, twice to exclude, again to clear.",
 	"filter.state.off": "not used",
@@ -196,6 +210,20 @@ export const th: Record<MessageKey, string> = {
 	"history.cancel": "ยกเลิก",
 	"history.empty": "ยังไม่มีประวัติ",
 	"history.emptyLink": "สุ่มร้านอาหาร",
+	"history.clearTitle": "ล้างประวัติ",
+	"history.clearOlder": "เก่ากว่า {range}",
+	"history.clearAll": "ทั้งหมด",
+	"history.range.week": "1 สัปดาห์",
+	"history.range.month": "1 เดือน",
+	"history.range.year": "1 ปี",
+	"history.clearPrompt.one":
+		"ลบประวัติ 1 รายการที่เก่ากว่า {range}หรือไม่ การลบนี้ย้อนกลับไม่ได้",
+	"history.clearPrompt.other":
+		"ลบประวัติ {count} รายการที่เก่ากว่า {range}หรือไม่ การลบนี้ย้อนกลับไม่ได้",
+	"history.clearAllPrompt.one": "ลบประวัติทั้งหมด 1 รายการหรือไม่ การลบนี้ย้อนกลับไม่ได้",
+	"history.clearAllPrompt.other":
+		"ลบประวัติทั้งหมด {count} รายการหรือไม่ การลบนี้ย้อนกลับไม่ได้",
+	"history.clearConfirm": "ลบประวัติ",
 	"filter.title": "ตัวกรอง",
 	"filter.hint": "แตะหนึ่งครั้งเพื่อเลือก สองครั้งเพื่อไม่เอา อีกครั้งเพื่อยกเลิก",
 	"filter.state.off": "ไม่ใช้",

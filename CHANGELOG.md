@@ -2,7 +2,54 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-14: Import renames restaurants whose name is already used, and history locks are now visits
+## 2026-10-15: Cuisine, area and custom groups as tag groups
+
+### BREAKING CHANGES
+
+- Exports are now `version: 4` and carry a `groups` list. A build from before this change
+  cannot import them and says "This export version is not supported."
+- Restaurants are saved with a `groups` map (`{ "cuisine": [...], "area": [...] }`) instead
+  of single `cuisine` and `area` strings. A build from before this change shows restaurants
+  saved by this one without a cuisine or area.
+- In code, `Restaurant.cuisine` and `Restaurant.area` are gone; read values with
+  `groupValues(item, "cuisine")`. `GROUPS`, `Group` and `ValueGroup` are removed from
+  `#lib/restaurant` (use `allGroupIds` from `#lib/groups`), `Filter` is keyed by any group
+  id with `EMPTY_FILTER = {}`, and `exportJson` and `toExportFile` take the group list as a
+  new argument.
+
+### Features
+
+- A restaurant can have several cuisines and several areas, like `thai, japanese`. The home
+  filter matches any of them.
+- Custom groups, like "price" or "vibe", stored under `whattoeat:groups` and exported with
+  the restaurants. Each one gets its own field in the restaurant form and its own row in the
+  home filter, and its values show on restaurants as `Price: cheap` chips before the plain
+  tags.
+
+### Improvements
+
+- Cuisine and Area in the restaurant form are chip inputs like Tags, suggesting the values
+  other restaurants already use, most used first.
+- Saved restaurants with the old `cuisine` and `area` strings, and exports of versions 1 to
+  3, load with those strings moved into the new groups. Nothing has to be re-entered.
+- Importing a version 4 file merges its groups into yours: a group with the same name (in any
+  case) is folded into the existing one, and a group named like Cuisine or Area, in English
+  or Thai, is folded into that built-in group.
+
+### Decisions
+
+- Cuisine, area, type and tags are all labels, so they share one model, but Type keeps its
+  fixed three values and translated names, and plain tags keep their meaning (shown, not
+  filtered). A `groups` map was chosen over turning `tags` into an object, which would have
+  changed what `tags` means in older files, and over prefixed tags like `cuisine:thai`,
+  which need parsing everywhere and rewrite every restaurant when a group is renamed.
+- Type, Cuisine and Area are fixed groups that cannot be renamed or deleted, so their labels
+  stay translated. Restaurants refer to custom groups by id, so renaming a group never
+  touches a restaurant.
+- Values of a group that no longer exists (deleted in another tab, or missing from an
+  imported file) become plain tags instead of being dropped.
+
+## 2026-10-14: Import renames restaurants whose name is already used, history locks are now visits, and clearing old history
 
 ### BREAKING CHANGES
 
@@ -12,6 +59,16 @@ What changed in this project and why, newest first.
   `addLock`, `removeLock`, `lockedAt` and `lastLockedAt` are now `addVisit`, `removeVisit`,
   `visitedAt` and `lastVisitedAt`. The `picker.lock` and `picker.locked` messages are now
   `picker.visit` and `picker.visited`.
+
+### Features
+
+- The History page has a **Clear history** section between Stats and Visits, with
+  **Older than 1 week**, **Older than 1 month**, **Older than 1 year** and **All** (ล้างประวัติ:
+  เก่ากว่า 1 สัปดาห์, 1 เดือน, 1 ปี, ทั้งหมด). Each shows how many visits it would delete, such
+  as "Older than 1 month (12)", and is disabled at 0. Pressing one asks "Delete 12 visits
+  older than 1 month? This cannot be undone." with **Delete visits** / **Cancel** first. A
+  week is 7 days, a month and a year are calendar ones, and a visit exactly at the cutoff is
+  kept.
 
 ### Improvements
 
@@ -39,6 +96,12 @@ What changed in this project and why, newest first.
   and "choose" were rejected because **Pick again** already means a new random pair; a visit
   is what each entry records. The rename covers the code and the stored field too, so the
   words match everywhere, with old data read rather than migrated.
+- History is never cleaned up automatically. Keeping a year or the newest 1000 visits,
+  whichever is more, was built first and dropped: visits should only disappear when someone
+  asks, and size is no concern, since a visit is about 105 characters and two a day for a
+  year come to about 77 KB of the roughly 5 MB browsers allow. The clear section sits above
+  the visit list so a long history does not push it out of reach.
+- `IDEAS.md` no longer lists pick history, which shipped as visit history.
 
 ## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer, data reset, a warning for unreadable saved data, two random options per pick, a lock history, and filtering by type, cuisine and area
 

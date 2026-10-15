@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import {
 	addVisit,
+	countOlderThan,
 	HISTORY_EVENT,
 	HISTORY_KEY,
 	type HistoryEntry,
@@ -9,6 +10,7 @@ import {
 	loadHistory,
 	onHistoryChanged,
 	removeVisit,
+	removeVisitsOlderThan,
 	saveHistory,
 	summarize,
 } from "#lib/history";
@@ -278,4 +280,36 @@ test("isHistoryMemoryOnly is true only while history could not be saved", () => 
 	}
 	saveHistory([]);
 	expect(isHistoryMemoryOnly()).toBe(false);
+});
+
+const NOW = new Date("2026-10-14T12:00:00.000Z");
+const ages = (): HistoryEntry[] => [
+	entry("today", "r1", "A", "2026-10-14T08:00:00.000Z"),
+	entry("week", "r1", "A", "2026-10-07T12:00:00.000Z"),
+	entry("weekOld", "r1", "A", "2026-10-07T11:59:59.000Z"),
+	entry("monthOld", "r1", "A", "2026-09-13T12:00:00.000Z"),
+	entry("yearOld", "r1", "A", "2025-10-13T12:00:00.000Z"),
+];
+
+test("countOlderThan counts visits before a week, a month, a year, or all", () => {
+	const list = ages();
+	expect(countOlderThan(list, "week", NOW)).toBe(3);
+	expect(countOlderThan(list, "month", NOW)).toBe(2);
+	expect(countOlderThan(list, "year", NOW)).toBe(1);
+	expect(countOlderThan(list, "all", NOW)).toBe(5);
+});
+
+test("removeVisitsOlderThan keeps visits on or after the cutoff", () => {
+	saveHistory(ages());
+	expect(removeVisitsOlderThan("week", NOW).map((item) => item.id)).toEqual([
+		"today",
+		"week",
+	]);
+	expect(loadHistory().map((item) => item.id)).toEqual(["today", "week"]);
+});
+
+test("removeVisitsOlderThan all empties the history", () => {
+	saveHistory(ages());
+	expect(removeVisitsOlderThan("all", NOW)).toEqual([]);
+	expect(loadHistory()).toEqual([]);
 });
