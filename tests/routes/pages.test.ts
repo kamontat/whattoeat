@@ -28,12 +28,33 @@ test.each(pages)(
 	},
 );
 
-test.each(pages)("%s loads the app footer after main", async (page) => {
+test.each(pages)("%s has no page-level footer", async (page) => {
 	const html = await Bun.file(`src/routes/${page}`).text();
-	expect(html).toMatch(
-		/<script type="module" src="(\.\.\/)+components\/app-footer\.ts"><\/script>/,
+	expect(html).not.toContain("<app-footer");
+	expect(html).not.toContain("components/app-footer.ts");
+});
+
+test.each(pages)("%s allows zoom and uses the whole screen", async (page) => {
+	const html = await Bun.file(`src/routes/${page}`).text();
+	expect(html).toContain(
+		'<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />',
 	);
-	expect(html.indexOf("<app-footer")).toBeGreaterThan(html.indexOf("</main>"));
+	expect(html).not.toMatch(/maximum-scale|user-scalable/);
+});
+
+test.each(pages)("%s colours the browser bar for both themes", async (page) => {
+	const html = await Bun.file(`src/routes/${page}`).text();
+	expect(html).toContain(
+		'<meta name="theme-color" content="#fff3dc" media="(prefers-color-scheme: light)" />',
+	);
+	expect(html).toContain(
+		'<meta name="theme-color" content="#17130f" media="(prefers-color-scheme: dark)" />',
+	);
+});
+
+test.each(pages)("%s gives the skip link a focusable target", async (page) => {
+	const html = await Bun.file(`src/routes/${page}`).text();
+	expect(html).toContain('<main id="main" tabindex="-1">');
 });
 
 test.each(pages)("%s links the site icon", async (page) => {
