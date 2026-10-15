@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-15: Cuisine, area and custom groups as tag groups, and a Tags page to manage them
+## 2026-10-15: Cuisine, area and custom groups as tag groups, and a Tags page to manage them, and two ideas dropped
 
 ### BREAKING CHANGES
 
@@ -60,6 +60,8 @@ What changed in this project and why, newest first.
 - A value cannot be renamed to blank text or to text with a comma, because commas separate
   values in the chip inputs. The Tags page replaces the "Rename or merge a tag" idea in
   `IDEAS.md`; drag-and-drop reordering and single-value custom groups were left out.
+- CSV import and export, and separate English and Thai names, are removed from `IDEAS.md`
+  because they are no longer planned.
 
 ## 2026-10-14: Import renames restaurants whose name is already used, history locks are now visits, and clearing old history
 
