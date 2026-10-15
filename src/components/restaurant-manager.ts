@@ -12,6 +12,7 @@ import {
 	onGroupsChanged,
 } from "#lib/groups";
 import { getLang, LangController, type MessageKey, t } from "#lib/i18n";
+import { icon } from "#lib/icons";
 import {
 	isLink,
 	isNameTaken,
@@ -69,6 +70,28 @@ export class RestaurantManager extends LitElement {
 
 			h1 {
 				font-size: 1.5rem;
+			}
+
+			.heading {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: space-between;
+				gap: 0.75rem;
+			}
+
+			.tags-link {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.375rem;
+				min-height: var(--tap);
+				padding: 0 0.875rem;
+				border: 1.5px solid var(--color-control);
+				border-radius: var(--radius-pill);
+				background: var(--color-surface);
+				color: var(--color-text);
+				font-weight: 500;
+				text-decoration: none;
 			}
 
 			.list {
@@ -363,7 +386,10 @@ export class RestaurantManager extends LitElement {
 			a.name.localeCompare(b.name, getLang()),
 		);
 		return html`
-			<h1>${t("manager.title")}</h1>
+			<div class="heading">
+				<h1>${t("manager.title")}</h1>
+				<a class="tags-link" href="./tags">${icon("tag", 18)}<span>${t("nav.tags")}</span></a>
+			</div>
 			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
 				this.skipped > 0
