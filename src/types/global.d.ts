@@ -1,5 +1,6 @@
 import type { AppFooter } from "#components/app-footer";
 import type { AppHeader } from "#components/app-header";
+import type { AppSheet } from "#components/app-sheet";
 import type { DataTransferPanel } from "#components/data-transfer";
 import type { RandomPicker } from "#components/random-picker";
 import type { RestaurantManager } from "#components/restaurant-manager";
@@ -11,6 +12,7 @@ declare global {
 	interface HTMLElementTagNameMap {
 		"app-footer": AppFooter;
 		"app-header": AppHeader;
+		"app-sheet": AppSheet;
 		"data-transfer": DataTransferPanel;
 		"visit-history": VisitHistory;
 		"random-picker": RandomPicker;
