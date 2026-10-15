@@ -89,3 +89,11 @@ test("follows the language", async () => {
 	expect(link(el, "changelog")?.textContent?.trim()).toBe("บันทึกการเปลี่ยนแปลง");
 	expect(el.shadowRoot!.textContent).toContain("สร้างเมื่อ");
 });
+
+test("lays the links out as list rows", async () => {
+	const el = await mount(SHA, new Date("2026-10-15T08:00:00Z"));
+	const rows = [...el.shadowRoot!.querySelectorAll(".group > .item")];
+	expect(
+		rows.map((row) => row.getAttribute("data-link") ?? row.tagName),
+	).toEqual(["source", "changelog", "commit", "DIV"]);
+});

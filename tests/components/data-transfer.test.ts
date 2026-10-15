@@ -595,3 +595,76 @@ test("replace with a version 3 file keeps the current groups", async () => {
 	await click(el, 'button[data-action="replace"]');
 	expect(loadGroups()).toEqual([{ id: "g1", name: "Price" }]);
 });
+
+test("settings is grouped under Appearance, Export, Import, Reset and About", async () => {
+	const el = await mount();
+	const headings = [
+		...el.shadowRoot!.querySelectorAll("section > h2.group-label"),
+	].map((h) => h.textContent?.trim());
+	expect(headings).toEqual([
+		"Appearance",
+		"Export",
+		"Import",
+		"Reset",
+		"About",
+	]);
+	for (const section of el.shadowRoot!.querySelectorAll("section")) {
+		const id = section.getAttribute("aria-labelledby");
+		expect(id).not.toBeNull();
+		expect(section.querySelector(`#${id}`)?.tagName).toBe("H2");
+	}
+});
+
+test("the appearance section holds the language and theme switches", async () => {
+	const el = await mount();
+	const prefs = $(el, "section.appearance app-preferences");
+	expect(prefs).not.toBeNull();
+	expect(prefs?.hasAttribute("compact")).toBe(false);
+});
+
+test("the about section holds the source, changelog and build links", async () => {
+	const el = await mount();
+	expect($(el, "section.about app-footer")).not.toBeNull();
+});
+
+test("export and copy are list rows with their labels and icons", async () => {
+	const el = await mount();
+	const exportRow = $(el, 'section.export button.item[data-action="export"]');
+	expect(exportRow?.textContent).toContain("Download JSON");
+	expect(exportRow?.querySelector("svg")?.getAttribute("aria-hidden")).toBe(
+		"true",
+	);
+	expect(
+		$(el, 'section.export button.item[data-action="copy"]')?.textContent,
+	).toContain("Copy JSON");
+});
+
+test("the file input is still a real input inside its labelled row", async () => {
+	const el = await mount();
+	const input = $(
+		el,
+		'section.import label.item input[type="file"]',
+	) as HTMLInputElement | null;
+	expect(input).not.toBeNull();
+	expect(input?.closest("label")?.textContent).toContain("Choose a JSON file");
+	expect(input?.disabled).toBe(false);
+});
+
+test("paste json opens from its own row and the textarea keeps its name", async () => {
+	const el = await mount();
+	const details = $(
+		el,
+		"section.import details.paste-row",
+	) as HTMLDetailsElement | null;
+	expect(details?.querySelector("summary")?.textContent).toContain(
+		"Or paste JSON",
+	);
+	expect($(el, "textarea.paste")?.getAttribute("aria-label")).toBe(
+		"Or paste JSON",
+	);
+});
+
+test("the page title is a large title", async () => {
+	const el = await mount();
+	expect($(el, "h1.page-title")?.textContent?.trim()).toBe("Settings");
+});

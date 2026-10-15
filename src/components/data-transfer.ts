@@ -1,6 +1,8 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
+import "#components/app-footer";
+import "#components/app-preferences";
 import {
 	type GroupDef,
 	isGroupsMemoryOnly,
@@ -17,6 +19,7 @@ import {
 	saveHistory,
 } from "#lib/history";
 import { LangController, t } from "#lib/i18n";
+import { icon } from "#lib/icons";
 import type { Restaurant } from "#lib/restaurant";
 import {
 	isMemoryOnly,
@@ -43,24 +46,58 @@ export class DataTransferPanel extends LitElement {
 		css`
 			:host {
 				display: grid;
-				gap: 1.5rem;
+				gap: 1.25rem;
+				max-width: 40rem;
+				margin: 0 auto;
 			}
 
-			h1 {
-				font-size: 1.5rem;
+			section {
+				display: grid;
+				gap: 0.5rem;
 			}
 
-			h2 {
-				font-size: 1.125rem;
+			.file input {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				opacity: 0;
 			}
 
-			input[type="file"] {
-				padding: 0.5rem;
+			.file:focus-within {
+				outline: 3px solid var(--color-focus);
+				outline-offset: -3px;
+			}
+
+			summary.item {
+				cursor: pointer;
+				list-style: none;
+			}
+
+			summary.item::-webkit-details-marker {
+				display: none;
+			}
+
+			details[open] summary .trail {
+				transform: rotate(90deg);
+			}
+
+			.paste-body {
+				display: grid;
+				gap: 0.625rem;
+				padding: 0 1.125rem 1rem;
 			}
 
 			textarea {
 				font-family: ui-monospace, monospace;
 				font-size: 0.875rem;
+			}
+
+			.reset-prompt {
+				padding: 0 1.125rem;
+			}
+
+			.reset-actions {
+				padding: 0 1.125rem 1rem;
 			}
 		`,
 	];
@@ -253,33 +290,36 @@ export class DataTransferPanel extends LitElement {
 	private renderReset() {
 		if (this.reset === "confirm")
 			return html`
-				<p class="reset-prompt" role="alert">${t("settings.resetPrompt", { count: this.count })}</p>
-				<div class="actions">
-					<button type="button" class="danger" data-action="reset-confirm" @click=${this.confirmReset}>
-						${t("settings.resetConfirm")}
-					</button>
-					<button
-						type="button"
-						data-action="reset-cancel"
-						@click=${() => {
-							this.reset = undefined;
-						}}
-					>
-						${t("settings.cancel")}
-					</button>
+				<div class="group">
+					<p class="reset-prompt item" role="alert">${t("settings.resetPrompt", { count: this.count })}</p>
+					<div class="actions reset-actions">
+						<button type="button" class="danger" data-action="reset-confirm" @click=${this.confirmReset}>
+							${t("settings.resetConfirm")}
+						</button>
+						<button
+							type="button"
+							data-action="reset-cancel"
+							@click=${() => {
+								this.reset = undefined;
+							}}
+						>
+							${t("settings.cancel")}
+						</button>
+					</div>
 				</div>
 			`;
 		return html`
-			<div class="actions">
+			<div class="group">
 				<button
 					type="button"
-					class="danger"
+					class="item danger"
 					data-action="reset"
 					@click=${() => {
 						this.reset = "confirm";
 					}}
 				>
-					${t("settings.reset")}
+					<span class="lead">${icon("trash", 22)}</span>
+					<span class="grow"><b>${t("settings.reset")}</b></span>
 				</button>
 			</div>
 			${
@@ -304,8 +344,7 @@ export class DataTransferPanel extends LitElement {
 
 	override render() {
 		return html`
-			<h1>${t("settings.title")}</h1>
-			<p class="count">${t("settings.count", { count: this.count })}</p>
+			<h1 class="page-title">${t("settings.title")}</h1>
 			${isMemoryOnly() || isHistoryMemoryOnly() || isGroupsMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
 				this.skipped > 0
@@ -314,45 +353,65 @@ export class DataTransferPanel extends LitElement {
 						</p>`
 					: nothing
 			}
-			<section class="card">
-				<h2>${t("settings.exportTitle")}</h2>
-				<div class="actions">
-					<button type="button" class="primary" data-action="export" @click=${this.exportData}>
-						${t("settings.export")}
+			<section class="appearance" aria-labelledby="appearance-title">
+				<h2 id="appearance-title" class="group-label">${t("settings.appearance")}</h2>
+				<app-preferences></app-preferences>
+			</section>
+			<section class="export" aria-labelledby="export-title">
+				<h2 id="export-title" class="group-label">${t("settings.exportTitle")}</h2>
+				<div class="group">
+					<button type="button" class="item" data-action="export" @click=${this.exportData}>
+						<span class="lead">${icon("download", 22)}</span>
+						<span class="grow">
+							<b>${t("settings.export")}</b>
+							<small class="count">${t("settings.count", { count: this.count })}</small>
+						</span>
 					</button>
-					<button type="button" data-action="copy" @click=${this.copyData}>
-						${t("settings.copy")}
+					<button type="button" class="item" data-action="copy" @click=${this.copyData}>
+						<span class="lead">${icon("copy", 22)}</span>
+						<span class="grow"><b>${t("settings.copy")}</b></span>
 					</button>
 				</div>
 				${this.renderCopied()}
 			</section>
-			<section class="card">
-				<h2>${t("settings.importTitle")}</h2>
-				<label>
-					${t("settings.importFile")}
-					<input type="file" accept="application/json,.json" @change=${this.onFile} />
-				</label>
-				<label>
-					${t("settings.pasteLabel")}
-					<textarea
-						class="paste"
-						rows="4"
-						spellcheck="false"
-						.value=${live(this.pasteText)}
-						@input=${(event: Event) => {
-							this.pasteText = (event.target as HTMLTextAreaElement).value;
-						}}
-					></textarea>
-				</label>
-				<div class="actions">
-					<button
-						type="button"
-						data-action="check-paste"
-						?disabled=${this.pasteText.trim() === ""}
-						@click=${() => this.readImport(this.pasteText)}
-					>
-						${t("settings.pasteCheck")}
-					</button>
+			<section class="import" aria-labelledby="import-title">
+				<h2 id="import-title" class="group-label">${t("settings.importTitle")}</h2>
+				<div class="group">
+					<label class="item file">
+						<span class="lead">${icon("upload", 22)}</span>
+						<span class="grow"><b>${t("settings.importFile")}</b></span>
+						<span class="trail">${icon("chevron", 20)}</span>
+						<input type="file" accept="application/json,.json" @change=${this.onFile} />
+					</label>
+					<details class="paste-row">
+						<summary class="item">
+							<span class="lead">${icon("copy", 22)}</span>
+							<span class="grow"><b>${t("settings.pasteLabel")}</b></span>
+							<span class="trail">${icon("chevron", 20)}</span>
+						</summary>
+						<div class="paste-body">
+							<textarea
+								class="paste"
+								rows="4"
+								spellcheck="false"
+								aria-label=${t("settings.pasteLabel")}
+								.value=${live(this.pasteText)}
+								@input=${(event: Event) => {
+									this.pasteText = (event.target as HTMLTextAreaElement).value;
+								}}
+							></textarea>
+							<div class="actions">
+								<button
+									type="button"
+									data-action="check-paste"
+									?disabled=${this.pasteText.trim() === ""}
+									@click=${() => this.readImport(this.pasteText)}
+								>
+									${t("settings.pasteCheck")}
+								</button>
+							</div>
+						</div>
+					</details>
 				</div>
 				${this.error ? html`<p class="error" role="alert">${t(this.error)}</p>` : nothing}
 				${
@@ -385,9 +444,13 @@ export class DataTransferPanel extends LitElement {
 						: html`<p class="success" role="status">${t("settings.imported", { count: this.imported })}</p>`
 				}
 			</section>
-			<section class="card">
-				<h2>${t("settings.resetTitle")}</h2>
+			<section class="reset" aria-labelledby="reset-title">
+				<h2 id="reset-title" class="group-label">${t("settings.resetTitle")}</h2>
 				${this.renderReset()}
+			</section>
+			<section class="about" aria-labelledby="about-title">
+				<h2 id="about-title" class="group-label">${t("settings.about")}</h2>
+				<app-footer></app-footer>
 			</section>
 		`;
 	}
