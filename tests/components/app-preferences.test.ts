@@ -56,9 +56,12 @@ test("language options are written in their own language", async () => {
 	const th = radio(el, "lang", "th").closest("label")!;
 	expect(th.textContent?.trim()).toBe("ไทย");
 	expect(th.querySelector("[lang]")?.getAttribute("lang")).toBe("th");
-	expect(radio(el, "lang", "en").closest("label")!.textContent).toContain(
-		"English",
+	const en = radio(el, "lang", "en").closest("label")!;
+	expect(en.textContent).toContain("English");
+	expect(en.querySelector(".visually-hidden")?.textContent?.trim()).toBe(
+		"English (EN)",
 	);
+	expect(en.querySelector("[aria-hidden]")?.textContent?.trim()).toBe("EN");
 });
 
 test("choosing Thai switches the language and the page lang", async () => {

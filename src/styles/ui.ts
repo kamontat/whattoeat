@@ -229,7 +229,7 @@ export const uiStyles = css`
 		cursor: pointer;
 	}
 
-	.seg span {
+	.seg input + span {
 		display: flex;
 		align-items: center;
 		justify-content: center;

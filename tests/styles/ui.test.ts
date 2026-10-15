@@ -9,11 +9,14 @@ test("every control shows the focus ring when focused by keyboard", () => {
 	);
 });
 
+const escapeForSelectorRegex = (selector: string): string =>
+	selector.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
+
 test("buttons, inputs, list rows and segments are at least the tap size", () => {
-	for (const selector of ["button", "input", ".item", ".seg span"]) {
+	for (const selector of ["button", "input", ".item", ".seg input + span"]) {
 		const rule = css.match(
 			new RegExp(
-				`(?:^|[\\s,}])${selector.replace(".", "\\.")}[^{]*\\{([^}]*)\\}`,
+				`(?:^|[\\s,}])${escapeForSelectorRegex(selector)}[^{]*\\{([^}]*)\\}`,
 			),
 		)?.[1];
 		expect(rule, selector).toContain("min-height: var(--tap)");

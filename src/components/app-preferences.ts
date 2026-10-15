@@ -74,7 +74,7 @@ export class AppPreferences extends LitElement {
 				flex: none;
 			}
 
-			.seg span {
+			.seg input + span {
 				min-width: 3.5rem;
 			}
 
@@ -83,7 +83,7 @@ export class AppPreferences extends LitElement {
 				gap: 0.5rem;
 			}
 
-			:host([compact]) .seg span {
+			:host([compact]) .seg input + span {
 				min-width: var(--tap);
 				padding: 0 0.625rem;
 			}
@@ -115,7 +115,7 @@ export class AppPreferences extends LitElement {
 							${
 								LANG_NAMES[code].short === LANG_NAMES[code].full
 									? LANG_NAMES[code].full
-									: html`<span aria-hidden="true">${LANG_NAMES[code].short}</span><span class="visually-hidden">${LANG_NAMES[code].full}</span>`
+									: html`<span aria-hidden="true">${LANG_NAMES[code].short}</span><span class="visually-hidden">${LANG_NAMES[code].full} (${LANG_NAMES[code].short})</span>`
 							}
 						</span>
 					</label>`,
