@@ -1,138 +1,160 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import {
-	getLang,
-	LANGS,
-	LangController,
-	type MessageKey,
-	setLang,
-	t,
-} from "#lib/i18n";
-import {
-	getTheme,
-	setTheme,
-	THEMES,
-	type Theme,
-	ThemeController,
-} from "#lib/theme";
+import "#components/app-preferences";
+import { LangController, type MessageKey, t } from "#lib/i18n";
+import { type IconName, icon, logo } from "#lib/icons";
 import { uiStyles } from "#styles/ui";
 
 export type Page = "home" | "restaurants" | "tags" | "history" | "settings";
 
-const THEME_LABELS: Record<Theme, MessageKey> = {
-	auto: "theme.auto",
-	light: "theme.light",
-	dark: "theme.dark",
-};
+type Tab = { page: Page; href: string; label: MessageKey; icon: IconName };
 
-const THEME_ICONS: Record<Theme, string> = {
-	auto: "◐",
-	light: "☀",
-	dark: "☾",
-};
-
-const LINKS: readonly { page: Page; href: string; label: MessageKey }[] = [
-	{ page: "home", href: "./", label: "nav.home" },
-	{ page: "restaurants", href: "./restaurants", label: "nav.restaurants" },
-	{ page: "tags", href: "./tags", label: "nav.tags" },
-	{ page: "history", href: "./history", label: "nav.history" },
-	{ page: "settings", href: "./settings", label: "nav.settings" },
+const TABS: readonly Tab[] = [
+	{ page: "home", href: "./", label: "nav.home", icon: "dice" },
+	{
+		page: "restaurants",
+		href: "./restaurants",
+		label: "nav.restaurants",
+		icon: "bowl",
+	},
+	{ page: "history", href: "./history", label: "nav.history", icon: "clock" },
+	{
+		page: "settings",
+		href: "./settings",
+		label: "nav.settings",
+		icon: "sliders",
+	},
 ];
+
+/** Browser tab titles; the home page is the app name alone. */
+const TITLES: Record<Page, MessageKey | undefined> = {
+	home: undefined,
+	restaurants: "nav.restaurants",
+	tags: "nav.tags",
+	history: "nav.history",
+	settings: "nav.settings",
+};
+
+/** Tags has no tab of its own: it is part of Restaurants. */
+const tabOf = (page: Page): Page => (page === "tags" ? "restaurants" : page);
 
 @customElement("app-header")
 export class AppHeader extends LitElement {
 	static override styles = [
 		uiStyles,
 		css`
-			/* Phones: brand and switches on top, nav links below. Wider screens: one row. */
-			header {
-				display: grid;
-				grid-template-columns: auto 1fr;
-				grid-template-areas:
-					"brand controls"
-					"nav nav";
-				align-items: center;
-				gap: 0.75rem;
-				max-width: 40rem;
-				margin: 0 auto;
-				padding: 1rem;
+			.skip {
+				position: fixed;
+				z-index: 30;
+				top: 0.5rem;
+				left: 0.5rem;
+				padding: 0.75rem 1rem;
+				border-radius: var(--radius-sm);
+				background: var(--color-text);
+				color: var(--color-bg);
+				font-weight: 600;
+				transform: translateY(-200%);
 			}
 
-			.brand {
-				grid-area: brand;
-				font-size: 1.25rem;
-				font-weight: 700;
-				color: var(--color-text);
-				text-decoration: none;
+			.skip:focus {
+				transform: none;
+			}
+
+			/* Phones: no top bar (pages show large titles); the nav floats at the bottom. */
+			.brand,
+			app-preferences {
+				display: none;
 			}
 
 			nav {
-				grid-area: nav;
-				display: flex;
-				flex-wrap: wrap;
-				gap: 0.75rem;
+				position: fixed;
+				z-index: 20;
+				left: 0.875rem;
+				right: 0.875rem;
+				bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+				display: grid;
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+				gap: 0.25rem;
+				padding: 0.375rem;
+				border: 1px solid var(--color-border);
+				border-radius: 1.5rem;
+				background: var(--color-surface);
+				box-shadow: var(--shadow);
 			}
 
 			nav a {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 0.125rem;
+				min-height: 3.5rem;
+				border-radius: 1.125rem;
 				color: var(--color-muted);
+				font-size: 0.75rem;
+				font-weight: 600;
 				text-decoration: none;
 			}
 
 			nav a[aria-current="page"] {
-				color: var(--color-primary);
-				font-weight: 700;
+				background: var(--color-accent);
+				color: var(--color-accent-text);
 			}
 
-			.controls {
-				grid-area: controls;
-				display: flex;
-				flex-wrap: wrap;
-				justify-content: flex-end;
-				gap: 0.5rem;
+			@media (forced-colors: active) {
+				nav a[aria-current="page"] {
+					outline: 2px solid CanvasText;
+				}
 			}
 
-			.switch {
-				display: flex;
-			}
-
-			.switch button {
-				padding: 0.25rem 0.625rem;
-				font-size: 0.875rem;
-				border-radius: 0;
-			}
-
-			.switch button:first-child {
-				border-radius: var(--radius) 0 0 var(--radius);
-			}
-
-			.switch button:last-child {
-				border-radius: 0 var(--radius) var(--radius) 0;
-			}
-
-			.switch button[aria-pressed="true"] {
-				background: var(--color-text);
-				border-color: var(--color-text);
-				color: var(--color-surface);
-			}
-
-			/*
-			 * One row only once the header has its full 40rem. Brand, five links and switches need
-			 * about all of it in English, so the gaps and switch padding are tighter here than on
-			 * phones; the nav takes the free column and wraps inside it rather than pushing it wider.
-			 */
-			@media (min-width: 44rem) {
+			/* From 48rem: one top bar, brand on the left, the links as a rounded group. */
+			@media (min-width: 48rem) {
 				header {
-					grid-template-columns: auto minmax(0, 1fr) auto;
-					grid-template-areas: "brand nav controls";
+					display: flex;
+					flex-wrap: wrap;
+					align-items: center;
+					gap: 0.75rem 1.5rem;
+					min-height: 4.75rem;
+					padding: 0.5rem 2.5rem;
+					background: var(--color-surface);
+					border-bottom: 1px solid var(--color-border);
+				}
+
+				.brand {
+					display: flex;
+					align-items: center;
 					gap: 0.75rem;
+					margin-right: auto;
+					color: var(--color-text);
+					font-size: 1.375rem;
+					font-weight: 700;
+					letter-spacing: -0.01em;
+					text-decoration: none;
 				}
 
 				nav {
-					gap: 0.25rem 0.5rem;
+					position: static;
+					display: flex;
+					gap: 0.375rem;
+					border-radius: 1.375rem;
+					background: var(--color-bg);
+					box-shadow: none;
 				}
 
-				.switch button {
-					padding-inline: 0.5rem;
+				nav a {
+					flex-direction: row;
+					gap: 0.5rem;
+					min-height: var(--tap);
+					padding: 0 1.125rem;
+					border-radius: 1rem;
+					font-size: 0.9375rem;
+				}
+			}
+
+			/* From 72rem the language and theme switches fit after the links. */
+			@media (min-width: 72rem) {
+				app-preferences {
+					display: block;
 				}
 			}
 		`,
@@ -142,59 +164,29 @@ export class AppHeader extends LitElement {
 	current: Page = "home";
 
 	protected readonly langController = new LangController(this);
-	protected readonly themeController = new ThemeController(this);
 
 	/** Keep the browser tab title in the current language. */
 	override updated(): void {
-		const page = LINKS.find((link) => link.page === this.current);
+		const page = TITLES[this.current];
 		document.title =
-			page === undefined || page.page === "home"
-				? t("app.title")
-				: `${t(page.label)} · ${t("app.title")}`;
+			page === undefined ? t("app.title") : `${t(page)} · ${t("app.title")}`;
 	}
 
 	override render() {
-		const lang = getLang();
-		const theme = getTheme();
+		const tab = tabOf(this.current);
 		return html`
+			<a class="skip" href="#main">${t("nav.skip")}</a>
 			<header>
-				<a class="brand" href="./">${t("app.title")}</a>
+				<a class="brand" href="./">${logo()}<span>${t("app.title")}</span></a>
 				<nav aria-label=${t("nav.label")}>
-					${LINKS.map(
+					${TABS.map(
 						(link) =>
-							html`<a href=${link.href} aria-current=${this.current === link.page ? "page" : nothing}>${t(link.label)}</a>`,
+							html`<a href=${link.href} aria-current=${tab === link.page ? "page" : nothing}>
+								${icon(link.icon)}<span>${t(link.label)}</span>
+							</a>`,
 					)}
 				</nav>
-				<div class="controls">
-					<div class="switch lang" role="group" aria-label=${t("lang.label")}>
-						${LANGS.map(
-							(code) =>
-								html`<button
-									type="button"
-									data-lang=${code}
-									aria-pressed=${code === lang ? "true" : "false"}
-									@click=${() => setLang(code)}
-								>
-									${code.toUpperCase()}
-								</button>`,
-						)}
-					</div>
-					<div class="switch theme" role="group" aria-label=${t("theme.label")}>
-						${THEMES.map(
-							(name) =>
-								html`<button
-									type="button"
-									data-theme=${name}
-									aria-label=${t(THEME_LABELS[name])}
-									title=${t(THEME_LABELS[name])}
-									aria-pressed=${name === theme ? "true" : "false"}
-									@click=${() => setTheme(name)}
-								>
-									${THEME_ICONS[name]}
-								</button>`,
-						)}
-					</div>
-				</div>
+				<app-preferences compact></app-preferences>
 			</header>
 		`;
 	}

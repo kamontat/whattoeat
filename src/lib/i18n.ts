@@ -9,6 +9,7 @@ export const LANG_EVENT = "whattoeat:lang-changed";
 export const en = {
 	"app.title": "What to Eat",
 	"nav.label": "Main",
+	"nav.skip": "Skip to content",
 	"nav.home": "Home",
 	"nav.restaurants": "Restaurants",
 	"nav.tags": "Tags",
@@ -178,6 +179,7 @@ export type MessageKey = keyof typeof en;
 export const th: Record<MessageKey, string> = {
 	"app.title": "กินอะไรดี",
 	"nav.label": "เมนูหลัก",
+	"nav.skip": "ข้ามไปยังเนื้อหา",
 	"nav.home": "หน้าแรก",
 	"nav.restaurants": "ร้านอาหาร",
 	"nav.tags": "แท็ก",

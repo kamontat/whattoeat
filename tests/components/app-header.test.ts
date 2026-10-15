@@ -24,23 +24,62 @@ const mount = async (current?: Page) => {
 	return el;
 };
 
-test("renders nav links to the five pages", async () => {
+test("starts with a skip link to the main content", async () => {
 	const el = await mount();
-	const links = [...el.shadowRoot!.querySelectorAll("nav a")];
+	const first = el.shadowRoot!.querySelector("a");
+	expect(first?.classList.contains("skip")).toBe(true);
+	expect(first?.getAttribute("href")).toBe("#main");
+	expect(first?.textContent?.trim()).toBe("Skip to content");
+});
+
+test("the main nav links the four tabs with visible labels", async () => {
+	const el = await mount();
+	const nav = el.shadowRoot!.querySelector("nav")!;
+	expect(nav.getAttribute("aria-label")).toBe("Main");
+	const links = [...nav.querySelectorAll("a")];
 	expect(links.map((a) => a.getAttribute("href"))).toEqual([
 		"./",
 		"./restaurants",
-		"./tags",
 		"./history",
 		"./settings",
 	]);
 	expect(links.map((a) => a.textContent?.trim())).toEqual([
 		"Home",
 		"Restaurants",
-		"Tags",
 		"History",
 		"Settings",
 	]);
+	for (const a of links)
+		expect(a.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+});
+
+test("marks the current page", async () => {
+	const el = await mount("history");
+	const current = el.shadowRoot!.querySelectorAll('nav a[aria-current="page"]');
+	expect(current).toHaveLength(1);
+	expect(current[0]?.getAttribute("href")).toBe("./history");
+});
+
+test("the tags page marks the Restaurants tab and keeps its own title", async () => {
+	const el = await mount("tags");
+	const current = el.shadowRoot!.querySelectorAll('nav a[aria-current="page"]');
+	expect(current).toHaveLength(1);
+	expect(current[0]?.getAttribute("href")).toBe("./restaurants");
+	expect(document.title).toBe("Tags · What to Eat");
+});
+
+test("the brand links home with the app name", async () => {
+	const el = await mount();
+	const brand = el.shadowRoot!.querySelector<HTMLAnchorElement>("a.brand")!;
+	expect(brand.getAttribute("href")).toBe("./");
+	expect(brand.textContent?.trim()).toBe("What to Eat");
+});
+
+test("carries the compact language and theme switches for wide screens", async () => {
+	const el = await mount();
+	const prefs = el.shadowRoot!.querySelector("app-preferences");
+	expect(prefs).not.toBeNull();
+	expect(prefs?.hasAttribute("compact")).toBe(true);
 });
 
 test("titles the history page", async () => {
@@ -48,96 +87,20 @@ test("titles the history page", async () => {
 	expect(document.title).toBe("History · What to Eat");
 });
 
-test("marks the current page", async () => {
+test("translates labels and the tab title", async () => {
 	const el = await mount("restaurants");
-	const current = el.shadowRoot!.querySelectorAll('nav a[aria-current="page"]');
-	expect(current).toHaveLength(1);
-	expect(current[0]?.getAttribute("href")).toBe("./restaurants");
-});
-
-test("switching to Thai re-renders text and marks the button", async () => {
-	const el = await mount();
-	const th = el.shadowRoot!.querySelector<HTMLButtonElement>(
-		'button[data-lang="th"]',
-	)!;
-	th.click();
+	setLang("th");
 	await el.updateComplete;
 	expect(el.shadowRoot!.querySelector("nav a")?.textContent?.trim()).toBe(
 		"หน้าแรก",
 	);
-	expect(th.getAttribute("aria-pressed")).toBe("true");
-	expect(
-		el
-			.shadowRoot!.querySelector('button[data-lang="en"]')
-			?.getAttribute("aria-pressed"),
-	).toBe("false");
-	expect(document.documentElement.lang).toBe("th");
-});
-
-test("translates the browser tab title for the current page", async () => {
-	const el = await mount("restaurants");
-	expect(document.title).toBe("Restaurants · What to Eat");
-	setLang("th");
-	await el.updateComplete;
+	expect(el.shadowRoot!.querySelector("a.skip")?.textContent?.trim()).toBe(
+		"ข้ามไปยังเนื้อหา",
+	);
 	expect(document.title).toBe("ร้านอาหาร · กินอะไรดี");
 });
 
 test("the home page title is the app name", async () => {
 	await mount("home");
 	expect(document.title).toBe("What to Eat");
-});
-
-test("renders the theme switch with auto pressed by default", async () => {
-	const el = await mount();
-	const group = el.shadowRoot!.querySelector(".theme");
-	expect(group?.getAttribute("role")).toBe("group");
-	expect(group?.getAttribute("aria-label")).toBe("Theme");
-	const buttons = [
-		...el.shadowRoot!.querySelectorAll<HTMLButtonElement>("button[data-theme]"),
-	];
-	expect(buttons.map((b) => b.getAttribute("data-theme"))).toEqual([
-		"auto",
-		"light",
-		"dark",
-	]);
-	expect(buttons.map((b) => b.getAttribute("aria-label"))).toEqual([
-		"Auto",
-		"Light",
-		"Dark",
-	]);
-	expect(buttons.map((b) => b.getAttribute("aria-pressed"))).toEqual([
-		"true",
-		"false",
-		"false",
-	]);
-});
-
-test("choosing dark marks the button and the page", async () => {
-	const el = await mount();
-	el.shadowRoot!.querySelector<HTMLButtonElement>(
-		'button[data-theme="dark"]',
-	)!.click();
-	await el.updateComplete;
-	expect(
-		el
-			.shadowRoot!.querySelector('button[data-theme="dark"]')
-			?.getAttribute("aria-pressed"),
-	).toBe("true");
-	expect(
-		el
-			.shadowRoot!.querySelector('button[data-theme="auto"]')
-			?.getAttribute("aria-pressed"),
-	).toBe("false");
-	expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
-});
-
-test("theme labels follow the language", async () => {
-	const el = await mount();
-	setLang("th");
-	await el.updateComplete;
-	expect(
-		el
-			.shadowRoot!.querySelector('button[data-theme="dark"]')
-			?.getAttribute("aria-label"),
-	).toBe("มืด");
 });
