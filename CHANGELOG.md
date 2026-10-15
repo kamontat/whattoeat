@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-15: Cuisine, area and custom groups as tag groups
+## 2026-10-15: Cuisine, area and custom groups as tag groups, and a Tags page to manage them
 
 ### BREAKING CHANGES
 
@@ -25,6 +25,12 @@ What changed in this project and why, newest first.
   the restaurants. Each one gets its own field in the restaurant form and its own row in the
   home filter, and its values show on restaurants as `Price: cheap` chips before the plain
   tags.
+- A Tags page (`/tags`, linked from the header between Restaurants and History) lists every
+  group, Type, Cuisine, Area, custom groups and plain Tags, with how many restaurants use
+  each value. Custom groups can be added, renamed, moved up or down and deleted; a deleted
+  group's values become plain tags. Values can be renamed (renaming onto an existing value
+  merges the two), moved to another group, or deleted, each change applied to every
+  restaurant at once after an inline confirmation with the count.
 
 ### Improvements
 
@@ -35,6 +41,9 @@ What changed in this project and why, newest first.
 - Importing a version 4 file merges its groups into yours: a group with the same name (in any
   case) is folded into the existing one, and a group named like Cuisine or Area, in English
   or Thai, is folded into that built-in group.
+- The saved home filter follows every rename, move and delete on the Tags page, also when the
+  home page is open in another tab, so a renamed value stays selected.
+- The desktop header still fits on one row with the fifth link, in English and Thai.
 
 ### Decisions
 
@@ -48,6 +57,9 @@ What changed in this project and why, newest first.
   touches a restaurant.
 - Values of a group that no longer exists (deleted in another tab, or missing from an
   imported file) become plain tags instead of being dropped.
+- A value cannot be renamed to blank text or to text with a comma, because commas separate
+  values in the chip inputs. The Tags page replaces the "Rename or merge a tag" idea in
+  `IDEAS.md`; drag-and-drop reordering and single-value custom groups were left out.
 
 ## 2026-10-14: Import renames restaurants whose name is already used, history locks are now visits, and clearing old history
 
