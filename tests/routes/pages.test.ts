@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { Glob } from "bun";
 
 const pages = Array.from(new Glob("**/*.html").scanSync({ cwd: "src/routes" }));
-const WIDE_PAGES = ["index.html", "restaurants.html"];
+const WIDE_PAGES = ["index.html", "restaurants.html", "tags.html"];
 
 test("src/routes has at least one page", () => {
 	expect(pages.length).toBeGreaterThan(0);
