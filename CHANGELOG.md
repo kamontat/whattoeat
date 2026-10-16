@@ -2,6 +2,21 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-16: Paste JSON in one tap
+
+### Improvements
+
+- Settings > Import: "Paste JSON" is one row that reads the clipboard and checks the export
+  at once. The text box and Check only open when the browser blocks the clipboard, has none,
+  or the clipboard is empty.
+- An import, from a file or the clipboard, is saved straight away when no restaurants,
+  history or groups are saved yet, instead of asking to replace or merge.
+
+### Decisions
+
+- With nothing saved there is nothing to lose, so the Replace or Merge question is only
+  asked when restaurants, history or groups already exist.
+
 ## 2026-10-16: TODO list replaces ideas list
 
 ### Improvements
