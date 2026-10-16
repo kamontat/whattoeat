@@ -79,6 +79,9 @@ What changed in this project and why, newest first.
   or the clipboard is empty.
 - An import, from a file or the clipboard, is saved straight away when no restaurants,
   history or groups are saved yet, instead of asking to replace or merge.
+- This changelog has one entry per day: entries that shared a date are merged, and each
+  title names only that day's most important changes. The `changelog` skill now merges new
+  work into the day's entry instead of adding a second heading.
 
 ### Bug fixes
 
