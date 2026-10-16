@@ -151,9 +151,9 @@ test("move up and down reorder custom groups", async () => {
 	await click(el, options, "move-up");
 	expect(loadGroups().map((def) => def.id)).toEqual(["g2", "g1"]);
 	expect(
-		$<HTMLElement>(el, ".group-options")!.querySelector<HTMLButtonElement>(
-			'[data-action="move-up"]',
-		)!.getAttribute("aria-disabled"),
+		$<HTMLElement>(el, ".group-options")!
+			.querySelector<HTMLButtonElement>('[data-action="move-up"]')!
+			.getAttribute("aria-disabled"),
 	).toBe("true");
 });
 

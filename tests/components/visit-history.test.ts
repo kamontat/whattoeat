@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import "#components/visit-history";
-import type { VisitHistory } from "#components/visit-history";
+import { VisitHistory } from "#components/visit-history";
 import {
 	HISTORY_KEY,
 	type HistoryEntry,
@@ -345,15 +344,14 @@ test("the clear section is translated to Thai", async () => {
 
 test("visits sit under day headings, newest day first", async () => {
 	const el = await mount();
-	const headings = [...root(el).querySelectorAll("section.day h3")].map((h) =>
+	const headings = [...root(el).querySelectorAll(".day h3")].map((h) =>
 		text(h),
 	);
 	expect(headings.length).toBeGreaterThan(0);
-	for (const section of root(el).querySelectorAll("section.day")) {
-		const id = section.getAttribute("aria-labelledby");
-		expect(section.querySelector(`#${id}`)?.tagName).toBe("H3");
+	for (const group of root(el).querySelectorAll(".day")) {
+		expect(group.querySelector("h3")).not.toBeNull();
 		expect(
-			section.querySelectorAll("ul.group li.visit[data-id]").length,
+			group.querySelectorAll("ul.group li.visit[data-id]").length,
 		).toBeGreaterThan(0);
 	}
 	expect(visitIds(el)).toEqual(["h1", "h2", "h3", "h4"]);
@@ -372,9 +370,9 @@ test("today's and yesterday's visits are headed Today and Yesterday", async () =
 		visit("y1", "r2", "Som Tam Nua", yesterday.toISOString()),
 	]);
 	const el = await mount();
-	expect(
-		[...root(el).querySelectorAll("section.day h3")].map((h) => text(h)),
-	).toEqual(["Today", "Yesterday"]);
+	expect([...root(el).querySelectorAll(".day h3")].map((h) => text(h))).toEqual(
+		["Today", "Yesterday"],
+	);
 });
 
 test("each Delete names the visit it removes", async () => {
@@ -408,4 +406,42 @@ test("the title is a large page title; clear history comes last", async () => {
 		(section) => section.parentNode === shadow,
 	);
 	expect(sections.at(-1)?.classList.contains("clear")).toBe(true);
+});
+
+test("the visit and clear-section buttons meet the tap target size", () => {
+	const css = (VisitHistory.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(/\.visit button\s*\{[^}]*min-height:\s*var\(--tap\)/);
+	expect(css).toMatch(
+		/\.clear \.actions button\s*\{[^}]*min-height:\s*var\(--tap\)/,
+	);
+});
+
+test("day groups are plain grouping, not a separately labelled landmark", async () => {
+	const el = await mount();
+	const groups = [...root(el).querySelectorAll(".day")];
+	expect(groups.length).toBeGreaterThan(0);
+	for (const group of groups) {
+		expect(group.tagName).toBe("DIV");
+		expect(group.hasAttribute("aria-labelledby")).toBe(false);
+		expect(group.querySelector("h3")).not.toBeNull();
+		expect(
+			group.querySelectorAll("ul.group li.visit[data-id]").length,
+		).toBeGreaterThan(0);
+	}
+});
+
+test("the stats card itself is not a second region named Stats", async () => {
+	const el = await mount();
+	const section = root(el).querySelector("section.stats")!;
+	expect(section.hasAttribute("aria-labelledby")).toBe(false);
+	// The scroll region keeps its own name on the table-wrap, not duplicated on its container.
+	expect(
+		root(el)
+			.querySelector(".stats .table-wrap")
+			?.getAttribute("aria-labelledby"),
+	).toBe("stats-title");
 });

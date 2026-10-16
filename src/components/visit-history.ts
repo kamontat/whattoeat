@@ -96,13 +96,13 @@ export class VisitHistory extends LitElement {
 			}
 
 			.visit button {
-				min-height: 2.25rem;
+				min-height: var(--tap);
 				padding: 0 0.75rem;
 				font-size: 0.875rem;
 			}
 
 			.clear .actions button {
-				min-height: 2.25rem;
+				min-height: var(--tap);
 				font-size: 0.875rem;
 			}
 		`,
@@ -226,7 +226,7 @@ export class VisitHistory extends LitElement {
 		const total = this.history.length;
 		return html`
 			${heading}
-			<section class="stats card" aria-labelledby="stats-title">
+			<section class="stats card">
 				<h2 id="stats-title">${t("history.statsTitle")}</h2>
 				<p class="total muted">
 					${total === 1 ? t("history.total.one") : t("history.total.other", { count: total })}
@@ -256,12 +256,8 @@ export class VisitHistory extends LitElement {
 			<section class="visits-list" aria-labelledby="visits-title">
 				<h2 id="visits-title">${t("history.listTitle")}</h2>
 				${groupByDay(this.history).map(
-					({
-						key,
-						day: date,
-						entries,
-					}) => html`<section class="day" aria-labelledby="day-${key}">
-						<h3 id="day-${key}" class="group-label">${this.dayLabel(date, day)}</h3>
+					({ day: date, entries }) => html`<div class="day">
+						<h3 class="group-label">${this.dayLabel(date, day)}</h3>
 						<ul class="group visits">
 							${repeat(
 								entries,
@@ -269,7 +265,7 @@ export class VisitHistory extends LitElement {
 								(entry) => this.renderVisit(entry, time),
 							)}
 						</ul>
-					</section>`,
+					</div>`,
 				)}
 			</section>
 			${this.renderClear()}
