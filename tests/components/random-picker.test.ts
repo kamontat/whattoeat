@@ -1119,3 +1119,37 @@ test("phone: the remembered hidden panel does not affect the sheet", async () =>
 	expect(root(el).querySelector('[data-action="open-filter"]')).not.toBeNull();
 	expect(root(el).querySelector('[data-action="show-filter"]')).toBeNull();
 });
+
+test("rotating to wide with focus on the sheet's Close button moves focus to the panel", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="open-filter"]')!
+		.click();
+	await el.updateComplete;
+	const sheet = root(el).querySelector("app-sheet")!;
+	sheet
+		.shadowRoot!.querySelector<HTMLButtonElement>(
+			'button[data-action="close-sheet"]',
+		)!
+		.focus();
+	setWidth(1024);
+	await el.updateComplete;
+	await el.updateComplete;
+	expect(root(el).activeElement?.id).toBe("filter-title");
+});
+
+test("Clear is a full-size quiet button, not a tiny inline link", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await mount();
+	await cycle(el, "siam");
+	const clear = root(el).querySelector<HTMLButtonElement>(
+		'[data-action="clear-filter"]',
+	)!;
+	expect(clear.classList.contains("quiet")).toBe(true);
+	expect(clear.classList.contains("link")).toBe(false);
+	const css = (RandomPicker.styles as { cssText: string }[])
+		.map((style) => style.cssText)
+		.join("\n");
+	expect(css).toMatch(/\.active-filter\s*\{[^}]*display:\s*flex/);
+});

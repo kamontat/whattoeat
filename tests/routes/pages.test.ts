@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import { Glob } from "bun";
 
 const pages = Array.from(new Glob("**/*.html").scanSync({ cwd: "src/routes" }));
+const WIDE_PAGES = ["index.html", "restaurants.html"];
 
 test("src/routes has at least one page", () => {
 	expect(pages.length).toBeGreaterThan(0);
@@ -57,11 +58,11 @@ test.each(pages)("%s gives the skip link a focusable target", async (page) => {
 	expect(html).toMatch(/<main id="main" tabindex="-1"( class="wide")?>/);
 });
 
-test("home uses the wide main for its two columns; other pages keep the narrow one", async () => {
+test("home and restaurants use the wide main; other pages keep the narrow one", async () => {
 	for (const page of pages) {
 		const html = await Bun.file(`src/routes/${page}`).text();
 		expect(html.includes('<main id="main" tabindex="-1" class="wide">')).toBe(
-			page === "index.html",
+			WIDE_PAGES.includes(page),
 		);
 	}
 	const css = await Bun.file("src/styles/global.css").text();
@@ -95,11 +96,11 @@ test.each(pages)(
 	},
 );
 
-test("home's <html> opts into room for its pinned pick button; other pages do not", async () => {
+test("home and restaurants opt into room for their pinned buttons; other pages do not", async () => {
 	for (const page of pages) {
 		const html = await Bun.file(`src/routes/${page}`).text();
 		const tag = html.match(/<html[^>]*>/)?.[0];
 		expect(tag).not.toBeUndefined();
-		expect(tag?.includes('class="has-pinned"')).toBe(page === "index.html");
+		expect(tag?.includes('class="has-pinned"')).toBe(WIDE_PAGES.includes(page));
 	}
 });

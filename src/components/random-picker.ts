@@ -1,7 +1,6 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import "#components/app-sheet";
-import { deepActiveElement } from "#components/app-sheet";
 import { restaurantChips } from "#components/restaurant-chips";
 import {
 	applyFilter,
@@ -189,23 +188,20 @@ export class RandomPicker extends LitElement {
 			}
 
 			.active-filter {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: space-between;
+				gap: 0.25rem 0.5rem;
 				padding-top: 0.75rem;
 				border-top: 1px solid var(--color-border);
 				color: var(--color-muted);
 				font-size: 0.875rem;
 			}
 
-			/* An inline text button inside the sentence, not a 44px box. */
-			button.link {
-				display: inline;
-				min-height: 0;
-				margin-left: 0.25rem;
-				padding: 0;
-				border: 0;
-				background: none;
-				color: var(--color-link);
-				font-weight: 600;
-				text-decoration: underline;
+			.active-filter .quiet {
+				min-height: 2.25rem;
+				padding: 0 0.5rem;
 			}
 
 			.no-match {
@@ -453,8 +449,8 @@ export class RandomPicker extends LitElement {
 	 */
 	protected override willUpdate(): void {
 		if (!this.wide.matches || !this.filterOpen) return;
-		const sheet = this.renderRoot.querySelector("app-sheet");
-		const focusWasInSheet = sheet?.contains(deepActiveElement()) ?? false;
+		const focusWasInSheet =
+			this.renderRoot.querySelector("app-sheet")?.containsFocus() ?? false;
 		this.filterOpen = false;
 		if (focusWasInSheet) {
 			void this.updateComplete.then(() => {
@@ -734,8 +730,8 @@ export class RandomPicker extends LitElement {
 				${
 					isFilterActive(this.filter)
 						? html`<p class="active-filter">
-								${t("filter.active", { tags: summary })}
-								<button type="button" class="link" data-action="clear-filter" @click=${this.clearFilter}>
+								<span>${t("filter.active", { tags: summary })}</span>
+								<button type="button" class="quiet" data-action="clear-filter" @click=${this.clearFilter}>
 									${t("filter.clear")}
 								</button>
 							</p>`

@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
+import { AppSheet } from "#components/app-sheet";
 import "#components/restaurant-manager";
-import type { RestaurantManager } from "#components/restaurant-manager";
+import { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
 import { saveGroups } from "#lib/groups";
 import { setLang } from "#lib/i18n";
 import {
 	addRestaurant,
 	loadRestaurants,
+	removeRestaurant,
 	saveRestaurants,
 	updateRestaurant,
 } from "#lib/store";
@@ -99,7 +101,7 @@ test("the heading links to the tags page", async () => {
 test("shows the empty message with no restaurants", async () => {
 	const el = await mount();
 	expect($(el, ".empty")?.textContent?.trim()).toBe(
-		"No restaurants yet. Add your first one above.",
+		"No restaurants yet. Add your first one.",
 	);
 });
 
@@ -214,16 +216,23 @@ test("lists restaurants sorted by name", async () => {
 	expect(rowNames(el)).toEqual(["Ant", "Zab"]);
 });
 
-test("a non-http location in the list renders as text", async () => {
+test("rows show the name and type line only; location and notes stay in the form", async () => {
 	addRestaurant({
 		name: "Sneaky",
-		tags: [],
+		tags: ["x"],
 		location: "javascript:alert(1)",
-		notes: "",
+		notes: "secret",
+		kinds: ["food"],
 	});
 	const el = await mount();
-	expect(el.shadowRoot!.querySelector("li[data-id] a")).toBeNull();
-	expect($(el, "li[data-id] .location")?.textContent?.trim()).toBe(
+	const row = $(el, "li[data-id]")!;
+	expect(row.querySelector(".name")?.textContent?.trim()).toBe("Sneaky");
+	expect(row.querySelector(".meta")?.textContent?.trim()).toBe("Food");
+	expect(row.querySelector("a")).toBeNull();
+	expect(row.textContent).not.toContain("javascript:alert(1)");
+	expect(row.textContent).not.toContain("secret");
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	expect($<HTMLInputElement>(el, "#location")?.value).toBe(
 		"javascript:alert(1)",
 	);
 });
@@ -306,7 +315,7 @@ test("each custom group gets its own input, in stored order, before plain tags",
 	]);
 });
 
-test("saves custom group values and shows them as labelled chips", async () => {
+test("saves custom group values", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
 	const el = await mount();
 	type(el, "#name", "Cafe");
@@ -317,10 +326,6 @@ test("saves custom group values and shows them as labelled chips", async () => {
 		groups: { g1: ["cheap"] },
 		tags: ["spicy"],
 	});
-	const chips = [...el.shadowRoot!.querySelectorAll("li[data-id] .chip")].map(
-		(c) => c.textContent,
-	);
-	expect(chips).toEqual(["Price: cheap", "spicy"]);
 });
 
 test("suggests each group's values, most used first", async () => {
@@ -441,6 +446,7 @@ test("cancel edit resets the form without saving", async () => {
 test("delete needs confirmation", async () => {
 	addRestaurant({ name: "Bye", tags: [], location: "", notes: "" });
 	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
 	await click(el, 'button[data-action="delete"]');
 	expect(loadRestaurants()).toHaveLength(1);
 	await click(el, 'button[data-action="cancel-delete"]');
@@ -496,6 +502,7 @@ test("re-renders labels in Thai", async () => {
 test("delete moves focus to the confirm button, cancel moves it back", async () => {
 	addRestaurant({ name: "Bye", tags: [], location: "", notes: "" });
 	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
 	await click(el, 'button[data-action="delete"]');
 	await el.updateComplete;
 	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
@@ -511,6 +518,7 @@ test("delete moves focus to the confirm button, cancel moves it back", async () 
 test("a confirmed delete moves focus to the name field", async () => {
 	addRestaurant({ name: "Bye", tags: [], location: "", notes: "" });
 	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
 	await click(el, 'button[data-action="delete"]');
 	await click(el, 'button[data-action="confirm-delete"]');
 	await el.updateComplete;
@@ -603,4 +611,347 @@ test("the form asks for name, type, groups, location, then tags and notes", asyn
 		"tags",
 		"notes",
 	]);
+});
+
+type HappyWindow = Window & {
+	happyDOM: { setViewport(viewport: { width: number; height: number }): void };
+};
+const setWidth = (width: number) => {
+	(window as unknown as HappyWindow).happyDOM.setViewport({
+		width,
+		height: 900,
+	});
+	window.dispatchEvent(new Event("resize"));
+};
+const phone = async () => {
+	setWidth(390);
+	return mount();
+};
+afterEach(() => setWidth(1024));
+
+test("the title shows the count, with the Tags link beside it", async () => {
+	addRestaurant({ ...blank, name: "A" });
+	addRestaurant({ ...blank, name: "B" });
+	const el = await mount();
+	expect($(el, "h1.page-title")?.textContent?.trim()).toBe("Restaurants");
+	expect($(el, ".head .count")?.textContent?.trim()).toBe("2 restaurants");
+	expect($(el, ".head a.tags-link")).not.toBeNull();
+});
+
+test("rows are buttons named for editing, in a grouped list", async () => {
+	addRestaurant({ ...blank, name: "Jay Fai" });
+	const el = await mount();
+	const row = $<HTMLButtonElement>(el, "ul.group li[data-id] button.item.row")!;
+	expect(row.getAttribute("data-action")).toBe("edit");
+	expect(row.getAttribute("aria-label")).toBe("Edit Jay Fai");
+	expect(row.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+});
+
+test("the row's type line is linked for screen readers via aria-describedby", async () => {
+	addRestaurant({ ...blank, name: "Sneaky", kinds: ["food"] });
+	const el = await mount();
+	const row = $<HTMLButtonElement>(el, "li[data-id] button.item.row")!;
+	const describedBy = row.getAttribute("aria-describedby");
+	expect(describedBy).not.toBeNull();
+	const meta = $(el, `#${describedBy}`);
+	expect(meta?.textContent?.trim()).toBe("Food");
+});
+
+test("a row with no type line has no aria-describedby", async () => {
+	addRestaurant({ ...blank, name: "Plain" });
+	const el = await mount();
+	const row = $<HTMLButtonElement>(el, "li[data-id] button.item.row")!;
+	expect(row.getAttribute("aria-describedby")).toBeNull();
+});
+
+test("the selected row shows an outline in forced-colours", () => {
+	const css = ownStyles();
+	const forced = css.indexOf("@media (forced-colors: active)");
+	expect(forced).toBeGreaterThan(-1);
+	const forcedBlock = css.slice(forced);
+	expect(forcedBlock).toMatch(
+		/\.list \.row\[aria-current="true"\]\s*\{[^}]*outline:\s*2px solid CanvasText/,
+	);
+	expect(forcedBlock).toMatch(
+		/\.list \.row\[aria-current="true"\]\s*\{[^}]*outline-offset:\s*-2px/,
+	);
+});
+
+test("wide: the form sits in a side panel titled for adding, then for editing", async () => {
+	addRestaurant({ ...blank, name: "Jay Fai" });
+	const el = await mount();
+	expect($(el, "app-sheet")).toBeNull();
+	expect($(el, ".pinned")).toBeNull();
+	expect($(el, "section.edit-panel #form-title")?.textContent?.trim()).toBe(
+		"New restaurant",
+	);
+	expect($(el, ".head button.add")).not.toBeNull();
+	await click(el, 'button[data-action="edit"]');
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Jay Fai");
+	expect(
+		$(el, 'button[data-action="edit"]')?.getAttribute("aria-current"),
+	).toBe("true");
+	await click(el, ".head button.add");
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
+	await el.updateComplete;
+	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+});
+
+test("Delete is only in the edit form, never in rows or the add form", async () => {
+	addRestaurant({ ...blank, name: "A" });
+	const el = await mount();
+	expect($(el, 'li[data-id] [data-action="delete"]')).toBeNull();
+	expect($(el, 'form [data-action="delete"]')).toBeNull();
+	await click(el, 'button[data-action="edit"]');
+	expect($(el, 'form [data-action="delete"]')).not.toBeNull();
+	expect($(el, 'li[data-id] [data-action="delete"]')).toBeNull();
+});
+
+test("the delete prompt names the restaurant", async () => {
+	addRestaurant({ ...blank, name: "Bye" });
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	await click(el, 'button[data-action="delete"]');
+	expect($(el, ".delete-prompt")?.textContent?.trim()).toBe(
+		"Delete Bye? This cannot be undone.",
+	);
+});
+
+test("saving and deleting are confirmed in the status line", async () => {
+	const el = await mount();
+	type(el, "#name", "Fresh");
+	await submit(el);
+	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
+		"Saved Fresh",
+	);
+	await click(el, 'button[data-action="edit"]');
+	await click(el, 'button[data-action="delete"]');
+	await click(el, 'button[data-action="confirm-delete"]');
+	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
+		"Deleted Fresh",
+	);
+});
+
+test("saving the same name twice re-announces the status instead of leaving it unchanged", async () => {
+	const el = await mount();
+	type(el, "#name", "Fresh");
+	await submit(el);
+	const status = () => $(el, 'p.status[role="status"]')?.textContent?.trim();
+	expect(status()).toBe("Saved Fresh");
+	await click(el, 'button[data-action="edit"]');
+	// Resubmit with the name unchanged: the message is the same string as before.
+	$<HTMLFormElement>(el, "form")!.dispatchEvent(
+		new Event("submit", { bubbles: true, cancelable: true }),
+	);
+	await el.updateComplete;
+	expect(status()).toBe("");
+	await el.updateComplete;
+	expect(status()).toBe("Saved Fresh");
+});
+
+test("starting an edit clears an old status", async () => {
+	addRestaurant({ ...blank, name: "Other" });
+	const el = await mount();
+	type(el, "#name", "Fresh");
+	await submit(el);
+	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
+		"Saved Fresh",
+	);
+	await click(el, 'button[data-action="edit"]');
+	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe("");
+});
+
+test("phone: Add is pinned and opens the form in a sheet", async () => {
+	const el = await phone();
+	expect($(el, "section.edit-panel")).toBeNull();
+	const add = $<HTMLButtonElement>(
+		el,
+		'.pinned button.add[data-action="add"]',
+	)!;
+	expect(add.textContent?.trim()).toBe("Add");
+	const sheet = $(el, "app-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(false);
+	expect(sheet.querySelector("form#restaurant-form")).not.toBeNull();
+	add.click();
+	await el.updateComplete;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	expect(sheet.getAttribute("heading")).toBe("New restaurant");
+});
+
+test("phone: tapping a row opens its edit sheet; saving closes it", async () => {
+	addRestaurant({ ...blank, name: "Old" });
+	const el = await phone();
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	const sheet = $(el, "app-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	expect(sheet.getAttribute("heading")).toBe("Edit Old");
+	type(el, "#name", "New");
+	await submit(el);
+	expect(sheet.hasAttribute("open")).toBe(false);
+	expect(loadRestaurants()[0]?.name).toBe("New");
+	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
+		"Saved New",
+	);
+});
+
+test("phone: closing the sheet discards the edit", async () => {
+	addRestaurant({ ...blank, name: "Keep" });
+	const el = await phone();
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	type(el, "#name", "Changed");
+	const sheet = $(el, "app-sheet")!;
+	sheet.shadowRoot!.querySelector("dialog")!.close();
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	await el.updateComplete;
+	expect(sheet.hasAttribute("open")).toBe(false);
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
+	expect(loadRestaurants()[0]?.name).toBe("Keep");
+});
+
+test("phone: deleting from the sheet closes it", async () => {
+	addRestaurant({ ...blank, name: "Bye" });
+	const el = await phone();
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	await click(el, 'button[data-action="delete"]');
+	await click(el, 'button[data-action="confirm-delete"]');
+	expect(loadRestaurants()).toEqual([]);
+	expect($(el, "app-sheet")!.hasAttribute("open")).toBe(false);
+});
+
+test("phone: another tab deleting the restaurant being edited closes the sheet", async () => {
+	const [item] = addRestaurant({ ...blank, name: "Gone" });
+	const el = await phone();
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	removeRestaurant(item!.id);
+	await el.updateComplete;
+	expect($(el, "app-sheet")!.hasAttribute("open")).toBe(false);
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
+});
+
+test("rotating to wide keeps the edit in the panel", async () => {
+	addRestaurant({ ...blank, name: "Mine" });
+	const el = await phone();
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	type(el, "#name", "Mine 2");
+	setWidth(1024);
+	await el.updateComplete;
+	expect($(el, "app-sheet")).toBeNull();
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Mine");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Mine 2");
+});
+
+test("narrowing the window mid-edit moves the edit into the sheet instead of dropping it", async () => {
+	addRestaurant({ ...blank, name: "Mine" });
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	type(el, "#name", "Mine 2");
+	setWidth(390);
+	await el.updateComplete;
+	const sheet = $(el, "app-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	expect(sheet.getAttribute("heading")).toBe("Edit Mine");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Mine 2");
+});
+
+test("narrowing the window with a blank add form still open opens the sheet for it", async () => {
+	const el = await mount();
+	type(el, "#name", "New place");
+	setWidth(390);
+	await el.updateComplete;
+	const sheet = $(el, "app-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	expect(sheet.getAttribute("heading")).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("New place");
+});
+
+test("narrowing the window with no edit in progress leaves the sheet closed", async () => {
+	addRestaurant({ ...blank, name: "Mine" });
+	const el = await mount();
+	setWidth(390);
+	await el.updateComplete;
+	expect($(el, "app-sheet")!.hasAttribute("open")).toBe(false);
+});
+
+// The shared uiStyles entry has its own unrelated `:host` rule; skip it so the regexes below
+// only ever see this component's own styles.
+const ownStyles = (): string =>
+	(RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+
+test("phone: cuisine and area stack in one column and may shrink; side by side only from 48rem", () => {
+	const css = ownStyles();
+	expect(css).toMatch(
+		/\.pair\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/,
+	);
+	expect(css).toMatch(/\.pair\s*>\s*\*\s*\{[^}]*min-width:\s*0/);
+	const wide = css.slice(css.indexOf("@media (min-width: 48rem)"));
+	expect(wide).toMatch(
+		/\.pair\s*\{[^}]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,\s*12rem\),\s*1fr\)\)/,
+	);
+});
+
+test("phone: the sticky Save row covers the sheet's bottom padding, so no form content peeks out below it", () => {
+	const sheetCss = (AppSheet.styles as unknown[])
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	// The offset below must match the sheet body's bottom padding.
+	expect(sheetCss).toMatch(/\.body\s*\{[^}]*padding:\s*0\.25rem 1\.25rem 1rem/);
+	const row =
+		ownStyles().match(/\.actions\.form-actions\s*\{([^}]*)\}/)?.[1] ?? "";
+	expect(row).toContain("bottom: -1rem");
+	expect(row).toContain("padding: 0.75rem 0 1.75rem");
+});
+
+test("phone: the component fills the space above the tab bar so the pinned Add ends the column, even on a short list", () => {
+	const css = ownStyles();
+	expect(css).toMatch(
+		/:host\s*\{[^}]*min-height:\s*calc\(100dvh - 1\.25rem - var\(--tab-bar-height\)\)/,
+	);
+	expect(css).toMatch(
+		/:host\s*\{[^}]*margin-bottom:\s*calc\(var\(--tab-bar-height\) - var\(--tab-bar-space\)\)/,
+	);
+	expect(css).toMatch(/\.pinned\s*\{[^}]*margin-top:\s*auto/);
+	const wideIndex = css.indexOf("@media (min-width: 48rem)");
+	expect(wideIndex).toBeGreaterThan(-1);
+	const wideBlock = css.slice(wideIndex);
+	expect(wideBlock).toMatch(/:host\s*\{[^}]*min-height:\s*0/);
+	expect(wideBlock).toMatch(/:host\s*\{[^}]*margin-bottom:\s*0/);
+});
+
+test("the form's Save/Cancel row has the form-actions class", async () => {
+	const el = await mount();
+	expect($(el, "form .actions.form-actions")).not.toBeNull();
+});
+
+test("phone: Save stays reachable at the bottom of the scrolling sheet", () => {
+	const css = ownStyles();
+	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*position:\s*sticky/);
+	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*bottom:\s*-1rem/);
+	expect(css).toMatch(
+		/\.actions\.form-actions\s*\{[^}]*background:\s*var\(--color-bg\)/,
+	);
+	const wideIndex = css.indexOf("@media (min-width: 48rem)");
+	expect(wideIndex).toBeGreaterThan(-1);
+	const wideBlock = css.slice(wideIndex);
+	expect(wideBlock).toMatch(
+		/\.actions\.form-actions\s*\{[^}]*position:\s*static/,
+	);
+});
+
+test("phone: focused fields scroll clear of the sticky save row", () => {
+	const css = ownStyles();
+	expect(css).toMatch(
+		/form input,\s*form textarea,\s*form tag-input,\s*fieldset\.kinds label\s*\{[^}]*scroll-margin-bottom:\s*5rem/,
+	);
+	const wideIndex = css.indexOf("@media (min-width: 48rem)");
+	expect(wideIndex).toBeGreaterThan(-1);
+	const wideBlock = css.slice(wideIndex);
+	expect(wideBlock).toMatch(
+		/form input,\s*form textarea,\s*form tag-input,\s*fieldset\.kinds label\s*\{[^}]*scroll-margin-bottom:\s*0/,
+	);
 });
