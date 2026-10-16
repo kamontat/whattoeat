@@ -338,10 +338,10 @@ Grouped lists in one column (desktop: centred, 640 px):
 3. Import: rows "Choose a JSON file" (a label for the native file input, which stays
    focusable) and "Or paste JSON" (reveals the textarea and Check). The found / replace /
    merge flow is unchanged.
-4. Reset: first a grouped list `history-clear` with one row per range ("Clear visits older
-   than 1 week / 1 month / 1 year", "Clear all visits"), each showing how many visits it
-   would delete and disabled at zero; a row opens the same inline confirmation the History
-   page had, and a status says "Deleted N visits.". Then the row "Delete all data" in
+4. Reset: a row "Clear history" (`history-clear`), greyed out while there is no history,
+   opens a sheet listing the ranges (Older than 1 week / 1 month / 1 year, All visits), each
+   with how many visits it would delete and disabled at zero; choosing one asks in the
+   sheet, and a status says "Deleted N visits." after. Then the row "Delete all data" in
    danger colour; today's confirmation.
 5. About: `<app-footer>` content (source, changelog, build) as rows.
 
