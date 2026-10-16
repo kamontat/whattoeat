@@ -612,7 +612,11 @@ export class TagManager extends LitElement {
 					values.length === 0
 						? html`<p class="muted">${t("tags.noValues")}</p>`
 						: html`<ul class="group values">
-								${values.map(({ value, count }) => this.renderValue(group, value, count))}
+								${repeat(
+									values,
+									({ value }) => value,
+									({ value, count }) => this.renderValue(group, value, count),
+								)}
 							</ul>`
 				}
 			</section>

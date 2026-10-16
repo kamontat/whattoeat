@@ -567,6 +567,45 @@ test("phone: deleting the selected value closes its sheet and focuses the add-gr
 	expect(el.shadowRoot!.activeElement?.id).toBe("new-group");
 });
 
+/**
+ * Patches `<dialog>.close` so its `close` event fires on a later task, like real browsers
+ * (happy-dom fires it synchronously), giving other code a chance to run first.
+ */
+const withAsyncDialogClose = async (run: () => Promise<void>) => {
+	const original = HTMLDialogElement.prototype.close;
+	HTMLDialogElement.prototype.close = function (
+		this: HTMLDialogElement,
+		returnValue?: string,
+	) {
+		const wasOpen = this.open;
+		this.removeAttribute("open");
+		this.returnValue = returnValue ?? "";
+		if (wasOpen) setTimeout(() => this.dispatchEvent(new Event("close")), 0);
+	};
+	try {
+		await run();
+	} finally {
+		HTMLDialogElement.prototype.close = original;
+	}
+};
+
+test("phone: deleting a value while its sheet's close event is still in flight still lands focus on the add-group field, not a reused row", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai", "lao"] } });
+	setWidth(390);
+	const el = await mount();
+	await withAsyncDialogClose(async () => {
+		let detail = await openValue(el, "cuisine", "thai");
+		await click(el, detail, "delete-value");
+		detail = $(el, ".value-detail")!;
+		await click(el, detail, "confirm-delete-value");
+		// The sheet's own `close` event (deferred above, as in real browsers) has not fired
+		// yet when our own focus landing runs; let both settle before asserting.
+		await settle(el);
+		expect($(el, "app-sheet.value-sheet")?.hasAttribute("open")).toBe(false);
+		expect(el.shadowRoot!.activeElement?.id).toBe("new-group");
+	});
+});
+
 test("renaming keeps the detail open on the new name", async () => {
 	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
 	const el = await mount();

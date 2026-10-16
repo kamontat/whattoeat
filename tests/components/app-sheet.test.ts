@@ -145,6 +145,46 @@ test("close label follows the language", async () => {
 	).toBe("ปิด");
 });
 
+test("does not refocus an opener that was removed from the DOM while the sheet was open", async () => {
+	const { opener, sheet } = await mount();
+	opener.focus();
+	sheet.open = true;
+	await sheet.updateComplete;
+	opener.remove();
+	const other = document.createElement("button");
+	document.body.append(other);
+	other.focus();
+	dialog(sheet).close();
+	await settle(sheet);
+	expect(document.activeElement).toBe(other);
+});
+
+test("does not steal focus back once something else has already claimed it before close runs", async () => {
+	const { opener, sheet } = await mount();
+	opener.focus();
+	sheet.open = true;
+	await sheet.updateComplete;
+	const other = document.createElement("button");
+	document.body.append(other);
+	other.focus();
+	dialog(sheet).close();
+	await settle(sheet);
+	expect(document.activeElement).toBe(other);
+});
+
+test("still refocuses the opener when nothing else has claimed focus by the time close runs", async () => {
+	const { opener, sheet } = await mount();
+	opener.focus();
+	sheet.open = true;
+	await sheet.updateComplete;
+	// Nothing reclaims focus (it is still on the document body-ish nowhere), so the opener
+	// should still get it back.
+	(document.activeElement as HTMLElement | null)?.blur();
+	dialog(sheet).close();
+	await settle(sheet);
+	expect(document.activeElement).toBe(opener);
+});
+
 test("containsFocus sees slotted content and the sheet's own Close button", async () => {
 	const { opener, sheet } = await mount();
 	opener.focus();

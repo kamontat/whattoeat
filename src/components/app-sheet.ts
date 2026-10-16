@@ -168,7 +168,15 @@ export class AppSheet extends LitElement {
 		);
 		const opener = this.opener;
 		this.opener = null;
-		opener?.focus();
+		if (opener === null || !opener.isConnected) return;
+		// In real browsers this event fires on a later task, so other code (e.g. the host
+		// moving focus after an item it reused the opener's spot for was removed) may already
+		// have claimed focus by now. Only reclaim it if it is still nowhere in particular
+		// (the body) or still stuck inside this sheet, not somewhere the host deliberately put it.
+		const active = deepActiveElement();
+		if (active !== null && active !== document.body && !this.containsFocus())
+			return;
+		opener.focus();
 	};
 
 	/** A click on the dialog itself, not its content box, is a tap on the backdrop. */
