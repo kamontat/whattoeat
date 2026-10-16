@@ -28,6 +28,10 @@ then delete it here when it ships.
 
 ## Look and feel
 
+- **Work offline.** The installed app opens without a connection. Needs a service worker
+  that caches the hashed build files and pages, and a way to pick up a new deploy without
+  serving a stale page.
+
 - **Floating tab bar on phones.** Replace the Material-style bottom navigation with an
   iOS-style floating island. Needs new tab bar styles, safe-area handling and a check that
   page content still clears it.

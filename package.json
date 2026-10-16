@@ -9,8 +9,8 @@
 		"#styles/*": "./src/styles/*.ts"
 	},
 	"scripts": {
-		"dev": "bun-server dev src/routes",
-		"build": "bun-server build --clean src/routes",
+		"dev": "bun-server dev --statics src/assets/icons:icons src/routes",
+		"build": "bun-server build --clean --statics src/assets/icons:icons src/routes",
 		"preview": "bun-server preview",
 		"test": "bun test",
 		"check": "bun run check:type && bun run check:biome",

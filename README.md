@@ -5,13 +5,15 @@ options. Press **Eat here** on one to save it to your history with the date and 
 list and the history live in your browser (`localStorage`); move them between devices with
 JSON export and import on the Settings page, as a file or by copy and paste. The interface is available in English and Thai,
 in a light or dark theme that follows the system setting unless you pick one in Settings.
+It is built for phones first and can be added to the home screen, where it opens like an
+app (see [Install on a phone](#install-on-a-phone)).
 
 | Page           | What it does                                   |
 | -------------- | ---------------------------------------------- |
 | `/`            | Two random options; press Eat here to save a visit to History |
 | `/restaurants` | Add, edit and delete restaurants               |
-| `/history`     | Every visit with its date and time, stats per restaurant, delete a visit |
-| `/settings`    | Language and theme; export or import JSON as a file or by copy and paste, with replace or merge; about |
+| `/history`     | Visits grouped by day, stats per restaurant, delete a visit |
+| `/settings`    | Language and theme; export or import JSON as a file or by copy and paste, with replace or merge; clear history by age; delete all data; about |
 | `/tags`        | Groups and their values: counts, add, rename, reorder and delete groups; rename, merge, move and delete values |
 
 Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static
@@ -19,6 +21,7 @@ Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): sta
 [`@kctools/bun-server`](https://www.npmjs.com/package/@kctools/bun-server), and deployed to
 [Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/) as static assets.
 
+- [Install on a phone](#install-on-a-phone)
 - [Stack](#stack)
 - [Getting started](#getting-started)
 - [Data and storage](#data-and-storage)
@@ -30,6 +33,16 @@ Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): sta
 - [Deployment](#deployment)
 - [Google Tag Manager](#google-tag-manager)
 - [Agent skills](#agent-skills)
+
+## Install on a phone
+
+- **iPhone (Safari):** open the site, tap Share, then **Add to Home Screen**.
+- **Android (Chrome):** open the site, tap the menu, then **Install app** or **Add to Home
+  screen**.
+
+It then opens full screen with its own icon. The list and history stay in that browser's
+storage, so an installed copy and a browser tab on the same phone may not share data on
+iPhone; use export and import to move them. It does not work offline yet (see `TODO.md`).
 
 ## Stack
 
@@ -103,7 +116,8 @@ Planned future work lives in [TODO.md](TODO.md).
 .
 ├── src/                 # application code
 │   ├── routes/          # HTML pages: index, restaurants, history, settings, tags
-│   ├── assets/          # files pages link to, e.g. favicon.svg
+│   ├── assets/          # files pages link to: favicon.svg, fonts, manifest.webmanifest
+│   │   └── icons/       # app icons, copied to dist/icons/ by --statics
 │   ├── components/      # Lit components        (import as #components/*)
 │   ├── lib/             # shared TypeScript     (import as #lib/*), e.g. gtm.ts
 │   ├── styles/          # global CSS and shared Lit styles (#styles/*)
@@ -152,7 +166,9 @@ import { sharedStyles } from "#styles/shared"; // ./src/styles/shared.ts
 Cloudflare return 404, so check new links with `bun run build && bun run preview`. See the
 [`@kctools/bun-server` docs](https://www.npmjs.com/package/@kctools/bun-server)
 for all options, including `--statics` for files no HTML document references
-(favicons, `robots.txt`, images).
+(favicons, `robots.txt`, images). `dev` and `build` pass
+`--statics src/assets/icons:icons`, because the manifest's icons are named only inside
+`manifest.webmanifest`, which the bundler copies but does not follow.
 
 ## Writing components
 
@@ -204,6 +220,24 @@ Then load it from a page:
 > ([oven-sh/bun#43097](https://github.com/oven-sh/bun/issues/43097)). Keep both
 > settings until that issue is resolved.
 
+### Shared UI
+
+The redesign builds every page from a few shared pieces; reuse them before writing new
+styles:
+
+- `uiStyles` (`#styles/ui`): page titles, cards, grouped lists (`.group` with `.item` rows,
+  `.lead`, `.grow`, `.trail`), segmented controls (`.seg`), button variants (`.primary`,
+  `.soft`, `.danger`, `.quiet`), empty states (`.empty` with `a.button-link`) and the 3px
+  focus ring. Put it first in a component's `styles`.
+- `<app-sheet>`: a bottom sheet on `<dialog>` with `heading`, `subheading` and `open`. It
+  focuses its title on open, returns focus to what opened it, slides away on close and
+  locks the page behind it. Listen for `sheet-close`.
+- `MediaController` with `WIDE` (`#lib/media`): re-renders when the screen crosses 48rem, so
+  a component renders one copy of a form either in a sheet (phone) or a side panel (wide).
+- Tokens in `src/styles/global.css`: `--tap` (44px on touch, 36px with a mouse),
+  `--tab-bar-height`, and `html.has-pinned` for pages with a pinned action above the tab
+  bar.
+
 ## Adding pages
 
 `src/routes/index.html` is the entrypoint. It links global CSS and component
@@ -224,6 +258,10 @@ adjusted to its depth (`tests/routes/pages.test.ts` fails otherwise):
 ```html
 <script type="module" src="../lib/gtm.ts"></script>
 ```
+
+Copy the rest of the `<head>` from an existing page too: the viewport and `theme-color`
+tags, the favicon, the manifest and `apple-touch-icon` links and the
+`mobile-web-app-capable` and `apple-mobile-web-app-*` tags. The same test checks each one.
 
 ## Testing
 
