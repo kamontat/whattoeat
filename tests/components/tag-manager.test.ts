@@ -553,6 +553,20 @@ test("phone: a value opens its actions in a sheet titled with the value", async 
 	expect(sheet.getAttribute("subheading")).toBe("Cuisine · 1 restaurant");
 });
 
+test("phone: deleting the selected value closes its sheet and focuses the add-group field", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	setWidth(390);
+	const el = await mount();
+	let detail = await openValue(el, "cuisine", "thai");
+	await click(el, detail, "delete-value");
+	detail = $(el, ".value-detail")!;
+	await click(el, detail, "confirm-delete-value");
+	await settle(el);
+	expect($(el, "app-sheet.value-sheet")?.hasAttribute("open")).toBe(false);
+	expect($(el, ".value-detail")).toBeNull();
+	expect(el.shadowRoot!.activeElement?.id).toBe("new-group");
+});
+
 test("renaming keeps the detail open on the new name", async () => {
 	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
 	const el = await mount();
@@ -641,4 +655,22 @@ test("another tab deleting the open group closes its sheet", async () => {
 	saveGroups([]);
 	await el.updateComplete;
 	expect($(el, "app-sheet.group-sheet")?.hasAttribute("open")).toBe(false);
+});
+
+test("opening a group's options does not drop an open value's draft", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	let detail = await openValue(el, "cuisine", "thai");
+	await click(el, detail, "rename-value");
+	detail = $(el, ".value-detail")!;
+	await typeIn(el, detail.querySelector("input")!, "Thai food");
+	await openGroup(el, "g1");
+	const sheet = $(el, "app-sheet.group-sheet")!;
+	sheet.shadowRoot!.querySelector("dialog")!.close();
+	await settle(el);
+	detail = $(el, ".value-detail")!;
+	expect(detail.querySelector<HTMLInputElement>("input")?.value).toBe(
+		"Thai food",
+	);
 });

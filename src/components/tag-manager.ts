@@ -353,7 +353,14 @@ export class TagManager extends LitElement {
 	};
 
 	private openGroupOptions(group: string): void {
-		this.prompt = undefined;
+		// The value panel is not modal on wide screens, so a value's open rename, move or
+		// delete prompt must survive opening a group's options; only a stale group prompt
+		// (e.g. another group's rename form) is cleared here.
+		if (
+			this.prompt?.kind === "rename-group" ||
+			this.prompt?.kind === "delete-group"
+		)
+			this.prompt = undefined;
 		this.optionsFor = group;
 	}
 
@@ -561,10 +568,16 @@ export class TagManager extends LitElement {
 		`;
 	}
 
-	private valueSubtitle(group: string, value: string): string {
-		const count =
+	/** How many restaurants currently use this value, or 0 once it is gone. */
+	private countFor(group: string, value: string): number {
+		return (
 			valueCounts(this.restaurants, group).find((item) => item.value === value)
-				?.count ?? 0;
+				?.count ?? 0
+		);
+	}
+
+	private valueSubtitle(group: string, value: string): string {
+		const count = this.countFor(group, value);
 		return t("tags.valueSub", {
 			group: groupLabel(group, this.defs),
 			count:
@@ -636,9 +649,7 @@ export class TagManager extends LitElement {
 	}
 
 	private renderValueDetail(group: string, value: string) {
-		const count =
-			valueCounts(this.restaurants, group).find((item) => item.value === value)
-				?.count ?? 0;
+		const count = this.countFor(group, value);
 		const prompt = this.prompt;
 		const mine =
 			prompt !== undefined &&
@@ -702,7 +713,7 @@ export class TagManager extends LitElement {
 		const last = index === this.defs.length - 1;
 		let body: unknown;
 		if (prompt?.kind === "rename-group" && prompt.id === group)
-			body = this.renderGroupTitle(group, label);
+			body = this.renderGroupTitle(group, prompt);
 		else if (prompt?.kind === "delete-group" && prompt.id === group)
 			body = this.renderGroupPrompt(group, label);
 		else
@@ -773,34 +784,35 @@ export class TagManager extends LitElement {
 		return html`<div class="group-options" data-group=${group}>${body}</div>`;
 	}
 
-	private renderGroupTitle(group: string, _label: string) {
-		const prompt = this.prompt;
-		if (prompt?.kind === "rename-group" && prompt.id === group)
-			return html`<form
-				class="rename prompt"
-				@submit=${(event: Event) => {
-					event.preventDefault();
-					this.saveGroupName(group, prompt.text);
-				}}
-			>
-				<label>
-					<span class="visually-hidden">${t("tags.addLabel")}</span>
-					<input
-						.value=${live(prompt.text)}
-						@input=${(event: Event) => {
-							this.prompt = {
-								kind: "rename-group",
-								id: prompt.id,
-								text: (event.target as HTMLInputElement).value,
-							};
-						}}
-					/>
-				</label>
-				<button type="submit" class="primary" data-action="save-group-name">${t("tags.save")}</button>
-				<button type="button" data-action="cancel" @click=${() => this.cancelRename(group)}>${t("tags.cancel")}</button>
-				${prompt.error ? html`<p class="error" role="alert">${t(prompt.error)}</p>` : nothing}
-			</form>`;
-		return nothing;
+	/** The rename-group form; only called once the caller has confirmed the open prompt is this group's rename. */
+	private renderGroupTitle(
+		group: string,
+		prompt: Extract<Prompt, { kind: "rename-group" }>,
+	) {
+		return html`<form
+			class="rename prompt"
+			@submit=${(event: Event) => {
+				event.preventDefault();
+				this.saveGroupName(group, prompt.text);
+			}}
+		>
+			<label>
+				<span class="visually-hidden">${t("tags.addLabel")}</span>
+				<input
+					.value=${live(prompt.text)}
+					@input=${(event: Event) => {
+						this.prompt = {
+							kind: "rename-group",
+							id: prompt.id,
+							text: (event.target as HTMLInputElement).value,
+						};
+					}}
+				/>
+			</label>
+			<button type="submit" class="primary" data-action="save-group-name">${t("tags.save")}</button>
+			<button type="button" data-action="cancel" @click=${() => this.cancelRename(group)}>${t("tags.cancel")}</button>
+			${prompt.error ? html`<p class="error" role="alert">${t(prompt.error)}</p>` : nothing}
+		</form>`;
 	}
 
 	private renderGroupPrompt(group: string, label: string) {
