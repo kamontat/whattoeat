@@ -4,7 +4,6 @@ import {
 	cleanStored,
 	groupValues,
 	isLink,
-	isNameTaken,
 	isRestaurant,
 	metaLine,
 	newId,
@@ -278,19 +277,4 @@ test("newId skips bytes that would bias the alphabet", () => {
 		return bytes;
 	};
 	expect(newId([], random)).toBe("zzzzzzzz");
-});
-
-test("isNameTaken ignores case and surrounding spaces", () => {
-	const list = [{ ...valid, id: "a", name: "Som Tam Nua" }];
-	expect(isNameTaken(list, "  som tam NUA ")).toBe(true);
-	expect(isNameTaken(list, "Som Tam")).toBe(false);
-});
-
-test("isNameTaken lets a restaurant keep its own name", () => {
-	const list = [
-		{ ...valid, id: "a", name: "Som Tam Nua" },
-		{ ...valid, id: "b", name: "Jay Fai" },
-	];
-	expect(isNameTaken(list, "som tam nua", "a")).toBe(false);
-	expect(isNameTaken(list, "jay fai", "a")).toBe(true);
 });

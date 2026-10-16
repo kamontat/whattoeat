@@ -134,23 +134,20 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 	expect(loadRestaurants()).toEqual(list);
 });
 
-test("addRestaurant throws on a name already in the list", () => {
+test("addRestaurant allows a name already in the list", () => {
 	addRestaurant(input);
-	expect(() => addRestaurant({ ...input, name: " jay FAI " })).toThrow();
-	expect(loadRestaurants()).toHaveLength(1);
+	addRestaurant({ ...input, name: " jay FAI " });
+	expect(loadRestaurants().map((item) => item.name)).toEqual([
+		"Jay Fai",
+		"jay FAI",
+	]);
 });
 
-test("updateRestaurant throws when renaming to another restaurant's name", () => {
+test("updateRestaurant allows renaming to another restaurant's name", () => {
 	addRestaurant(input);
 	const list = addRestaurant({ ...input, name: "Other" });
-	const other = list[1]!;
-	expect(() =>
-		updateRestaurant(other.id, { ...input, name: "jay fai" }),
-	).toThrow();
-	expect(loadRestaurants()[1]!.name).toBe("Other");
-	expect(() =>
-		updateRestaurant(other.id, { ...input, name: "OTHER" }),
-	).not.toThrow();
+	updateRestaurant(list[1]!.id, { ...input, name: "Jay Fai" });
+	expect(loadRestaurants()[1]!.name).toBe("Jay Fai");
 });
 
 test("updateRestaurant throws on a blank name", () => {

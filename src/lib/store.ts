@@ -3,7 +3,6 @@ import { forgetHistoryMemory } from "#lib/history";
 import {
 	type CleanInput,
 	cleanStored,
-	isNameTaken,
 	isRestaurant,
 	newId,
 	normalizeInput,
@@ -87,15 +86,9 @@ export const resetStorage = (): void => {
 	window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
 };
 
-const requireName = (
-	input: RestaurantInput,
-	list: readonly Restaurant[],
-	exceptId?: string,
-): CleanInput => {
+const requireName = (input: RestaurantInput): CleanInput => {
 	const clean = normalizeInput(input, customGroupIds(loadGroups()));
 	if (clean.name === "") throw new Error("Restaurant name is required");
-	if (isNameTaken(list, clean.name, exceptId))
-		throw new Error("Restaurant name is already taken");
 	return clean;
 };
 
@@ -104,7 +97,7 @@ export const addRestaurant = (
 	now: Date = new Date(),
 ): Restaurant[] => {
 	const existing = loadRestaurants();
-	const clean = requireName(input, existing);
+	const clean = requireName(input);
 	const stamp = now.toISOString();
 	const id = newId(existing.map((item) => item.id));
 	const list = [
@@ -121,7 +114,7 @@ export const updateRestaurant = (
 	now: Date = new Date(),
 ): Restaurant[] => {
 	const existing = loadRestaurants();
-	const clean = requireName(input, existing, id);
+	const clean = requireName(input);
 	const list = existing.map((item) =>
 		item.id === id ? { ...item, ...clean, updatedAt: now.toISOString() } : item,
 	);
