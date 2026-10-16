@@ -916,3 +916,16 @@ test("phone: Save stays reachable at the bottom of the scrolling sheet", () => {
 		/\.actions\.form-actions\s*\{[^}]*position:\s*static/,
 	);
 });
+
+test("phone: focused fields scroll clear of the sticky save row", () => {
+	const css = ownStyles();
+	expect(css).toMatch(
+		/form input,\s*form textarea,\s*form tag-input,\s*fieldset\.kinds label\s*\{[^}]*scroll-margin-bottom:\s*5rem/,
+	);
+	const wideIndex = css.indexOf("@media (min-width: 48rem)");
+	expect(wideIndex).toBeGreaterThan(-1);
+	const wideBlock = css.slice(wideIndex);
+	expect(wideBlock).toMatch(
+		/form input,\s*form textarea,\s*form tag-input,\s*fieldset\.kinds label\s*\{[^}]*scroll-margin-bottom:\s*0/,
+	);
+});

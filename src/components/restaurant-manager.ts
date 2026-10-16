@@ -219,6 +219,14 @@ export class RestaurantManager extends LitElement {
 				background: var(--color-bg);
 			}
 
+			/* Phone: keep a field the browser scrolls to from landing underneath the sticky row. */
+			form input,
+			form textarea,
+			form tag-input,
+			fieldset.kinds label {
+				scroll-margin-bottom: 5rem;
+			}
+
 			/* Phone: Add stays at the bottom right, just above the tab bar. */
 			.pinned {
 				position: sticky;
@@ -259,6 +267,13 @@ export class RestaurantManager extends LitElement {
 					position: static;
 					padding: 0;
 					background: none;
+				}
+
+				form input,
+				form textarea,
+				form tag-input,
+				fieldset.kinds label {
+					scroll-margin-bottom: 0;
 				}
 			}
 		`,
