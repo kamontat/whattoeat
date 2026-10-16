@@ -537,10 +537,13 @@ export class TagManager extends LitElement {
 				</div>
 				${
 					wide
-						? html`<section class="card value-panel" aria-labelledby="value-title">
+						? html`<section
+								class="card value-panel"
+								aria-labelledby=${selected === undefined ? "value-hint" : "value-title"}
+							>
 								${
 									selected === undefined
-										? html`<p class="muted pick-hint">${t("tags.pickHint")}</p>`
+										? html`<p class="muted pick-hint" id="value-hint">${t("tags.pickHint")}</p>`
 										: html`<div>
 												<h2 id="value-title">${detailTitle}</h2>
 												<p class="muted">${detailSub}</p>

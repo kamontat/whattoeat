@@ -570,6 +570,22 @@ test("wide: the panel asks you to choose a value, then shows its actions", async
 	).toBe("true");
 });
 
+test("wide: the panel's aria-labelledby always points to a real, visible id", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	const panel = $<HTMLElement>(el, "section.value-panel")!;
+	const hintId = panel.getAttribute("aria-labelledby")!;
+	const hint = panel.querySelector(`#${hintId}`)!;
+	expect(hint.classList.contains("pick-hint")).toBe(true);
+	expect(hint.textContent?.trim()).toBe(
+		"Choose a value to rename, move or delete it.",
+	);
+	await openValue(el, "cuisine", "thai");
+	const titleId = panel.getAttribute("aria-labelledby")!;
+	expect(titleId).not.toBe(hintId);
+	expect(panel.querySelector(`#${titleId}`)?.textContent?.trim()).toBe("thai");
+});
+
 test("phone: a value opens its actions in a sheet titled with the value", async () => {
 	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
 	setWidth(390);
