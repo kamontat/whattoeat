@@ -95,7 +95,7 @@ developer tools (Application, then Local Storage) before changing the list; fixe
 be re-imported from **Settings** by pasting them inside an export
 (`{ "app": "whattoeat", "version": 4, "restaurants": [...], "history": [], "groups": [] }`).
 
-Ideas for future work live in [IDEAS.md](IDEAS.md).
+Planned future work lives in [TODO.md](TODO.md).
 
 ## Project layout
 
@@ -114,7 +114,7 @@ Ideas for future work live in [IDEAS.md](IDEAS.md).
 ├── .claude/skills/      # Claude Code skills for working in this repo
 ├── .github/workflows/   # CI, preview, and production deploy pipelines
 ├── CHANGELOG.md         # what changed and why, newest first
-├── IDEAS.md             # features left for later
+├── TODO.md              # features planned for later
 ├── biome.json           # lint / format config
 ├── bunfig.toml          # bun install + bun test config
 ├── mise.toml            # pinned tool versions
