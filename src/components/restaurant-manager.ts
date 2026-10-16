@@ -636,11 +636,16 @@ export class RestaurantManager extends LitElement {
 		};
 		const editingId = this.editingId;
 		const name = input.name.trim();
+		const wasSearching = this.searching;
 		// Reset before saving so the store's change callback already sees a clean form.
 		this.resetForm();
 		this.sheetOpen = false;
-		if (editingId === undefined) addRestaurant(input);
-		else updateRestaurant(editingId, input);
+		const list =
+			editingId === undefined
+				? addRestaurant(input)
+				: updateRestaurant(editingId, input);
+		const savedId = editingId ?? list.at(-1)?.id;
+		if (wasSearching && savedId !== undefined) this.focusAfterSave(savedId);
 		// Clear first, then set the real text once that clear has rendered: saving the same name
 		// again still changes the live region's text, so it is announced again.
 		this.status = "";
@@ -827,6 +832,23 @@ export class RestaurantManager extends LitElement {
 		});
 	}
 
+	/**
+	 * After saving while searching: the saved restaurant's row still has whatever matched it in
+	 * view, so land there; a save that took it out of the query (or the sheet closing stole focus)
+	 * instead goes back to the field. app-sheet only reclaims focus for its opener when focus is on
+	 * `body` or still inside the sheet, so setting it here deliberately wins either way.
+	 */
+	private focusAfterSave(id: string): void {
+		this.focusAfterRender(() => {
+			const inResults = this.results(this.sortedRestaurants()).some(
+				({ item }) => item.id === id,
+			);
+			return inResults
+				? this.renderRoot.querySelector(`li[data-id="${id}"] button`)
+				: this.renderRoot.querySelector("#search");
+		});
+	}
+
 	private askDelete(id: string): void {
 		this.confirmingId = id;
 		this.focusAfterRender(() =>
@@ -950,7 +972,11 @@ export class RestaurantManager extends LitElement {
 							? html`<div class="card empty"><p>${t("manager.empty")}</p></div>`
 							: results.length === 0
 								? this.renderNoMatch()
-								: html`<ul class="group list">${results.map(({ item, ranges }) => this.renderRow(item, ranges))}</ul>`
+								: html`<ul class="group list">${repeat(
+										results,
+										({ item }) => item.id,
+										({ item, ranges }) => this.renderRow(item, ranges),
+									)}</ul>`
 					}
 				</div>
 				${

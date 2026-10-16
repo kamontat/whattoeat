@@ -1191,6 +1191,23 @@ test("wide: Add from a search fills the side panel's name", async () => {
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Zaab Ari");
 });
 
+test("phone: Add from a search focuses the saved row, now shown among the results", async () => {
+	seedSearch();
+	const el = await phone();
+	await openSearch(el);
+	await typeSearch(el, "Zaab");
+	await click(el, '[data-action="add-named"]');
+	await submit(el);
+	await settleFocus(el);
+	expect(rowNames(el)).toEqual(["Zaab"]);
+	const row = [...el.shadowRoot!.querySelectorAll("li[data-id]")].find(
+		(li) => li.querySelector(".name")?.textContent === "Zaab",
+	)!;
+	expect(el.shadowRoot!.activeElement).toBe(
+		row.querySelector('button[data-action="edit"]'),
+	);
+});
+
 test("search: editing a result keeps the search; a rename out of it drops the row", async () => {
 	seedSearch();
 	const el = await mount();
@@ -1206,6 +1223,8 @@ test("search: editing a result keeps the search; a rename out of it drops the ro
 	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
 		"Saved Bankara Tonkotsu",
 	);
+	// Renamed out of the query: its row is gone, so focus goes back to the search field.
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
 });
 
 test("search: a restaurant added in another tab shows up if it matches", async () => {
