@@ -122,8 +122,8 @@ Other tokens:
 - Type: IBM Plex Sans Thai (400, 500, 600) with `"Noto Sans Thai", system-ui, sans-serif` as
   fallback, `font-display: swap`; 1 rem body (16 px, so iOS does not zoom inputs), line-height
   1.5; page titles `--title-size` semibold; group labels 0.8125 rem medium muted, sentence case.
-- Touch: `--tap` 2.75 rem (44 px), the minimum block size of every button, link-button, chip,
-  row and input.
+- Touch: `--tap` 2.75 rem (44 px), the minimum block size of every button, link-button, row
+  and input; chips are 2.25 rem (36 px), above the 24 px AA minimum (see Home).
 - Density: `@media (hover: hover) and (pointer: fine)` (mouse, trackpad) switches to a compact
   set. Touch / compact: `--tap` 2.75 / 2.25 rem, `--pad-x` 1 / 0.875 rem, `--row-pad-y` 0.5 /
   0.375 rem, `--title-size` 1.75 / 1.5 rem, `--row-text` 1 / 0.9375 rem, `--seg-min` 3.25 /
@@ -331,7 +331,8 @@ Applied to every page and checked in each pull request's test plan:
 - 2.4.1: skip link. 2.4.3: focus returns after sheets and confirmations. 2.4.7 / 2.4.11 /
   2.4.13: visible 3 px focus ring never hidden under the pinned button or tab bar
   (`scroll-padding-bottom` on `html` equal to their height).
-- 2.5.3: visible label text is part of every accessible name. 2.5.8: targets ≥ 44 px on touch, ≥ 36 px with a fine pointer.
+- 2.5.3: visible label text is part of every accessible name. 2.5.8: targets ≥ 44 px on
+  touch (chips 36 px), ≥ 36 px with a fine pointer; all above the 24 px AA minimum.
 - 3.1.1 / 3.1.2: `<html lang>` follows the language (already done); mixed-language labels marked.
 - 3.3.1 / 3.3.2: errors in text, tied to their field.
 - 4.1.2 / 4.1.3: states via `aria-pressed`, `aria-current`, `aria-disabled`, checked radios;
