@@ -371,7 +371,7 @@ export class RandomPicker extends LitElement {
 
 	override render() {
 		const heading = html`
-			<h1 class="visually-hidden">${t("app.title")}</h1>
+			<h1 class="page-title">${t("app.title")}</h1>
 			${
 				this.skipped > 0
 					? html`<p class="warning skipped" role="alert">

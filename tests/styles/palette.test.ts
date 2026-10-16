@@ -38,28 +38,49 @@ const systemDark = tokens(':root:not([data-theme="light"])');
 const NAMES = [
 	"bg",
 	"surface",
+	"surface-2",
 	"text",
 	"muted",
 	"primary",
 	"primary-text",
+	"link",
+	"primary-soft",
+	"control",
 	"border",
 	"danger",
 	"success",
+	"focus",
 ];
 
-/** Foreground on background pairs that carry normal-size text. */
-const PAIRS: [string, string][] = [
+/** Foreground on background pairs that carry normal-size text: WCAG 1.4.3, 4.5:1. */
+const TEXT_PAIRS: [string, string][] = [
 	["text", "bg"],
 	["text", "surface"],
+	["text", "surface-2"],
 	["muted", "bg"],
 	["muted", "surface"],
+	["muted", "surface-2"],
+	["link", "bg"],
+	["link", "surface"],
+	["link", "surface-2"],
+	["danger", "bg"],
+	["danger", "surface"],
+	["danger", "surface-2"],
+	["success", "bg"],
+	["success", "surface"],
+	["success", "surface-2"],
 	["primary", "bg"],
 	["primary", "surface"],
 	["primary-text", "primary"],
-	["danger", "bg"],
-	["danger", "surface"],
-	["success", "bg"],
-	["success", "surface"],
+	["link", "primary-soft"],
+];
+
+/** Control edges and the focus ring against what sits around them: WCAG 1.4.11, 3:1. */
+const UI_PAIRS: [string, string][] = [
+	["control", "bg"],
+	["control", "surface"],
+	["focus", "bg"],
+	["focus", "surface"],
 ];
 
 test("the light and dark palettes define every colour token", () => {
@@ -75,8 +96,11 @@ for (const [name, palette] of [
 	["light", light],
 	["dark", dark],
 ] as const) {
-	test.each(PAIRS)(`${name}: %s on %s meets WCAG AA (4.5:1)`, (fg, bg) => {
+	test.each(TEXT_PAIRS)(`${name}: %s on %s meets WCAG AA (4.5:1)`, (fg, bg) => {
 		expect(contrast(palette[fg]!, palette[bg]!)).toBeGreaterThanOrEqual(4.5);
+	});
+	test.each(UI_PAIRS)(`${name}: %s on %s meets 3:1`, (fg, bg) => {
+		expect(contrast(palette[fg]!, palette[bg]!)).toBeGreaterThanOrEqual(3);
 	});
 }
 
@@ -87,5 +111,23 @@ test("each palette sets the matching color-scheme", () => {
 	);
 	expect(css).toMatch(
 		/:root\[data-theme="light"\]\s*\{[^}]*color-scheme:\s*light/,
+	);
+});
+
+test("IBM Plex Sans Thai is loaded from the committed Thai and Latin files", async () => {
+	for (const script of ["thai", "latin"])
+		for (const weight of [400, 500, 600]) {
+			const file = `ibm-plex-sans-thai-${script}-${weight}.woff2`;
+			expect(css).toContain(`url("../assets/fonts/${file}")`);
+			expect(await Bun.file(`src/assets/fonts/${file}`).exists()).toBe(true);
+		}
+	expect(await Bun.file("src/assets/fonts/OFL.txt").text()).toContain("Plex");
+	expect(css).toMatch(/--font:\s*\n?\s*"IBM Plex Sans Thai"/);
+	expect(css).not.toContain("Anuphan");
+});
+
+test("reduced motion turns transitions off", () => {
+	expect(css).toMatch(
+		/@media \(prefers-reduced-motion: reduce\)\s*\{[^}]*:root\s*\{[^}]*--duration:\s*0ms/,
 	);
 });

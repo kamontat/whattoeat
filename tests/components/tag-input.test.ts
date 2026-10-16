@@ -253,3 +253,15 @@ test("keeps its rows packed at the top when a grid cell stretches it", () => {
 		.join("\n");
 	expect(css).toMatch(/:host\s*\{[^}]*align-content:\s*start/);
 });
+
+test("the field edge meets 3:1 contrast against the page", () => {
+	// --color-border is 1.3:1 against the page (WCAG 1.4.11 needs 3:1 for a UI component
+	// boundary); --color-control is the token built for that contrast.
+	const css = [TagInput.styles]
+		.flat()
+		.map((sheet) => (sheet as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(
+		/\.field\s*\{[^}]*border:\s*1px solid var\(--color-control\)/,
+	);
+});

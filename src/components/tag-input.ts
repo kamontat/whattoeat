@@ -30,7 +30,7 @@ export class TagInput extends LitElement {
 				align-items: center;
 				gap: 0.25rem;
 				padding: 0.25rem;
-				border: 1px solid var(--color-border);
+				border: 1px solid var(--color-control);
 				border-radius: var(--radius);
 				background: var(--color-surface);
 			}

@@ -16,9 +16,3 @@ design spec under `docs/superpowers/specs/`, then delete it here when it ships.
   export and import. Needs a backend (for example Cloudflare KV or D1 behind the Worker),
   sign-in or share links, and conflict handling; the biggest change on this list.
 
-## Look and feel
-
-- **Rethink the phone header.** The two-row header (name and switches on top, links below)
-  works but looks odd. Options: a menu button that hides the links and switches, a bottom
-  tab bar for the three pages, or one compact settings button that opens language and
-  theme choices.

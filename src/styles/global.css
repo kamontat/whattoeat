@@ -1,25 +1,115 @@
 @import "@kcstyles/reset.css";
 
-/* Light palette, used unless the system or the header switch asks for dark. */
+/* IBM Plex Sans Thai, regular, medium and semibold; one file per script and weight, inlined into the CSS bundle by the build. */
+@font-face {
+	font-family: "IBM Plex Sans Thai";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("../assets/fonts/ibm-plex-sans-thai-thai-400.woff2") format("woff2");
+	unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+	font-family: "IBM Plex Sans Thai";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("../assets/fonts/ibm-plex-sans-thai-latin-400.woff2") format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+		U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "IBM Plex Sans Thai";
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url("../assets/fonts/ibm-plex-sans-thai-thai-500.woff2") format("woff2");
+	unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+	font-family: "IBM Plex Sans Thai";
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url("../assets/fonts/ibm-plex-sans-thai-latin-500.woff2") format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+		U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "IBM Plex Sans Thai";
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url("../assets/fonts/ibm-plex-sans-thai-thai-600.woff2") format("woff2");
+	unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
+
+@font-face {
+	font-family: "IBM Plex Sans Thai";
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url("../assets/fonts/ibm-plex-sans-thai-latin-600.woff2") format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+		U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+		U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Light palette, used unless the system or a theme switch asks for dark. */
 :root {
-	--color-bg: #fff8f0;
+	--color-bg: #f6f5f2;
 	--color-surface: #ffffff;
-	--color-text: #2b2118;
-	--color-muted: #7a6a5c;
-	--color-primary: #c4440e;
+	--color-surface-2: #efede8;
+	--color-text: #1d1b18;
+	--color-muted: #6b665e;
+	--color-primary: #c8321f;
 	--color-primary-text: #ffffff;
-	--color-border: #eaded2;
-	--color-danger: #c0392b;
-	--color-success: #2b7a3b;
-	--radius: 12px;
+	--color-primary-soft: #fbe9e6;
+	--color-link: #b42c1b;
+	--color-control: #8f8a80;
+	--color-border: #e6e3dc;
+	--color-danger: #b42c1b;
+	--color-success: #2b6e35;
+	--color-focus: #1d1b18;
+	--shadow: 0 1px 2px rgb(29 27 24 / 0.06);
+	--shadow-lg: 0 -8px 30px rgb(29 27 24 / 0.16);
+	--scrim: rgb(29 27 24 / 0.4);
+	--radius-sm: 0.625rem;
+	--radius: 0.75rem;
+	--radius-lg: 1.25rem;
+	--radius-pill: 999px;
+	/* Touch sizes: 44px targets. A mouse or trackpad gets the compact set below. */
+	--tap: 2.75rem;
+	--pad-x: 1rem;
+	--row-pad-y: 0.5rem;
+	--title-size: 1.75rem;
+	--row-text: 1rem;
+	--seg-min: 3.25rem;
+	--bar-height: 4.75rem;
+	--brand-size: 1.25rem;
+	--duration: 180ms;
+	/* Room the tab bar takes at the bottom of a phone screen. */
+	--tab-bar-space: calc(5rem + env(safe-area-inset-bottom, 0px));
 	--font:
-		system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", "Sarabun",
-		"Leelawadee UI", Tahoma, sans-serif;
+		"IBM Plex Sans Thai", "Noto Sans Thai", system-ui, -apple-system,
+		"Segoe UI", "Leelawadee UI", Tahoma, sans-serif;
 
 	color-scheme: light dark;
 	font-family: var(--font);
+	font-size: 100%;
+	line-height: 1.5;
 	color: var(--color-text);
 	background: var(--color-bg);
+	scroll-padding-bottom: var(--tab-bar-space);
 }
 
 :root[data-theme="light"] {
@@ -29,46 +119,102 @@
 /* Dark palette for "auto" on a dark system; keep it in step with the rule below. */
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme="light"]) {
-		--color-bg: #1a1410;
-		--color-surface: #251d17;
-		--color-text: #f5ebe1;
-		--color-muted: #b5a493;
-		--color-primary: #ff8a4c;
-		--color-primary-text: #1a1410;
-		--color-border: #3d3229;
-		--color-danger: #ff6b5b;
-		--color-success: #5bd178;
+		--color-bg: #161513;
+		--color-surface: #1f1e1b;
+		--color-surface-2: #2a2825;
+		--color-text: #f1efea;
+		--color-muted: #a8a299;
+		--color-primary: #ff6b55;
+		--color-primary-text: #161513;
+		--color-primary-soft: #3a1f1a;
+		--color-link: #ff8a77;
+		--color-control: #807a70;
+		--color-border: #34312c;
+		--color-danger: #ff8a77;
+		--color-success: #6fd08a;
+		--color-focus: #f1efea;
+		--shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+		--shadow-lg: 0 -8px 30px rgb(0 0 0 / 0.5);
+		--scrim: rgb(0 0 0 / 0.6);
 
 		color-scheme: dark;
 	}
 }
 
-/* Dark palette chosen with the header switch (`data-theme` set by #lib/theme). */
+/* Dark palette chosen with a theme switch (`data-theme` set by #lib/theme). */
 :root[data-theme="dark"] {
-	--color-bg: #1a1410;
-	--color-surface: #251d17;
-	--color-text: #f5ebe1;
-	--color-muted: #b5a493;
-	--color-primary: #ff8a4c;
-	--color-primary-text: #1a1410;
-	--color-border: #3d3229;
-	--color-danger: #ff6b5b;
-	--color-success: #5bd178;
+	--color-bg: #161513;
+	--color-surface: #1f1e1b;
+	--color-surface-2: #2a2825;
+	--color-text: #f1efea;
+	--color-muted: #a8a299;
+	--color-primary: #ff6b55;
+	--color-primary-text: #161513;
+	--color-primary-soft: #3a1f1a;
+	--color-link: #ff8a77;
+	--color-control: #807a70;
+	--color-border: #34312c;
+	--color-danger: #ff8a77;
+	--color-success: #6fd08a;
+	--color-focus: #f1efea;
+	--shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+	--shadow-lg: 0 -8px 30px rgb(0 0 0 / 0.5);
+	--scrim: rgb(0 0 0 / 0.6);
 
 	color-scheme: dark;
 }
 
-/* Main grows so the footer sits at the bottom of a short page. */
+@media (prefers-reduced-motion: reduce) {
+	:root {
+		--duration: 0ms;
+	}
+}
+
+/*
+ * A precise pointer (mouse, trackpad) does not need thumb-sized controls: 36px targets still clear
+ * WCAG 2.5.8 (24px). Keyed to the pointer, not the width, so tablets and touch laptops keep 44px.
+ */
+@media (hover: hover) and (pointer: fine) {
+	:root {
+		--tap: 2.25rem;
+		--pad-x: 0.875rem;
+		--row-pad-y: 0.375rem;
+		--title-size: 1.5rem;
+		--row-text: 0.9375rem;
+		--seg-min: 2.75rem;
+		--bar-height: 3.75rem;
+		--brand-size: 1.0625rem;
+	}
+}
+
 body {
-	display: flex;
-	flex-direction: column;
 	min-height: 100vh;
 }
 
+/* Phones: the tab bar covers the bottom of the screen, so main ends above it. */
 main {
-	flex: 1;
 	width: 100%;
 	max-width: 40rem;
 	margin: 0 auto;
-	padding: 1.5rem 1rem 3rem;
+	padding: 1.25rem 1rem var(--tab-bar-space);
+}
+
+main:focus {
+	outline: none;
+}
+
+/* From 48rem the links move to a top bar and nothing covers the bottom. */
+@media (min-width: 48rem) {
+	:root {
+		--tab-bar-space: 0px;
+	}
+
+	main {
+		padding: 1.75rem 2rem 3rem;
+	}
+}
+
+:focus-visible {
+	outline: 3px solid var(--color-focus);
+	outline-offset: 2px;
 }

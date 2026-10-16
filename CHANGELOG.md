@@ -2,6 +2,52 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-16: Mobile redesign, stage 1: calm look, tab bar and grouped Settings
+
+### Features
+
+- A tab bar for Home, Restaurants, History and Settings sits along the bottom edge on phones;
+  from 768px wide the same four links move into a top bar beside the logo. The current tab
+  shows in red with a short bar on its top edge.
+- A "Skip to content" link is the first thing a keyboard reaches on every page.
+- Settings is a set of grouped lists: Appearance (language and theme as segmented controls),
+  Export, Import, Reset and About (source, changelog and build, moved from the old footer).
+- Two components for the next stages: `app-sheet`, a bottom sheet on `<dialog>` that returns
+  focus to what opened it, and `app-preferences`, language and theme as native radio groups.
+
+### Improvements
+
+- A calm, neutral look: an off-white page, white cards with hairline borders, chili red as
+  the only accent, sentence-case labels and the IBM Plex Sans Thai font, bundled into the CSS
+  so it loads with the page and works offline.
+- Every control is at least 44px tall on touch screens; with a mouse or trackpad the layout
+  switches to a compact 36px size, still above the WCAG minimum of 24px.
+- Every colour pair is tested for WCAG AA contrast in light and dark, including input and
+  chip edges at 3:1, and every control shows a 3px focus ring.
+- Language and theme moved from the header into Settings. Tags is reached from a "Tags" link
+  on Restaurants instead of its own header link, and the Restaurants tab stays marked there.
+- Pages fill the screen on notched phones, colour the browser bar for light and dark, and
+  turn off sliding animations when the system asks for reduced motion.
+- Home now shows its "What to Eat" title. Home, Restaurants, Tags and History keep their
+  layouts for now; stages 2 to 4 redesign them.
+
+### Bug fixes
+
+- Focus stays in the Settings reset flow: Delete all data moves it to the confirm button and
+  Cancel moves it back.
+
+### Decisions
+
+- The first preview used a street-sign palette (paper, chili red, sign yellow) with Anuphan;
+  it felt too vivid and too large, so the "Calm neutral" variant was chosen from mockups over
+  a warm cream one.
+- The compact density keys on the pointer (`hover: hover` and `pointer: fine`), not the
+  screen width, so tablets and touch laptops keep touch-sized controls.
+- Fonts are inlined as data URIs in the bundled CSS because the build refuses unresolved
+  `url()`s; static font files would need a separate copy step.
+- The redesign ships in five stacked pull requests from one spec
+  (`docs/superpowers/specs/2026-10-15-mobile-redesign-design.md`); this is the first.
+
 ## 2026-10-15: Cuisine, area and custom groups as tag groups, and a Tags page to manage them, and two ideas dropped
 
 ### BREAKING CHANGES

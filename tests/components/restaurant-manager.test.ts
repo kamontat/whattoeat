@@ -83,6 +83,19 @@ const click = async (
 	await el.updateComplete;
 };
 
+test("the heading links to the tags page", async () => {
+	const el = await mount();
+	const link = $<HTMLAnchorElement>(el, "a.tags-link");
+	expect(link?.getAttribute("href")).toBe("./tags");
+	expect(link?.textContent?.trim()).toBe("Tags");
+	expect(link?.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+	setLang("th");
+	await el.updateComplete;
+	expect($<HTMLAnchorElement>(el, "a.tags-link")?.textContent?.trim()).toBe(
+		"แท็ก",
+	);
+});
+
 test("shows the empty message with no restaurants", async () => {
 	const el = await mount();
 	expect($(el, ".empty")?.textContent?.trim()).toBe(

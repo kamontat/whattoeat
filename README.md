@@ -4,14 +4,14 @@ Can't decide where to eat? Add the restaurants you like, press one button, and g
 options. Press **Eat here** on one to save it to your history with the date and time. The
 list and the history live in your browser (`localStorage`); move them between devices with
 JSON export and import on the Settings page, as a file or by copy and paste. The interface is available in English and Thai,
-in a light or dark theme that follows the system setting unless you pick one in the header.
+in a light or dark theme that follows the system setting unless you pick one in Settings.
 
 | Page           | What it does                                   |
 | -------------- | ---------------------------------------------- |
 | `/`            | Two random options; press Eat here to save a visit to History |
 | `/restaurants` | Add, edit and delete restaurants               |
 | `/history`     | Every visit with its date and time, stats per restaurant, delete a visit |
-| `/settings`    | Export or import JSON as a file or by copy and paste, with replace or merge |
+| `/settings`    | Language and theme; export or import JSON as a file or by copy and paste, with replace or merge; about |
 | `/tags`        | Groups and their values: counts, add, rename, reorder and delete groups; rename, merge, move and delete values |
 
 Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static

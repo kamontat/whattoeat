@@ -2,21 +2,21 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#161513" media="(prefers-color-scheme: dark)" />
 		<title>What to Eat</title>
 		<script type="module" src="../lib/gtm.ts"></script>
 		<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
 		<script type="module" src="../lib/theme.ts"></script>
 		<link rel="stylesheet" href="../styles/global.css" />
 		<script type="module" src="../components/app-header.ts"></script>
-		<script type="module" src="../components/app-footer.ts"></script>
 		<script type="module" src="../components/random-picker.ts"></script>
 	</head>
 	<body>
 		<app-header current="home"></app-header>
-		<main>
+		<main id="main" tabindex="-1">
 			<random-picker></random-picker>
 		</main>
-		<app-footer></app-footer>
 	</body>
 </html>

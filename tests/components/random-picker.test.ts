@@ -168,12 +168,13 @@ test("re-renders in Thai when the language changes", async () => {
 test.each([
 	["empty", false],
 	["with restaurants", true],
-])("has a page heading when %s", async (_label, seed) => {
+])("has a visible page heading when %s", async (_label, seed) => {
 	if (seed) addRestaurant({ ...base, name: "A" });
 	const el = await mount();
-	expect(el.shadowRoot!.querySelector("h1")?.textContent?.trim()).toBe(
-		"What to Eat",
-	);
+	const heading = el.shadowRoot!.querySelector("h1");
+	expect(heading?.textContent?.trim()).toBe("What to Eat");
+	expect(heading?.classList.contains("page-title")).toBe(true);
+	expect(heading?.classList.contains("visually-hidden")).toBe(false);
 });
 
 test("no filter row when no restaurant has a type, cuisine or area", async () => {
