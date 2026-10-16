@@ -268,17 +268,20 @@ Phone:
 5. Empty list: today's empty text with the Add button.
 
 Form sheet (heading "New restaurant" or "Edit <name>"): today's fields, `tag-input`s and
-validation. Footer holds **Save** and **Cancel** (when editing); **Delete** sits at the end
-of the edit form body behind its inline confirmation, naming the restaurant. Saving or
+validation, all in the sheet's one scrolling body — there is no separate sheet footer.
+**Save** (and **Cancel** when editing) stay pinned to the bottom of that scrolling body so
+they are always in reach while the rest of the form scrolls underneath; **Delete** sits at
+the end of the edit form behind its inline confirmation, naming the restaurant. Saving or
 deleting closes the sheet and returns focus to the row (or the Add button, or the title
 after a delete). Closing the sheet discards unsaved edits. A `role="status"` message
 confirms "Saved <name>" / "Deleted <name>".
 
 Desktop: the title row holds Tags and Add. Below, list and panel side by side (equal
 columns). The selected row gets `aria-current="true"`, the surface-2 fill and a chili bar on
-its start edge. The panel holds the same form (switched by `MediaController`), Cuisine and
-Area side by side, with **Save** and **Cancel** (when editing) in its footer; **Delete** at
-the end of the form body behind its confirmation. No sheet on desktop.
+its start edge (plus a forced-colours outline). The panel holds the same form (switched by
+`MediaController`), Cuisine and Area side by side, with **Save** and **Cancel** (when
+editing) at the end of the form — not pinned, the panel is short enough; **Delete** at the
+end of the form body behind its confirmation. No sheet on desktop.
 
 ### Tags (`tag-manager`)
 

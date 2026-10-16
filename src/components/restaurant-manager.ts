@@ -210,6 +210,15 @@ export class RestaurantManager extends LitElement {
 				border-top: 1px solid var(--color-border);
 			}
 
+			/* Phone: Save (and Cancel) stay in reach at the bottom of the sheet's scrolling body. */
+			.actions.form-actions {
+				position: sticky;
+				bottom: 0;
+				z-index: 1;
+				padding: 0.75rem 0;
+				background: var(--color-bg);
+			}
+
 			/* Phone: Add stays at the bottom right, just above the tab bar. */
 			.pinned {
 				position: sticky;
@@ -243,6 +252,13 @@ export class RestaurantManager extends LitElement {
 				.edit-panel {
 					position: sticky;
 					top: 1rem;
+				}
+
+				/* The panel is short enough that Save doesn't need to stay pinned. */
+				.actions.form-actions {
+					position: static;
+					padding: 0;
+					background: none;
 				}
 			}
 		`,
@@ -639,7 +655,7 @@ export class RestaurantManager extends LitElement {
 					${t("field.notes")}
 					<textarea id="notes" name="notes" rows="2" .value=${live(this.form.notes)} @input=${this.onInput}></textarea>
 				</label>
-				<div class="actions">
+				<div class="actions form-actions">
 					<button type="submit" class="primary">${editing ? t("manager.save") : t("manager.add")}</button>
 					${
 						editing

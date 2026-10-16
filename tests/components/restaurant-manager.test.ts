@@ -896,3 +896,23 @@ test("phone: the component fills the space above the tab bar so the pinned Add e
 	expect(wideBlock).toMatch(/:host\s*\{[^}]*min-height:\s*0/);
 	expect(wideBlock).toMatch(/:host\s*\{[^}]*margin-bottom:\s*0/);
 });
+
+test("the form's Save/Cancel row has the form-actions class", async () => {
+	const el = await mount();
+	expect($(el, "form .actions.form-actions")).not.toBeNull();
+});
+
+test("phone: Save stays reachable at the bottom of the scrolling sheet", () => {
+	const css = ownStyles();
+	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*position:\s*sticky/);
+	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*bottom:\s*0/);
+	expect(css).toMatch(
+		/\.actions\.form-actions\s*\{[^}]*background:\s*var\(--color-bg\)/,
+	);
+	const wideIndex = css.indexOf("@media (min-width: 48rem)");
+	expect(wideIndex).toBeGreaterThan(-1);
+	const wideBlock = css.slice(wideIndex);
+	expect(wideBlock).toMatch(
+		/\.actions\.form-actions\s*\{[^}]*position:\s*static/,
+	);
+});
