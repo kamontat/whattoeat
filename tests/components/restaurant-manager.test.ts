@@ -12,6 +12,7 @@ import {
 	saveRestaurants,
 	updateRestaurant,
 } from "#lib/store";
+import { uiStyles } from "#styles/ui";
 
 beforeEach(() => {
 	localStorage.clear();
@@ -1143,6 +1144,12 @@ test("search: field, clear and cancel are tap sized; the input text is 16px", ()
 	expect(css).toMatch(
 		/\.name mark\s*\{[^}]*background:\s*var\(--color-primary-soft\)/,
 	);
+	// The search input gets its 16px text from the shared ui rule, not iOS's 13px default
+	// zoom-trigger size, and the component's own rule must not override it back down.
+	expect((uiStyles as unknown as { cssText: string }).cssText).toMatch(
+		/input,\s*select,\s*textarea\s*\{[^}]*font-size:\s*1rem/,
+	);
+	expect(css).not.toMatch(/\.search-field input\s*\{[^}]*font-size/);
 });
 
 test("search: no match shows one card that offers to add the name or clear", async () => {
