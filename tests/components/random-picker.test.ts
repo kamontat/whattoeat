@@ -211,6 +211,22 @@ test("filter chips list values most used first and cycle off, include, exclude",
 	expect(thai().getAttribute("data-state")).toBe("off");
 });
 
+test("phone: the sheet's filter section relies on the sheet's own heading, not a second name", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	const section = root(el).querySelector("app-sheet section.filter")!;
+	expect(section.hasAttribute("aria-label")).toBe(false);
+	expect(section.hasAttribute("aria-labelledby")).toBe(false);
+});
+
+test("wide: the filter panel's section is named by its own heading", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await mount();
+	const section = root(el).querySelector("aside.filter-panel section.filter")!;
+	expect(section.getAttribute("aria-labelledby")).toBe("filter-title");
+	expect(section.hasAttribute("aria-label")).toBe(false);
+});
+
 test("picks only from restaurants that match the filter", async () => {
 	addRestaurant({ ...base, name: "A", kinds: ["food"] });
 	addRestaurant({ ...base, name: "B", kinds: ["drinks"] });
@@ -888,6 +904,33 @@ test("phone: the component fills the space above the tab bar so the pinned bar e
 		/:host\s*\{[^}]*min-height:\s*calc\(100dvh - 1\.25rem - var\(--tab-bar-space\)\)/,
 	);
 	expect(css).toMatch(/\.pinned\s*\{[^}]*margin-top:\s*auto/);
+});
+
+const flattenStyles = (): string =>
+	[RandomPicker.styles]
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+
+test("tiles stay one column between 48rem and 60rem; two columns from 60rem", () => {
+	const css = flattenStyles();
+	const mid = css.indexOf("@media (min-width: 48rem)");
+	const wide = css.indexOf("@media (min-width: 60rem)");
+	expect(mid).toBeGreaterThan(-1);
+	expect(wide).toBeGreaterThan(mid);
+	const midBlock = css.slice(mid, wide);
+	expect(midBlock).not.toMatch(/\.results\s*\{[^}]*grid-template-columns/);
+	expect(midBlock).toMatch(/\.results\s*\{[^}]*gap:\s*1rem/);
+	const wideBlock = css.slice(wide);
+	expect(wideBlock).toMatch(
+		/\.results\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/,
+	);
+});
+
+test("the pinned bar sits fully above the tab bar, with nothing peeking below it", () => {
+	const pinned = flattenStyles().match(/\.pinned\s*\{[^}]*\}/)?.[0] ?? "";
+	expect(pinned).toMatch(/bottom:\s*var\(--tab-bar-space\)/);
+	expect(pinned).toMatch(/padding:\s*0\.75rem 0 0\.5rem/);
 });
 
 test("phone: the pick button is pinned at the end, once", async () => {

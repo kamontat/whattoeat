@@ -266,15 +266,16 @@ export class RandomPicker extends LitElement {
 			}
 
 			/*
-			 * Phone: the pick button stays in reach, just above the tab bar. margin-top: auto
-			 * pushes it to the end of the column so it never sits right under short content.
+			 * Phone: the pick button stays in reach, just above the tab bar, with nothing of the
+			 * gradient peeking out below it. margin-top: auto pushes it to the end of the column
+			 * so it never sits right under short content.
 			 */
 			.pinned {
 				position: sticky;
 				z-index: 5;
-				bottom: calc(var(--tab-bar-space) - 0.75rem);
+				bottom: var(--tab-bar-space);
 				margin-top: auto;
-				padding: 0.75rem 0 0.25rem;
+				padding: 0.75rem 0 0.5rem;
 				background: linear-gradient(to bottom, transparent, var(--color-bg) 35%);
 			}
 
@@ -316,7 +317,6 @@ export class RandomPicker extends LitElement {
 				}
 
 				.results {
-					grid-template-columns: repeat(2, minmax(0, 1fr));
 					gap: 1rem;
 				}
 
@@ -324,6 +324,13 @@ export class RandomPicker extends LitElement {
 					width: auto;
 					min-height: var(--tap);
 					font-size: 0.9375rem;
+				}
+			}
+
+			/* Two tiles side by side need more room than 48rem gives the narrower (panel) column. */
+			@media (min-width: 60rem) {
+				.results {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
 				}
 			}
 		`,
@@ -600,7 +607,7 @@ export class RandomPicker extends LitElement {
 	) {
 		const { symbol, summary } = this.filterSummary();
 		return html`
-			<section class="filter" aria-labelledby=${titled ? "filter-title" : nothing} aria-label=${titled ? nothing : t("filter.title")}>
+			<section class="filter" aria-labelledby=${titled ? "filter-title" : nothing}>
 				${titled ? html`<h2 id="filter-title" class="filter-title" tabindex="-1">${t("filter.title")}</h2>` : nothing}
 				<p class="hint">${t("filter.hint")}</p>
 				${groups.map(
