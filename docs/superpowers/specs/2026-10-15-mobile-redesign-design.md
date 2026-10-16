@@ -229,11 +229,13 @@ Phone, top to bottom:
    the existing "No restaurant matches this filter." text shown above it.
 
 Filter sheet: title "Filter", the existing hint, one group per filter row (group label +
-chips at 44 px), **Clear** and **Done** in the footer. Behaviour unchanged (`cycleTag`).
+chips at 36 px, above the 24 px WCAG AA minimum), **Clear** in the sheet content and **Done**
+in the footer. Behaviour unchanged (`cycleTag`).
 
-Desktop (≥ 48 rem): two columns. Left, a 320 px panel with the same filter content always
-open and "Clear" in its heading row. Right, the title row with the pick button at its end,
-then the two tiles side by side.
+Desktop (≥ 48 rem): `main.wide` (65 rem) provides room for two columns. The filter uses
+`MediaController` (src/lib/media.ts), so only one component instance renders and switches
+layout. Left, a side panel with the filter content always open and "Clear" in its heading
+row. Right, the title row with the pick button at its end, then the two tiles side by side.
 
 The live region announces the new picks by name ("Picked Som Tam Nua and Jay Fai") instead
 of re-reading both tiles. Focus stays on the pick button. With no restaurants, the empty
