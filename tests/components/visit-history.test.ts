@@ -77,11 +77,6 @@ const action = (el: VisitHistory, id: string, name: string) =>
 
 const day = (iso: string) =>
 	new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(iso));
-const dayTime = (iso: string) =>
-	new Intl.DateTimeFormat("en", {
-		dateStyle: "medium",
-		timeStyle: "short",
-	}).format(new Date(iso));
 
 test("shows the page heading, the total and one stats row per restaurant", async () => {
 	const el = await mount();
@@ -103,14 +98,18 @@ test("uses the singular for one visit", async () => {
 	expect(text(root(el).querySelector(".total"))).toBe("1 visit in total");
 });
 
-test("lists every visit newest first with its date and time", async () => {
+test("lists every visit newest first with its time under its day heading", async () => {
 	const el = await mount();
 	expect(visitIds(el)).toEqual(["h1", "h2", "h3", "h4"]);
 	const first = visitRow(el, "h1")!;
 	expect(text(first.querySelector(".name"))).toBe("Som Tam Nua");
 	const time = first.querySelector("time");
 	expect(time?.getAttribute("datetime")).toBe("2026-10-12T05:18:00.000Z");
-	expect(text(time)).toBe(dayTime("2026-10-12T05:18:00.000Z"));
+	expect(text(time)).toBe(
+		new Intl.DateTimeFormat("en", { timeStyle: "short" }).format(
+			new Date("2026-10-12T05:18:00.000Z"),
+		),
+	);
 });
 
 test("the visit list keeps the name a restaurant had when it was visited", async () => {
@@ -342,4 +341,71 @@ test("the clear section is translated to Thai", async () => {
 	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
 		"ลบประวัติทั้งหมด 4 รายการหรือไม่ การลบนี้ย้อนกลับไม่ได้",
 	);
+});
+
+test("visits sit under day headings, newest day first", async () => {
+	const el = await mount();
+	const headings = [...root(el).querySelectorAll("section.day h3")].map((h) =>
+		text(h),
+	);
+	expect(headings.length).toBeGreaterThan(0);
+	for (const section of root(el).querySelectorAll("section.day")) {
+		const id = section.getAttribute("aria-labelledby");
+		expect(section.querySelector(`#${id}`)?.tagName).toBe("H3");
+		expect(
+			section.querySelectorAll("ul.group li.visit[data-id]").length,
+		).toBeGreaterThan(0);
+	}
+	expect(visitIds(el)).toEqual(["h1", "h2", "h3", "h4"]);
+});
+
+test("today's and yesterday's visits are headed Today and Yesterday", async () => {
+	const now = new Date();
+	const yesterday = new Date(
+		now.getFullYear(),
+		now.getMonth(),
+		now.getDate() - 1,
+		12,
+	);
+	saveHistory([
+		visit("t1", "r2", "Som Tam Nua", now.toISOString()),
+		visit("y1", "r2", "Som Tam Nua", yesterday.toISOString()),
+	]);
+	const el = await mount();
+	expect(
+		[...root(el).querySelectorAll("section.day h3")].map((h) => text(h)),
+	).toEqual(["Today", "Yesterday"]);
+});
+
+test("each Delete names the visit it removes", async () => {
+	const el = await mount();
+	const button = action(el, "h1", "delete")!;
+	const time = new Intl.DateTimeFormat("en", { timeStyle: "short" }).format(
+		new Date("2026-10-12T05:18:00.000Z"),
+	);
+	expect(button.getAttribute("aria-label")).toBe(
+		`Delete visit to Som Tam Nua at ${time}`,
+	);
+	expect(text(button)).toBe("Delete");
+});
+
+test("the stats table scrolls inside a labelled, focusable region with a caption", async () => {
+	const el = await mount();
+	const region = root(el).querySelector(".stats .table-wrap")!;
+	expect(region.getAttribute("role")).toBe("region");
+	expect(region.getAttribute("tabindex")).toBe("0");
+	expect(region.getAttribute("aria-labelledby")).toBe("stats-title");
+	expect(text(region.querySelector("table caption"))).toBe("Stats");
+});
+
+test("the title is a large page title; clear history comes last", async () => {
+	const el = await mount();
+	expect(root(el).querySelector("h1.page-title")).not.toBeNull();
+	// happy-dom does not support `:scope` queries against a ShadowRoot, so top-level
+	// sections are found by parentage instead of a `:scope > section` selector.
+	const shadow = root(el);
+	const sections = [...shadow.querySelectorAll("section")].filter(
+		(section) => section.parentNode === shadow,
+	);
+	expect(sections.at(-1)?.classList.contains("clear")).toBe(true);
 });

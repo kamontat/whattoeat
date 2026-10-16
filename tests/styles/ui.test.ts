@@ -37,7 +37,6 @@ test("grouped list rows keep a visible divider and no outline override", () => {
 const LEGACY_COMPONENTS = [
 	"random-picker.ts",
 	"tag-manager.ts",
-	"visit-history.ts",
 	"tag-input.ts",
 	"restaurant-chips.ts",
 ];
