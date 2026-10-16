@@ -854,9 +854,29 @@ test("phone: the Filter button counts active values and the summary lists them",
 			li.textContent?.trim(),
 		]),
 	).toEqual([
-		["include", "✓ siam"],
-		["exclude", "✕ asok"],
+		// Visible text is still "✓ siam" / "✕ asok"; ", included" / ", excluded" is a
+		// visually hidden addition to the chip's accessible name (minor 9).
+		["include", "✓ siam, included"],
+		["exclude", "✕ asok, excluded"],
 	]);
+	expect(root(el).querySelector("ul.summary")?.getAttribute("aria-label")).toBe(
+		"Filter",
+	);
+});
+
+test("phone: tapping an active summary chip opens the filter sheet", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	await cycle(el, "siam");
+	const sheet = root(el).querySelector("app-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(false);
+	const chip = root(el).querySelector<HTMLButtonElement>(
+		'ul.summary button[data-action="open-filter-value"]',
+	)!;
+	expect(chip.getAttribute("aria-haspopup")).toBe("dialog");
+	chip.click();
+	await el.updateComplete;
+	expect(sheet.hasAttribute("open")).toBe(true);
 });
 
 test("phone: the component fills the space above the tab bar so the pinned bar ends the column, even on a short first screen", () => {
@@ -889,6 +909,35 @@ test("phone: a filter that matches nothing disables the pinned button", async ()
 		root(el).querySelector<HTMLButtonElement>(".pinned button.pick")?.disabled,
 	).toBe(true);
 	expect(root(el).querySelector(".no-match")).not.toBeNull();
+});
+
+test("rotating past 48rem while the sheet is open does not reopen it on the way back", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="open-filter"]')!
+		.click();
+	await el.updateComplete;
+	expect(root(el).querySelector("app-sheet")!.hasAttribute("open")).toBe(true);
+	setWidth(1024);
+	await el.updateComplete;
+	setWidth(390);
+	await el.updateComplete;
+	expect(root(el).querySelector("app-sheet")?.hasAttribute("open")).toBe(false);
+});
+
+test("rotating past 48rem while focus is inside the sheet moves it to the panel title instead of losing it", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="open-filter"]')!
+		.click();
+	await el.updateComplete;
+	tagButton(el, "siam")!.focus();
+	setWidth(1024);
+	await el.updateComplete;
+	await el.updateComplete;
+	expect(root(el).activeElement?.id).toBe("filter-title");
 });
 
 test("switching layouts keeps the filter", async () => {

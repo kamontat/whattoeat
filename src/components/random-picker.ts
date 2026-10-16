@@ -1,6 +1,7 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import "#components/app-sheet";
+import { deepActiveElement } from "#components/app-sheet";
 import { restaurantChips } from "#components/restaurant-chips";
 import {
 	applyFilter,
@@ -93,23 +94,26 @@ export class RandomPicker extends LitElement {
 				font-weight: 500;
 			}
 
-			.summary li {
-				display: inline-flex;
-				align-items: center;
+			/* Active values beside the Filter button: buttons, so tapping one reopens the sheet. */
+			.summary-chip {
 				min-height: 2.25rem;
 				padding: 0 0.75rem;
+				/* Transparent, not absent: forced-colours still draws an edge around the chip. */
+				border: 1px solid transparent;
 				border-radius: var(--radius-pill);
 				font-size: 0.875rem;
+				font-weight: 500;
 			}
 
-			.summary .include {
+			.summary-chip.include {
 				background: var(--color-primary-soft);
 				color: var(--color-link);
 				font-weight: 600;
 			}
 
-			.summary .exclude {
-				border: 1px dashed var(--color-control);
+			.summary-chip.exclude {
+				border-style: dashed;
+				border-color: var(--color-control);
 				color: var(--color-muted);
 				text-decoration: line-through;
 			}
@@ -397,6 +401,24 @@ export class RandomPicker extends LitElement {
 		this.unsubscribeFilter = undefined;
 	}
 
+	/**
+	 * Crossing into the wide layout stops rendering the phone sheet entirely, which removes its
+	 * modal `<dialog>` from the DOM without ever firing a close: close it here instead, so it does
+	 * not reopen by itself if the screen narrows again. If focus was inside it, send focus to the
+	 * side panel's heading rather than losing it.
+	 */
+	protected override willUpdate(): void {
+		if (!this.wide.matches || !this.filterOpen) return;
+		const sheet = this.renderRoot.querySelector("app-sheet");
+		const focusWasInSheet = sheet?.contains(deepActiveElement()) ?? false;
+		this.filterOpen = false;
+		if (focusWasInSheet) {
+			void this.updateComplete.then(() => {
+				this.renderRoot.querySelector<HTMLElement>("#filter-title")?.focus();
+			});
+		}
+	}
+
 	private get pool(): Restaurant[] {
 		return applyFilter(this.restaurants, this.filter);
 	}
@@ -564,7 +586,7 @@ export class RandomPicker extends LitElement {
 		const { symbol, summary } = this.filterSummary();
 		return html`
 			<section class="filter" aria-labelledby=${titled ? "filter-title" : nothing} aria-label=${titled ? nothing : t("filter.title")}>
-				${titled ? html`<h2 id="filter-title" class="filter-title">${t("filter.title")}</h2>` : nothing}
+				${titled ? html`<h2 id="filter-title" class="filter-title" tabindex="-1">${t("filter.title")}</h2>` : nothing}
 				<p class="hint">${t("filter.hint")}</p>
 				${groups.map(
 					({
@@ -647,8 +669,20 @@ export class RandomPicker extends LitElement {
 				</button>
 				${
 					active.length > 0
-						? html`<ul class="chips summary">
-								${active.map(({ state, label }) => html`<li class=${state}>${symbol[state]}${label}</li>`)}
+						? html`<ul class="chips summary" aria-label=${t("filter.title")}>
+								${active.map(
+									({ state, label }) => html`<li class=${state}>
+										<button
+											type="button"
+											class="summary-chip ${state}"
+											data-action="open-filter-value"
+											aria-haspopup="dialog"
+											@click=${() => {
+												this.filterOpen = true;
+											}}
+										><span aria-hidden="true">${symbol[state]}</span>${label}<span class="visually-hidden">, ${t(`filter.state.${state}`)}</span></button>
+									</li>`,
+								)}
 							</ul>`
 						: nothing
 				}
