@@ -2,7 +2,7 @@ import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import { repeat } from "lit/directives/repeat.js";
-import { restaurantChips } from "#components/restaurant-chips";
+import "#components/app-sheet";
 import "#components/tag-input";
 import type { TagInput } from "#components/tag-input";
 import {
@@ -13,8 +13,8 @@ import {
 } from "#lib/groups";
 import { getLang, LangController, type MessageKey, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
+import { MediaController, WIDE } from "#lib/media";
 import {
-	isLink,
 	isNameTaken,
 	KINDS,
 	type Kind,
@@ -64,60 +64,77 @@ export class RestaurantManager extends LitElement {
 		uiStyles,
 		css`
 			:host {
-				display: grid;
-				gap: 1.5rem;
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
 			}
 
-			h1 {
-				font-size: 1.5rem;
+			.head {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: flex-end;
+				justify-content: space-between;
+				gap: 0.75rem;
 			}
 
-			.heading {
+			.head-actions {
 				display: flex;
 				flex-wrap: wrap;
 				align-items: center;
-				justify-content: space-between;
-				gap: 0.75rem;
+				gap: 0.5rem;
 			}
 
 			.tags-link {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.375rem;
-				min-height: var(--tap);
+				min-height: 2.25rem;
 				padding: 0 0.875rem;
 				border: 1px solid var(--color-control);
 				border-radius: var(--radius-pill);
 				background: var(--color-surface);
 				color: var(--color-text);
+				font-size: 0.875rem;
 				font-weight: 500;
 				text-decoration: none;
 			}
 
-			.list {
+			.status:empty {
+				display: none;
+			}
+
+			.layout {
 				display: grid;
-				gap: 0.75rem;
-				margin: 0;
-				padding: 0;
-				list-style: none;
-			}
-
-			.name {
-				font-size: 1.125rem;
-				font-weight: 700;
-			}
-
-			.location {
-				overflow-wrap: anywhere;
-			}
-
-			.notes {
-				white-space: pre-wrap;
-			}
-
-			form.card {
 				gap: 1rem;
-				padding: 1.25rem;
+			}
+
+			.list .row {
+				min-height: 3.5rem;
+			}
+
+			.list .meta {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			.list .row[aria-current="true"] {
+				background: var(--color-surface-2);
+				box-shadow: inset 3px 0 0 var(--color-primary);
+			}
+
+			.edit-panel {
+				gap: 1rem;
+			}
+
+			.edit-panel h2 {
+				font-size: 1.125rem;
+				font-weight: 600;
+			}
+
+			form {
+				display: grid;
+				gap: 1rem;
 			}
 
 			/* Type: each checkbox is a pill that fills in when ticked. */
@@ -140,22 +157,24 @@ export class RestaurantManager extends LitElement {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.5rem;
-				padding: 0.375rem 0.875rem 0.375rem 0.625rem;
-				border: 1px solid var(--color-border);
-				border-radius: 999px;
-				background: var(--color-bg);
+				min-height: 2.25rem;
+				padding: 0 0.875rem 0 0.625rem;
+				border: 1px solid var(--color-control);
+				border-radius: var(--radius-pill);
+				background: var(--color-surface);
 				font-weight: 500;
 				cursor: pointer;
 			}
 
 			fieldset.kinds label:has(input:checked) {
 				border-color: var(--color-primary);
-				color: var(--color-primary);
+				background: var(--color-primary-soft);
+				color: var(--color-link);
 				font-weight: 600;
 			}
 
 			fieldset.kinds label:has(input:focus-visible) {
-				outline: 2px solid var(--color-primary);
+				outline: 3px solid var(--color-focus);
 				outline-offset: 2px;
 			}
 
@@ -174,22 +193,57 @@ export class RestaurantManager extends LitElement {
 				gap: 1rem;
 			}
 
-			li.card {
-				gap: 0.375rem;
+			.delete-zone {
+				display: grid;
+				gap: 0.625rem;
+				padding-top: 1rem;
+				border-top: 1px solid var(--color-border);
 			}
 
-			li.card .meta {
-				color: var(--color-primary);
-				font-weight: 600;
+			/* Phone: Add stays at the bottom right, just above the tab bar. */
+			.pinned {
+				position: sticky;
+				z-index: 5;
+				bottom: var(--tab-bar-height);
+				display: flex;
+				justify-content: flex-end;
+				margin-top: auto;
+				padding: 0.75rem 0 0.5rem;
 			}
 
-			li.card .actions {
-				margin-top: 0.375rem;
+			.pinned .add {
+				min-height: 3rem;
+				padding: 0 1.25rem;
+				box-shadow: 0 4px 14px rgb(0 0 0 / 0.12);
+			}
+
+			@media (min-width: 48rem) {
+				.layout.wide {
+					grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+					align-items: start;
+					gap: 1.5rem;
+				}
+
+				.edit-panel {
+					position: sticky;
+					top: 1rem;
+				}
 			}
 		`,
 	];
 
 	protected readonly langController = new LangController(this);
+
+	/** Wide screens show the form in a side panel; phones open it in a sheet. */
+	protected readonly wide = new MediaController(this, WIDE);
+
+	/** Whether the phone form sheet is open. */
+	@state()
+	private sheetOpen = false;
+
+	/** The last save or delete, read out and shown under the title. */
+	@state()
+	private status = "";
 
 	@state()
 	private restaurants: Restaurant[] = [];
@@ -236,7 +290,10 @@ export class RestaurantManager extends LitElement {
 			const editing = this.restaurants.find(
 				(item) => item.id === this.editingId,
 			);
-			if (editing === undefined) this.resetForm();
+			if (editing === undefined) {
+				this.resetForm();
+				this.sheetOpen = false;
+			}
 			// Saved elsewhere (another tab): show the newer version rather than overwrite it.
 			else if (editing.updatedAt !== this.editingUpdatedAt)
 				this.fillForm(editing);
@@ -253,6 +310,21 @@ export class RestaurantManager extends LitElement {
 		this.unsubscribe = undefined;
 		this.unsubscribeGroups?.();
 		this.unsubscribeGroups = undefined;
+	}
+
+	/**
+	 * Crossing into the wide layout stops rendering the phone sheet entirely, which removes its
+	 * modal `<dialog>` from the DOM without ever firing a close: close it here instead, so it does
+	 * not reopen by itself if the screen narrows again. If focus was inside it, send focus to the
+	 * panel's heading rather than losing it.
+	 */
+	protected override willUpdate(): void {
+		if (!this.wide.matches || !this.sheetOpen) return;
+		const focusWasInSheet =
+			this.renderRoot.querySelector("app-sheet")?.containsFocus() ?? false;
+		this.sheetOpen = false;
+		if (focusWasInSheet)
+			this.focusAfterRender(() => this.renderRoot.querySelector("#form-title"));
 	}
 
 	private resetForm(): void {
@@ -322,10 +394,13 @@ export class RestaurantManager extends LitElement {
 			groups,
 		};
 		const editingId = this.editingId;
+		const name = input.name.trim();
 		// Reset before saving so the store's change callback already sees a clean form.
 		this.resetForm();
+		this.sheetOpen = false;
 		if (editingId === undefined) addRestaurant(input);
 		else updateRestaurant(editingId, input);
+		this.status = t("manager.saved", { name });
 	};
 
 	private fillForm(item: Restaurant): void {
@@ -347,8 +422,29 @@ export class RestaurantManager extends LitElement {
 		// Text typed for the previous form must not become a value of this restaurant.
 		for (const input of this.tagInputs) input.clearText();
 		this.fillForm(item);
+		this.sheetOpen = !this.wide.matches;
 		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	}
+
+	private readonly startAdd = (): void => {
+		this.confirmingId = undefined;
+		this.resetForm();
+		this.sheetOpen = !this.wide.matches;
+		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
+	};
+
+	/** The sheet closed by ✕, Esc or the backdrop: drop whatever was typed. */
+	private readonly onSheetClose = (): void => {
+		this.sheetOpen = false;
+		this.confirmingId = undefined;
+		this.resetForm();
+	};
+
+	private readonly cancelEdit = (): void => {
+		this.resetForm();
+		this.sheetOpen = false;
+		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
+	};
 
 	/** Swapping the row's buttons removes the focused one, so move focus to its replacement. */
 	private focusAfterRender(find: () => Element | null | undefined): void {
@@ -358,26 +454,27 @@ export class RestaurantManager extends LitElement {
 		});
 	}
 
-	private rowAction(id: string, action: string): Element | undefined {
-		const row = [...this.renderRoot.querySelectorAll("li[data-id]")].find(
-			(item) => item.getAttribute("data-id") === id,
-		);
-		return row?.querySelector(`[data-action="${action}"]`) ?? undefined;
-	}
-
 	private askDelete(id: string): void {
 		this.confirmingId = id;
-		this.focusAfterRender(() => this.rowAction(id, "confirm-delete"));
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector('[data-action="confirm-delete"]'),
+		);
 	}
 
-	private cancelDelete(id: string): void {
+	private cancelDelete(): void {
 		this.confirmingId = undefined;
-		this.focusAfterRender(() => this.rowAction(id, "delete"));
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector('[data-action="delete"]'),
+		);
 	}
 
 	private confirmDelete(id: string): void {
+		const name = this.restaurants.find((item) => item.id === id)?.name ?? "";
 		this.confirmingId = undefined;
+		this.sheetOpen = false;
 		removeRestaurant(id);
+		this.resetForm();
+		this.status = t("manager.deleted", { name });
 		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	}
 
@@ -385,11 +482,30 @@ export class RestaurantManager extends LitElement {
 		const sorted = [...this.restaurants].sort((a, b) =>
 			a.name.localeCompare(b.name, getLang()),
 		);
+		const wide = this.wide.matches;
+		const editing = this.restaurants.find((item) => item.id === this.editingId);
+		const formTitle =
+			editing === undefined
+				? t("manager.addTitle")
+				: t("manager.editTitle", { name: editing.name });
+		const count =
+			sorted.length === 1
+				? t("picker.count.one")
+				: t("picker.count.other", { count: sorted.length });
+		const add = html`<button type="button" class="primary add" data-action="add" @click=${this.startAdd}>
+			${icon("plus", 20)}<span>${t("manager.add")}</span>
+		</button>`;
 		return html`
-			<div class="heading">
-				<h1>${t("manager.title")}</h1>
-				<a class="tags-link" href="./tags">${icon("tag", 18)}<span>${t("nav.tags")}</span></a>
-			</div>
+			<header class="head">
+				<div>
+					<h1 class="page-title">${t("manager.title")}</h1>
+					<p class="count page-sub">${count}</p>
+				</div>
+				<div class="head-actions">
+					<a class="tags-link" href="./tags">${icon("tag", 18)}<span>${t("nav.tags")}</span></a>
+					${wide ? add : nothing}
+				</div>
+			</header>
 			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
 				this.skipped > 0
@@ -398,11 +514,31 @@ export class RestaurantManager extends LitElement {
 						</p>`
 					: nothing
 			}
-			${this.renderForm()}
+			<p class="status success" role="status">${this.status}</p>
+			<div class="layout ${wide ? "wide" : ""}">
+				<div class="list-col">
+					${
+						sorted.length === 0
+							? html`<p class="muted empty">${t("manager.empty")}</p>`
+							: html`<ul class="group list">${sorted.map((item) => this.renderRow(item))}</ul>`
+					}
+				</div>
+				${
+					wide
+						? html`<section class="card edit-panel" aria-labelledby="form-title">
+								<h2 id="form-title" tabindex="-1">${formTitle}</h2>
+								${this.renderForm()}
+							</section>`
+						: nothing
+				}
+			</div>
 			${
-				sorted.length === 0
-					? html`<p class="muted empty">${t("manager.empty")}</p>`
-					: html`<ul class="list">${sorted.map((item) => this.renderRow(item))}</ul>`
+				wide
+					? nothing
+					: html`<div class="pinned">${add}</div>
+							<app-sheet heading=${formTitle} ?open=${this.sheetOpen} @sheet-close=${this.onSheetClose}>
+								${this.renderForm()}
+							</app-sheet>`
 			}
 		`;
 	}
@@ -410,7 +546,7 @@ export class RestaurantManager extends LitElement {
 	private renderForm() {
 		const editing = this.editingId !== undefined;
 		return html`
-			<form class="card" novalidate @submit=${this.submit}>
+			<form id="restaurant-form" novalidate @submit=${this.submit}>
 				<label>
 					${t("field.name")}
 					<input
@@ -460,14 +596,41 @@ export class RestaurantManager extends LitElement {
 					<button type="submit" class="primary">${editing ? t("manager.save") : t("manager.add")}</button>
 					${
 						editing
-							? html`<button type="button" data-action="cancel-edit" @click=${() => this.resetForm()}>
+							? html`<button type="button" data-action="cancel-edit" @click=${this.cancelEdit}>
 									${t("manager.cancel")}
 								</button>`
 							: nothing
 					}
 				</div>
+				${editing ? this.renderDelete() : nothing}
 			</form>
 		`;
+	}
+
+	/** Delete lives at the end of the edit form, behind an inline confirmation. */
+	private renderDelete() {
+		const id = this.editingId;
+		if (id === undefined) return nothing;
+		const name = this.restaurants.find((item) => item.id === id)?.name ?? "";
+		return html`<div class="delete-zone">
+			${
+				this.confirmingId === id
+					? html`<p class="delete-prompt" role="alert">${t("manager.deletePrompt", { name })}</p>
+							<div class="actions">
+								<button type="button" class="danger" data-action="confirm-delete" @click=${() => this.confirmDelete(id)}>
+									${t("manager.confirmDelete")}
+								</button>
+								<button type="button" data-action="cancel-delete" @click=${() => this.cancelDelete()}>
+									${t("manager.cancel")}
+								</button>
+							</div>`
+					: html`<div class="actions">
+							<button type="button" class="danger" data-action="delete" @click=${() => this.askDelete(id)}>
+								${icon("trash", 18)}<span>${t("manager.delete")}</span>
+							</button>
+						</div>`
+			}
+		</div>`;
 	}
 
 	/** A chip input for one group, suggesting the values other restaurants already use. */
@@ -498,53 +661,22 @@ export class RestaurantManager extends LitElement {
 	}
 
 	private renderRow(item: Restaurant) {
-		const confirming = this.confirmingId === item.id;
-		return html`
-			<li class="card" data-id=${item.id}>
-				<span class="name">${item.name}</span>
-				${metaLine(item) ? html`<span class="meta muted">${metaLine(item)}</span>` : nothing}
-				${
-					item.location
-						? html`<span class="location muted">
-								${
-									isLink(item.location)
-										? html`<a href=${item.location} target="_blank" rel="noopener noreferrer">${item.location}</a>`
-										: item.location
-								}
-							</span>`
-						: nothing
-				}
-				${item.notes ? html`<span class="notes muted">${item.notes}</span>` : nothing}
-				${restaurantChips(item, this.defs)}
-				<div class="actions">
-					${
-						confirming
-							? html`
-									<button type="button" class="danger" data-action="confirm-delete" @click=${() => this.confirmDelete(item.id)}>
-										${t("manager.confirmDelete")}
-									</button>
-									<button
-										type="button"
-										data-action="cancel-delete"
-										@click=${() => this.cancelDelete(item.id)}
-									>
-										${t("manager.cancel")}
-									</button>
-								`
-							: html`
-									<button type="button" data-action="edit" @click=${() => this.startEdit(item)}>${t("manager.edit")}</button>
-									<button
-										type="button"
-										class="danger"
-										data-action="delete"
-										@click=${() => this.askDelete(item.id)}
-									>
-										${t("manager.delete")}
-									</button>
-								`
-					}
-				</div>
-			</li>
-		`;
+		const meta = metaLine(item);
+		return html`<li data-id=${item.id}>
+			<button
+				type="button"
+				class="item row"
+				data-action="edit"
+				aria-current=${this.editingId === item.id ? "true" : nothing}
+				aria-label=${t("manager.editTitle", { name: item.name })}
+				@click=${() => this.startEdit(item)}
+			>
+				<span class="grow">
+					<b class="name">${item.name}</b>
+					${meta ? html`<small class="meta">${meta}</small>` : nothing}
+				</span>
+				<span class="trail">${icon("chevron", 20)}</span>
+			</button>
+		</li>`;
 	}
 }
