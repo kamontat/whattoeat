@@ -46,9 +46,15 @@ export class RandomPicker extends LitElement {
 	static override styles = [
 		uiStyles,
 		css`
+			/*
+			 * Phone: fill the space above the tab bar so the pinned pick button ends the column
+			 * even when there is little content yet (the 1.25rem is main's top padding on phones).
+			 */
 			:host {
-				display: grid;
+				display: flex;
+				flex-direction: column;
 				gap: 1rem;
+				min-height: calc(100dvh - 1.25rem - var(--tab-bar-space));
 			}
 
 			.layout {
@@ -255,11 +261,15 @@ export class RandomPicker extends LitElement {
 				font-size: 1.0625rem;
 			}
 
-			/* Phone: the pick button stays in reach, just above the tab bar. */
+			/*
+			 * Phone: the pick button stays in reach, just above the tab bar. margin-top: auto
+			 * pushes it to the end of the column so it never sits right under short content.
+			 */
 			.pinned {
 				position: sticky;
 				z-index: 5;
 				bottom: calc(var(--tab-bar-space) - 0.75rem);
+				margin-top: auto;
 				padding: 0.75rem 0 0.25rem;
 				background: linear-gradient(to bottom, transparent, var(--color-bg) 35%);
 			}
@@ -282,6 +292,10 @@ export class RandomPicker extends LitElement {
 			}
 
 			@media (min-width: 48rem) {
+				:host {
+					min-height: 0;
+				}
+
 				.layout.with-panel {
 					grid-template-columns: 17.5rem minmax(0, 1fr);
 					align-items: start;

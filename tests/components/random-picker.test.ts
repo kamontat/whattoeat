@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/random-picker";
+import { RandomPicker } from "#components/random-picker";
 import { FILTER_KEY } from "#lib/filter";
 import { saveGroups } from "#lib/groups";
 import { loadHistory, saveHistory } from "#lib/history";
@@ -856,6 +857,17 @@ test("phone: the Filter button counts active values and the summary lists them",
 		["include", "✓ siam"],
 		["exclude", "✕ asok"],
 	]);
+});
+
+test("phone: the component fills the space above the tab bar so the pinned bar ends the column, even on a short first screen", () => {
+	const css = [RandomPicker.styles]
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(
+		/:host\s*\{[^}]*min-height:\s*calc\(100dvh - 1\.25rem - var\(--tab-bar-space\)\)/,
+	);
+	expect(css).toMatch(/\.pinned\s*\{[^}]*margin-top:\s*auto/);
 });
 
 test("phone: the pick button is pinned at the end, once", async () => {
