@@ -16,7 +16,6 @@ import { getLang, LangController, type MessageKey, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
 import {
-	isNameTaken,
 	KINDS,
 	type Kind,
 	metaLine,
@@ -332,7 +331,7 @@ export class RestaurantManager extends LitElement {
 	private confirmingId: string | undefined;
 
 	@state()
-	private nameError: "manager.nameRequired" | "manager.nameTaken" | undefined;
+	private nameError: "manager.nameRequired" | undefined;
 
 	/** Stored entries the last load could not read. */
 	@state()
@@ -503,10 +502,6 @@ export class RestaurantManager extends LitElement {
 		};
 		if (this.form.name.trim() === "") {
 			this.nameError = "manager.nameRequired";
-			return;
-		}
-		if (isNameTaken(loadRestaurants(), this.form.name, this.editingId)) {
-			this.nameError = "manager.nameTaken";
 			return;
 		}
 		const input = {

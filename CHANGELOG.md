@@ -2,9 +2,14 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-16: Paste JSON in one tap
+## 2026-10-16: Paste JSON in one tap, and restaurants can share a name
 
 ### Improvements
+
+- Two restaurants can have the same name. The form no longer shows "A restaurant with this
+  name already exists." when adding or editing; a blank name is still refused.
+- Import keeps every restaurant name as it is in the file, instead of adding a ` - <n>` suffix
+  to names that repeat in the file or are already saved.
 
 - Settings > Import: "Paste JSON" is one row that reads the clipboard and checks the export
   at once. The text box and Check only open when the browser blocks the clipboard, has none,
