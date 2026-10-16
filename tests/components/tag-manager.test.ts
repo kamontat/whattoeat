@@ -180,7 +180,9 @@ test("deleting a group asks first, then turns its values into tags and drops its
 
 test("with no restaurants, links to the restaurants page and still allows adding groups", async () => {
 	const el = await mount();
-	expect($(el, ".empty a")?.getAttribute("href")).toBe("./restaurants");
+	expect($(el, ".empty a.button-link")?.getAttribute("href")).toBe(
+		"./restaurants",
+	);
 	expect($(el, "form.add-group")).not.toBeNull();
 });
 

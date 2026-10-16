@@ -612,7 +612,7 @@ export class RestaurantManager extends LitElement {
 				<div class="list-col">
 					${
 						sorted.length === 0
-							? html`<p class="muted empty">${t("manager.empty")}</p>`
+							? html`<div class="card empty"><p>${t("manager.empty")}</p></div>`
 							: html`<ul class="group list">${sorted.map((item) => this.renderRow(item))}</ul>`
 					}
 				</div>

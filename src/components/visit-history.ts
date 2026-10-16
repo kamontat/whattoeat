@@ -217,7 +217,7 @@ export class VisitHistory extends LitElement {
 				${heading}
 				<div class="card empty">
 					<p>${t("history.empty")}</p>
-					<a href="./">${t("history.emptyLink")}</a>
+					<a class="button-link" href="./">${t("history.emptyLink")}</a>
 				</div>
 			`;
 		const lang = getLang();

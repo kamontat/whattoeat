@@ -155,7 +155,7 @@ test("with no visits shows a link to pick and no stats", async () => {
 	saveHistory([]);
 	const el = await mount();
 	expect(text(root(el).querySelector(".empty p"))).toBe("No visits yet.");
-	const link = root(el).querySelector(".empty a");
+	const link = root(el).querySelector(".empty a.button-link");
 	expect(link?.getAttribute("href")).toBe("./");
 	expect(text(link)).toBe("Pick a restaurant");
 	expect(root(el).querySelector("table")).toBeNull();

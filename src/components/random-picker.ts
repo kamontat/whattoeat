@@ -300,23 +300,6 @@ export class RandomPicker extends LitElement {
 				background: linear-gradient(to bottom, transparent, var(--color-bg) 35%);
 			}
 
-			.empty {
-				justify-items: center;
-				text-align: center;
-			}
-
-			.button-link {
-				display: inline-flex;
-				align-items: center;
-				min-height: var(--tap);
-				padding: 0 var(--pad-x);
-				border-radius: var(--radius-sm);
-				background: var(--color-primary);
-				color: var(--color-primary-text);
-				font-weight: 600;
-				text-decoration: none;
-			}
-
 			@media (min-width: 48rem) {
 				:host {
 					min-height: 0;

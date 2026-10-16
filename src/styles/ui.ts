@@ -119,6 +119,24 @@ export const uiStyles = css`
 		overflow-wrap: anywhere;
 	}
 
+	/* Empty state: a centred card with one next step, the same on every page. */
+	.empty {
+		justify-items: center;
+		text-align: center;
+	}
+
+	a.button-link {
+		display: inline-flex;
+		align-items: center;
+		min-height: var(--tap);
+		padding: 0 var(--pad-x);
+		border-radius: var(--radius-sm);
+		background: var(--color-primary);
+		color: var(--color-primary-text);
+		font-weight: 600;
+		text-decoration: none;
+	}
+
 	.card > * {
 		min-width: 0;
 	}

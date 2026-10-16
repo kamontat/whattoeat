@@ -103,6 +103,7 @@ test("shows the empty message with no restaurants", async () => {
 	expect($(el, ".empty")?.textContent?.trim()).toBe(
 		"No restaurants yet. Add your first one.",
 	);
+	expect($(el, ".empty")?.classList.contains("card")).toBe(true);
 });
 
 test("a blank name shows an error and saves nothing", async () => {

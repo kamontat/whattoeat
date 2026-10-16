@@ -580,7 +580,7 @@ export class TagManager extends LitElement {
 				this.restaurants.length === 0
 					? html`<div class="card empty">
 							<p>${t("tags.empty")}</p>
-							<a href="./restaurants">${t("tags.emptyLink")}</a>
+							<a class="button-link" href="./restaurants">${t("tags.emptyLink")}</a>
 						</div>`
 					: nothing
 			}
