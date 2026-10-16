@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/restaurant-manager";
-import type { RestaurantManager } from "#components/restaurant-manager";
+import { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
 import { saveGroups } from "#lib/groups";
 import { setLang } from "#lib/i18n";
@@ -779,4 +779,29 @@ test("rotating to wide keeps the edit in the panel", async () => {
 	expect($(el, "app-sheet")).toBeNull();
 	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Mine");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Mine 2");
+});
+
+// The shared uiStyles entry has its own unrelated `:host` rule; skip it so the regexes below
+// only ever see this component's own styles.
+const ownStyles = (): string =>
+	(RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+
+test("phone: the component fills the space above the tab bar so the pinned Add ends the column, even on a short list", () => {
+	const css = ownStyles();
+	expect(css).toMatch(
+		/:host\s*\{[^}]*min-height:\s*calc\(100dvh - 1\.25rem - var\(--tab-bar-height\)\)/,
+	);
+	expect(css).toMatch(
+		/:host\s*\{[^}]*margin-bottom:\s*calc\(var\(--tab-bar-height\) - var\(--tab-bar-space\)\)/,
+	);
+	expect(css).toMatch(/\.pinned\s*\{[^}]*margin-top:\s*auto/);
+	const wideIndex = css.indexOf("@media (min-width: 48rem)");
+	expect(wideIndex).toBeGreaterThan(-1);
+	const wideBlock = css.slice(wideIndex);
+	expect(wideBlock).toMatch(/:host\s*\{[^}]*min-height:\s*0/);
+	expect(wideBlock).toMatch(/:host\s*\{[^}]*margin-bottom:\s*0/);
 });

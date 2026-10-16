@@ -63,10 +63,13 @@ export class RestaurantManager extends LitElement {
 	static override styles = [
 		uiStyles,
 		css`
+			/* Phone: fill the space above the tab bar so the pinned Add ends the column even with little content. */
 			:host {
 				display: flex;
 				flex-direction: column;
 				gap: 1rem;
+				min-height: calc(100dvh - 1.25rem - var(--tab-bar-height));
+				margin-bottom: calc(var(--tab-bar-height) - var(--tab-bar-space));
 			}
 
 			.head {
@@ -209,6 +212,7 @@ export class RestaurantManager extends LitElement {
 				justify-content: flex-end;
 				margin-top: auto;
 				padding: 0.75rem 0 0.5rem;
+				background: linear-gradient(to bottom, transparent, var(--color-bg) 35%);
 			}
 
 			.pinned .add {
@@ -218,6 +222,11 @@ export class RestaurantManager extends LitElement {
 			}
 
 			@media (min-width: 48rem) {
+				:host {
+					min-height: 0;
+					margin-bottom: 0;
+				}
+
 				.layout.wide {
 					grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 					align-items: start;
