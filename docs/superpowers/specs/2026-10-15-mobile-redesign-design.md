@@ -300,12 +300,15 @@ Phone:
 Value sheet (heading the value, subheading "<group> · <count>"): rows Rename, Move to…
 (subtitle "Another group") and Delete (danger). Each switches the sheet body to today's form
 or confirmation: rename field with the merge prompt when the name exists, the move select,
-the delete prompt. Navigating to another tab (e.g. Restaurants) closes the open sheet.
+the delete prompt. If another browser tab or window removes the open value or group (via
+rename, move or delete), this tab's value sheet or group sheet closes instead of acting on
+something that no longer exists.
 
-Desktop: back link, title and intro with Add a group at the right; groups on the left; the
-selected value's Rename (field + Save), Move (select + Move) and Delete on the right panel,
-with the same prompts. Opening a group's options keeps an in-progress value draft on the
-panel. Group options stay a sheet at every width.
+Desktop: back link, title and intro, with Add a group inline at the end of the groups
+column; groups on the left; the selected value's Rename (field + Save), Move (select + Move)
+and Delete on the right panel, with the same prompts. Until a value is chosen, the panel
+shows "Choose a value to rename, move or delete it." Opening a group's options keeps an
+in-progress value draft on the panel. Group options stay a sheet at every width.
 
 ### History (`visit-history`)
 

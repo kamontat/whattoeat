@@ -3,6 +3,7 @@ import { Glob } from "bun";
 
 const pages = Array.from(new Glob("**/*.html").scanSync({ cwd: "src/routes" }));
 const WIDE_PAGES = ["index.html", "restaurants.html", "tags.html"];
+const PINNED_PAGES = ["index.html", "restaurants.html"];
 
 test("src/routes has at least one page", () => {
 	expect(pages.length).toBeGreaterThan(0);
@@ -101,6 +102,8 @@ test("home and restaurants opt into room for their pinned buttons; other pages d
 		const html = await Bun.file(`src/routes/${page}`).text();
 		const tag = html.match(/<html[^>]*>/)?.[0];
 		expect(tag).not.toBeUndefined();
-		expect(tag?.includes('class="has-pinned"')).toBe(WIDE_PAGES.includes(page));
+		expect(tag?.includes('class="has-pinned"')).toBe(
+			PINNED_PAGES.includes(page),
+		);
 	}
 });
