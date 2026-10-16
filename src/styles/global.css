@@ -212,6 +212,11 @@ main:focus {
 	main {
 		padding: 1.75rem 2rem 3rem;
 	}
+
+	/* Pages with a side panel (Home) get room for two columns. */
+	main.wide {
+		max-width: 65rem;
+	}
 }
 
 :focus-visible {

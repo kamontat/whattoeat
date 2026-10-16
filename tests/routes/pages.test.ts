@@ -54,7 +54,20 @@ test.each(pages)("%s colours the browser bar for both themes", async (page) => {
 
 test.each(pages)("%s gives the skip link a focusable target", async (page) => {
 	const html = await Bun.file(`src/routes/${page}`).text();
-	expect(html).toContain('<main id="main" tabindex="-1">');
+	expect(html).toMatch(/<main id="main" tabindex="-1"( class="wide")?>/);
+});
+
+test("home uses the wide main for its two columns; other pages keep the narrow one", async () => {
+	for (const page of pages) {
+		const html = await Bun.file(`src/routes/${page}`).text();
+		expect(html.includes('<main id="main" tabindex="-1" class="wide">')).toBe(
+			page === "index.html",
+		);
+	}
+	const css = await Bun.file("src/styles/global.css").text();
+	expect(css).toMatch(
+		/@media \(min-width: 48rem\)\s*\{[\s\S]*?main\.wide\s*\{[^}]*max-width:\s*65rem/,
+	);
 });
 
 test.each(pages)("%s links the site icon", async (page) => {
