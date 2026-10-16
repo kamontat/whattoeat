@@ -696,12 +696,15 @@ export class RestaurantManager extends LitElement {
 		this.form = { ...this.form, name };
 	}
 
-	/** `/` opens search on wide screens, unless typing somewhere or a sheet is open. */
+	/**
+	 * `/` opens search on wide screens, unless typing somewhere or a sheet is open. Already
+	 * searching but focus has drifted elsewhere (e.g. a result row): bring it back to the field
+	 * instead of doing nothing.
+	 */
 	private readonly onShortcut = (event: KeyboardEvent): void => {
 		if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey)
 			return;
-		if (this.searching || !this.wide.matches || this.restaurants.length === 0)
-			return;
+		if (!this.wide.matches || this.restaurants.length === 0) return;
 		if (document.documentElement.classList.contains("sheet-open")) return;
 		const target = event.composedPath()[0];
 		if (
@@ -711,6 +714,10 @@ export class RestaurantManager extends LitElement {
 		)
 			return;
 		event.preventDefault();
+		if (this.searching) {
+			this.renderRoot.querySelector<HTMLInputElement>("#search")?.focus();
+			return;
+		}
 		this.openSearch();
 	};
 

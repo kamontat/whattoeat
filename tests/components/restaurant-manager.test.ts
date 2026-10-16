@@ -1319,6 +1319,28 @@ test("wide: / does nothing while a sheet is open", async () => {
 	}
 });
 
+test("wide: / while already searching moves focus back to the field, from outside a typing control", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	const row = $<HTMLButtonElement>(
+		el,
+		'li[data-id] button[data-action="edit"]',
+	)!;
+	row.focus();
+	const event = new KeyboardEvent("keydown", {
+		key: "/",
+		bubbles: true,
+		composed: true,
+		cancelable: true,
+	});
+	row.dispatchEvent(event);
+	await el.updateComplete;
+	expect(event.defaultPrevented).toBe(true);
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+});
+
 test("search: the no-match card is translated to Thai", async () => {
 	seedSearch();
 	const el = await mount();
