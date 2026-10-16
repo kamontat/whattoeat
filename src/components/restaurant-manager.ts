@@ -939,6 +939,7 @@ export class RestaurantManager extends LitElement {
 									class="clear-search"
 									data-action="clear-search"
 									aria-label=${t("search.clear")}
+									@pointerdown=${(event: PointerEvent) => event.preventDefault()}
 									@click=${this.clearSearch}
 								>
 									${icon("x", 18)}

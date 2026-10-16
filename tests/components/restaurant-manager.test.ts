@@ -1091,6 +1091,20 @@ test("search: clear empties the field but stays in search with focus in the fiel
 	expect(el.shadowRoot!.activeElement?.id).toBe("search");
 });
 
+test("search: a pointerdown on clear does not blur the field first, so the keyboard stays up", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	const clear = $<HTMLButtonElement>(el, '[data-action="clear-search"]')!;
+	const event = new PointerEvent("pointerdown", {
+		bubbles: true,
+		cancelable: true,
+	});
+	clear.dispatchEvent(event);
+	expect(event.defaultPrevented).toBe(true);
+});
+
 test("search: Cancel and Escape end search, restore the header and focus the button", async () => {
 	seedSearch();
 	const el = await mount();
