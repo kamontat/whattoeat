@@ -60,7 +60,7 @@ export class AppHeader extends LitElement {
 				transform: none;
 			}
 
-			/* Phones: no top bar (pages show large titles); the nav floats at the bottom. */
+			/* Phones: no top bar (pages show their own titles); the nav sits along the bottom edge. */
 			.brand,
 			app-preferences {
 				display: none;
@@ -69,53 +69,62 @@ export class AppHeader extends LitElement {
 			nav {
 				position: fixed;
 				z-index: 20;
-				left: 0.875rem;
-				right: 0.875rem;
-				bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+				left: 0;
+				right: 0;
+				bottom: 0;
 				display: grid;
 				grid-template-columns: repeat(4, minmax(0, 1fr));
-				gap: 0.25rem;
-				padding: 0.375rem;
-				border: 1px solid var(--color-border);
-				border-radius: 1.5rem;
+				padding: 0.25rem 0.25rem env(safe-area-inset-bottom, 0px);
+				border-top: 1px solid var(--color-border);
 				background: var(--color-surface);
-				box-shadow: var(--shadow);
 			}
 
 			nav a {
+				position: relative;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				justify-content: center;
 				gap: 0.125rem;
-				min-height: 3.5rem;
-				border-radius: 1.125rem;
+				min-height: 3.25rem;
 				color: var(--color-muted);
-				font-size: 0.75rem;
-				font-weight: 600;
+				font-size: 0.6875rem;
+				font-weight: 500;
 				text-decoration: none;
 			}
 
 			nav a[aria-current="page"] {
-				background: var(--color-accent);
-				color: var(--color-accent-text);
+				color: var(--color-primary);
+				font-weight: 600;
+			}
+
+			/* A short bar on the top edge marks the current tab, so colour is not the only cue. */
+			nav a[aria-current="page"]::before {
+				content: "";
+				position: absolute;
+				/* Sits over the bar's 1px top border. */
+				top: calc(-0.25rem - 1px);
+				width: 1.75rem;
+				height: 3px;
+				border-radius: 0 0 3px 3px;
+				background: currentColor;
 			}
 
 			@media (forced-colors: active) {
-				nav a[aria-current="page"] {
-					outline: 2px solid CanvasText;
+				nav a[aria-current="page"]::before {
+					background: CanvasText;
 				}
 			}
 
-			/* From 48rem: one top bar, brand on the left, the links as a rounded group. */
+			/* From 48rem: one top bar, brand on the left, the links beside it. */
 			@media (min-width: 48rem) {
 				header {
 					display: flex;
 					flex-wrap: wrap;
 					align-items: center;
-					gap: 0.75rem 1.5rem;
+					gap: 0.75rem 1.25rem;
 					min-height: var(--bar-height);
-					padding: 0.375rem 2.5rem;
+					padding: 0.375rem 2rem;
 					background: var(--color-surface);
 					border-bottom: 1px solid var(--color-border);
 				}
@@ -127,7 +136,7 @@ export class AppHeader extends LitElement {
 					margin-right: auto;
 					color: var(--color-text);
 					font-size: var(--brand-size);
-					font-weight: 700;
+					font-weight: 600;
 					letter-spacing: -0.01em;
 					text-decoration: none;
 				}
@@ -141,19 +150,34 @@ export class AppHeader extends LitElement {
 				nav {
 					position: static;
 					display: flex;
-					gap: 0.375rem;
-					border-radius: 1.375rem;
-					background: var(--color-bg);
-					box-shadow: none;
+					gap: 0.25rem;
+					padding: 0;
+					border: 0;
+					background: none;
 				}
 
 				nav a {
 					flex-direction: row;
-					gap: 0.5rem;
+					gap: 0.375rem;
 					min-height: var(--tap);
 					padding: 0 var(--pad-x);
-					border-radius: 1rem;
-					font-size: 0.9375rem;
+					border-radius: var(--radius-sm);
+					font-size: 0.875rem;
+				}
+
+				nav a[aria-current="page"] {
+					background: var(--color-primary-soft);
+					color: var(--color-link);
+				}
+
+				nav a[aria-current="page"]::before {
+					content: none;
+				}
+
+				@media (forced-colors: active) {
+					nav a[aria-current="page"] {
+						outline: 2px solid CanvasText;
+					}
 				}
 			}
 
@@ -188,7 +212,7 @@ export class AppHeader extends LitElement {
 					${TABS.map(
 						(link) =>
 							html`<a href=${link.href} aria-current=${tab === link.page ? "page" : nothing}>
-								${icon(link.icon)}<span>${t(link.label)}</span>
+								${icon(link.icon, 22)}<span>${t(link.label)}</span>
 							</a>`,
 					)}
 				</nav>

@@ -86,7 +86,7 @@ export class RestaurantManager extends LitElement {
 				gap: 0.375rem;
 				min-height: var(--tap);
 				padding: 0 0.875rem;
-				border: 1.5px solid var(--color-control);
+				border: 1px solid var(--color-control);
 				border-radius: var(--radius-pill);
 				background: var(--color-surface);
 				color: var(--color-text);

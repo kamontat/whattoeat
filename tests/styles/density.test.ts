@@ -27,24 +27,24 @@ const MOUSE = "@media (hover: hover) and (pointer: fine)";
 
 const TOUCH = {
 	tap: "2.75rem",
-	"pad-x": "1.125rem",
-	"row-pad-y": "0.625rem",
-	"title-size": "2rem",
-	"row-text": "1.0625rem",
-	"seg-min": "3.5rem",
+	"pad-x": "1rem",
+	"row-pad-y": "0.5rem",
+	"title-size": "1.75rem",
+	"row-text": "1rem",
+	"seg-min": "3.25rem",
 	"bar-height": "4.75rem",
-	"brand-size": "1.375rem",
+	"brand-size": "1.25rem",
 } as const;
 
 const COMPACT = {
 	tap: "2.25rem",
 	"pad-x": "0.875rem",
 	"row-pad-y": "0.375rem",
-	"title-size": "1.625rem",
+	"title-size": "1.5rem",
 	"row-text": "0.9375rem",
 	"seg-min": "2.75rem",
 	"bar-height": "3.75rem",
-	"brand-size": "1.125rem",
+	"brand-size": "1.0625rem",
 } as const;
 
 test.each(Object.entries(TOUCH))("touch size %s is %s", (name, size) => {

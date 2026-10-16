@@ -24,8 +24,8 @@ export const uiStyles = css`
 
 	.page-title {
 		font-size: var(--title-size);
-		line-height: 1.15;
-		font-weight: 700;
+		line-height: 1.2;
+		font-weight: 600;
 		letter-spacing: -0.01em;
 	}
 
@@ -44,8 +44,8 @@ export const uiStyles = css`
 		font: inherit;
 		font-weight: 600;
 		cursor: pointer;
-		border: 1.5px solid var(--color-control);
-		border-radius: var(--radius-pill);
+		border: 1px solid var(--color-control);
+		border-radius: var(--radius-sm);
 		background: var(--color-surface);
 		color: var(--color-text);
 	}
@@ -61,10 +61,11 @@ export const uiStyles = css`
 		color: var(--color-primary-text);
 	}
 
-	button.accent {
-		background: var(--color-accent);
-		border-color: var(--color-accent);
-		color: var(--color-accent-text);
+	/* Secondary action that still matters, like Eat here: a soft tint of the primary colour. */
+	button.soft {
+		background: var(--color-primary-soft);
+		border-color: var(--color-primary-soft);
+		color: var(--color-link);
 	}
 
 	button.danger {
@@ -113,7 +114,7 @@ export const uiStyles = css`
 		padding: var(--pad-x);
 		border-radius: var(--radius);
 		background: var(--color-surface);
-		box-shadow: var(--shadow);
+		border: 1px solid var(--color-border);
 		overflow-wrap: anywhere;
 	}
 
@@ -129,12 +130,10 @@ export const uiStyles = css`
 
 	/* Grouped list: rounded surface, one row per item, dividers between rows. */
 	.group-label {
-		padding: 0.375rem var(--pad-x) 0;
+		padding: 0.25rem var(--pad-x) 0;
 		color: var(--color-muted);
 		font-size: 0.8125rem;
-		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
+		font-weight: 500;
 	}
 
 	.group {
@@ -144,7 +143,7 @@ export const uiStyles = css`
 		list-style: none;
 		border-radius: var(--radius);
 		background: var(--color-surface);
-		box-shadow: var(--shadow);
+		border: 1px solid var(--color-border);
 		overflow: hidden;
 	}
 
@@ -189,7 +188,7 @@ export const uiStyles = css`
 	}
 
 	.item b {
-		font-weight: 600;
+		font-weight: 500;
 		font-size: var(--row-text);
 	}
 
@@ -203,14 +202,13 @@ export const uiStyles = css`
 		color: var(--color-danger);
 	}
 
-	/* Segmented control: native radios, the checked one in ink. */
+	/* Segmented control: native radios; the checked one is a raised light face with a thin edge. */
 	.seg {
 		display: grid;
 		grid-auto-flow: column;
 		grid-auto-columns: minmax(0, 1fr);
 		gap: 2px;
-		padding: 3px;
-		border: 1px solid var(--color-control);
+		padding: 2px;
 		border-radius: var(--radius-sm);
 		background: var(--color-surface-2);
 	}
@@ -218,7 +216,7 @@ export const uiStyles = css`
 	.seg label {
 		display: block;
 		position: relative;
-		font-weight: 600;
+		font-weight: 500;
 	}
 
 	.seg input {
@@ -236,13 +234,18 @@ export const uiStyles = css`
 		gap: 0.375rem;
 		min-height: var(--tap);
 		padding: 0 0.75rem;
-		border-radius: calc(var(--radius-sm) - 3px);
+		border-radius: calc(var(--radius-sm) - 2px);
+		color: var(--color-muted);
 		font-size: 0.875rem;
 	}
 
 	.seg input:checked + span {
-		background: var(--color-text);
-		color: var(--color-bg);
+		background: var(--color-surface);
+		color: var(--color-text);
+		font-weight: 600;
+		box-shadow:
+			0 0 0 1px var(--color-muted),
+			0 1px 2px rgb(0 0 0 / 0.12);
 	}
 
 	.seg input:focus-visible + span {

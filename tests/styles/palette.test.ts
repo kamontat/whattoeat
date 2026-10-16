@@ -44,8 +44,7 @@ const NAMES = [
 	"primary",
 	"primary-text",
 	"link",
-	"accent",
-	"accent-text",
+	"primary-soft",
 	"control",
 	"border",
 	"danger",
@@ -73,7 +72,7 @@ const TEXT_PAIRS: [string, string][] = [
 	["primary", "bg"],
 	["primary", "surface"],
 	["primary-text", "primary"],
-	["accent-text", "accent"],
+	["link", "primary-soft"],
 ];
 
 /** Control edges and the focus ring against what sits around them: WCAG 1.4.11, 3:1. */
@@ -115,15 +114,16 @@ test("each palette sets the matching color-scheme", () => {
 	);
 });
 
-test("Anuphan is loaded from the committed Thai and Latin files", async () => {
-	for (const script of ["thai", "latin"]) {
-		expect(css).toContain(`url("../assets/fonts/anuphan-${script}.woff2")`);
-		expect(
-			await Bun.file(`src/assets/fonts/anuphan-${script}.woff2`).exists(),
-		).toBe(true);
-	}
-	expect(await Bun.file("src/assets/fonts/OFL.txt").exists()).toBe(true);
-	expect(css).toMatch(/--font:\s*\n?\s*"Anuphan"/);
+test("IBM Plex Sans Thai is loaded from the committed Thai and Latin files", async () => {
+	for (const script of ["thai", "latin"])
+		for (const weight of [400, 500, 600]) {
+			const file = `ibm-plex-sans-thai-${script}-${weight}.woff2`;
+			expect(css).toContain(`url("../assets/fonts/${file}")`);
+			expect(await Bun.file(`src/assets/fonts/${file}`).exists()).toBe(true);
+		}
+	expect(await Bun.file("src/assets/fonts/OFL.txt").text()).toContain("Plex");
+	expect(css).toMatch(/--font:\s*\n?\s*"IBM Plex Sans Thai"/);
+	expect(css).not.toContain("Anuphan");
 });
 
 test("reduced motion turns transitions off", () => {

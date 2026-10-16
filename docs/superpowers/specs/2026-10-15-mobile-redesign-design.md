@@ -25,7 +25,10 @@ page keeps the three directions that were compared.
 - Layout and navigation from direction C ("This or That": compact grouped lists, iOS-style
   floating tab bar); colours from direction B ("Street Sign": paper, ink, chili red, sign yellow).
 - No "or" badge between the two picks. Names stay as they are today.
-- Anuphan as the web font. Language and theme live in Settings on phones, and also in the top
+- After the stage 1 preview: the first build felt too vivid, too large and odd. The user chose
+  "Calm neutral" (Refine page of the canvas): neutral ground, white cards, chili red as the only
+  accent, IBM Plex Sans Thai. This replaces direction B's colours and Anuphan.
+- Language and theme live in Settings on phones, and also in the top
   bar when the screen is wide enough.
 
 ### Assumptions
@@ -53,9 +56,9 @@ page keeps the three directions that were compared.
 
 | Topic              | Decision                                                                                                                       |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| Look               | Direction C's layout with direction B's colours (see Visual system)                                                            |
-| Font               | Anuphan (SIL Open Font License), self-hosted woff2 in `src/assets/fonts/`, Thai and Latin subsets, weights 400–700           |
-| Phone navigation   | Floating tab bar at the bottom with four tabs: Home, Restaurants, History, Settings. Icon above a visible text label           |
+| Look               | Direction C's layout with the "Calm neutral" refinement: neutral ground, white cards, one red accent (see Visual system) |
+| Font               | IBM Plex Sans Thai (SIL Open Font License), self-hosted woff2 in `src/assets/fonts/`, Thai and Latin, weights 400, 500, 600 |
+| Phone navigation   | Tab bar attached to the bottom edge with four tabs: Home, Restaurants, History, Settings. Icon above a visible text label  |
 | Tags page          | Stays its own route, reached by a "Tags" link on Restaurants and a back link to Restaurants. The Restaurants tab is current     |
 | Wide screens       | From 48 rem (768 px): the four links move into a top bar beside the brand; no bottom bar                                       |
 | Language and theme | Always in Settings. From 72 rem (1152 px) also as compact switches at the end of the top bar                                   |
@@ -82,68 +85,67 @@ shared component styles.
 
 ### Direction
 
-Paper-coloured ground, ink text, chili red for the one main action per screen (Pick, Add,
-Save), sign yellow for the positive secondary action (Eat here), the current tab and included
-filter values. Soft, borderless cards and grouped lists with large radii; controls keep a
-visible edge. Large titles (32 px) on each page, like iOS large titles.
+Calm neutral (chosen on the canvas's Refine page after the first preview felt too vivid and too
+large): a near-white neutral ground, white cards and grouped lists with hairline borders instead
+of shadows, ink text, and chili red as the only accent: the main action per screen (Pick, Add,
+Save), the current tab and included filter values. Secondary actions that matter, like Eat
+here, use a soft red tint. Sentence-case labels, medium-weight rows, 28 px titles on phones.
 
 ### Tokens
 
 | Token                  | Light     | Dark      | Use                                              | Contrast rule (tested)                 |
 | ---------------------- | --------- | --------- | ------------------------------------------------ | -------------------------------------- |
-| `--color-bg`           | `#fff3dc` | `#17130f` | Page ground, sheets                              |                                        |
-| `--color-surface`      | `#fffaf0` | `#231d17` | Cards, grouped lists, bars                       |                                        |
-| `--color-surface-2`    | `#f5e6c8` | `#2f271f` | Plain chips, segmented track, selected row       |                                        |
-| `--color-text`         | `#1c1712` | `#f7ecdc` | Body text                                        | ≥ 7 : 1 on bg, surface, surface-2      |
-| `--color-muted`        | `#6b5d50` | `#b9a894` | Secondary text, counts, inactive tabs            | ≥ 4.5 : 1 on bg, surface, surface-2    |
-| `--color-primary`      | `#d62a1e` | `#ff6a4d` | Main action fill, selected-row bar               |                                        |
-| `--color-primary-text` | `#fff8eb` | `#17130f` | Text on primary                                  | ≥ 4.5 : 1 on primary                   |
-| `--color-link`         | `#b8231a` | `#ff6a4d` | Links, danger text, excluded chips               | ≥ 4.5 : 1 on bg, surface, surface-2    |
-| `--color-accent`       | `#ffc533` | `#ffc533` | Eat here, current tab, included chips            |                                        |
-| `--color-accent-text`  | `#1c1712` | `#1c1712` | Text on accent                                   | ≥ 4.5 : 1 on accent                    |
-| `--color-control`      | `#8c7b6a` | `#8a7a69` | Edges of inputs, chips, secondary buttons        | ≥ 3 : 1 on bg and surface (1.4.11)     |
-| `--color-border`       | `#eedfc3` | `#362c23` | Row dividers and decorative lines only           | none                                   |
-| `--color-danger`       | `#b8231a` | `#ff6a4d` | Destructive text and edges (same as link)        | ≥ 4.5 : 1 on bg, surface, surface-2    |
-| `--color-focus`        | `#1c1712` | `#ffc533` | Focus ring                                       | ≥ 3 : 1 on bg and surface              |
+| `--color-bg`           | `#f6f5f2` | `#161513` | Page ground, sheets                              |                                        |
+| `--color-surface`      | `#ffffff` | `#1f1e1b` | Cards, grouped lists, bars                       |                                        |
+| `--color-surface-2`    | `#efede8` | `#2a2825` | Plain chips, segmented track, selected row       |                                        |
+| `--color-text`         | `#1d1b18` | `#f1efea` | Body text                                        | ≥ 4.5 : 1 on bg, surface, surface-2    |
+| `--color-muted`        | `#6b665e` | `#a8a299` | Secondary text, counts, inactive tabs            | ≥ 4.5 : 1 on bg, surface, surface-2    |
+| `--color-primary`      | `#c8321f` | `#ff6b55` | Main action fill, current tab, selected-row bar  | ≥ 4.5 : 1 on bg and surface            |
+| `--color-primary-text` | `#ffffff` | `#161513` | Text on primary                                  | ≥ 4.5 : 1 on primary                   |
+| `--color-primary-soft` | `#fbe9e6` | `#3a1f1a` | Soft actions (Eat here), current top-bar link    | link ≥ 4.5 : 1 on it                   |
+| `--color-link`         | `#b42c1b` | `#ff8a77` | Links, text on primary-soft                      | ≥ 4.5 : 1 on bg, surface, surface-2    |
+| `--color-control`      | `#8f8a80` | `#807a70` | Edges of inputs, chips, secondary buttons        | ≥ 3 : 1 on bg and surface (1.4.11)     |
+| `--color-border`       | `#e6e3dc` | `#34312c` | Card and row hairlines, decorative lines only    | none                                   |
+| `--color-danger`       | `#b42c1b` | `#ff8a77` | Destructive text and edges (same as link)        | ≥ 4.5 : 1 on bg, surface, surface-2    |
+| `--color-focus`        | `#1d1b18` | `#f1efea` | Focus ring                                       | ≥ 3 : 1 on bg and surface              |
 | `--color-success`      | `#2b6e35` | `#6fd08a` | "Going here" label, done messages                | ≥ 4.5 : 1 on bg, surface, surface-2    |
 
-`--color-border` and `--color-danger` keep today's names so components not yet redesigned keep
-working. Measured: lowest text pair 5.0 : 1 (light success on surface-2); primary on bg 4.5 : 1
-(light) and 6.5 : 1 (dark); text on chili 4.7 : 1; ink on yellow 11.3 : 1; control edge
-3.7–4.5 : 1; focus 10.6–17.1 : 1. `tests/styles/palette.test.ts` grows to check every rule
-above in all three palette blocks.
+The yellow accent tokens are gone. Measured: lowest text pair 4.87 : 1 (light muted on
+surface-2); primary on bg 4.9 : 1 (light) and 6.5 : 1 (dark); text on primary 5.3 : 1; link on
+primary-soft 5.4 : 1; control edge 3.15–4.3 : 1; focus 14.5–17.2 : 1.
+`tests/styles/palette.test.ts` checks every rule above in all three palette blocks.
 
 Other tokens:
 
-- Space: `--space-1` … `--space-8` on a 4 px base.
-- Radius: `--radius-sm` 12 px (inputs, segmented), `--radius` 22 px (grouped lists, panels),
-  `--radius-lg` 26 px (sheets), `--radius-pill` for buttons, chips and tabs.
-- Type: Anuphan with the system Thai stack as fallback (`"Noto Sans Thai", system-ui,
-  sans-serif`), `font-display: swap`; 1 rem body (16 px, so iOS does not zoom inputs),
-  line-height 1.55; page titles 2 rem bold; group labels 0.8125 rem uppercase muted.
+- Radius: `--radius-sm` 10 px (buttons, inputs, segmented), `--radius` 12 px (grouped lists,
+  cards, panels), `--radius-lg` 20 px (sheets), `--radius-pill` for chips.
+- Type: IBM Plex Sans Thai (400, 500, 600) with `"Noto Sans Thai", system-ui, sans-serif` as
+  fallback, `font-display: swap`; 1 rem body (16 px, so iOS does not zoom inputs), line-height
+  1.5; page titles `--title-size` semibold; group labels 0.8125 rem medium muted, sentence case.
 - Touch: `--tap` 2.75 rem (44 px), the minimum block size of every button, link-button, chip,
   row and input.
 - Density: `@media (hover: hover) and (pointer: fine)` (mouse, trackpad) switches to a compact
-  set: `--tap` 2.25 rem (36 px), `--pad-x` 0.875 rem, `--row-pad-y` 0.375 rem, `--title-size`
-  1.625 rem, `--row-text` 0.9375 rem, `--seg-min` 2.75 rem, `--bar-height` 3.75 rem,
-  `--brand-size` 1.125 rem (touch: 1.125, 0.625, 2, 1.0625, 3.5, 4.75, 1.375 rem). Keyed to the
-  pointer, not the width, so tablets and touch laptops keep touch sizes. Added after the stage 1
-  preview, where the desktop looked too large.
+  set. Touch / compact: `--tap` 2.75 / 2.25 rem, `--pad-x` 1 / 0.875 rem, `--row-pad-y` 0.5 /
+  0.375 rem, `--title-size` 1.75 / 1.5 rem, `--row-text` 1 / 0.9375 rem, `--seg-min` 3.25 /
+  2.75 rem, `--bar-height` 4.75 / 3.75 rem, `--brand-size` 1.25 / 1.0625 rem. Keyed to the
+  pointer, not the width, so tablets and touch laptops keep touch sizes.
 - Motion: `--duration` 180 ms; 0 ms under `prefers-reduced-motion: reduce`.
-- Elevation: one soft shadow for tiles, lists and the tab bar; one stronger for sheets.
+- Elevation: hairline borders for cards and lists; one shadow for sheets.
 
 ### Shared styles (`uiStyles`)
 
-- Buttons: `primary` (chili fill), `accent` (yellow fill), default (surface with control edge),
-  `danger` (link-coloured text and edge). Pill-shaped, 44 px minimum, 50–58 px for main actions.
-- Grouped list: `.group` container with `.item` rows (64 px for two-line rows, 52 px for one),
-  divider between rows, optional leading icon, trailing count or chevron. Rows that act are
-  real `<a>` or `<button>` elements filling the row.
-- Group label: `.group-label` above a group, uppercase muted text; a real heading element.
-- Segmented control: native radio inputs in a `fieldset`, the selected segment in ink on
-  paper (dark: paper on ink).
-- Chips: plain (surface-2), included (yellow with a ✓ icon), excluded (link-coloured edge and
-  text with a ✕ icon). State is never colour alone.
+- Buttons: `primary` (red fill), `soft` (primary-soft fill, link text), default (surface with a
+  1px control edge), `danger` (link-coloured text and edge), `quiet`. Rounded corners
+  (`--radius-sm`), `--tap` minimum height.
+- Grouped list: `.group` container with `.item` rows, hairline border, divider between rows,
+  optional leading icon, trailing count or chevron. Rows that act are real `<a>` or `<button>`
+  elements filling the row.
+- Group label: `.group-label` above a group, small medium-weight muted text in sentence case; a
+  real heading element.
+- Segmented control: native radio inputs in a `fieldset` on a light grey track; the selected
+  segment is a white face with a 1px muted edge and a small shadow, its text semibold.
+- Chips: plain (surface-2), included (primary-soft with a ✓ icon), excluded (dashed edge with a
+  ✕ icon). State is never colour alone.
 - Focus: `:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px }` on
   every interactive element, inside and outside shadow roots. Never `outline: none` without a
   replacement.
@@ -173,12 +175,14 @@ Every page gets:
 One component, one `<header>`, one `<nav aria-label="Main">` with four links:
 
 - Skip link first: "Skip to content", visually hidden until focused, jumps to `#main`.
-- Phones (< 48 rem): no top bar; each page shows its own large title. The `<nav>` is a
-  floating bar fixed 24 px above the bottom edge (plus `env(safe-area-inset-bottom)`), 14 px
-  side margins, rounded, four equal tabs, each a link with an icon and a text label. The
-  current tab has `aria-current="page"` and a yellow pill behind icon and label.
-- Wide (≥ 48 rem): a 76 px top bar on the surface colour with the logo and "What to Eat" on
-  the left and the four links as a rounded group on the right, the current one in yellow.
+- Phones (< 48 rem): no top bar; each page shows its own title. The `<nav>` is a white bar
+  attached to the bottom edge with a hairline top border and `env(safe-area-inset-bottom)`
+  padding: four equal tabs, each a link with an icon and a text label. The current tab has
+  `aria-current="page"`, red icon and label, and a short red bar on its top edge (so colour is
+  not the only cue).
+- Wide (≥ 48 rem): a top bar (`--bar-height`) on the surface colour with the logo and "What to
+  Eat" on the left and the four links on the right, the current one in red on a primary-soft
+  tint.
 - From 72 rem (1152 px) the top bar also shows the language switch (EN / ไทย) and the theme
   switch after the links, as compact segmented controls with the same radio semantics as
   Settings and group labels for screen readers ("Language", "Theme"). The compact theme
@@ -190,8 +194,8 @@ One component, one `<header>`, one `<nav aria-label="Main">` with four links:
 
 ### Pinned action
 
-Home ("What should I eat?" / "Pick again", full-width chili pill) and Restaurants ("Add",
-chili pill at the right) pin their main action just above the tab bar on phones, inside the
+Home ("What should I eat?" / "Pick again", a full-width red button) and Restaurants ("Add",
+a red button at the right) pin their main action just above the tab bar on phones, inside the
 page component (`position: sticky`). On wide screens the action sits in the page heading row.
 
 ### `app-sheet` (new, `src/components/app-sheet.ts`)
@@ -222,9 +226,9 @@ Phone, top to bottom:
 2. Filter row: a "Filter" chip button (funnel icon) that opens the filter sheet, then one chip
    per active value (included or excluded style). Tapping an active chip opens the sheet too.
 3. Results: before the first pick, nothing but the pinned button (the title and count say
-   enough). After a pick, two tiles stacked with 14 px between them: name (26 px bold), meta
-   line (muted), location with a pin icon (link if a URL), notes, plain chips, and a yellow
-   **Eat here** pill. The visited state keeps today's "✓ Going here · {time}" label.
+   enough). After a pick, two white tiles stacked with 12 px between them: name (20 px
+   semibold), meta line (muted), location with a pin icon (link if a URL), notes, small tags,
+   and a soft red **Eat here** button. The visited state keeps today's "✓ Going here · {time}" label.
 4. Pinned button: "What should I eat?", then "Pick again"; disabled when nothing matches, with
    the existing "No restaurant matches this filter." text shown above it.
 
@@ -342,12 +346,13 @@ add, edit, filter, tags), keyboard only on desktop, 200 % zoom, 320 px width, bo
 
 ## Font
 
-- Anuphan is a variable font (weights 100–700): one woff2 per script. The Thai (19 KB) and
-  Latin (35 KB) files are committed under `src/assets/fonts/` with the OFL licence file.
-- `@font-face` in `global.css` with `unicode-range` per subset, `font-weight: 400 700` and
-  `font-display: swap`. Shadow roots inherit `font-family` from `:root`.
+- IBM Plex Sans Thai has one file per script and weight. Regular, medium and semibold (400,
+  500, 600) in Thai and Latin are committed under `src/assets/fonts/` with the OFL licence file:
+  six files, about 65 KB. Bold text uses 600.
+- `@font-face` in `global.css` per file, with its `unicode-range` and `font-display: swap`.
+  Shadow roots inherit `font-family` from `:root`.
 - Checked on 2026-10-15: `bun-server build` inlines fonts referenced from `global.css` as
-  base64 data URIs in the bundled CSS (about 73 KB before compression). That costs no extra
+  base64 data URIs in the bundled CSS (about 93 KB of CSS with the six fonts, before compression). That costs no extra
   request and keeps the fonts available offline, so no preload and no static copy are needed.
   Serving them as statics does not work: Bun refuses a CSS `url()` it cannot resolve.
 
@@ -382,7 +387,7 @@ have the same keys. Keys no longer used are removed.
 
 Stacked pull requests, each green and deployable on its own:
 
-1. **Foundation and shell**: tokens, Anuphan, `uiStyles`, focus, palette tests, page meta, skip
+1. **Foundation and shell**: tokens, IBM Plex Sans Thai, `uiStyles`, focus, palette tests, page meta, skip
    link, floating tab bar and desktop top bar with switches, `app-sheet`, Settings
    (Appearance, grouped lists, About), footer removed from other pages.
 2. **Home**: title and filter row, filter sheet, desktop filter panel, tiles, pinned button,

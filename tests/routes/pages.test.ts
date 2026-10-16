@@ -45,10 +45,10 @@ test.each(pages)("%s allows zoom and uses the whole screen", async (page) => {
 test.each(pages)("%s colours the browser bar for both themes", async (page) => {
 	const html = await Bun.file(`src/routes/${page}`).text();
 	expect(html).toContain(
-		'<meta name="theme-color" content="#fff3dc" media="(prefers-color-scheme: light)" />',
+		'<meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)" />',
 	);
 	expect(html).toContain(
-		'<meta name="theme-color" content="#17130f" media="(prefers-color-scheme: dark)" />',
+		'<meta name="theme-color" content="#161513" media="(prefers-color-scheme: dark)" />',
 	);
 });
 
