@@ -193,10 +193,10 @@ One component, one `<header>`, one `<nav aria-label="Main">` with four links:
 Home ("What should I eat?" / "Pick again", a full-width red button) and Restaurants ("Add",
 a red button at the right) pin their main action just above the tab bar on phones, inside the
 page component (`position: sticky`). On wide screens the action sits in the page heading row.
-A page with a pinned action marks its `<html>` with `has-pinned` (`src/routes/index.html`
-only, so far); `global.css` keys `--pinned-space` (4.5 rem on phones, 0 past 48rem) off that
-class and folds it into `scroll-padding-bottom` alongside `--tab-bar-space`, so a focused
-control never ends up hidden behind the pinned bar.
+Pages with a pinned action mark their `<html>` with `has-pinned` (Home and Restaurants);
+`global.css` keys `--pinned-space` (4.5 rem on phones, 0 past 48rem) off that class and folds
+it into `scroll-padding-bottom` alongside `--tab-bar-space`, so a focused control never ends
+up hidden behind the pinned bar.
 
 ### `app-sheet` (new, `src/components/app-sheet.ts`)
 
@@ -268,16 +268,17 @@ Phone:
 5. Empty list: today's empty text with the Add button.
 
 Form sheet (heading "New restaurant" or "Edit <name>"): today's fields, `tag-input`s and
-validation; footer **Delete** (edit only) and **Save**. Delete sits at the end of the edit
-form footer and shows today's inline confirmation, naming the restaurant, in the sheet; focus
-moves to the confirm button as now. Saving or deleting closes the sheet and returns focus to
-the row (or the Add button, or the title after a delete). Closing the sheet discards unsaved
-edits. A `role="status"` message confirms "Saved <name>" / "Deleted <name>".
+validation. Footer holds **Save** and **Cancel** (when editing); **Delete** sits at the end
+of the edit form body behind its inline confirmation, naming the restaurant. Saving or
+deleting closes the sheet and returns focus to the row (or the Add button, or the title
+after a delete). Closing the sheet discards unsaved edits. A `role="status"` message
+confirms "Saved <name>" / "Deleted <name>".
 
 Desktop: the title row holds Tags and Add. Below, list and panel side by side (equal
 columns). The selected row gets `aria-current="true"`, the surface-2 fill and a chili bar on
 its start edge. The panel holds the same form (switched by `MediaController`), Cuisine and
-Area side by side, and Delete, Cancel and Save in its footer. No sheet on desktop.
+Area side by side, with **Save** and **Cancel** (when editing) in its footer; **Delete** at
+the end of the form body behind its confirmation. No sheet on desktop.
 
 ### Tags (`tag-manager`)
 
