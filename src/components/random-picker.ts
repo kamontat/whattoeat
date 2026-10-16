@@ -1,5 +1,7 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import "#components/app-sheet";
+import { deepActiveElement } from "#components/app-sheet";
 import { restaurantChips } from "#components/restaurant-chips";
 import {
 	applyFilter,
@@ -24,6 +26,9 @@ import {
 } from "#lib/groups";
 import { addVisit, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
+import { icon } from "#lib/icons";
+import { MediaController, WIDE } from "#lib/media";
+import { isFilterPanelHidden, setFilterPanelHidden } from "#lib/panel";
 import { pickOptions } from "#lib/random";
 import {
 	isLink,
@@ -43,88 +48,143 @@ export class RandomPicker extends LitElement {
 	static override styles = [
 		uiStyles,
 		css`
+			/*
+			 * Phone: fill the space above the tab bar so the pinned pick button ends the column
+			 * even when there is little content yet (the 1.25rem is main's top padding on phones).
+			 */
 			:host {
-				display: grid;
-				gap: 1.25rem;
-				justify-items: center;
-				padding-top: 1rem;
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+				min-height: calc(100dvh - 1.25rem - var(--tab-bar-height));
+				/* main leaves --tab-bar-space below; pull back so the pinned button sits on the tab bar. */
+				margin-bottom: calc(var(--tab-bar-height) - var(--tab-bar-space));
 			}
 
-			/* Filter: one panel, a label column beside each row of chips. */
+			.layout {
+				display: grid;
+				gap: 1rem;
+			}
+
+			.main-col {
+				display: grid;
+				align-content: start;
+				gap: 0.75rem;
+				min-width: 0;
+			}
+
+			.head {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: flex-end;
+				justify-content: space-between;
+				gap: 0.75rem;
+			}
+
+			/* Phone: a Filter button and the active values beside it. */
+			.filter-row {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 0.375rem;
+			}
+
+			.filter-open {
+				min-height: 2.25rem;
+				padding: 0 0.75rem;
+				border-radius: var(--radius-pill);
+				font-size: 0.875rem;
+				font-weight: 500;
+			}
+
+			/* Active values beside the Filter button: buttons, so tapping one reopens the sheet. */
+			.summary-chip {
+				min-height: 2.25rem;
+				padding: 0 0.75rem;
+				/* Transparent, not absent: forced-colours still draws an edge around the chip. */
+				border: 1px solid transparent;
+				border-radius: var(--radius-pill);
+				font-size: 0.875rem;
+				font-weight: 500;
+			}
+
+			.summary-chip.include {
+				background: var(--color-primary-soft);
+				color: var(--color-link);
+				font-weight: 600;
+			}
+
+			.summary-chip.exclude {
+				border-style: dashed;
+				border-color: var(--color-control);
+				color: var(--color-muted);
+				text-decoration: line-through;
+			}
+
+			/* The filter itself: in the sheet on phones, in the side panel when wide. */
 			.filter {
 				display: grid;
 				gap: 0.875rem;
-				width: 100%;
-				box-sizing: border-box;
-				padding: 1rem 1.25rem;
-				border: 1px solid var(--color-border);
-				border-radius: var(--radius);
-				background: var(--color-surface);
 			}
 
-			.filter-head {
+			.head-actions {
 				display: flex;
 				flex-wrap: wrap;
-				align-items: baseline;
-				gap: 0.25rem 0.75rem;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.panel-head {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 0.5rem;
+			}
+
+			.hide-filter {
+				min-height: 2.25rem;
+				padding: 0 0.5rem;
+				gap: 0.25rem;
+				font-size: 0.875rem;
+				font-weight: 500;
 			}
 
 			.filter-title {
 				font-size: 1rem;
+				font-weight: 600;
 			}
 
 			.filter-group {
 				display: grid;
-				grid-template-columns: 5.5rem 1fr;
-				align-items: start;
-				gap: 0.5rem;
+				gap: 0.375rem;
 			}
 
 			.filter-group h3 {
 				margin: 0;
-				padding-top: 0.375rem;
 				color: var(--color-muted);
 				font-size: 0.8125rem;
-				font-weight: 600;
-			}
-
-			@media (max-width: 30rem) {
-				.filter-group {
-					grid-template-columns: 1fr;
-					gap: 0.375rem;
-				}
-
-				.filter-group h3 {
-					padding-top: 0;
-				}
-			}
-
-			.filter .chips {
-				gap: 0.375rem;
+				font-weight: 500;
 			}
 
 			button.tag {
-				min-height: 2rem;
-				padding: 0.25rem 0.75rem;
+				min-height: 2.25rem;
+				padding: 0 0.75rem;
+				border-radius: var(--radius-pill);
 				font-size: 0.875rem;
+				font-weight: 500;
 				line-height: 1.2;
 			}
 
-			button.tag:hover {
-				border-color: var(--color-muted);
-			}
-
 			button.tag.include {
-				border-color: var(--color-success);
-				background: var(--color-success);
-				color: var(--color-surface);
+				border-color: var(--color-primary);
+				background: var(--color-primary-soft);
+				color: var(--color-link);
 				font-weight: 600;
 			}
 
 			button.tag.exclude {
-				border-color: var(--color-danger);
 				border-style: dashed;
-				color: var(--color-danger);
+				color: var(--color-muted);
 				text-decoration: line-through;
 			}
 
@@ -135,12 +195,15 @@ export class RandomPicker extends LitElement {
 				font-size: 0.875rem;
 			}
 
+			/* An inline text button inside the sentence, not a 44px box. */
 			button.link {
-				padding: 0;
+				display: inline;
+				min-height: 0;
 				margin-left: 0.25rem;
+				padding: 0;
 				border: 0;
 				background: none;
-				color: var(--color-primary);
+				color: var(--color-link);
 				font-weight: 600;
 				text-decoration: underline;
 			}
@@ -149,77 +212,48 @@ export class RandomPicker extends LitElement {
 				color: var(--color-danger);
 			}
 
-			.count {
-				margin-top: 0.5rem;
-			}
-
-			.pick {
-				padding: 1.125rem 2.25rem;
-				font-size: 1.5rem;
-				font-weight: 700;
-				border-radius: 999px;
-				box-shadow: 0 6px 20px -8px var(--color-primary);
-			}
-
-			.pick:not(:disabled):active {
-				transform: translateY(1px);
-			}
-
-			.pick:disabled {
-				opacity: 0.5;
-				cursor: not-allowed;
-				box-shadow: none;
-			}
-
-			/* Picked cards: equal height, the action sits on the bottom edge. */
-			[aria-live] {
+			.results {
 				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-				gap: 1rem;
-				width: 100%;
+				gap: 0.75rem;
 			}
 
-			[aria-live]:empty {
+			.results:empty {
 				display: none;
-			}
-
-			.result,
-			.empty {
-				width: 100%;
-				box-sizing: border-box;
-			}
-
-			.empty {
-				justify-items: center;
-				text-align: center;
 			}
 
 			.result {
 				display: flex;
 				flex-direction: column;
-				gap: 0.5rem;
-				padding: 1.25rem;
+				gap: 0.25rem;
 			}
 
 			.result h2 {
 				font-size: 1.25rem;
-				line-height: 1.3;
-			}
-
-			.result .meta {
-				color: var(--color-primary);
-				font-size: 0.875rem;
+				line-height: 1.25;
 				font-weight: 600;
 			}
 
-			.result .location,
-			.result .notes {
-				font-size: 0.9375rem;
+			.result .meta {
+				color: var(--color-muted);
+				font-size: 0.875rem;
+			}
+
+			.result .location {
+				display: flex;
+				align-items: center;
+				gap: 0.375rem;
+				font-size: 0.875rem;
+			}
+
+			.result .location .icon {
+				flex: none;
+				color: var(--color-muted);
 			}
 
 			.notes {
 				white-space: pre-wrap;
 				color: var(--color-muted);
+				font-size: 0.875rem;
 			}
 
 			.result .chips {
@@ -227,17 +261,12 @@ export class RandomPicker extends LitElement {
 			}
 
 			.result .chip {
-				font-size: 0.8125rem;
+				font-size: 0.75rem;
 			}
 
 			.result .foot {
 				margin-top: auto;
-				padding-top: 0.75rem;
-			}
-
-			.result .visit {
-				width: 100%;
-				font-weight: 600;
+				padding-top: 0.625rem;
 			}
 
 			.result.visited {
@@ -248,17 +277,103 @@ export class RandomPicker extends LitElement {
 			.visited-label {
 				padding: 0.5rem 0;
 				color: var(--color-success);
-				font-weight: 700;
-				text-align: center;
+				font-weight: 600;
 			}
 
 			.visited-label:focus {
 				outline: none;
 			}
+
+			.pick {
+				width: 100%;
+				min-height: 3.125rem;
+				font-size: 1.0625rem;
+			}
+
+			/*
+			 * Phone: the pick button stays in reach, just above the tab bar, with nothing of the
+			 * gradient peeking out below it. margin-top: auto pushes it to the end of the column
+			 * so it never sits right under short content.
+			 */
+			.pinned {
+				position: sticky;
+				z-index: 5;
+				bottom: var(--tab-bar-height);
+				margin-top: auto;
+				padding: 0.75rem 0 0.5rem;
+				background: linear-gradient(to bottom, transparent, var(--color-bg) 35%);
+			}
+
+			.empty {
+				justify-items: center;
+				text-align: center;
+			}
+
+			.button-link {
+				display: inline-flex;
+				align-items: center;
+				min-height: var(--tap);
+				padding: 0 var(--pad-x);
+				border-radius: var(--radius-sm);
+				background: var(--color-primary);
+				color: var(--color-primary-text);
+				font-weight: 600;
+				text-decoration: none;
+			}
+
+			@media (min-width: 48rem) {
+				:host {
+					min-height: 0;
+					margin-bottom: 0;
+				}
+
+				.layout.with-panel {
+					grid-template-columns: 17.5rem minmax(0, 1fr);
+					align-items: start;
+					gap: 1.5rem;
+				}
+
+				.filter-panel {
+					position: sticky;
+					top: 1rem;
+					padding: var(--pad-x);
+					border: 1px solid var(--color-border);
+					border-radius: var(--radius);
+					background: var(--color-surface);
+				}
+
+				.results {
+					gap: 1rem;
+				}
+
+				.pick {
+					width: auto;
+					min-height: var(--tap);
+					font-size: 0.9375rem;
+				}
+			}
+
+			/* Two tiles side by side need more room than 48rem gives the narrower (panel) column. */
+			@media (min-width: 60rem) {
+				.results {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+				}
+			}
 		`,
 	];
 
 	protected readonly langController = new LangController(this);
+
+	/** Wide screens show the filter in a side panel; phones open it in a sheet. */
+	protected readonly wide = new MediaController(this, WIDE);
+
+	/** Whether the phone filter sheet is open. */
+	@state()
+	private filterOpen = false;
+
+	/** Whether the wide filter panel is collapsed; remembered in this browser. */
+	@state()
+	private panelHidden = isFilterPanelHidden();
 
 	@state()
 	private restaurants: Restaurant[] = [];
@@ -278,6 +393,13 @@ export class RandomPicker extends LitElement {
 	/** The card the user chose with "Eat here" for this pick, and when. */
 	@state()
 	private visited: { id: string; at: Date } | undefined;
+
+	/**
+	 * The live region's text. Written only from `pick()`: cleared immediately, then set once the
+	 * clear has rendered, so picking the same names again still changes the text and gets announced.
+	 */
+	@state()
+	private announced = "";
 
 	private unsubscribe: (() => void) | undefined;
 	private unsubscribeGroups: (() => void) | undefined;
@@ -323,6 +445,28 @@ export class RandomPicker extends LitElement {
 		this.unsubscribeFilter = undefined;
 	}
 
+	/**
+	 * Crossing into the wide layout stops rendering the phone sheet entirely, which removes its
+	 * modal `<dialog>` from the DOM without ever firing a close: close it here instead, so it does
+	 * not reopen by itself if the screen narrows again. If focus was inside it, send focus to the
+	 * side panel's heading rather than losing it.
+	 */
+	protected override willUpdate(): void {
+		if (!this.wide.matches || !this.filterOpen) return;
+		const sheet = this.renderRoot.querySelector("app-sheet");
+		const focusWasInSheet = sheet?.contains(deepActiveElement()) ?? false;
+		this.filterOpen = false;
+		if (focusWasInSheet) {
+			void this.updateComplete.then(() => {
+				this.renderRoot
+					.querySelector<HTMLElement>(
+						'#filter-title, [data-action="show-filter"]',
+					)
+					?.focus();
+			});
+		}
+	}
+
 	private get pool(): Restaurant[] {
 		return applyFilter(this.restaurants, this.filter);
 	}
@@ -348,6 +492,8 @@ export class RandomPicker extends LitElement {
 			.filter((item) => item !== undefined);
 		if (!this.picked.some((item) => item.id === this.visited?.id))
 			this.visited = undefined;
+		// Leave the announcement text alone otherwise: this is not a new pick.
+		if (this.picked.length === 0) this.announced = "";
 	}
 
 	private setFilter(next: Filter): void {
@@ -367,11 +513,16 @@ export class RandomPicker extends LitElement {
 			2,
 			this.picked.map((item) => item.id),
 		);
+		// Clear first, then set the real text once that clear has rendered: picking the same
+		// names again still changes the live region's text, so it is announced again.
+		this.announced = "";
+		void this.updateComplete.then(() => {
+			this.announced = this.pickAnnouncement();
+		});
 	};
 
 	override render() {
-		const heading = html`
-			<h1 class="page-title">${t("app.title")}</h1>
+		const warnings = html`
 			${
 				this.skipped > 0
 					? html`<p class="warning skipped" role="alert">
@@ -381,12 +532,14 @@ export class RandomPicker extends LitElement {
 			}
 			${isHistoryMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 		`;
+		const title = html`<h1 class="page-title">${t("app.title")}</h1>`;
 		if (this.restaurants.length === 0) {
 			return html`
-				${heading}
+				<header class="head"><div>${title}</div></header>
+				${warnings}
 				<div class="card empty">
 					<p>${t("picker.empty")}</p>
-					<a href="./restaurants">${t("picker.addLink")}</a>
+					<a class="button-link" href="./restaurants">${t("picker.addLink")}</a>
 				</div>
 			`;
 		}
@@ -397,16 +550,53 @@ export class RandomPicker extends LitElement {
 			}))
 			.filter(({ values }) => values.length > 0);
 		const empty = this.pool.length === 0;
+		const wide = this.wide.matches;
+		const collapsible = wide && groups.length > 0;
+		const panel = collapsible && !this.panelHidden;
+		const pick = html`<button type="button" class="primary pick" ?disabled=${empty} @click=${this.pick}>
+			${icon("dice", 22)}<span>${this.picked.length > 0 ? t("picker.again") : t("picker.button")}</span>
+		</button>`;
 		return html`
-			${heading}
-			${groups.length > 0 ? this.renderFilter(groups) : nothing}
-			${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
-			<p class="count muted">${this.countText()}</p>
-			<button type="button" class="primary pick" ?disabled=${empty} @click=${this.pick}>
-				${this.picked.length > 0 ? t("picker.again") : t("picker.button")}
-			</button>
-			<div aria-live="polite">${this.picked.map((item) => this.renderResult(item))}</div>
+			${warnings}
+			<div class="layout ${panel ? "with-panel" : ""}">
+				${panel ? html`<aside class="filter-panel">${this.renderFilterBody(groups, true)}</aside>` : nothing}
+				<div class="main-col">
+					<header class="head">
+						<div>${title}<p class="count page-sub">${this.countText()}</p></div>
+						${
+							wide
+								? html`<div class="head-actions">
+										${collapsible && this.panelHidden ? this.renderShowFilter() : nothing}
+										${pick}
+									</div>`
+								: nothing
+						}
+					</header>
+					${!wide && groups.length > 0 ? this.renderFilterRow(groups) : nothing}
+					${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
+					<p class="announce visually-hidden" role="status">${this.announced}</p>
+					<div class="results">${this.picked.map((item) => this.renderResult(item))}</div>
+				</div>
+			</div>
+			${wide ? nothing : html`<div class="pinned">${pick}</div>`}
 		`;
+	}
+
+	/** Screen readers hear the new picks by name rather than both whole tiles. */
+	private pickAnnouncement(): string {
+		const [a, b] = this.picked.map((item) => item.name);
+		if (a === undefined) return "";
+		return b === undefined
+			? t("picker.announce.one", { a })
+			: t("picker.announce.two", { a, b });
+	}
+
+	/** How many values the filter includes or excludes, across every group. */
+	private activeValueCount(): number {
+		return Object.values(this.filter).reduce(
+			(count, group) => count + group.include.length + group.exclude.length,
+			0,
+		);
 	}
 
 	private countText(): string {
@@ -419,7 +609,10 @@ export class RandomPicker extends LitElement {
 			: t("picker.count.other", { count: total });
 	}
 
-	private renderFilter(groups: { group: string; values: string[] }[]) {
+	private filterSummary(): {
+		symbol: Record<TagState, string>;
+		summary: string;
+	} {
 		const symbol: Record<TagState, string> = {
 			off: "",
 			include: "✓ ",
@@ -446,12 +639,66 @@ export class RandomPicker extends LitElement {
 			})
 			.filter((part) => part !== "")
 			.join("; ");
+		return { symbol, summary };
+	}
+
+	/** Wide, panel collapsed: the button beside the title that brings it back. */
+	private renderShowFilter() {
+		const count = this.activeValueCount();
+		return html`<button
+			type="button"
+			class="filter-open show-filter"
+			data-action="show-filter"
+			aria-expanded="false"
+			@click=${this.showPanel}
+		>
+			${icon("funnel", 18)}<span>${count > 0 ? t("filter.openCount", { count }) : t("filter.title")}</span>
+		</button>`;
+	}
+
+	private readonly hidePanel = (): void => {
+		this.setPanelHidden(true, '[data-action="show-filter"]');
+	};
+
+	private readonly showPanel = (): void => {
+		this.setPanelHidden(false, '[data-action="hide-filter"]');
+	};
+
+	/** Collapse or expand the wide panel, remember it, and keep focus on the matching toggle. */
+	private setPanelHidden(hidden: boolean, focus: string): void {
+		this.panelHidden = hidden;
+		setFilterPanelHidden(hidden);
+		void this.updateComplete.then(() => {
+			this.renderRoot.querySelector<HTMLElement>(focus)?.focus();
+		});
+	}
+
+	/** The filter's groups and chips; titled in the side panel, untitled in the sheet (the sheet has the heading). */
+	private renderFilterBody(
+		groups: { group: string; values: string[] }[],
+		titled: boolean,
+	) {
+		const { symbol, summary } = this.filterSummary();
 		return html`
-			<section class="filter" aria-labelledby="filter-title">
-				<div class="filter-head">
-					<h2 id="filter-title" class="filter-title">${t("filter.title")}</h2>
-					<p class="hint">${t("filter.hint")}</p>
-				</div>
+			<section class="filter" aria-labelledby=${titled ? "filter-title" : nothing}>
+				${
+					titled
+						? html`<div class="panel-head">
+								<h2 id="filter-title" class="filter-title" tabindex="-1">${t("filter.title")}</h2>
+								<button
+									type="button"
+									class="quiet hide-filter"
+									data-action="hide-filter"
+									aria-expanded="true"
+									aria-label=${t("filter.hideLabel")}
+									@click=${this.hidePanel}
+								>
+									${icon("back", 18)}<span>${t("filter.hide")}</span>
+								</button>
+							</div>`
+						: nothing
+				}
+				<p class="hint">${t("filter.hint")}</p>
 				${groups.map(
 					({
 						group,
@@ -498,6 +745,82 @@ export class RandomPicker extends LitElement {
 		`;
 	}
 
+	/** Phone: the Filter button, the active values beside it, and the sheet it opens. */
+	private renderFilterRow(groups: { group: string; values: string[] }[]) {
+		const { symbol } = this.filterSummary();
+		const count = this.activeValueCount();
+		const active = allGroupIds(this.defs).flatMap((group) => {
+			const filterGroup = Object.hasOwn(this.filter, group)
+				? this.filter[group]
+				: undefined;
+			if (filterGroup === undefined) return [];
+			return [
+				...filterGroup.include.map((value) => ({
+					state: "include" as const,
+					label: valueLabel(group, value),
+				})),
+				...filterGroup.exclude.map((value) => ({
+					state: "exclude" as const,
+					label: valueLabel(group, value),
+				})),
+			];
+		});
+		return html`
+			<div class="filter-row">
+				<button
+					type="button"
+					class="filter-open"
+					data-action="open-filter"
+					aria-haspopup="dialog"
+					@click=${() => {
+						this.filterOpen = true;
+					}}
+				>
+					${icon("funnel", 18)}<span>${count > 0 ? t("filter.openCount", { count }) : t("filter.title")}</span>
+				</button>
+				${
+					active.length > 0
+						? html`<ul class="chips summary" aria-label=${t("filter.title")}>
+								${active.map(
+									({ state, label }) => html`<li class=${state}>
+										<button
+											type="button"
+											class="summary-chip ${state}"
+											data-action="open-filter-value"
+											aria-haspopup="dialog"
+											@click=${() => {
+												this.filterOpen = true;
+											}}
+										><span aria-hidden="true">${symbol[state]}</span>${label}<span class="visually-hidden">, ${t(`filter.state.${state}`)}</span></button>
+									</li>`,
+								)}
+							</ul>`
+						: nothing
+				}
+			</div>
+			<app-sheet
+				heading=${t("filter.title")}
+				?open=${this.filterOpen}
+				@sheet-close=${() => {
+					this.filterOpen = false;
+				}}
+			>
+				${this.renderFilterBody(groups, false)}
+				<button
+					slot="footer"
+					type="button"
+					class="primary"
+					data-action="filter-done"
+					@click=${() => {
+						this.filterOpen = false;
+					}}
+				>
+					${t("filter.done")}
+				</button>
+			</app-sheet>
+		`;
+	}
+
 	private visit(item: Restaurant): void {
 		// A second press before the re-render must not save a second visit.
 		if (this.visited !== undefined) return;
@@ -511,7 +834,7 @@ export class RandomPicker extends LitElement {
 
 	private renderVisit(item: Restaurant) {
 		if (this.visited === undefined)
-			return html`<button type="button" class="primary visit" data-id=${item.id} @click=${() => this.visit(item)}>
+			return html`<button type="button" class="soft visit" data-id=${item.id} @click=${() => this.visit(item)}>
 				${t("picker.visit")}
 			</button>`;
 		if (this.visited.id !== item.id) return nothing;
@@ -529,7 +852,7 @@ export class RandomPicker extends LitElement {
 				${metaLine(item) ? html`<p class="meta">${metaLine(item)}</p>` : nothing}
 				${
 					item.location
-						? html`<p class="location">
+						? html`<p class="location">${icon("pin", 16)}
 								${
 									isLink(item.location)
 										? html`<a href=${item.location} target="_blank" rel="noopener noreferrer">${item.location}</a>`

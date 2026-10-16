@@ -72,6 +72,8 @@ export class AppHeader extends LitElement {
 				bottom: 0;
 				display: grid;
 				grid-template-columns: repeat(4, minmax(0, 1fr));
+				box-sizing: border-box;
+				height: var(--tab-bar-height);
 				padding: 0.25rem 0.25rem env(safe-area-inset-bottom, 0px);
 				border-top: 1px solid var(--color-border);
 				background: var(--color-surface);
@@ -149,6 +151,7 @@ export class AppHeader extends LitElement {
 					position: static;
 					display: flex;
 					gap: 0.25rem;
+					height: auto;
 					padding: 0;
 					border: 0;
 					background: none;

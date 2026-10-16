@@ -7,8 +7,8 @@ Date: 2026-10-15
 Redesign the whole site around how it is used: on a phone, often one-handed, deciding where
 to eat. Keep every current feature and the data model; change the shell, the page layouts
 and the visual system. Meet WCAG 2.2 level AA throughout, and AAA target size (44 × 44 CSS px)
-for every control on touch screens; with a mouse or trackpad, controls use a compact 36 px size
-(still above the AA minimum of 24 px).
+for every control on touch screens, except filter chips at 36 px; with a mouse or trackpad,
+controls use a compact 36 px size (still above the AA minimum of 24 px).
 
 This replaces the "Rethink the phone header" item in `IDEAS.md`.
 
@@ -122,8 +122,8 @@ Other tokens:
 - Type: IBM Plex Sans Thai (400, 500, 600) with `"Noto Sans Thai", system-ui, sans-serif` as
   fallback, `font-display: swap`; 1 rem body (16 px, so iOS does not zoom inputs), line-height
   1.5; page titles `--title-size` semibold; group labels 0.8125 rem medium muted, sentence case.
-- Touch: `--tap` 2.75 rem (44 px), the minimum block size of every button, link-button, chip,
-  row and input.
+- Touch: `--tap` 2.75 rem (44 px), the minimum block size of every button, link-button, row
+  and input; chips are 2.25 rem (36 px), above the 24 px AA minimum (see Home).
 - Density: `@media (hover: hover) and (pointer: fine)` (mouse, trackpad) switches to a compact
   set. Touch / compact: `--tap` 2.75 / 2.25 rem, `--pad-x` 1 / 0.875 rem, `--row-pad-y` 0.5 /
   0.375 rem, `--title-size` 1.75 / 1.5 rem, `--row-text` 1 / 0.9375 rem, `--seg-min` 3.25 /
@@ -193,6 +193,10 @@ One component, one `<header>`, one `<nav aria-label="Main">` with four links:
 Home ("What should I eat?" / "Pick again", a full-width red button) and Restaurants ("Add",
 a red button at the right) pin their main action just above the tab bar on phones, inside the
 page component (`position: sticky`). On wide screens the action sits in the page heading row.
+A page with a pinned action marks its `<html>` with `has-pinned` (`src/routes/index.html`
+only, so far); `global.css` keys `--pinned-space` (4.5 rem on phones, 0 past 48rem) off that
+class and folds it into `scroll-padding-bottom` alongside `--tab-bar-space`, so a focused
+control never ends up hidden behind the pinned bar.
 
 ### `app-sheet` (new, `src/components/app-sheet.ts`)
 
@@ -220,7 +224,7 @@ Phone, top to bottom:
 1. `<h1>` "What to Eat" (now visible) with the count line ("3 of 5 restaurants match" /
    "5 restaurants") under it; storage warnings.
 2. Filter row: a "Filter" chip button (funnel icon) that opens the filter sheet, then one chip
-   per active value (included or excluded style). Tapping an active chip opens the sheet too.
+   per active value (included or excluded style), each a `<button>` that also opens the sheet.
 3. Results: before the first pick, nothing but the pinned button (the title and count say
    enough). After a pick, two white tiles stacked with 12 px between them: name (20 px
    semibold), meta line (muted), location with a pin icon (link if a URL), notes, small tags,
@@ -229,11 +233,23 @@ Phone, top to bottom:
    the existing "No restaurant matches this filter." text shown above it.
 
 Filter sheet: title "Filter", the existing hint, one group per filter row (group label +
-chips at 44 px), **Clear** and **Done** in the footer. Behaviour unchanged (`cycleTag`).
+chips at 36 px, above the 24 px WCAG AA minimum), **Clear** in the sheet content and **Done**
+in the footer. Behaviour unchanged (`cycleTag`).
 
-Desktop (≥ 48 rem): two columns. Left, a 320 px panel with the same filter content always
-open and "Clear" in its heading row. Right, the title row with the pick button at its end,
-then the two tiles side by side.
+Desktop (≥ 48 rem): `main.wide` (65 rem) provides room for two columns. The filter uses
+`MediaController` (src/lib/media.ts), so only one component instance renders and switches
+layout. Left, a side panel with the filter content; Clear sits at the end of the panel, in
+the active-filter sentence, as on phones. A **Hide** button in the panel heading
+(`aria-expanded`, named "Hide filter") collapses it: the picks take the full width and a
+"Filter" button (with the active count) appears beside the pick button to bring it back; focus
+stays on the toggle. The choice is remembered in `whattoeat:filter-panel` (`src/lib/panel.ts`).
+Right, the title row with the pick button at its end, then the two tiles side by side (one
+column until 60 rem, where there is room for two).
+
+On phones the page uses the visible screen height (`100dvh`, since iOS's `100vh` includes the
+hidden toolbar), the tab bar has one exact height (`--tab-bar-height`) that the pinned button
+sits on, and `touch-action: manipulation` stops a quick second tap on a chip from zooming
+(pinch zoom still works).
 
 The live region announces the new picks by name ("Picked Som Tam Nua and Jay Fai") instead
 of re-reading both tiles. Focus stays on the pick button. With no restaurants, the empty
@@ -329,7 +345,8 @@ Applied to every page and checked in each pull request's test plan:
 - 2.4.1: skip link. 2.4.3: focus returns after sheets and confirmations. 2.4.7 / 2.4.11 /
   2.4.13: visible 3 px focus ring never hidden under the pinned button or tab bar
   (`scroll-padding-bottom` on `html` equal to their height).
-- 2.5.3: visible label text is part of every accessible name. 2.5.8: targets ≥ 44 px on touch, ≥ 36 px with a fine pointer.
+- 2.5.3: visible label text is part of every accessible name. 2.5.8: targets ≥ 44 px on
+  touch (chips 36 px), ≥ 36 px with a fine pointer; all above the 24 px AA minimum.
 - 3.1.1 / 3.1.2: `<html lang>` follows the language (already done); mixed-language labels marked.
 - 3.3.1 / 3.3.2: errors in text, tied to their field.
 - 4.1.2 / 4.1.3: states via `aria-pressed`, `aria-current`, `aria-disabled`, checked radios;
