@@ -86,6 +86,7 @@ is sent to a server.
 | `whattoeat:lang`        | The chosen language, `en` or `th`                          |
 | `whattoeat:theme`       | The chosen theme, `auto`, `light` or `dark`                |
 | `whattoeat:groups`      | Custom groups, like "price" (JSON array of `{ id, name }`) |
+| `whattoeat:filter-panel` | `hidden` while Home's wide filter panel is collapsed; absent when shown |
 
 A stored entry that fails validation is skipped when the list loads, and every page shows a
 warning with how many were skipped. The next change to the list saves only the valid entries,

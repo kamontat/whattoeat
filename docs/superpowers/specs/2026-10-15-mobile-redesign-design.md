@@ -238,10 +238,18 @@ in the footer. Behaviour unchanged (`cycleTag`).
 
 Desktop (≥ 48 rem): `main.wide` (65 rem) provides room for two columns. The filter uses
 `MediaController` (src/lib/media.ts), so only one component instance renders and switches
-layout. Left, a side panel with the filter content always open; Clear sits at the end of the
-panel, in the active-filter sentence, as on phones. Right, the title row with the pick button
-at its end, then the two tiles side by side (one column until 60 rem, where there is room for
-two).
+layout. Left, a side panel with the filter content; Clear sits at the end of the panel, in
+the active-filter sentence, as on phones. A **Hide** button in the panel heading
+(`aria-expanded`, named "Hide filter") collapses it: the picks take the full width and a
+"Filter" button (with the active count) appears beside the pick button to bring it back; focus
+stays on the toggle. The choice is remembered in `whattoeat:filter-panel` (`src/lib/panel.ts`).
+Right, the title row with the pick button at its end, then the two tiles side by side (one
+column until 60 rem, where there is room for two).
+
+On phones the page uses the visible screen height (`100dvh`, since iOS's `100vh` includes the
+hidden toolbar), the tab bar has one exact height (`--tab-bar-height`) that the pinned button
+sits on, and `touch-action: manipulation` stops a quick second tap on a chip from zooming
+(pinch zoom still works).
 
 The live region announces the new picks by name ("Picked Som Tam Nua and Jay Fai") instead
 of re-reading both tiles. Focus stays on the pick button. With no restaurants, the empty

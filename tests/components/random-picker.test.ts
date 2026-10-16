@@ -901,7 +901,7 @@ test("phone: the component fills the space above the tab bar so the pinned bar e
 		.map((style) => (style as { cssText: string }).cssText)
 		.join("\n");
 	expect(css).toMatch(
-		/:host\s*\{[^}]*min-height:\s*calc\(100dvh - 1\.25rem - var\(--tab-bar-space\)\)/,
+		/:host\s*\{[^}]*min-height:\s*calc\(100dvh - 1\.25rem - var\(--tab-bar-height\)\)/,
 	);
 	expect(css).toMatch(/\.pinned\s*\{[^}]*margin-top:\s*auto/);
 });
@@ -929,7 +929,7 @@ test("tiles stay one column between 48rem and 60rem; two columns from 60rem", ()
 
 test("the pinned bar sits fully above the tab bar, with nothing peeking below it", () => {
 	const pinned = flattenStyles().match(/\.pinned\s*\{[^}]*\}/)?.[0] ?? "";
-	expect(pinned).toMatch(/bottom:\s*var\(--tab-bar-space\)/);
+	expect(pinned).toMatch(/bottom:\s*var\(--tab-bar-height\)/);
 	expect(pinned).toMatch(/padding:\s*0\.75rem 0 0\.5rem/);
 });
 
@@ -1052,4 +1052,70 @@ test("the empty state links to Restaurants as a button-styled link", async () =>
 	expect(
 		root(el).querySelector('a.button-link[href="./restaurants"]'),
 	).not.toBeNull();
+});
+
+/** Cycle a value while the panel is hidden: open it, click, hide it again. */
+const cycleHidden = async (
+	el: HTMLElement & { updateComplete: Promise<boolean> },
+	tag: string,
+) => {
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="show-filter"]')!
+		.click();
+	await el.updateComplete;
+	await cycle(el, tag);
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="hide-filter"]')!
+		.click();
+	await el.updateComplete;
+};
+
+test("wide: Hide collapses the filter panel, remembers it, and a Filter button brings it back", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await mount();
+	const hide = root(el).querySelector<HTMLButtonElement>(
+		'aside.filter-panel button[data-action="hide-filter"]',
+	)!;
+	expect(hide.textContent?.trim()).toBe("Hide");
+	expect(hide.getAttribute("aria-label")).toBe("Hide filter");
+	expect(hide.getAttribute("aria-expanded")).toBe("true");
+	hide.click();
+	await el.updateComplete;
+	expect(root(el).querySelector("aside.filter-panel")).toBeNull();
+	expect(root(el).querySelector(".layout.with-panel")).toBeNull();
+	expect(localStorage.getItem("whattoeat:filter-panel")).toBe("hidden");
+	const show = root(el).querySelector<HTMLButtonElement>(
+		'.head button[data-action="show-filter"]',
+	)!;
+	expect(show.textContent?.trim()).toBe("Filter");
+	expect(show.getAttribute("aria-expanded")).toBe("false");
+	await el.updateComplete;
+	expect(root(el).activeElement).toBe(show);
+	show.click();
+	await el.updateComplete;
+	await el.updateComplete;
+	expect(root(el).querySelector("aside.filter-panel")).not.toBeNull();
+	expect(localStorage.getItem("whattoeat:filter-panel")).toBeNull();
+	expect(root(el).activeElement?.getAttribute("data-action")).toBe(
+		"hide-filter",
+	);
+});
+
+test("wide: a hidden panel stays hidden on the next visit and its button counts active values", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam", "asok"] } });
+	localStorage.setItem("whattoeat:filter-panel", "hidden");
+	const el = await mount();
+	expect(root(el).querySelector("aside.filter-panel")).toBeNull();
+	await cycleHidden(el, "siam");
+	expect(
+		root(el).querySelector('[data-action="show-filter"]')?.textContent?.trim(),
+	).toBe("Filter · 1 on");
+});
+
+test("phone: the remembered hidden panel does not affect the sheet", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	localStorage.setItem("whattoeat:filter-panel", "hidden");
+	const el = await phone();
+	expect(root(el).querySelector('[data-action="open-filter"]')).not.toBeNull();
+	expect(root(el).querySelector('[data-action="show-filter"]')).toBeNull();
 });
