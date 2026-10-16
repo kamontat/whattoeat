@@ -39,7 +39,7 @@ type FormView = {
 	form: FormState;
 	editingId: string | undefined;
 	confirmingId: string | undefined;
-	nameError: "manager.nameRequired" | "manager.nameTaken" | undefined;
+	nameError: "manager.nameRequired" | undefined;
 };
 
 type FormState = {
