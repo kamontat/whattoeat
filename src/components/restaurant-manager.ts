@@ -481,6 +481,13 @@ export class RestaurantManager extends LitElement {
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.restaurants = loadRestaurants();
 			this.skipped = skippedCount();
+			// Nothing left to search: end search outright rather than leave a dead "0 of 0" view.
+			if (this.searching && this.restaurants.length === 0) {
+				clearTimeout(this.announceTimer);
+				this.searching = false;
+				this.query = "";
+				this.announced = "";
+			}
 			if (this.editingId === undefined) return;
 			const editing = this.restaurants.find(
 				(item) => item.id === this.editingId,

@@ -1231,6 +1231,16 @@ test("search: deleting every restaurant mid-search shows the empty list card", a
 	await el.updateComplete;
 	expect($(el, ".card.empty:not(.no-match)")).not.toBeNull();
 	expect($(el, ".no-match")).toBeNull();
+	// An empty list ends the search outright instead of leaving a dead "0 of 0" view behind.
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+	expect($(el, ".head")?.hasAttribute("hidden")).toBe(false);
+	expect($(el, ".search-count")).toBeNull();
+	expect(searchInput(el).value).toBe("");
+	await new Promise((resolve) => setTimeout(resolve, 550));
+	await el.updateComplete;
+	expect($(el, '.search-announce[role="status"]')?.textContent?.trim()).toBe(
+		"",
+	);
 });
 
 const slash = (target: EventTarget = document.body) =>
