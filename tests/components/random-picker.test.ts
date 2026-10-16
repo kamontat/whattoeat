@@ -755,3 +755,181 @@ test("a picked card shows custom values as labelled chips before tags", async ()
 	);
 	expect(chips).toEqual(["Price: cheap", "spicy"]);
 });
+
+type HappyWindow = Window & {
+	happyDOM: { setViewport(viewport: { width: number; height: number }): void };
+};
+const setWidth = (width: number) => {
+	(window as unknown as HappyWindow).happyDOM.setViewport({
+		width,
+		height: 900,
+	});
+	window.dispatchEvent(new Event("resize"));
+};
+const phone = async () => {
+	setWidth(390);
+	return mount();
+};
+
+afterEach(() => setWidth(1024));
+
+test("shows the app name as a visible title with the count under it", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(root(el).querySelector("h1.page-title")?.textContent?.trim()).toBe(
+		"What to Eat",
+	);
+	expect(root(el).querySelector(".head .count")?.textContent?.trim()).toBe(
+		"1 restaurant",
+	);
+});
+
+test("wide: the filter sits in a side panel and the pick button in the heading row", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await mount();
+	expect(
+		root(el).querySelector("aside.filter-panel section.filter"),
+	).not.toBeNull();
+	expect(root(el).querySelector("app-sheet")).toBeNull();
+	expect(root(el).querySelector(".head button.pick")).not.toBeNull();
+	expect(root(el).querySelector(".pinned")).toBeNull();
+	expect(root(el).querySelectorAll("button.pick")).toHaveLength(1);
+});
+
+test("wide: no groups in use means no panel and no empty column", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(root(el).querySelector("aside.filter-panel")).toBeNull();
+	expect(root(el).querySelector(".layout.with-panel")).toBeNull();
+});
+
+test("phone: the filter opens in a sheet from a Filter button", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	expect(root(el).querySelector("aside.filter-panel")).toBeNull();
+	const open = root(el).querySelector<HTMLButtonElement>(
+		'button.filter-open[data-action="open-filter"]',
+	)!;
+	expect(open.textContent?.trim()).toBe("Filter");
+	expect(open.getAttribute("aria-haspopup")).toBe("dialog");
+	const sheet = root(el).querySelector("app-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(false);
+	expect(sheet.querySelector("section.filter")).not.toBeNull();
+	open.click();
+	await el.updateComplete;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	expect(sheet.getAttribute("heading")).toBe("Filter");
+});
+
+test("phone: Done closes the sheet", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="open-filter"]')!
+		.click();
+	await el.updateComplete;
+	const done = root(el).querySelector<HTMLButtonElement>(
+		'app-sheet button[slot="footer"][data-action="filter-done"]',
+	)!;
+	expect(done.textContent?.trim()).toBe("Done");
+	done.click();
+	await el.updateComplete;
+	expect(root(el).querySelector("app-sheet")!.hasAttribute("open")).toBe(false);
+});
+
+test("phone: the Filter button counts active values and the summary lists them", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam", "asok"] } });
+	addRestaurant({ ...base, name: "B", groups: { area: ["asok"] } });
+	const el = await phone();
+	await cycle(el, "siam");
+	await cycle(el, "asok");
+	await cycle(el, "asok");
+	expect(
+		root(el).querySelector('[data-action="open-filter"]')?.textContent?.trim(),
+	).toBe("Filter · 2 on");
+	expect(
+		[...root(el).querySelectorAll("ul.summary li")].map((li) => [
+			li.className,
+			li.textContent?.trim(),
+		]),
+	).toEqual([
+		["include", "✓ siam"],
+		["exclude", "✕ asok"],
+	]);
+});
+
+test("phone: the pick button is pinned at the end, once", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await phone();
+	expect(root(el).querySelector(".pinned button.pick")).not.toBeNull();
+	expect(root(el).querySelector(".head button.pick")).toBeNull();
+	expect(root(el).querySelectorAll("button.pick")).toHaveLength(1);
+});
+
+test("phone: a filter that matches nothing disables the pinned button", async () => {
+	addRestaurant({ ...base, name: "A", kinds: ["food"] });
+	addRestaurant({ ...base, name: "B", kinds: ["drinks", "dessert"] });
+	const el = await phone();
+	await cycle(el, "drinks", "kind");
+	await cycle(el, "dessert", "kind");
+	await cycle(el, "dessert", "kind");
+	expect(
+		root(el).querySelector<HTMLButtonElement>(".pinned button.pick")?.disabled,
+	).toBe(true);
+	expect(root(el).querySelector(".no-match")).not.toBeNull();
+});
+
+test("switching layouts keeps the filter", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	addRestaurant({ ...base, name: "B", groups: { area: ["asok"] } });
+	const el = await mount();
+	await cycle(el, "siam");
+	setWidth(390);
+	await el.updateComplete;
+	expect(root(el).querySelector("aside.filter-panel")).toBeNull();
+	expect(tagButton(el, "siam")?.getAttribute("data-state")).toBe("include");
+	setWidth(1024);
+	await el.updateComplete;
+	expect(root(el).querySelector("aside.filter-panel")).not.toBeNull();
+	expect(tagButton(el, "siam")?.getAttribute("data-state")).toBe("include");
+});
+
+test("the picks are announced by name", async () => {
+	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: "B" });
+	const el = await mount();
+	const announce = () =>
+		root(el).querySelector('p.announce[role="status"]')?.textContent?.trim();
+	expect(announce()).toBe("");
+	await pickOnce(el);
+	const [a, b] = pickedNames(el);
+	expect(announce()).toBe(`Picked ${a} and ${b}`);
+});
+
+test("a pick from one restaurant is announced alone", async () => {
+	addRestaurant({ ...base, name: "Solo" });
+	const el = await mount();
+	await pickOnce(el);
+	expect(
+		root(el).querySelector('p.announce[role="status"]')?.textContent?.trim(),
+	).toBe("Picked Solo");
+});
+
+test("Eat here is a soft button and the result area is not a live region", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	await pickOnce(el);
+	expect(
+		root(el).querySelector("button.visit")?.classList.contains("soft"),
+	).toBe(true);
+	expect(root(el).querySelector(".results")?.hasAttribute("aria-live")).toBe(
+		false,
+	);
+});
+
+test("the empty state links to Restaurants as a button-styled link", async () => {
+	const el = await mount();
+	expect(
+		root(el).querySelector('a.button-link[href="./restaurants"]'),
+	).not.toBeNull();
+});
