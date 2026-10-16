@@ -58,7 +58,7 @@ export class AppPreferences extends LitElement {
 				align-items: center;
 				justify-content: space-between;
 				gap: 0.75rem;
-				padding: 0.625rem 0.875rem 0.625rem 1.125rem;
+				padding: var(--row-pad-y) 0.875rem var(--row-pad-y) var(--pad-x);
 			}
 
 			.row + .row {
@@ -67,7 +67,7 @@ export class AppPreferences extends LitElement {
 
 			.row-label {
 				font-weight: 600;
-				font-size: 1.0625rem;
+				font-size: var(--row-text);
 			}
 
 			.seg {
@@ -75,7 +75,7 @@ export class AppPreferences extends LitElement {
 			}
 
 			.seg input + span {
-				min-width: 3.5rem;
+				min-width: var(--seg-min);
 			}
 
 			:host([compact]) .switches {

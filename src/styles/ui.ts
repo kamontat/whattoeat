@@ -23,7 +23,7 @@ export const uiStyles = css`
 	}
 
 	.page-title {
-		font-size: 2rem;
+		font-size: var(--title-size);
 		line-height: 1.15;
 		font-weight: 700;
 		letter-spacing: -0.01em;
@@ -40,7 +40,7 @@ export const uiStyles = css`
 		justify-content: center;
 		gap: 0.5rem;
 		min-height: var(--tap);
-		padding: 0 1.125rem;
+		padding: 0 var(--pad-x);
 		font: inherit;
 		font-weight: 600;
 		cursor: pointer;
@@ -110,7 +110,7 @@ export const uiStyles = css`
 	.card {
 		display: grid;
 		gap: 0.75rem;
-		padding: 1.125rem;
+		padding: var(--pad-x);
 		border-radius: var(--radius);
 		background: var(--color-surface);
 		box-shadow: var(--shadow);
@@ -129,7 +129,7 @@ export const uiStyles = css`
 
 	/* Grouped list: rounded surface, one row per item, dividers between rows. */
 	.group-label {
-		padding: 0.375rem 1.125rem 0;
+		padding: 0.375rem var(--pad-x) 0;
 		color: var(--color-muted);
 		font-size: 0.8125rem;
 		font-weight: 600;
@@ -155,7 +155,7 @@ export const uiStyles = css`
 		box-sizing: border-box;
 		width: 100%;
 		min-height: var(--tap);
-		padding: 0.625rem 0.875rem 0.625rem 1.125rem;
+		padding: var(--row-pad-y) 0.875rem var(--row-pad-y) var(--pad-x);
 		border: 0;
 		border-radius: 0;
 		background: transparent;
@@ -190,7 +190,7 @@ export const uiStyles = css`
 
 	.item b {
 		font-weight: 600;
-		font-size: 1.0625rem;
+		font-size: var(--row-text);
 	}
 
 	.item small {

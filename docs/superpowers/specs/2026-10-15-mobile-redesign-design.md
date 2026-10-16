@@ -7,7 +7,8 @@ Date: 2026-10-15
 Redesign the whole site around how it is used: on a phone, often one-handed, deciding where
 to eat. Keep every current feature and the data model; change the shell, the page layouts
 and the visual system. Meet WCAG 2.2 level AA throughout, and AAA target size (44 × 44 CSS px)
-for every control.
+for every control on touch screens; with a mouse or trackpad, controls use a compact 36 px size
+(still above the AA minimum of 24 px).
 
 This replaces the "Rethink the phone header" item in `IDEAS.md`.
 
@@ -122,6 +123,12 @@ Other tokens:
   line-height 1.55; page titles 2 rem bold; group labels 0.8125 rem uppercase muted.
 - Touch: `--tap` 2.75 rem (44 px), the minimum block size of every button, link-button, chip,
   row and input.
+- Density: `@media (hover: hover) and (pointer: fine)` (mouse, trackpad) switches to a compact
+  set: `--tap` 2.25 rem (36 px), `--pad-x` 0.875 rem, `--row-pad-y` 0.375 rem, `--title-size`
+  1.625 rem, `--row-text` 0.9375 rem, `--seg-min` 2.75 rem, `--bar-height` 3.75 rem,
+  `--brand-size` 1.125 rem (touch: 1.125, 0.625, 2, 1.0625, 3.5, 4.75, 1.375 rem). Keyed to the
+  pointer, not the width, so tablets and touch laptops keep touch sizes. Added after the stage 1
+  preview, where the desktop looked too large.
 - Motion: `--duration` 180 ms; 0 ms under `prefers-reduced-motion: reduce`.
 - Elevation: one soft shadow for tiles, lists and the tab bar; one stronger for sheets.
 
@@ -322,7 +329,7 @@ Applied to every page and checked in each pull request's test plan:
 - 2.4.1: skip link. 2.4.3: focus returns after sheets and confirmations. 2.4.7 / 2.4.11 /
   2.4.13: visible 3 px focus ring never hidden under the pinned button or tab bar
   (`scroll-padding-bottom` on `html` equal to their height).
-- 2.5.3: visible label text is part of every accessible name. 2.5.8: targets ≥ 44 px.
+- 2.5.3: visible label text is part of every accessible name. 2.5.8: targets ≥ 44 px on touch, ≥ 36 px with a fine pointer.
 - 3.1.1 / 3.1.2: `<html lang>` follows the language (already done); mixed-language labels marked.
 - 3.3.1 / 3.3.2: errors in text, tied to their field.
 - 4.1.2 / 4.1.3: states via `aria-pressed`, `aria-current`, `aria-disabled`, checked radios;

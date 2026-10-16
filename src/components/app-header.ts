@@ -114,8 +114,8 @@ export class AppHeader extends LitElement {
 					flex-wrap: wrap;
 					align-items: center;
 					gap: 0.75rem 1.5rem;
-					min-height: 4.75rem;
-					padding: 0.5rem 2.5rem;
+					min-height: var(--bar-height);
+					padding: 0.375rem 2.5rem;
 					background: var(--color-surface);
 					border-bottom: 1px solid var(--color-border);
 				}
@@ -126,10 +126,16 @@ export class AppHeader extends LitElement {
 					gap: 0.75rem;
 					margin-right: auto;
 					color: var(--color-text);
-					font-size: 1.375rem;
+					font-size: var(--brand-size);
 					font-weight: 700;
 					letter-spacing: -0.01em;
 					text-decoration: none;
+				}
+
+				/* The mark scales with the brand text. */
+				.brand .logo {
+					width: calc(var(--brand-size) * 1.5);
+					height: calc(var(--brand-size) * 1.5);
 				}
 
 				nav {
@@ -145,7 +151,7 @@ export class AppHeader extends LitElement {
 					flex-direction: row;
 					gap: 0.5rem;
 					min-height: var(--tap);
-					padding: 0 1.125rem;
+					padding: 0 var(--pad-x);
 					border-radius: 1rem;
 					font-size: 0.9375rem;
 				}
