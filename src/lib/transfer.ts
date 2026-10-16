@@ -37,7 +37,8 @@ export type ImportError =
 	| "import.error.format"
 	| "import.error.version"
 	| "import.error.entries"
-	| "import.error.read";
+	| "import.error.read"
+	| "import.error.fetch";
 
 export type ImportResult =
 	| {

@@ -13,7 +13,7 @@ app (see [Install on a phone](#install-on-a-phone)).
 | `/`            | Two random options; press Eat here to save a visit to History |
 | `/restaurants` | Add, edit and delete restaurants               |
 | `/history`     | Visits grouped by day, stats per restaurant, delete a visit |
-| `/settings`    | Language and theme; export or import JSON as a file or by copy and paste, with replace or merge; clear history by age; delete all data; about |
+| `/settings`    | Language and theme; export or import JSON as a file or by copy and paste, with replace or merge; import a bundled neighbourhood preset (Ladprao, Ratchayothin); clear history by age; delete all data; about |
 | `/tags`        | Groups and their values: counts, add, rename, reorder and delete groups; rename, merge, move and delete values |
 
 Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static
@@ -117,7 +117,8 @@ Planned future work lives in [TODO.md](TODO.md).
 ├── src/                 # application code
 │   ├── routes/          # HTML pages: index, restaurants, history, settings, tags
 │   ├── assets/          # files pages link to: favicon.svg, fonts, manifest.webmanifest
-│   │   └── icons/       # app icons, copied to dist/icons/ by --statics
+│   │   ├── icons/       # app icons, copied to dist/icons/ by --statics
+│   │   └── presets/     # neighbourhood restaurant lists, copied to dist/presets/ by --statics
 │   ├── components/      # Lit components        (import as #components/*)
 │   ├── lib/             # shared TypeScript     (import as #lib/*), e.g. gtm.ts
 │   ├── styles/          # global CSS and shared Lit styles (#styles/*)

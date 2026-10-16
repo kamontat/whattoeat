@@ -790,3 +790,138 @@ test("the page title is a large title", async () => {
 	const el = await mount();
 	expect($(el, "h1.page-title")?.textContent?.trim()).toBe("Settings");
 });
+
+/** Answer every fetch with `respond`, recording the requested URLs. */
+const stubFetch = (respond: () => Promise<Response>) => {
+	const urls: string[] = [];
+	const spy = spyOn(globalThis, "fetch").mockImplementation(((
+		input: RequestInfo | URL,
+	) => {
+		urls.push(String(input));
+		return respond();
+	}) as typeof fetch);
+	return { urls, restore: () => spy.mockRestore() };
+};
+
+const presetFile = (...items: Restaurant[]) =>
+	Promise.resolve(new Response(JSON.stringify(toExportFile(items))));
+
+test("the import section lists each preset with its name and restaurant count", async () => {
+	const el = await mount();
+	const rows = [
+		...el.shadowRoot!.querySelectorAll<HTMLElement>(
+			"section.import button[data-preset]",
+		),
+	];
+	expect(rows.map((row) => row.dataset["preset"])).toEqual([
+		"ladprao",
+		"ratchayothin",
+	]);
+	expect(rows[0]?.querySelector("b")?.textContent?.trim()).toBe("Ladprao");
+	expect(rows[0]?.querySelector("small")?.textContent?.trim()).toBe(
+		"144 restaurants",
+	);
+	setLang("th");
+	await el.updateComplete;
+	expect($(el, 'button[data-preset="ladprao"] b')?.textContent?.trim()).toBe(
+		"ลาดพร้าว",
+	);
+});
+
+test("a preset is fetched and imported at once when no restaurants are saved", async () => {
+	const fetched = stubFetch(() => presetFile(make("x", "X")));
+	try {
+		const el = await mount();
+		await click(el, 'button[data-preset="ladprao"]');
+		await flush(el);
+		expect(fetched.urls).toEqual(["presets/ladprao.json"]);
+		expect($(el, 'button[data-action="merge"]')).toBeNull();
+		expect(loadRestaurants()).toEqual([make("x", "X")]);
+		expect($(el, ".success")?.textContent?.trim()).toBe(
+			"Import complete. 1 restaurants saved.",
+		);
+	} finally {
+		fetched.restore();
+	}
+});
+
+test("a preset imports at once even when only history is saved", async () => {
+	saveHistory([visit("mine", "2026-10-01T09:00:00.000Z")]);
+	const fetched = stubFetch(() => presetFile(make("x", "X")));
+	try {
+		const el = await mount();
+		await click(el, 'button[data-preset="ladprao"]');
+		await flush(el);
+		expect($(el, 'button[data-action="merge"]')).toBeNull();
+		expect(loadRestaurants()).toEqual([make("x", "X")]);
+		expect(loadHistory().map((item) => item.id)).toEqual(["mine"]);
+	} finally {
+		fetched.restore();
+	}
+});
+
+test("a preset asks to replace or merge when restaurants are saved", async () => {
+	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	const fetched = stubFetch(() => presetFile(make("x", "X")));
+	try {
+		const el = await mount();
+		await click(el, 'button[data-preset="ladprao"]');
+		await flush(el);
+		expect($(el, ".found")?.textContent?.trim()).toBe("1 restaurants found.");
+		await click(el, 'button[data-action="merge"]');
+		expect(loadRestaurants().map((r) => r.name)).toEqual(["Old", "X"]);
+	} finally {
+		fetched.restore();
+	}
+});
+
+test("replacing with a preset keeps the history and the group list", async () => {
+	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	saveHistory([visit("mine", "2026-10-01T09:00:00.000Z")]);
+	saveGroups([{ id: "price", name: "Price" }]);
+	const fetched = stubFetch(() => presetFile(make("x", "X")));
+	try {
+		const el = await mount();
+		await click(el, 'button[data-preset="ladprao"]');
+		await flush(el);
+		await click(el, 'button[data-action="replace"]');
+		expect(loadRestaurants()).toEqual([make("x", "X")]);
+		expect(loadHistory().map((item) => item.id)).toEqual(["mine"]);
+		expect(loadGroups()).toEqual([{ id: "price", name: "Price" }]);
+	} finally {
+		fetched.restore();
+	}
+});
+
+test("a preset that cannot be fetched shows an error and changes nothing", async () => {
+	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	const fetched = stubFetch(() => Promise.reject(new Error("offline")));
+	try {
+		const el = await mount();
+		await click(el, 'button[data-preset="ladprao"]');
+		await flush(el);
+		expect($(el, ".error")?.textContent?.trim()).toBe(
+			"The preset could not be loaded. Check your connection and try again.",
+		);
+		expect(loadRestaurants().map((r) => r.name)).toEqual(["Old"]);
+	} finally {
+		fetched.restore();
+	}
+});
+
+test("a preset answered with an error status shows the load error", async () => {
+	const fetched = stubFetch(() =>
+		Promise.resolve(new Response("missing", { status: 404 })),
+	);
+	try {
+		const el = await mount();
+		await click(el, 'button[data-preset="ratchayothin"]');
+		await flush(el);
+		expect($(el, ".error")?.textContent?.trim()).toBe(
+			"The preset could not be loaded. Check your connection and try again.",
+		);
+		expect(loadRestaurants()).toEqual([]);
+	} finally {
+		fetched.restore();
+	}
+});

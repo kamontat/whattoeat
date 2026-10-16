@@ -169,6 +169,9 @@ export const en = {
 	"settings.merge": "Merge",
 	"settings.cancel": "Cancel",
 	"settings.imported": "Import complete. {count} restaurants saved.",
+	"settings.presetCount": "{count} restaurants",
+	"preset.ladprao": "Ladprao",
+	"preset.ratchayothin": "Ratchayothin",
 	"settings.resetTitle": "Reset",
 	"settings.clearHistory": "Clear history",
 	"settings.clearOlder": "Older than {range}",
@@ -187,6 +190,8 @@ export const en = {
 	"import.error.version": "This export version is not supported.",
 	"import.error.entries": "The data contains invalid restaurant data.",
 	"import.error.read": "The file could not be read. Choose it again.",
+	"import.error.fetch":
+		"The preset could not be loaded. Check your connection and try again.",
 	"storage.warning":
 		"Your browser is not saving changes. They will be lost when you leave this page.",
 	"storage.skipped.one":
@@ -362,6 +367,9 @@ export const th: Record<MessageKey, string> = {
 	"settings.merge": "รวมรายการ",
 	"settings.cancel": "ยกเลิก",
 	"settings.imported": "นำเข้าสำเร็จ มีร้านอาหาร {count} ร้าน",
+	"settings.presetCount": "{count} ร้าน",
+	"preset.ladprao": "ลาดพร้าว",
+	"preset.ratchayothin": "รัชโยธิน",
 	"settings.resetTitle": "รีเซ็ต",
 	"settings.clearHistory": "ล้างประวัติ",
 	"settings.clearOlder": "เก่ากว่า {range}",
@@ -380,6 +388,7 @@ export const th: Record<MessageKey, string> = {
 	"import.error.version": "ไม่รองรับข้อมูลส่งออกเวอร์ชันนี้",
 	"import.error.entries": "ข้อมูลมีร้านอาหารที่ไม่ถูกต้อง",
 	"import.error.read": "อ่านไฟล์ไม่ได้ กรุณาเลือกไฟล์อีกครั้ง",
+	"import.error.fetch": "โหลดชุดข้อมูลไม่ได้ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง",
 	"storage.warning": "เบราว์เซอร์ไม่ได้บันทึกข้อมูล การเปลี่ยนแปลงจะหายไปเมื่อออกจากหน้านี้",
 	"storage.skipped.one":
 		"อ่านร้านอาหารที่บันทึกไว้ 1 ร้านไม่ได้จึงข้ามไป ร้านนี้จะถูกลบเมื่อรายการเปลี่ยนครั้งถัดไป",
