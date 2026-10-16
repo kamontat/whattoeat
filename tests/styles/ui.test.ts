@@ -36,7 +36,6 @@ test("grouped list rows keep a visible divider and no outline override", () => {
 // from the shared grouped-list or segmented-control styles, or it picks up that look too.
 const LEGACY_COMPONENTS = [
 	"random-picker.ts",
-	"tag-manager.ts",
 	"tag-input.ts",
 	"restaurant-chips.ts",
 ];

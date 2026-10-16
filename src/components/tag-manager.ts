@@ -2,6 +2,7 @@ import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import { repeat } from "lit/directives/repeat.js";
+import "#components/app-sheet";
 import {
 	dropFilterGroup,
 	dropFilterValue,
@@ -32,6 +33,8 @@ import {
 	valueLabel,
 } from "#lib/groups";
 import { LangController, t } from "#lib/i18n";
+import { icon } from "#lib/icons";
+import { MediaController, WIDE } from "#lib/media";
 import {
 	BUILT_IN_GROUPS,
 	type Restaurant,
@@ -68,49 +71,77 @@ export class TagManager extends LitElement {
 		css`
 			:host {
 				display: grid;
-				gap: 1.25rem;
+				gap: 1rem;
 			}
 
-			h1 {
-				font-size: 1.5rem;
+			.back {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.25rem;
+				min-height: var(--tap);
+				margin: -0.5rem 0 -0.5rem -0.5rem;
+				padding: 0 0.5rem;
+				font-weight: 600;
+				text-decoration: none;
 			}
 
-			section.tag-group {
-				gap: 0.75rem;
+			.layout {
+				display: grid;
+				gap: 1rem;
+			}
+
+			.groups-col {
+				display: grid;
+				gap: 1rem;
+				align-content: start;
 			}
 
 			.group-head {
 				display: flex;
-				flex-wrap: wrap;
 				align-items: center;
 				justify-content: space-between;
 				gap: 0.5rem;
 			}
 
 			.group-head h2 {
-				font-size: 1.125rem;
-			}
-
-			.values {
-				display: grid;
-				gap: 0.5rem;
-				margin: 0;
-				padding: 0;
-				list-style: none;
-			}
-
-			li.value {
-				display: flex;
-				flex-wrap: wrap;
-				align-items: center;
-				gap: 0.5rem 0.75rem;
-			}
-
-			li.value .name {
+				font-size: 1rem;
 				font-weight: 600;
 			}
 
-			/* An open prompt sits where the row's buttons were, on one wrapping row. */
+			.options {
+				width: var(--tap);
+				padding: 0;
+			}
+
+			.values .item .count {
+				white-space: nowrap;
+			}
+
+			.value-row[aria-current="true"] {
+				background: var(--color-surface-2);
+				box-shadow: inset 3px 0 0 var(--color-primary);
+			}
+
+			.item:disabled {
+				opacity: 1;
+				color: var(--color-muted);
+				cursor: not-allowed;
+			}
+
+			.reason {
+				color: var(--color-muted);
+			}
+
+			.value-panel {
+				gap: 0.75rem;
+			}
+
+			.value-panel h2 {
+				font-size: 1.125rem;
+				font-weight: 600;
+			}
+
+			/* An open prompt sits on one wrapping row. */
 			.prompt {
 				display: flex;
 				flex-wrap: wrap;
@@ -137,14 +168,31 @@ export class TagManager extends LitElement {
 				flex-basis: 100%;
 			}
 
-			li.value .actions,
-			li.value .prompt {
-				margin-left: auto;
+			@media (forced-colors: active) {
+				.value-row[aria-current="true"] {
+					outline: 2px solid CanvasText;
+					outline-offset: -2px;
+				}
+			}
+
+			@media (min-width: 48rem) {
+				.layout.wide {
+					grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+					align-items: start;
+					gap: 1.5rem;
+				}
+
+				.value-panel {
+					position: sticky;
+					top: 1rem;
+				}
 			}
 		`,
 	];
 
 	protected readonly langController = new LangController(this);
+
+	protected readonly wide = new MediaController(this, WIDE);
 
 	@state() private restaurants: Restaurant[] = [];
 	@state() private defs: GroupDef[] = [];
@@ -153,6 +201,12 @@ export class TagManager extends LitElement {
 	@state() private addError: NameError | undefined;
 	/** Stored restaurants the last load could not read. */
 	@state() private skipped = 0;
+
+	/** The value whose actions are open (sheet on phones, side panel when wide). */
+	@state() private selected: { group: string; value: string } | undefined;
+
+	/** The custom group whose options sheet is open. */
+	@state() private optionsFor: string | undefined;
 
 	private unsubscribe: (() => void)[] = [];
 
@@ -175,6 +229,24 @@ export class TagManager extends LitElement {
 		this.defs = loadGroups();
 		this.restaurants = loadRestaurants();
 		this.skipped = skippedCount();
+		const selected = this.selected;
+		if (
+			selected !== undefined &&
+			!valueCounts(this.restaurants, selected.group).some(
+				(item) => item.value === selected.value,
+			)
+		) {
+			this.selected = undefined;
+			if (this.prompt !== undefined && "value" in this.prompt)
+				this.prompt = undefined;
+		}
+		if (
+			this.optionsFor !== undefined &&
+			!this.defs.some((def) => def.id === this.optionsFor)
+		) {
+			this.optionsFor = undefined;
+			this.prompt = undefined;
+		}
 	}
 
 	/** Runs `find` after the next render and focuses what it returns, for actions that remove the focused button. */
@@ -185,19 +257,15 @@ export class TagManager extends LitElement {
 		});
 	}
 
-	// Group ids and values are compared as attributes rather than put into a selector, where a
-	// quote or backslash in a stored value would break it.
-	private groupCard(group: string): Element | undefined {
-		return [...this.renderRoot.querySelectorAll("section.tag-group")].find(
-			(section) => section.getAttribute("data-group") === group,
-		);
+	/** The open value's actions container (only one exists at a time). */
+	private valueDetail(): Element | undefined {
+		return this.renderRoot.querySelector(".value-detail") ?? undefined;
 	}
 
 	private groupAction(group: string, action: string): Element | undefined {
-		return (
-			this.groupCard(group)?.querySelector(`[data-action="${action}"]`) ??
-			undefined
-		);
+		const options = this.renderRoot.querySelector(".group-options");
+		if (options?.getAttribute("data-group") !== group) return undefined;
+		return options.querySelector(`[data-action="${action}"]`) ?? undefined;
 	}
 
 	private readonly addNewGroup = (event: Event): void => {
@@ -225,7 +293,9 @@ export class TagManager extends LitElement {
 
 	private startRename(id: string, label: string): void {
 		this.prompt = { kind: "rename-group", id, text: label };
-		this.focusAfterRender(() => this.groupCard(id)?.querySelector("input"));
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector(".group-options input"),
+		);
 	}
 
 	private cancelRename(id: string): void {
@@ -259,6 +329,7 @@ export class TagManager extends LitElement {
 	private confirmDeleteGroup(id: string): void {
 		const result = deleteGroup(this.restaurants, this.defs, id, new Date());
 		this.prompt = undefined;
+		this.optionsFor = undefined;
 		saveFilter(dropFilterGroup(loadFilter(), id));
 		// Restaurants first: if the group list save fails, the next load still turns its values into tags.
 		saveRestaurants(result.restaurants);
@@ -267,34 +338,50 @@ export class TagManager extends LitElement {
 		this.focusAfterRender(() => this.renderRoot.querySelector("#new-group"));
 	}
 
-	private valueRow(group: string, value: string): Element | undefined {
-		return [
-			...(this.groupCard(group)?.querySelectorAll("li.value") ?? []),
-		].find((row) => row.getAttribute("data-value") === value);
+	private openValue(group: string, value: string): void {
+		this.prompt = undefined;
+		this.selected = { group, value };
+		this.focusAfterRender(() =>
+			this.valueDetail()?.querySelector('[data-action="rename-value"]'),
+		);
 	}
+
+	private readonly closeValue = (): void => {
+		this.selected = undefined;
+		if (this.prompt !== undefined && "value" in this.prompt)
+			this.prompt = undefined;
+	};
+
+	private openGroupOptions(group: string): void {
+		this.prompt = undefined;
+		this.optionsFor = group;
+	}
+
+	private readonly closeGroupOptions = (): void => {
+		this.optionsFor = undefined;
+		if (
+			this.prompt?.kind === "rename-group" ||
+			this.prompt?.kind === "delete-group"
+		)
+			this.prompt = undefined;
+	};
 
 	private startRenameValue(group: string, value: string): void {
 		this.prompt = { kind: "rename-value", group, value, text: value };
+		this.focusAfterRender(() => this.valueDetail()?.querySelector("input"));
+	}
+
+	private cancelRenameValue(_group: string, _value: string): void {
+		this.prompt = undefined;
 		this.focusAfterRender(() =>
-			this.valueRow(group, value)?.querySelector("input"),
+			this.valueDetail()?.querySelector('[data-action="rename-value"]'),
 		);
 	}
 
-	private cancelRenameValue(group: string, value: string): void {
+	private cancelMerge(_group: string, _value: string): void {
 		this.prompt = undefined;
 		this.focusAfterRender(() =>
-			this.valueRow(group, value)?.querySelector(
-				'[data-action="rename-value"]',
-			),
-		);
-	}
-
-	private cancelMerge(group: string, value: string): void {
-		this.prompt = undefined;
-		this.focusAfterRender(() =>
-			this.valueRow(group, value)?.querySelector(
-				'[data-action="rename-value"]',
-			),
+			this.valueDetail()?.querySelector('[data-action="rename-value"]'),
 		);
 	}
 
@@ -305,33 +392,27 @@ export class TagManager extends LitElement {
 			value,
 			to: this.moveTargets(group)[0] ?? "tags",
 		};
-		this.focusAfterRender(() =>
-			this.valueRow(group, value)?.querySelector("select"),
-		);
+		this.focusAfterRender(() => this.valueDetail()?.querySelector("select"));
 	}
 
-	private cancelMoveValue(group: string, value: string): void {
+	private cancelMoveValue(_group: string, _value: string): void {
 		this.prompt = undefined;
 		this.focusAfterRender(() =>
-			this.valueRow(group, value)?.querySelector('[data-action="move-value"]'),
+			this.valueDetail()?.querySelector('[data-action="move-value"]'),
 		);
 	}
 
 	private askDeleteValue(group: string, value: string): void {
 		this.prompt = { kind: "delete-value", group, value };
 		this.focusAfterRender(() =>
-			this.valueRow(group, value)?.querySelector(
-				'[data-action="confirm-delete-value"]',
-			),
+			this.valueDetail()?.querySelector('[data-action="confirm-delete-value"]'),
 		);
 	}
 
-	private cancelDeleteValue(group: string, value: string): void {
+	private cancelDeleteValue(_group: string, _value: string): void {
 		this.prompt = undefined;
 		this.focusAfterRender(() =>
-			this.valueRow(group, value)?.querySelector(
-				'[data-action="delete-value"]',
-			),
+			this.valueDetail()?.querySelector('[data-action="delete-value"]'),
 		);
 	}
 
@@ -360,17 +441,19 @@ export class TagManager extends LitElement {
 
 	private applyRename(group: string, value: string, to: string): void {
 		this.prompt = undefined;
+		this.selected = { group, value: to };
 		saveFilter(renameFilterValue(loadFilter(), group, value, to));
 		saveRestaurants(
 			renameValue(this.restaurants, group, value, to, new Date()),
 		);
 		this.focusAfterRender(() =>
-			this.valueRow(group, to)?.querySelector('[data-action="rename-value"]'),
+			this.valueDetail()?.querySelector('[data-action="rename-value"]'),
 		);
 	}
 
 	private applyMove(group: string, value: string, to: string): void {
 		this.prompt = undefined;
+		this.selected = undefined;
 		saveFilter(moveFilterValue(loadFilter(), group, value, to));
 		saveRestaurants(moveValue(this.restaurants, group, value, to, new Date()));
 		// The row moves to another group's card (or into plain tags); land focus on the one
@@ -380,6 +463,7 @@ export class TagManager extends LitElement {
 
 	private applyDelete(group: string, value: string): void {
 		this.prompt = undefined;
+		this.selected = undefined;
 		saveFilter(dropFilterValue(loadFilter(), group, value));
 		saveRestaurants(deleteValue(this.restaurants, group, value, new Date()));
 		// The row is gone now; land focus on the one control guaranteed to remain.
@@ -399,9 +483,24 @@ export class TagManager extends LitElement {
 			...this.defs.map((def) => def.id),
 			"tags",
 		];
+		const wide = this.wide.matches;
+		const selected = this.selected;
+		const detailTitle =
+			selected === undefined ? "" : valueLabel(selected.group, selected.value);
+		const detailSub =
+			selected === undefined
+				? ""
+				: this.valueSubtitle(selected.group, selected.value);
+		const optionsLabel =
+			this.optionsFor === undefined
+				? ""
+				: groupLabel(this.optionsFor, this.defs);
 		return html`
-			<h1>${t("tags.title")}</h1>
-			<p class="muted">${t("tags.intro")}</p>
+			<a class="back" href="./restaurants">${icon("back", 20)}<span>${t("nav.restaurants")}</span></a>
+			<div>
+				<h1 class="page-title">${t("tags.title")}</h1>
+				<p class="page-sub">${t("tags.intro")}</p>
+			</div>
 			${isMemoryOnly() || isGroupsMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
 				this.skipped > 0
@@ -418,37 +517,88 @@ export class TagManager extends LitElement {
 						</div>`
 					: nothing
 			}
-			${repeat(
-				groups,
-				(group) => group,
-				(group) => this.renderGroup(group),
-			)}
-			${this.renderAddGroup()}
+			<div class="layout ${wide ? "wide" : ""}">
+				<div class="groups-col">
+					${repeat(
+						groups,
+						(group) => group,
+						(group) => this.renderGroup(group),
+					)}
+					${this.renderAddGroup()}
+				</div>
+				${
+					wide
+						? html`<section class="card value-panel" aria-labelledby="value-title">
+								${
+									selected === undefined
+										? html`<p class="muted pick-hint">${t("tags.pickHint")}</p>`
+										: html`<div>
+												<h2 id="value-title">${detailTitle}</h2>
+												<p class="muted">${detailSub}</p>
+											</div>
+											${this.renderValueDetail(selected.group, selected.value)}`
+								}
+							</section>`
+						: html`<app-sheet
+								class="value-sheet"
+								heading=${detailTitle}
+								subheading=${detailSub}
+								?open=${selected !== undefined}
+								@sheet-close=${this.closeValue}
+							>
+								${selected === undefined ? nothing : this.renderValueDetail(selected.group, selected.value)}
+							</app-sheet>`
+				}
+			</div>
+			<app-sheet
+				class="group-sheet"
+				heading=${optionsLabel}
+				?open=${this.optionsFor !== undefined}
+				@sheet-close=${this.closeGroupOptions}
+			>
+				${this.optionsFor === undefined ? nothing : this.renderGroupOptions(this.optionsFor)}
+			</app-sheet>
 		`;
 	}
 
+	private valueSubtitle(group: string, value: string): string {
+		const count =
+			valueCounts(this.restaurants, group).find((item) => item.value === value)
+				?.count ?? 0;
+		return t("tags.valueSub", {
+			group: groupLabel(group, this.defs),
+			count:
+				count === 1 ? t("tags.count.one") : t("tags.count.other", { count }),
+		});
+	}
+
 	private renderGroup(group: string) {
-		const index = this.defs.findIndex((def) => def.id === group);
-		const custom = index >= 0;
+		const custom = this.defs.some((def) => def.id === group);
 		const label = groupLabel(group, this.defs);
 		const values = valueCounts(this.restaurants, group);
-		// Hide the normal actions while a prompt for this same group is open, rather than
-		// stacking them next to the rename form or the delete confirmation.
-		const promptOpen =
-			(this.prompt?.kind === "rename-group" ||
-				this.prompt?.kind === "delete-group") &&
-			this.prompt.id === group;
 		return html`
 			<section class="card tag-group" data-group=${group} aria-label=${label}>
 				<div class="group-head">
-					${this.renderGroupTitle(group, label)}
-					${custom && !promptOpen ? this.renderGroupActions(group, label, index) : nothing}
+					<h2>${label}</h2>
+					${
+						custom
+							? html`<button
+									type="button"
+									class="quiet options"
+									data-action="group-options"
+									aria-haspopup="dialog"
+									aria-label=${t("tags.groupOptions", { group: label })}
+									@click=${() => this.openGroupOptions(group)}
+								>
+									${icon("dots", 20)}
+								</button>`
+							: nothing
+					}
 				</div>
-				${this.renderGroupPrompt(group, label)}
 				${
 					values.length === 0
 						? html`<p class="muted">${t("tags.noValues")}</p>`
-						: html`<ul class="values">
+						: html`<ul class="group values">
 								${values.map(({ value, count }) => this.renderValue(group, value, count))}
 							</ul>`
 				}
@@ -456,7 +606,174 @@ export class TagManager extends LitElement {
 		`;
 	}
 
-	private renderGroupTitle(group: string, label: string) {
+	private renderValue(group: string, value: string, count: number) {
+		const countText =
+			count === 1 ? t("tags.count.one") : t("tags.count.other", { count });
+		const label = valueLabel(group, value);
+		const current =
+			this.selected?.group === group && this.selected.value === value;
+		return html`<li class="value" data-value=${value}>
+			${
+				group === "kind"
+					? html`<div class="item static">
+							<span class="grow"><b class="name">${label}</b></span>
+							<span class="count muted">${countText}</span>
+						</div>`
+					: html`<button
+							type="button"
+							class="item value-row"
+							data-action="open-value"
+							aria-haspopup=${this.wide.matches ? nothing : "dialog"}
+							aria-current=${current ? "true" : nothing}
+							@click=${() => this.openValue(group, value)}
+						>
+							<span class="grow"><b class="name">${label}</b></span>
+							<span class="count muted">${countText}</span>
+							<span class="trail">${icon("chevron", 18)}</span>
+						</button>`
+			}
+		</li>`;
+	}
+
+	private renderValueDetail(group: string, value: string) {
+		const count =
+			valueCounts(this.restaurants, group).find((item) => item.value === value)
+				?.count ?? 0;
+		const prompt = this.prompt;
+		const mine =
+			prompt !== undefined &&
+			prompt.kind !== "rename-group" &&
+			prompt.kind !== "delete-group" &&
+			prompt.group === group &&
+			prompt.value === value
+				? prompt
+				: undefined;
+		return html`<div class="value-detail" data-group=${group} data-value=${value}>
+			${
+				mine === undefined
+					? html`<ul class="group actions-list">
+							<li>
+								<button
+									type="button"
+									class="item"
+									data-action="rename-value"
+									aria-label=${t("tags.renameValueLabel", { value })}
+									@click=${() => this.startRenameValue(group, value)}
+								>
+									<span class="lead">${icon("edit", 20)}</span>
+									<span class="grow"><b>${t("tags.rename")}</b></span>
+								</button>
+							</li>
+							<li>
+								<button
+									type="button"
+									class="item"
+									data-action="move-value"
+									aria-label=${t("tags.moveValueLabel", { value })}
+									@click=${() => this.startMoveValue(group, value)}
+								>
+									<span class="lead">${icon("move", 20)}</span>
+									<span class="grow"><b>${t("tags.move")}</b><small>${t("tags.anotherGroup")}</small></span>
+								</button>
+							</li>
+							<li>
+								<button
+									type="button"
+									class="item danger"
+									data-action="delete-value"
+									aria-label=${t("tags.deleteValueLabel", { value })}
+									@click=${() => this.askDeleteValue(group, value)}
+								>
+									<span class="lead">${icon("trash", 20)}</span>
+									<span class="grow"><b>${t("tags.delete")}</b></span>
+								</button>
+							</li>
+						</ul>`
+					: this.renderValueBody(group, value, count, mine)
+			}
+		</div>`;
+	}
+
+	private renderGroupOptions(group: string) {
+		const index = this.defs.findIndex((def) => def.id === group);
+		const label = groupLabel(group, this.defs);
+		const prompt = this.prompt;
+		const first = index === 0;
+		const last = index === this.defs.length - 1;
+		let body: unknown;
+		if (prompt?.kind === "rename-group" && prompt.id === group)
+			body = this.renderGroupTitle(group, label);
+		else if (prompt?.kind === "delete-group" && prompt.id === group)
+			body = this.renderGroupPrompt(group, label);
+		else
+			body = html`<ul class="group actions-list">
+				<li>
+					<button
+						type="button"
+						class="item"
+						data-action="rename-group"
+						aria-label=${t("tags.renameGroupLabel", { group: label })}
+						@click=${() => this.startRename(group, label)}
+					>
+						<span class="lead">${icon("edit", 20)}</span>
+						<span class="grow"><b>${t("tags.rename")}</b></span>
+					</button>
+				</li>
+				<li>
+					<button
+						type="button"
+						class="item"
+						data-action="move-up"
+						?disabled=${first}
+						aria-label=${t("tags.moveUp", { group: label })}
+						@click=${() => this.moveGroupBy(group, -1)}
+					>
+						<span class="lead">${icon("up", 20)}</span>
+						<span class="grow"
+							><b>${t("tags.moveUp", { group: label })}</b>${
+								first
+									? html`<small class="reason">${t("tags.firstGroup")}</small>`
+									: nothing
+							}</span
+						>
+					</button>
+				</li>
+				<li>
+					<button
+						type="button"
+						class="item"
+						data-action="move-down"
+						?disabled=${last}
+						aria-label=${t("tags.moveDown", { group: label })}
+						@click=${() => this.moveGroupBy(group, 1)}
+					>
+						<span class="lead">${icon("down", 20)}</span>
+						<span class="grow"
+							><b>${t("tags.moveDown", { group: label })}</b>${
+								last
+									? html`<small class="reason">${t("tags.lastGroup")}</small>`
+									: nothing
+							}</span
+						>
+					</button>
+				</li>
+				<li>
+					<button
+						type="button"
+						class="item danger"
+						data-action="delete-group"
+						aria-label=${t("tags.deleteGroupLabel", { group: label })}
+						@click=${() => this.askDeleteGroup(group)}
+					>
+						<span class="lead">${icon("trash", 20)}</span>
+						<span class="grow"><b>${t("tags.delete")}</b></span>
+					</button>
+				</li>
+			</ul>`;
+		return html`<div class="group-options" data-group=${group}>${body}</div>`;
+	}
+
+	private renderGroupTitle(group: string, _label: string) {
 		const prompt = this.prompt;
 		if (prompt?.kind === "rename-group" && prompt.id === group)
 			return html`<form
@@ -483,43 +800,7 @@ export class TagManager extends LitElement {
 				<button type="button" data-action="cancel" @click=${() => this.cancelRename(group)}>${t("tags.cancel")}</button>
 				${prompt.error ? html`<p class="error" role="alert">${t(prompt.error)}</p>` : nothing}
 			</form>`;
-		return html`<h2>${label}</h2>`;
-	}
-
-	private renderGroupActions(group: string, label: string, index: number) {
-		return html`<div class="actions">
-			<button
-				type="button"
-				data-action="rename-group"
-				aria-label=${t("tags.renameGroupLabel", { group: label })}
-				@click=${() => this.startRename(group, label)}
-			>
-				${t("tags.rename")}
-			</button>
-			<button
-				type="button"
-				data-action="move-up"
-				aria-label=${t("tags.moveUp", { group: label })}
-				?disabled=${index === 0}
-				@click=${() => this.moveGroupBy(group, -1)}
-			>↑</button>
-			<button
-				type="button"
-				data-action="move-down"
-				aria-label=${t("tags.moveDown", { group: label })}
-				?disabled=${index === this.defs.length - 1}
-				@click=${() => this.moveGroupBy(group, 1)}
-			>↓</button>
-			<button
-				type="button"
-				class="danger"
-				data-action="delete-group"
-				aria-label=${t("tags.deleteGroupLabel", { group: label })}
-				@click=${() => this.askDeleteGroup(group)}
-			>
-				${t("tags.delete")}
-			</button>
-		</div>`;
+		return nothing;
 	}
 
 	private renderGroupPrompt(group: string, label: string) {
@@ -537,62 +818,15 @@ export class TagManager extends LitElement {
 		</div>`;
 	}
 
-	private renderValue(group: string, value: string, count: number) {
-		const countText =
-			count === 1 ? t("tags.count.one") : t("tags.count.other", { count });
-		const prompt = this.prompt;
-		const mine =
-			prompt !== undefined &&
-			prompt.kind !== "rename-group" &&
-			prompt.kind !== "delete-group" &&
-			prompt.group === group &&
-			prompt.value === value
-				? prompt
-				: undefined;
-		return html`<li class="value" data-value=${value}>
-			<span class="name">${valueLabel(group, value)}</span>
-			<span class="count muted">${countText}</span>
-			${group === "kind" ? nothing : this.renderValueBody(group, value, count, mine)}
-		</li>`;
-	}
-
 	private renderValueBody(
 		group: string,
 		value: string,
 		count: number,
-		prompt:
-			| Exclude<Prompt, { kind: "rename-group" } | { kind: "delete-group" }>
-			| undefined,
+		prompt: Exclude<
+			Prompt,
+			{ kind: "rename-group" } | { kind: "delete-group" }
+		>,
 	) {
-		if (prompt === undefined) {
-			return html`<div class="actions">
-				<button
-					type="button"
-					data-action="rename-value"
-					aria-label=${t("tags.renameValueLabel", { value })}
-					@click=${() => this.startRenameValue(group, value)}
-				>
-					${t("tags.rename")}
-				</button>
-				<button
-					type="button"
-					data-action="move-value"
-					aria-label=${t("tags.moveValueLabel", { value })}
-					@click=${() => this.startMoveValue(group, value)}
-				>
-					${t("tags.move")}
-				</button>
-				<button
-					type="button"
-					class="danger"
-					data-action="delete-value"
-					aria-label=${t("tags.deleteValueLabel", { value })}
-					@click=${() => this.askDeleteValue(group, value)}
-				>
-					${t("tags.delete")}
-				</button>
-			</div>`;
-		}
 		switch (prompt.kind) {
 			case "rename-value":
 				return html`<form
