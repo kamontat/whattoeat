@@ -181,6 +181,15 @@ export class AppSheet extends LitElement {
 			(event.target as HTMLSlotElement).assignedElements().length > 0;
 	};
 
+	/** Whether focus is in this sheet: in its slotted content or on its own Close button. */
+	containsFocus(): boolean {
+		const active = deepActiveElement();
+		if (active === null) return false;
+		return (
+			this.contains(active) || (this.shadowRoot?.contains(active) ?? false)
+		);
+	}
+
 	override render() {
 		return html`
 			<dialog aria-labelledby="sheet-title" @close=${this.onClose} @click=${this.onClick}>

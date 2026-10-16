@@ -144,3 +144,19 @@ test("close label follows the language", async () => {
 			?.getAttribute("aria-label"),
 	).toBe("ปิด");
 });
+
+test("containsFocus sees slotted content and the sheet's own Close button", async () => {
+	const { opener, sheet } = await mount();
+	opener.focus();
+	expect(sheet.containsFocus()).toBe(false);
+	sheet.open = true;
+	await sheet.updateComplete;
+	sheet.querySelector<HTMLButtonElement>('button[slot="footer"]')!.focus();
+	expect(sheet.containsFocus()).toBe(true);
+	sheet
+		.shadowRoot!.querySelector<HTMLButtonElement>(
+			'button[data-action="close-sheet"]',
+		)!
+		.focus();
+	expect(sheet.containsFocus()).toBe(true);
+});

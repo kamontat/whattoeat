@@ -1,7 +1,6 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import "#components/app-sheet";
-import { deepActiveElement } from "#components/app-sheet";
 import { restaurantChips } from "#components/restaurant-chips";
 import {
 	applyFilter,
@@ -453,8 +452,8 @@ export class RandomPicker extends LitElement {
 	 */
 	protected override willUpdate(): void {
 		if (!this.wide.matches || !this.filterOpen) return;
-		const sheet = this.renderRoot.querySelector("app-sheet");
-		const focusWasInSheet = sheet?.contains(deepActiveElement()) ?? false;
+		const focusWasInSheet =
+			this.renderRoot.querySelector("app-sheet")?.containsFocus() ?? false;
 		this.filterOpen = false;
 		if (focusWasInSheet) {
 			void this.updateComplete.then(() => {
