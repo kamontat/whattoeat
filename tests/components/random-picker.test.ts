@@ -967,6 +967,22 @@ test("the picks are announced by name", async () => {
 	expect(announce()).toBe(`Picked ${a} and ${b}`);
 });
 
+test("narrowing the filter to one pick does not invent a fresh announcement", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
+	addRestaurant({ ...base, name: "B", groups: { area: ["noodle"] } });
+	const el = await mount();
+	await pickOnce(el);
+	const [a, b] = pickedNames(el);
+	const announce = () =>
+		root(el).querySelector('p.announce[role="status"]')?.textContent?.trim();
+	const before = announce();
+	expect(before).toBe(`Picked ${a} and ${b}`);
+	await cycle(el, "thai");
+	expect(pickedNames(el)).toEqual(["A"]);
+	// Trimming the result is not a new pick, so the announcement is left as it was.
+	expect(announce()).toBe(before);
+});
+
 test("a pick from one restaurant is announced alone", async () => {
 	addRestaurant({ ...base, name: "Solo" });
 	const el = await mount();

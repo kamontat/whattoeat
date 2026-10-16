@@ -357,6 +357,13 @@ export class RandomPicker extends LitElement {
 	@state()
 	private visited: { id: string; at: Date } | undefined;
 
+	/**
+	 * The live region's text. Written only from `pick()`: cleared immediately, then set once the
+	 * clear has rendered, so picking the same names again still changes the text and gets announced.
+	 */
+	@state()
+	private announced = "";
+
 	private unsubscribe: (() => void) | undefined;
 	private unsubscribeGroups: (() => void) | undefined;
 	private unsubscribeFilter: (() => void) | undefined;
@@ -444,6 +451,8 @@ export class RandomPicker extends LitElement {
 			.filter((item) => item !== undefined);
 		if (!this.picked.some((item) => item.id === this.visited?.id))
 			this.visited = undefined;
+		// Leave the announcement text alone otherwise: this is not a new pick.
+		if (this.picked.length === 0) this.announced = "";
 	}
 
 	private setFilter(next: Filter): void {
@@ -463,6 +472,12 @@ export class RandomPicker extends LitElement {
 			2,
 			this.picked.map((item) => item.id),
 		);
+		// Clear first, then set the real text once that clear has rendered: picking the same
+		// names again still changes the live region's text, so it is announced again.
+		this.announced = "";
+		void this.updateComplete.then(() => {
+			this.announced = this.pickAnnouncement();
+		});
 	};
 
 	override render() {
@@ -510,7 +525,7 @@ export class RandomPicker extends LitElement {
 					</header>
 					${!wide && groups.length > 0 ? this.renderFilterRow(groups) : nothing}
 					${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
-					<p class="announce visually-hidden" role="status">${this.announcement()}</p>
+					<p class="announce visually-hidden" role="status">${this.announced}</p>
 					<div class="results">${this.picked.map((item) => this.renderResult(item))}</div>
 				</div>
 			</div>
@@ -519,7 +534,7 @@ export class RandomPicker extends LitElement {
 	}
 
 	/** Screen readers hear the new picks by name rather than both whole tiles. */
-	private announcement(): string {
+	private pickAnnouncement(): string {
 		const [a, b] = this.picked.map((item) => item.name);
 		if (a === undefined) return "";
 		return b === undefined
