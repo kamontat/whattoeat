@@ -3,6 +3,7 @@ import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import "#components/app-footer";
 import "#components/app-preferences";
+import "#components/history-clear";
 import {
 	type GroupDef,
 	isGroupsMemoryOnly,
@@ -460,6 +461,7 @@ export class DataTransferPanel extends LitElement {
 			</section>
 			<section class="reset" aria-labelledby="reset-title">
 				<h2 id="reset-title" class="group-label">${t("settings.resetTitle")}</h2>
+				<history-clear></history-clear>
 				${this.renderReset()}
 			</section>
 			<section class="about" aria-labelledby="about-title">

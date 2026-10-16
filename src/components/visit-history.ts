@@ -2,9 +2,6 @@ import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 import {
-	CLEAR_RANGES,
-	type ClearRange,
-	countOlderThan,
 	groupByDay,
 	type HistoryEntry,
 	isHistoryMemoryOnly,
@@ -12,7 +9,6 @@ import {
 	onHistoryChanged,
 	relativeDay,
 	removeVisit,
-	removeVisitsOlderThan,
 	summarize,
 } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
@@ -100,11 +96,6 @@ export class VisitHistory extends LitElement {
 				padding: 0 0.75rem;
 				font-size: 0.875rem;
 			}
-
-			.clear .actions button {
-				min-height: var(--tap);
-				font-size: 0.875rem;
-			}
 		`,
 	];
 
@@ -119,10 +110,6 @@ export class VisitHistory extends LitElement {
 	/** The visit whose Delete was pressed and now waits for confirmation. */
 	@state()
 	private confirmingId: string | undefined;
-
-	/** The clear range whose button was pressed and now waits for confirmation. */
-	@state()
-	private clearing: ClearRange | undefined;
 
 	private unsubscribe: (() => void)[] = [];
 
@@ -183,28 +170,6 @@ export class VisitHistory extends LitElement {
 				? this.renderRoot.querySelector("h1")
 				: this.rowAction(neighbour.id, "delete"),
 		);
-	}
-
-	private askClear(range: ClearRange): void {
-		this.clearing = range;
-		this.focusAfterRender(() =>
-			this.renderRoot.querySelector('[data-action="clear-confirm"]'),
-		);
-	}
-
-	private cancelClear(): void {
-		const range = this.clearing;
-		this.clearing = undefined;
-		this.focusAfterRender(() =>
-			this.renderRoot.querySelector(`[data-clear="${range}"]`),
-		);
-	}
-
-	private confirmClear(): void {
-		if (this.clearing === undefined) return;
-		removeVisitsOlderThan(this.clearing);
-		this.clearing = undefined;
-		this.focusAfterRender(() => this.renderRoot.querySelector("h1"));
 	}
 
 	override render() {
@@ -268,7 +233,6 @@ export class VisitHistory extends LitElement {
 					</div>`,
 				)}
 			</section>
-			${this.renderClear()}
 		`;
 	}
 
@@ -278,66 +242,6 @@ export class VisitHistory extends LitElement {
 		if (relative === "today") return t("history.today");
 		if (relative === "yesterday") return t("history.yesterday");
 		return format.format(date);
-	}
-
-	private renderClear() {
-		const now = new Date();
-		const counts = new Map(
-			CLEAR_RANGES.map((range) => [
-				range,
-				countOlderThan(this.history, range, now),
-			]),
-		);
-		const label = (range: ClearRange) =>
-			range === "all"
-				? t("history.clearAll")
-				: t("history.clearOlder", { range: t(`history.range.${range}`) });
-		return html`
-			<section class="clear card" aria-labelledby="clear-title">
-				<h2 id="clear-title">${t("history.clearTitle")}</h2>
-				${
-					this.clearing === undefined
-						? html`<div class="actions">
-								${CLEAR_RANGES.map(
-									(range) => html`<button
-										type="button"
-										data-clear=${range}
-										?disabled=${counts.get(range) === 0}
-										@click=${() => this.askClear(range)}
-									>
-										${label(range)} (${counts.get(range)})
-									</button>`,
-								)}
-							</div>`
-						: this.renderClearPrompt(
-								this.clearing,
-								counts.get(this.clearing) ?? 0,
-							)
-				}
-			</section>
-		`;
-	}
-
-	private renderClearPrompt(range: ClearRange, count: number) {
-		const plural = count === 1 ? "one" : "other";
-		const prompt =
-			range === "all"
-				? t(`history.clearAllPrompt.${plural}`, { count })
-				: t(`history.clearPrompt.${plural}`, {
-						count,
-						range: t(`history.range.${range}`),
-					});
-		return html`
-			<p class="clear-prompt" role="alert">${prompt}</p>
-			<div class="actions">
-				<button type="button" class="danger" data-action="clear-confirm" @click=${this.confirmClear}>
-					${t("history.clearConfirm")}
-				</button>
-				<button type="button" data-action="clear-cancel" @click=${this.cancelClear}>
-					${t("history.cancel")}
-				</button>
-			</div>
-		`;
 	}
 
 	private renderVisit(entry: HistoryEntry, format: Intl.DateTimeFormat) {

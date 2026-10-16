@@ -385,6 +385,18 @@ test("uses the singular when one stored entry could not be read", async () => {
 	);
 });
 
+test("the Reset section holds clearing history above deleting all data", async () => {
+	const el = await mount();
+	const reset = $(el, "section.reset")!;
+	const clear = reset.querySelector("history-clear");
+	const all = reset.querySelector('button[data-action="reset"]');
+	expect(clear).not.toBeNull();
+	expect(all).not.toBeNull();
+	expect(
+		clear!.compareDocumentPosition(all!) & Node.DOCUMENT_POSITION_FOLLOWING,
+	).toBeTruthy();
+});
+
 test("reset asks for confirmation and can be cancelled", async () => {
 	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
 	const el = await mount();

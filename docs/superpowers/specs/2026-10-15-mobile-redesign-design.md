@@ -322,7 +322,7 @@ No mockup; it follows the same vocabulary.
    built with `groupByDay` and `relativeDay` helpers; each visit a row showing name and time
    only, with a Delete icon button named "Delete visit to <name> at <time>". The inline
    confirmation stays, inside the row.
-4. Clear history last: its range buttons in a wrapping row, confirmation unchanged.
+4. No clear history section here: it moved to Settings, under Reset.
 
 Desktop: centred column, 640 px.
 
@@ -338,7 +338,11 @@ Grouped lists in one column (desktop: centred, 640 px):
 3. Import: rows "Choose a JSON file" (a label for the native file input, which stays
    focusable) and "Or paste JSON" (reveals the textarea and Check). The found / replace /
    merge flow is unchanged.
-4. Reset: row "Delete all data" in danger colour; today's confirmation.
+4. Reset: first a grouped list `history-clear` with one row per range ("Clear visits older
+   than 1 week / 1 month / 1 year", "Clear all visits"), each showing how many visits it
+   would delete and disabled at zero; a row opens the same inline confirmation the History
+   page had, and a status says "Deleted N visits.". Then the row "Delete all data" in
+   danger colour; today's confirmation.
 5. About: `<app-footer>` content (source, changelog, build) as rows.
 
 ## Accessibility checklist (WCAG 2.2 AA)
