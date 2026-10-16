@@ -107,3 +107,32 @@ test("home and restaurants opt into room for their pinned buttons; other pages d
 		);
 	}
 });
+
+test.each(pages)(
+	"%s links the web app manifest and the home screen icon",
+	async (page) => {
+		const html = await Bun.file(`src/routes/${page}`).text();
+		expect(html).toMatch(
+			/<link rel="manifest" href="(\.\.\/)+assets\/manifest\.webmanifest" \/>/,
+		);
+		expect(html).toMatch(
+			/<link rel="apple-touch-icon" href="(\.\.\/)+assets\/icons\/icon-180\.png" \/>/,
+		);
+	},
+);
+
+test.each(pages)(
+	"%s opens full screen from the home screen with a short title",
+	async (page) => {
+		const html = await Bun.file(`src/routes/${page}`).text();
+		expect(html).toContain(
+			'<meta name="mobile-web-app-capable" content="yes" />',
+		);
+		expect(html).toContain(
+			'<meta name="apple-mobile-web-app-capable" content="yes" />',
+		);
+		expect(html).toContain(
+			'<meta name="apple-mobile-web-app-title" content="What to Eat" />',
+		);
+	},
+);
