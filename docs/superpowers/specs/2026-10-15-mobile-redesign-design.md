@@ -7,8 +7,8 @@ Date: 2026-10-15
 Redesign the whole site around how it is used: on a phone, often one-handed, deciding where
 to eat. Keep every current feature and the data model; change the shell, the page layouts
 and the visual system. Meet WCAG 2.2 level AA throughout, and AAA target size (44 × 44 CSS px)
-for every control on touch screens; with a mouse or trackpad, controls use a compact 36 px size
-(still above the AA minimum of 24 px).
+for every control on touch screens, except filter chips at 36 px; with a mouse or trackpad,
+controls use a compact 36 px size (still above the AA minimum of 24 px).
 
 This replaces the "Rethink the phone header" item in `IDEAS.md`.
 
@@ -193,6 +193,10 @@ One component, one `<header>`, one `<nav aria-label="Main">` with four links:
 Home ("What should I eat?" / "Pick again", a full-width red button) and Restaurants ("Add",
 a red button at the right) pin their main action just above the tab bar on phones, inside the
 page component (`position: sticky`). On wide screens the action sits in the page heading row.
+A page with a pinned action marks its `<html>` with `has-pinned` (`src/routes/index.html`
+only, so far); `global.css` keys `--pinned-space` (4.5 rem on phones, 0 past 48rem) off that
+class and folds it into `scroll-padding-bottom` alongside `--tab-bar-space`, so a focused
+control never ends up hidden behind the pinned bar.
 
 ### `app-sheet` (new, `src/components/app-sheet.ts`)
 
@@ -220,7 +224,7 @@ Phone, top to bottom:
 1. `<h1>` "What to Eat" (now visible) with the count line ("3 of 5 restaurants match" /
    "5 restaurants") under it; storage warnings.
 2. Filter row: a "Filter" chip button (funnel icon) that opens the filter sheet, then one chip
-   per active value (included or excluded style). Tapping an active chip opens the sheet too.
+   per active value (included or excluded style), each a `<button>` that also opens the sheet.
 3. Results: before the first pick, nothing but the pinned button (the title and count say
    enough). After a pick, two white tiles stacked with 12 px between them: name (20 px
    semibold), meta line (muted), location with a pin icon (link if a URL), notes, small tags,
@@ -234,8 +238,10 @@ in the footer. Behaviour unchanged (`cycleTag`).
 
 Desktop (≥ 48 rem): `main.wide` (65 rem) provides room for two columns. The filter uses
 `MediaController` (src/lib/media.ts), so only one component instance renders and switches
-layout. Left, a side panel with the filter content always open and "Clear" in its heading
-row. Right, the title row with the pick button at its end, then the two tiles side by side.
+layout. Left, a side panel with the filter content always open; Clear sits at the end of the
+panel, in the active-filter sentence, as on phones. Right, the title row with the pick button
+at its end, then the two tiles side by side (one column until 60 rem, where there is room for
+two).
 
 The live region announces the new picks by name ("Picked Som Tam Nua and Jay Fai") instead
 of re-reading both tiles. Focus stays on the pick button. With no restaurants, the empty
