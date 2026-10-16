@@ -126,6 +126,13 @@ export class RestaurantManager extends LitElement {
 				box-shadow: inset 3px 0 0 var(--color-primary);
 			}
 
+			@media (forced-colors: active) {
+				.list .row[aria-current="true"] {
+					outline: 2px solid CanvasText;
+					outline-offset: -2px;
+				}
+			}
+
 			.edit-panel {
 				gap: 1rem;
 			}
@@ -671,6 +678,7 @@ export class RestaurantManager extends LitElement {
 
 	private renderRow(item: Restaurant) {
 		const meta = metaLine(item);
+		const metaId = `meta-${item.id}`;
 		return html`<li data-id=${item.id}>
 			<button
 				type="button"
@@ -678,11 +686,12 @@ export class RestaurantManager extends LitElement {
 				data-action="edit"
 				aria-current=${this.editingId === item.id ? "true" : nothing}
 				aria-label=${t("manager.editTitle", { name: item.name })}
+				aria-describedby=${meta ? metaId : nothing}
 				@click=${() => this.startEdit(item)}
 			>
 				<span class="grow">
 					<b class="name">${item.name}</b>
-					${meta ? html`<small class="meta">${meta}</small>` : nothing}
+					${meta ? html`<small class="meta" id=${metaId}>${meta}</small>` : nothing}
 				</span>
 				<span class="trail">${icon("chevron", 20)}</span>
 			</button>

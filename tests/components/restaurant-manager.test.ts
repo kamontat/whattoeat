@@ -646,6 +646,36 @@ test("rows are buttons named for editing, in a grouped list", async () => {
 	expect(row.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
 });
 
+test("the row's type line is linked for screen readers via aria-describedby", async () => {
+	addRestaurant({ ...blank, name: "Sneaky", kinds: ["food"] });
+	const el = await mount();
+	const row = $<HTMLButtonElement>(el, "li[data-id] button.item.row")!;
+	const describedBy = row.getAttribute("aria-describedby");
+	expect(describedBy).not.toBeNull();
+	const meta = $(el, `#${describedBy}`);
+	expect(meta?.textContent?.trim()).toBe("Food");
+});
+
+test("a row with no type line has no aria-describedby", async () => {
+	addRestaurant({ ...blank, name: "Plain" });
+	const el = await mount();
+	const row = $<HTMLButtonElement>(el, "li[data-id] button.item.row")!;
+	expect(row.getAttribute("aria-describedby")).toBeNull();
+});
+
+test("the selected row shows an outline in forced-colours", () => {
+	const css = ownStyles();
+	const forced = css.indexOf("@media (forced-colors: active)");
+	expect(forced).toBeGreaterThan(-1);
+	const forcedBlock = css.slice(forced);
+	expect(forcedBlock).toMatch(
+		/\.list \.row\[aria-current="true"\]\s*\{[^}]*outline:\s*2px solid CanvasText/,
+	);
+	expect(forcedBlock).toMatch(
+		/\.list \.row\[aria-current="true"\]\s*\{[^}]*outline-offset:\s*-2px/,
+	);
+});
+
 test("wide: the form sits in a side panel titled for adding, then for editing", async () => {
 	addRestaurant({ ...blank, name: "Jay Fai" });
 	const el = await mount();
