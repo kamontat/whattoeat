@@ -197,10 +197,15 @@ export class RestaurantManager extends LitElement {
 			}
 
 			/* Cuisine and area side by side when there is room. */
+			/* Phone: cuisine and area stack; a long chip must not push a box past the screen edge. */
 			.pair {
 				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+				grid-template-columns: minmax(0, 1fr);
 				gap: 1rem;
+			}
+
+			.pair > * {
+				min-width: 0;
 			}
 
 			.delete-zone {
@@ -211,11 +216,16 @@ export class RestaurantManager extends LitElement {
 			}
 
 			/* Phone: Save (and Cancel) stay in reach at the bottom of the sheet's scrolling body. */
+			/*
+			 * Phone: Save and Cancel stay at the bottom of the sheet. Sticky stops at the scroll body's
+			 * content edge, so pull it over the body's 1rem bottom padding (app-sheet .body) and pad
+			 * that back in, or a strip of the form shows below the row.
+			 */
 			.actions.form-actions {
 				position: sticky;
-				bottom: 0;
+				bottom: -1rem;
 				z-index: 1;
-				padding: 0.75rem 0;
+				padding: 0.75rem 0 1.75rem;
 				background: var(--color-bg);
 			}
 
@@ -267,6 +277,11 @@ export class RestaurantManager extends LitElement {
 					position: static;
 					padding: 0;
 					background: none;
+				}
+
+				/* The side panel has room for cuisine and area side by side. */
+				.pair {
+					grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
 				}
 
 				form input,

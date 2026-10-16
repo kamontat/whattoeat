@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
+import { AppSheet } from "#components/app-sheet";
 import "#components/restaurant-manager";
 import { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
@@ -881,6 +882,31 @@ const ownStyles = (): string =>
 		.map((style) => (style as { cssText: string }).cssText)
 		.join("\n");
 
+test("phone: cuisine and area stack in one column and may shrink; side by side only from 48rem", () => {
+	const css = ownStyles();
+	expect(css).toMatch(
+		/\.pair\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/,
+	);
+	expect(css).toMatch(/\.pair\s*>\s*\*\s*\{[^}]*min-width:\s*0/);
+	const wide = css.slice(css.indexOf("@media (min-width: 48rem)"));
+	expect(wide).toMatch(
+		/\.pair\s*\{[^}]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,\s*12rem\),\s*1fr\)\)/,
+	);
+});
+
+test("phone: the sticky Save row covers the sheet's bottom padding, so no form content peeks out below it", () => {
+	const sheetCss = (AppSheet.styles as unknown[])
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	// The offset below must match the sheet body's bottom padding.
+	expect(sheetCss).toMatch(/\.body\s*\{[^}]*padding:\s*0\.25rem 1\.25rem 1rem/);
+	const row =
+		ownStyles().match(/\.actions\.form-actions\s*\{([^}]*)\}/)?.[1] ?? "";
+	expect(row).toContain("bottom: -1rem");
+	expect(row).toContain("padding: 0.75rem 0 1.75rem");
+});
+
 test("phone: the component fills the space above the tab bar so the pinned Add ends the column, even on a short list", () => {
 	const css = ownStyles();
 	expect(css).toMatch(
@@ -905,7 +931,7 @@ test("the form's Save/Cancel row has the form-actions class", async () => {
 test("phone: Save stays reachable at the bottom of the scrolling sheet", () => {
 	const css = ownStyles();
 	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*position:\s*sticky/);
-	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*bottom:\s*0/);
+	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*bottom:\s*-1rem/);
 	expect(css).toMatch(
 		/\.actions\.form-actions\s*\{[^}]*background:\s*var\(--color-bg\)/,
 	);
