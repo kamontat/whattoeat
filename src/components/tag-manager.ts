@@ -400,6 +400,8 @@ export class TagManager extends LitElement {
 	private openValue(group: string, value: string): void {
 		this.prompt = undefined;
 		this.selected = { group, value };
+		// On a phone the sheet puts focus on its own title.
+		if (!this.wide.matches) return;
 		this.focusAfterRender(() =>
 			this.valueDetail()?.querySelector('[data-action="rename-value"]'),
 		);
@@ -420,8 +422,8 @@ export class TagManager extends LitElement {
 			this.prompt?.kind === "delete-group"
 		)
 			this.prompt = undefined;
+		// The sheet puts focus on its own title.
 		this.optionsFor = group;
-		this.focusAfterRender(() => this.groupAction(group, "rename-group"));
 	}
 
 	private readonly closeGroupOptions = (): void => {

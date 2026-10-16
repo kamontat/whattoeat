@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/tag-manager";
+import type { AppSheet } from "#components/app-sheet";
 import type { TagManager } from "#components/tag-manager";
 import { FILTER_KEY } from "#lib/filter";
 import { forgetGroupsMemory, loadGroups, saveGroups } from "#lib/groups";
@@ -783,14 +784,31 @@ test("custom groups open their options in a sheet; moves at the ends are disable
 	expect(down.getAttribute("aria-describedby")).toBeNull();
 });
 
-test("opening a group's options focuses its Rename button, like a value's sheet", async () => {
+test("opening a group's options focuses the sheet's heading, not Rename", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
 	const el = await mount();
-	const options = await openGroup(el, "g1");
+	await openGroup(el, "g1");
 	await settle(el);
-	expect(focused(el)).toBe(
-		options.querySelector('[data-action="rename-group"]'),
-	);
+	const sheet = $<AppSheet>(el, "app-sheet.group-sheet")!;
+	expect(sheet.shadowRoot!.activeElement?.id).toBe("sheet-title");
+});
+
+test("phone: opening a value focuses the sheet's heading, not Rename", async () => {
+	setWidth(390);
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	await openValue(el, "cuisine", "thai");
+	await settle(el);
+	const sheet = $<AppSheet>(el, "app-sheet.value-sheet")!;
+	expect(sheet.shadowRoot!.activeElement?.id).toBe("sheet-title");
+});
+
+test("wide: opening a value focuses the panel's Rename button", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	await openValue(el, "cuisine", "thai");
+	await settle(el);
+	expect(focused(el)?.getAttribute("data-action")).toBe("rename-value");
 });
 
 test("another tab deleting the open group closes its sheet", async () => {

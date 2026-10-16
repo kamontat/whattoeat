@@ -81,6 +81,11 @@ export class AppSheet extends LitElement {
 				font-weight: 700;
 			}
 
+			/* A starting point, not a control: no ring, even after a keyboard press. */
+			h2:focus {
+				outline: none;
+			}
+
 			.sub {
 				color: var(--color-muted);
 				font-size: 0.9375rem;
@@ -155,6 +160,9 @@ export class AppSheet extends LitElement {
 		if (this.open && !this.dialog.open) {
 			this.opener = deepActiveElement();
 			this.dialog.showModal();
+			// Start on the title, as the page title does on load: screen readers read it
+			// first, and no button looks pressed on a phone before anything is tapped.
+			this.renderRoot.querySelector<HTMLElement>("#sheet-title")?.focus();
 		} else if (!this.open && this.dialog.open) {
 			this.dialog.close();
 		}
@@ -205,7 +213,7 @@ export class AppSheet extends LitElement {
 					<span class="grabber" aria-hidden="true"></span>
 					<div class="head">
 						<div>
-							<h2 id="sheet-title">${this.heading}</h2>
+							<h2 id="sheet-title" tabindex="-1">${this.heading}</h2>
 							${this.subheading ? html`<p class="sub">${this.subheading}</p>` : nothing}
 						</div>
 						<button

@@ -796,6 +796,34 @@ test("phone: tapping a row opens its edit sheet; saving closes it", async () => 
 	);
 });
 
+const settleFocus = async (el: RestaurantManager) => {
+	await el.updateComplete;
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	await el.updateComplete;
+};
+
+test("phone: opening Add or a row focuses the sheet's heading, not the name field", async () => {
+	addRestaurant({ ...blank, name: "Old" });
+	const el = await phone();
+	const sheet = $<AppSheet>(el, "app-sheet")!;
+	await click(el, '.pinned button[data-action="add"]');
+	await settleFocus(el);
+	expect(sheet.shadowRoot!.activeElement?.id).toBe("sheet-title");
+	sheet.open = false;
+	await settleFocus(el);
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	await settleFocus(el);
+	expect(sheet.shadowRoot!.activeElement?.id).toBe("sheet-title");
+});
+
+test("wide: opening a row focuses the name field in the side panel", async () => {
+	addRestaurant({ ...blank, name: "Old" });
+	const el = await mount();
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	await settleFocus(el);
+	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+});
+
 test("phone: closing the sheet discards the edit", async () => {
 	addRestaurant({ ...blank, name: "Keep" });
 	const el = await phone();

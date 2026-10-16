@@ -52,6 +52,26 @@ test("opening shows a modal dialog labelled by its heading", async () => {
 	);
 });
 
+test("opening moves focus to the sheet's heading, not a control, so no button lights up", async () => {
+	const { opener, sheet } = await mount();
+	opener.focus();
+	sheet.open = true;
+	await sheet.updateComplete;
+	const title = sheet.shadowRoot!.querySelector("#sheet-title")!;
+	expect(title.getAttribute("tabindex")).toBe("-1");
+	expect(sheet.shadowRoot!.activeElement).toBe(title);
+});
+
+test("the focused heading draws no focus ring: it is a place to start, not a control", () => {
+	const css = [
+		(customElements.get("app-sheet") as unknown as { styles: unknown }).styles,
+	]
+		.flat(2)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("");
+	expect(css).toMatch(/h2:focus\s*\{[^}]*outline:\s*none/);
+});
+
 test("the close button has an accessible name and closes the sheet", async () => {
 	const { opener, sheet } = await mount();
 	opener.focus();

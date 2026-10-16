@@ -508,7 +508,9 @@ export class RestaurantManager extends LitElement {
 		for (const input of this.tagInputs) input.clearText();
 		this.fillForm(item);
 		this.sheetOpen = !this.wide.matches;
-		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
+		// A sheet puts focus on its own title; the side panel starts at the name.
+		if (!this.sheetOpen)
+			this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	}
 
 	private readonly startAdd = (): void => {
@@ -516,7 +518,9 @@ export class RestaurantManager extends LitElement {
 		this.status = "";
 		this.resetForm();
 		this.sheetOpen = !this.wide.matches;
-		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
+		// A sheet puts focus on its own title; the side panel starts at the name.
+		if (!this.sheetOpen)
+			this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	};
 
 	/** The sheet closed by ✕, Esc or the backdrop: drop whatever was typed. */
