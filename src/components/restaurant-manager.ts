@@ -416,7 +416,12 @@ export class RestaurantManager extends LitElement {
 		this.sheetOpen = false;
 		if (editingId === undefined) addRestaurant(input);
 		else updateRestaurant(editingId, input);
-		this.status = t("manager.saved", { name });
+		// Clear first, then set the real text once that clear has rendered: saving the same name
+		// again still changes the live region's text, so it is announced again.
+		this.status = "";
+		void this.updateComplete.then(() => {
+			this.status = t("manager.saved", { name });
+		});
 	};
 
 	private fillForm(item: Restaurant): void {
@@ -435,6 +440,7 @@ export class RestaurantManager extends LitElement {
 
 	private startEdit(item: Restaurant): void {
 		this.confirmingId = undefined;
+		this.status = "";
 		// Text typed for the previous form must not become a value of this restaurant.
 		for (const input of this.tagInputs) input.clearText();
 		this.fillForm(item);
@@ -444,6 +450,7 @@ export class RestaurantManager extends LitElement {
 
 	private readonly startAdd = (): void => {
 		this.confirmingId = undefined;
+		this.status = "";
 		this.resetForm();
 		this.sheetOpen = !this.wide.matches;
 		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
@@ -453,10 +460,12 @@ export class RestaurantManager extends LitElement {
 	private readonly onSheetClose = (): void => {
 		this.sheetOpen = false;
 		this.confirmingId = undefined;
+		this.status = "";
 		this.resetForm();
 	};
 
 	private readonly cancelEdit = (): void => {
+		this.status = "";
 		this.resetForm();
 		this.sheetOpen = false;
 		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
@@ -490,7 +499,12 @@ export class RestaurantManager extends LitElement {
 		this.sheetOpen = false;
 		removeRestaurant(id);
 		this.resetForm();
-		this.status = t("manager.deleted", { name });
+		// Clear first, then set the real text once that clear has rendered: deleting the same name
+		// again still changes the live region's text, so it is announced again.
+		this.status = "";
+		void this.updateComplete.then(() => {
+			this.status = t("manager.deleted", { name });
+		});
 		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	}
 

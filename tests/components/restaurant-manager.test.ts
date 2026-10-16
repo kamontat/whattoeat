@@ -732,6 +732,35 @@ test("saving and deleting are confirmed in the status line", async () => {
 	);
 });
 
+test("saving the same name twice re-announces the status instead of leaving it unchanged", async () => {
+	const el = await mount();
+	type(el, "#name", "Fresh");
+	await submit(el);
+	const status = () => $(el, 'p.status[role="status"]')?.textContent?.trim();
+	expect(status()).toBe("Saved Fresh");
+	await click(el, 'button[data-action="edit"]');
+	// Resubmit with the name unchanged: the message is the same string as before.
+	$<HTMLFormElement>(el, "form")!.dispatchEvent(
+		new Event("submit", { bubbles: true, cancelable: true }),
+	);
+	await el.updateComplete;
+	expect(status()).toBe("");
+	await el.updateComplete;
+	expect(status()).toBe("Saved Fresh");
+});
+
+test("starting an edit clears an old status", async () => {
+	addRestaurant({ ...blank, name: "Other" });
+	const el = await mount();
+	type(el, "#name", "Fresh");
+	await submit(el);
+	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
+		"Saved Fresh",
+	);
+	await click(el, 'button[data-action="edit"]');
+	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe("");
+});
+
 test("phone: Add is pinned and opens the form in a sheet", async () => {
 	const el = await phone();
 	expect($(el, "section.edit-panel")).toBeNull();
