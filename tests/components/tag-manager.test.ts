@@ -360,6 +360,35 @@ test("the rename and move controls are not hidden with their label text", async 
 	expect(detail.querySelector("label")?.textContent).toContain("Move hot to");
 });
 
+test("the move action's accessible name starts with its visible 'Move to…' label (WCAG label-in-name)", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["spicy"] });
+	const el = await mount();
+	const detail = await openValue(el, "tags", "spicy");
+	const button = detail.querySelector<HTMLButtonElement>(
+		'[data-action="move-value"]',
+	)!;
+	const visible = button.querySelector("b")!.textContent!.trim();
+	expect(visible).toBe("Move to…");
+	const label = button.getAttribute("aria-label") ?? "";
+	expect(label.startsWith(visible)).toBe(true);
+	expect(label).toContain("spicy");
+});
+
+test("the move action's accessible name starts with its visible label in Thai too", async () => {
+	setLang("th");
+	addRestaurant({ ...base, name: "A", tags: ["เผ็ด"] });
+	const el = await mount();
+	const detail = await openValue(el, "tags", "เผ็ด");
+	const button = detail.querySelector<HTMLButtonElement>(
+		'[data-action="move-value"]',
+	)!;
+	const visible = button.querySelector("b")!.textContent!.trim();
+	expect(visible).toBe("ย้ายไป…");
+	const label = button.getAttribute("aria-label") ?? "";
+	expect(label.startsWith(visible)).toBe(true);
+	expect(label).toContain("เผ็ด");
+});
+
 const focused = (el: TagManager) => el.shadowRoot!.activeElement;
 const settle = async (el: TagManager) => {
 	await el.updateComplete;
