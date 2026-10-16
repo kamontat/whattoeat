@@ -12,6 +12,14 @@ export const deepActiveElement = (): HTMLElement | null => {
 	return active instanceof HTMLElement ? active : null;
 };
 
+/** Open sheets; while there is one, `html.sheet-open` stops the page behind from scrolling. */
+const openSheets = new Set<object>();
+const lockPage = (sheet: object, locked: boolean): void => {
+	if (locked) openSheets.add(sheet);
+	else openSheets.delete(sheet);
+	document.documentElement.classList.toggle("sheet-open", openSheets.size > 0);
+};
+
 /**
  * A modal sheet: slides up from the bottom on phones, centred from 48rem. Built on `<dialog>`
  * so focus moves in, the page behind is inert and Esc closes it.
@@ -139,6 +147,7 @@ export class AppSheet extends LitElement {
 				gap: 1rem;
 				padding: 0.25rem 1.25rem 1rem;
 				overflow-y: auto;
+				overscroll-behavior: contain;
 			}
 
 			.foot {
@@ -207,6 +216,7 @@ export class AppSheet extends LitElement {
 	override disconnectedCallback(): void {
 		super.disconnectedCallback();
 		this.stopLeaving();
+		lockPage(this, false);
 	}
 
 	private stopLeaving(): void {
@@ -229,6 +239,7 @@ export class AppSheet extends LitElement {
 			this.stopLeaving();
 			this.opener = deepActiveElement();
 			this.dialog.showModal();
+			lockPage(this, true);
 			// Start on the title, as the page title does on load: screen readers read it
 			// first, and no button looks pressed on a phone before anything is tapped.
 			this.renderRoot.querySelector<HTMLElement>("#sheet-title")?.focus();
@@ -240,6 +251,7 @@ export class AppSheet extends LitElement {
 	/** The dialog closed: by the Close button, Esc, a backdrop tap or `open = false`. */
 	private readonly onClose = (): void => {
 		this.open = false;
+		lockPage(this, false);
 		const ms = this.leaveDuration();
 		if (ms > 0) {
 			clearTimeout(this.leaveTimer);

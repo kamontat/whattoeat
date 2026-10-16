@@ -397,6 +397,22 @@ test("the Reset section holds clearing history above deleting all data", async (
 	).toBeTruthy();
 });
 
+test("the reset prompt is padded on every side inside its card, not a squeezed list row", async () => {
+	const el = await mount();
+	await click(el, 'button[data-action="reset"]');
+	const prompt = $(el, ".reset-prompt")!;
+	expect(prompt.classList.contains("item")).toBe(false);
+	expect(prompt.closest(".group.confirm")).not.toBeNull();
+	const css = [
+		(customElements.get("data-transfer") as unknown as { styles: unknown })
+			.styles,
+	]
+		.flat(2)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("");
+	expect(css).toMatch(/\.confirm\s*\{[^}]*padding:\s*1rem 1\.125rem/);
+});
+
 test("reset asks for confirmation and can be cancelled", async () => {
 	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
 	const el = await mount();

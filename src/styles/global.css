@@ -196,6 +196,11 @@
 }
 
 /* Double-tap zoom off (it fires on quick taps of chips on iOS); pinch zoom still works. */
+/* An open sheet (`app-sheet`) locks the page behind it, so only the sheet scrolls. */
+:root.sheet-open {
+	overflow: hidden;
+}
+
 html {
 	touch-action: manipulation;
 }

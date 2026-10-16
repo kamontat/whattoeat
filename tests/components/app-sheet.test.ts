@@ -291,3 +291,34 @@ test("reopening during the close animation shows it again straight away", async 
 	await new Promise((resolve) => setTimeout(resolve, 80));
 	expect(d.open).toBe(true);
 });
+
+test("while a sheet is open the page behind cannot scroll; closing gives scrolling back", async () => {
+	const { sheet } = await mount();
+	const root = document.documentElement;
+	expect(root.classList.contains("sheet-open")).toBe(false);
+	sheet.open = true;
+	await sheet.updateComplete;
+	expect(root.classList.contains("sheet-open")).toBe(true);
+	sheet.open = false;
+	await settle(sheet);
+	expect(root.classList.contains("sheet-open")).toBe(false);
+});
+
+test("the page stays locked while any of two open sheets is still open", async () => {
+	const { sheet } = await mount();
+	const other = document.createElement("app-sheet") as AppSheet;
+	document.body.append(other);
+	sheet.open = true;
+	other.open = true;
+	await sheet.updateComplete;
+	await other.updateComplete;
+	sheet.open = false;
+	await settle(sheet);
+	expect(document.documentElement.classList.contains("sheet-open")).toBe(true);
+	other.remove();
+	expect(document.documentElement.classList.contains("sheet-open")).toBe(false);
+});
+
+test("scrolling inside the sheet never carries on into the page", () => {
+	expect(sheetCss()).toMatch(/\.body\s*\{[^}]*overscroll-behavior:\s*contain/);
+});
