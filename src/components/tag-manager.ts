@@ -245,7 +245,14 @@ export class TagManager extends LitElement {
 			!this.defs.some((def) => def.id === this.optionsFor)
 		) {
 			this.optionsFor = undefined;
-			this.prompt = undefined;
+			// Only a group prompt is stale here (e.g. its own rename form); a value's open
+			// rename, move or delete prompt belongs to the wide panel, not this group's sheet,
+			// and must survive it closing.
+			if (
+				this.prompt?.kind === "rename-group" ||
+				this.prompt?.kind === "delete-group"
+			)
+				this.prompt = undefined;
 		}
 	}
 
@@ -364,6 +371,7 @@ export class TagManager extends LitElement {
 		)
 			this.prompt = undefined;
 		this.optionsFor = group;
+		this.focusAfterRender(() => this.groupAction(group, "rename-group"));
 	}
 
 	private readonly closeGroupOptions = (): void => {
