@@ -1,6 +1,6 @@
 ---
 name: changelog
-description: Create or update CHANGELOG.md entries for this project in its fixed format (`## YYYY-MM-DD: <summary>` with BREAKING CHANGES, Features, Improvements, Bug fixes and Decisions sections). Use this whenever the user asks to add, write, update, fix up or reformat a changelog entry, record what shipped, summarise recent commits or a merged PR into the changelog, or says things like "log this change", "add release notes", or "update the changelog" -- even if they don't name the file.
+description: Create or update CHANGELOG.md entries for this project in its fixed format (one entry per day, `## YYYY-MM-DD: <title>` with BREAKING CHANGES, Features, Improvements, Bug fixes and Decisions sections). Use this whenever the user asks to add, write, update, fix up or reformat a changelog entry, record what shipped, summarise recent commits or a merged PR into the changelog, or says things like "log this change", "add release notes", or "update the changelog" -- even if they don't name the file.
 ---
 
 # Changelog
@@ -12,10 +12,11 @@ app, the data or the code will now see differently.
 
 ## Entry format
 
-Entries are newest first, directly under the file's intro paragraph.
+Entries are newest first, directly under the file's intro paragraph. There is exactly one
+entry per date: everything that landed that day is aggregated into it.
 
 ```markdown
-## YYYY-MM-DD: <short summary>
+## YYYY-MM-DD: <title>
 
 ### BREAKING CHANGES
 
@@ -38,9 +39,9 @@ Entries are newest first, directly under the file's intro paragraph.
 - ...
 ```
 
-- **Heading**: `## ` + ISO date + `: ` + a short summary in sentence case, no trailing period.
-  The summary names the theme of the entry ("Dark mode and theme settings"), not a list of
-  every change. Use today's date for new work unless the user gives one or the
+- **Heading**: `## ` + ISO date + `: ` + a short title in sentence case, no trailing period.
+  The title names only the day's most important changes ("Dark mode and two picks per
+  press"), not a list of every change; smaller ones live in the bullets alone. Use today's date for new work unless the user gives one or the
   changes clearly landed on another day (check `git log --date=short`).
 - **Sections** always appear in the order above, with exactly these headings. Leave out any
   section that has nothing in it -- don't write `- None`.
@@ -108,10 +109,12 @@ Match the voice of the existing file:
    are one improvement, not three.
 4. Sort each change into Features, Improvements or Bug fixes, then ask separately whether it
    also breaks anything and, if so, add it to BREAKING CHANGES too.
-5. If an entry for the same date already exists, extend it instead of adding a second heading
-   with that date: add bullets to its sections and extend its title with `, and <this
-   change>`.
-6. Insert the entry above the current newest entry and show the user the result.
+5. If an entry for the same date already exists, merge into it -- never add a second heading
+   with that date. Add the new bullets to its matching sections (adding any missing section
+   in the standard order), then reread the whole entry and rewrite the title so it names
+   the day's most important changes. Only change the title when the new work outranks what it
+   names; don't keep appending `, and <this change>`.
+6. Otherwise insert the entry above the current newest entry. Show the user the result.
 
 ### Updating an existing entry
 
@@ -124,7 +127,8 @@ Older entries may use `### Added`, `### Changed`, `### Phase ...` or other headi
 converting one, re-sort every bullet using the table above rather than mapping headings
 one-to-one: "Changed" usually splits between Improvements and Bug fixes, "Added" is usually
 Features, and any of them may also need a BREAKING CHANGES bullet. Keep every fact and every reason -- reformatting must not lose history.
-Keep `### Decisions` as it is.
+Keep `### Decisions` as it is. Several entries sharing one date are merged into one, as in
+step 5 above.
 
 ## Don'ts
 
