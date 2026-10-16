@@ -301,7 +301,7 @@ export class RestaurantManager extends LitElement {
 				}
 			}
 
-			.head[hidden],
+			.head-actions[hidden],
 			.search-row[hidden] {
 				display: none;
 			}
@@ -899,12 +899,12 @@ export class RestaurantManager extends LitElement {
 			${icon("plus", 20)}<span>${t("manager.add")}</span>
 		</button>`;
 		return html`
-			<header class="head" ?hidden=${this.searching}>
-				<div>
+			<header class="head">
+				<div class=${this.searching ? "visually-hidden" : ""}>
 					<h1 class="page-title">${t("manager.title")}</h1>
 					<p class="count page-sub">${count}</p>
 				</div>
-				<div class="head-actions">
+				<div class="head-actions" ?hidden=${this.searching}>
 					${
 						sorted.length > 0
 							? html`<button

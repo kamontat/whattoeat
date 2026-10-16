@@ -1030,7 +1030,12 @@ test("search: opening focuses the field inside the tap, so iOS opens the keyboar
 	// No await: the focus must already have moved when the click handler returns.
 	expect(el.shadowRoot!.activeElement?.id).toBe("search");
 	await el.updateComplete;
-	expect($(el, ".head")?.hasAttribute("hidden")).toBe(true);
+	// The title stays in the accessibility tree (visually hidden) while the actions go dark.
+	expect($(el, ".head-actions")?.hasAttribute("hidden")).toBe(true);
+	expect($(el, ".head > div")?.classList.contains("visually-hidden")).toBe(
+		true,
+	);
+	expect($(el, ".head h1.page-title")?.textContent?.trim()).toBe("Restaurants");
 	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
 	const input = searchInput(el);
 	expect(input.type).toBe("search");
@@ -1119,7 +1124,10 @@ test("search: Cancel and Escape end search, restore the header and focus the but
 			await el.updateComplete;
 		}
 		await el.updateComplete;
-		expect($(el, ".head")?.hasAttribute("hidden")).toBe(false);
+		expect($(el, ".head-actions")?.hasAttribute("hidden")).toBe(false);
+		expect($(el, ".head > div")?.classList.contains("visually-hidden")).toBe(
+			false,
+		);
 		expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
 		expect(rowNames(el)).toHaveLength(4);
 		expect(searchInput(el).value).toBe("");
@@ -1266,7 +1274,10 @@ test("search: deleting every restaurant mid-search shows the empty list card", a
 	expect($(el, ".no-match")).toBeNull();
 	// An empty list ends the search outright instead of leaving a dead "0 of 0" view behind.
 	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
-	expect($(el, ".head")?.hasAttribute("hidden")).toBe(false);
+	expect($(el, ".head-actions")?.hasAttribute("hidden")).toBe(false);
+	expect($(el, ".head > div")?.classList.contains("visually-hidden")).toBe(
+		false,
+	);
 	expect($(el, ".search-count")).toBeNull();
 	expect(searchInput(el).value).toBe("");
 	await new Promise((resolve) => setTimeout(resolve, 550));
