@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-16 - Mobile redesign, one-tap JSON paste and shared restaurant names
+## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 
 ### Features
 
@@ -126,7 +126,7 @@ What changed in this project and why, newest first.
 - With nothing saved there is nothing to lose, so the Replace or Merge question is only
   asked when restaurants, history or groups already exist.
 
-## 2026-10-15 - Cuisine, area and custom tag groups with a Tags page
+## 2026-10-15: Cuisine, area and custom tag groups with a Tags page
 
 ### BREAKING CHANGES
 
@@ -187,7 +187,7 @@ What changed in this project and why, newest first.
 - CSV import and export, and separate English and Thai names, are removed from `IDEAS.md`
   because they are no longer planned.
 
-## 2026-10-14 - Visit history and clearing old visits
+## 2026-10-14: Visit history and clearing old visits
 
 ### BREAKING CHANGES
 
@@ -241,7 +241,7 @@ What changed in this project and why, newest first.
   the visit list so a long history does not push it out of reach.
 - `IDEAS.md` no longer lists pick history, which shipped as visit history.
 
-## 2026-10-13 - Dark mode, two picks per press, lock history and type, cuisine and area filters
+## 2026-10-13: Dark mode, two picks per press, lock history and type, cuisine and area filters
 
 ### BREAKING CHANGES
 
@@ -401,7 +401,7 @@ What changed in this project and why, newest first.
 - The export format version stays at 2 because the new fields are optional: older files
   still import, and the app as it is now reads every file.
 
-## 2026-10-12 - Random restaurant picker with English and Thai
+## 2026-10-12: Random restaurant picker with English and Thai
 
 ### BREAKING CHANGES
 

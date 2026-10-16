@@ -17,7 +17,7 @@ commit: changelog entry first, then merge, then cleanup, ending back on an up-to
    `git merge origin/main`, so the changelog edit sees entries other PRs landed. Resolve
    conflicts, rerun `bun run check` and `bun run test`.
 2. **Changelog entry, on the PR branch.** Edit `CHANGELOG.md` following
-   `.claude/skills/changelog`, which owns the entry format (one entry per day, `## YYYY-MM-DD - <title>` with
+   `.claude/skills/changelog`, which owns the entry format (one entry per day, `## YYYY-MM-DD: <title>` with
    BREAKING CHANGES, Features, Improvements, Bug fixes and Decisions). The date is today's.
 3. **Commit and push.** `docs(changelog): <title>`, then `git push`. Wait for checks:
    `gh pr checks <number> --watch`. A failing check stops the landing — fix it on the

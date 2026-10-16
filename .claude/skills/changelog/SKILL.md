@@ -1,6 +1,6 @@
 ---
 name: changelog
-description: Create or update CHANGELOG.md entries for this project in its fixed format (one entry per day, `## YYYY-MM-DD - <title>` with BREAKING CHANGES, Features, Improvements, Bug fixes and Decisions sections). Use this whenever the user asks to add, write, update, fix up or reformat a changelog entry, record what shipped, summarise recent commits or a merged PR into the changelog, or says things like "log this change", "add release notes", or "update the changelog" -- even if they don't name the file.
+description: Create or update CHANGELOG.md entries for this project in its fixed format (one entry per day, `## YYYY-MM-DD: <title>` with BREAKING CHANGES, Features, Improvements, Bug fixes and Decisions sections). Use this whenever the user asks to add, write, update, fix up or reformat a changelog entry, record what shipped, summarise recent commits or a merged PR into the changelog, or says things like "log this change", "add release notes", or "update the changelog" -- even if they don't name the file.
 ---
 
 # Changelog
@@ -16,7 +16,7 @@ Entries are newest first, directly under the file's intro paragraph. There is ex
 entry per date: everything that landed that day is aggregated into it.
 
 ```markdown
-## YYYY-MM-DD - <title>
+## YYYY-MM-DD: <title>
 
 ### BREAKING CHANGES
 
@@ -39,7 +39,7 @@ entry per date: everything that landed that day is aggregated into it.
 - ...
 ```
 
-- **Heading**: `## ` + ISO date + ` - ` + a short title in sentence case, no trailing period.
+- **Heading**: `## ` + ISO date + `: ` + a short title in sentence case, no trailing period.
   The title names only the day's most important changes ("Dark mode and two picks per
   press"), not a list of every change; smaller ones live in the bullets alone. Use today's date for new work unless the user gives one or the
   changes clearly landed on another day (check `git log --date=short`).
@@ -127,8 +127,8 @@ Older entries may use `### Added`, `### Changed`, `### Phase ...` or other headi
 converting one, re-sort every bullet using the table above rather than mapping headings
 one-to-one: "Changed" usually splits between Improvements and Bug fixes, "Added" is usually
 Features, and any of them may also need a BREAKING CHANGES bullet. Keep every fact and every reason -- reformatting must not lose history.
-Keep `### Decisions` as it is. Old entries with a `: ` heading become ` - `, and several
-entries sharing one date are merged into one, as in step 5 above.
+Keep `### Decisions` as it is. Several entries sharing one date are merged into one, as in
+step 5 above.
 
 ## Don'ts
 
