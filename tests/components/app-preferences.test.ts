@@ -16,9 +16,8 @@ afterEach(() => {
 	localStorage.clear();
 });
 
-const mount = async (compact = false) => {
+const mount = async () => {
 	const el = document.createElement("app-preferences") as AppPreferences;
-	el.compact = compact;
 	document.body.append(el);
 	await el.updateComplete;
 	return el;
@@ -88,15 +87,6 @@ test("theme options show their names as text in the full layout", async () => {
 	expect(labels).toEqual(["Auto", "Light", "Dark"]);
 });
 
-test("the compact layout keeps the theme names for screen readers", async () => {
-	const el = await mount(true);
-	const dark = radio(el, "theme", "dark").closest("label")!;
-	expect(dark.querySelector(".visually-hidden")?.textContent?.trim()).toBe(
-		"Dark",
-	);
-	expect(dark.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
-});
-
 test("follows a change event from elsewhere, such as another tab", async () => {
 	const el = await mount();
 	setLang("th");
@@ -106,7 +96,7 @@ test("follows a change event from elsewhere, such as another tab", async () => {
 });
 
 test("two instances stay in step", async () => {
-	const header = await mount(true);
+	const header = await mount();
 	const settings = await mount();
 	await choose(settings, "theme", "light");
 	await header.updateComplete;

@@ -4,8 +4,7 @@ Can't decide where to eat? Add the restaurants you like, press one button, and g
 options. Press **Eat here** on one to save it to your history with the date and time. The
 list and the history live in your browser (`localStorage`); move them between devices with
 JSON export and import on the Settings page, as a file or by copy and paste. The interface is available in English and Thai,
-in a light or dark theme that follows the system setting unless you pick one in Settings (on wide screens
-also in the top bar).
+in a light or dark theme that follows the system setting unless you pick one in Settings.
 
 | Page           | What it does                                   |
 | -------------- | ---------------------------------------------- |

@@ -75,11 +75,10 @@ test("the brand links home with the app name", async () => {
 	expect(brand.textContent?.trim()).toBe("What to Eat");
 });
 
-test("carries the compact language and theme switches for wide screens", async () => {
+test("has no language or theme switches: they live in Settings", async () => {
 	const el = await mount();
-	const prefs = el.shadowRoot!.querySelector("app-preferences");
-	expect(prefs).not.toBeNull();
-	expect(prefs?.hasAttribute("compact")).toBe(true);
+	expect(el.shadowRoot!.querySelector("app-preferences")).toBeNull();
+	expect(el.shadowRoot!.querySelector('input[type="radio"]')).toBeNull();
 });
 
 test("titles the history page", async () => {

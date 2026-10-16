@@ -28,8 +28,8 @@ page keeps the three directions that were compared.
 - After the stage 1 preview: the first build felt too vivid, too large and odd. The user chose
   "Calm neutral" (Refine page of the canvas): neutral ground, white cards, chili red as the only
   accent, IBM Plex Sans Thai. This replaces direction B's colours and Anuphan.
-- Language and theme live in Settings on phones, and also in the top
-  bar when the screen is wide enough.
+- Language and theme live in Settings only (first in Settings and the wide top bar; the user
+  removed them from the top bar after the preview).
 
 ### Assumptions
 
@@ -61,7 +61,7 @@ page keeps the three directions that were compared.
 | Phone navigation   | Tab bar attached to the bottom edge with four tabs: Home, Restaurants, History, Settings. Icon above a visible text label  |
 | Tags page          | Stays its own route, reached by a "Tags" link on Restaurants and a back link to Restaurants. The Restaurants tab is current     |
 | Wide screens       | From 48 rem (768 px): the four links move into a top bar beside the brand; no bottom bar                                       |
-| Language and theme | Always in Settings. From 72 rem (1152 px) also as compact switches at the end of the top bar                                   |
+| Language and theme | In Settings only (Appearance group); not in the header at any width                                                    |
 | Footer             | Source, changelog and build info move into an "About" section at the end of Settings; no footer on other pages                 |
 | Home, phone        | Title, filter chips, the two picks stacked (no "or"), the pick button pinned above the tab bar                                 |
 | Home, desktop      | Filter always open in a left panel; picks side by side; pick button beside the title                                           |
@@ -183,11 +183,7 @@ One component, one `<header>`, one `<nav aria-label="Main">` with four links:
 - Wide (≥ 48 rem): a top bar (`--bar-height`) on the surface colour with the logo and "What to
   Eat" on the left and the four links on the right, the current one in red on a primary-soft
   tint.
-- From 72 rem (1152 px) the top bar also shows the language switch (EN / ไทย) and the theme
-  switch after the links, as compact segmented controls with the same radio semantics as
-  Settings and group labels for screen readers ("Language", "Theme"). The compact theme
-  switch shows icons with visually hidden text. Below 72 rem the brand, four links and both
-  switches do not fit on one row, so the switches stay in Settings only.
+- The header has no language or theme switches at any width; they are in Settings.
 - Pages pad their bottom by the tab bar height (phones) so nothing hides behind it.
 - `current` takes `home | restaurants | tags | history | settings`; `tags` marks Restaurants.
 - Keeps setting `document.title` per page.
@@ -388,7 +384,7 @@ have the same keys. Keys no longer used are removed.
 Stacked pull requests, each green and deployable on its own:
 
 1. **Foundation and shell**: tokens, IBM Plex Sans Thai, `uiStyles`, focus, palette tests, page meta, skip
-   link, floating tab bar and desktop top bar with switches, `app-sheet`, Settings
+   link, phone tab bar and desktop top bar, `app-sheet`, Settings
    (Appearance, grouped lists, About), footer removed from other pages.
 2. **Home**: title and filter row, filter sheet, desktop filter panel, tiles, pinned button,
    announcement.

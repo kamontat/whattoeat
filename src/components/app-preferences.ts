@@ -1,5 +1,5 @@
 import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 import {
 	getLang,
 	LANGS,
@@ -9,7 +9,6 @@ import {
 	setLang,
 	t,
 } from "#lib/i18n";
-import { type IconName, icon } from "#lib/icons";
 import {
 	getTheme,
 	setTheme,
@@ -31,15 +30,9 @@ const THEME_LABELS: Record<Theme, MessageKey> = {
 	dark: "theme.dark",
 };
 
-const THEME_ICONS: Record<Theme, IconName> = {
-	auto: "auto",
-	light: "sun",
-	dark: "moon",
-};
-
 /**
- * Language and theme as native radio groups styled as segmented controls. The full layout is
- * two rows of a grouped list (Settings); `compact` is the pair of switches in the wide top bar.
+ * Language and theme as native radio groups styled as segmented controls, laid out as two rows
+ * of a grouped list in Settings.
  */
 @customElement("app-preferences")
 export class AppPreferences extends LitElement {
@@ -77,22 +70,8 @@ export class AppPreferences extends LitElement {
 			.seg input + span {
 				min-width: var(--seg-min);
 			}
-
-			:host([compact]) .switches {
-				display: flex;
-				gap: 0.5rem;
-			}
-
-			:host([compact]) .seg input + span {
-				min-width: var(--tap);
-				padding: 0 0.625rem;
-			}
 		`,
 	];
-
-	/** The top-bar layout: no visible row labels, icons for the theme. */
-	@property({ type: Boolean, reflect: true })
-	compact = false;
 
 	protected readonly langController = new LangController(this);
 	protected readonly themeController = new ThemeController(this);
@@ -138,13 +117,7 @@ export class AppPreferences extends LitElement {
 							.checked=${name === theme}
 							@change=${() => setTheme(name)}
 						/>
-						<span>
-							${
-								this.compact
-									? html`${icon(THEME_ICONS[name], 20)}<span class="visually-hidden">${t(THEME_LABELS[name])}</span>`
-									: t(THEME_LABELS[name])
-							}
-						</span>
+						<span>${t(THEME_LABELS[name])}</span>
 					</label>`,
 				)}
 			</div>
@@ -152,8 +125,6 @@ export class AppPreferences extends LitElement {
 	}
 
 	override render() {
-		if (this.compact)
-			return html`<div class="switches">${this.renderLang()}${this.renderTheme()}</div>`;
 		return html`<div class="group">
 			<div class="row">
 				<span class="row-label" aria-hidden="true">${t("lang.label")}</span>

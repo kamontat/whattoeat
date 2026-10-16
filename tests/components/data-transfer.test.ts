@@ -631,7 +631,6 @@ test("the appearance section holds the language and theme switches", async () =>
 	const el = await mount();
 	const prefs = $(el, "section.appearance app-preferences");
 	expect(prefs).not.toBeNull();
-	expect(prefs?.hasAttribute("compact")).toBe(false);
 });
 
 test("the about section holds the source, changelog and build links", async () => {

@@ -1,6 +1,5 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import "#components/app-preferences";
 import { LangController, type MessageKey, t } from "#lib/i18n";
 import { type IconName, icon, logo } from "#lib/icons";
 import { uiStyles } from "#styles/ui";
@@ -61,8 +60,7 @@ export class AppHeader extends LitElement {
 			}
 
 			/* Phones: no top bar (pages show their own titles); the nav sits along the bottom edge. */
-			.brand,
-			app-preferences {
+			.brand {
 				display: none;
 			}
 
@@ -180,13 +178,6 @@ export class AppHeader extends LitElement {
 					}
 				}
 			}
-
-			/* From 72rem the language and theme switches fit after the links. */
-			@media (min-width: 72rem) {
-				app-preferences {
-					display: block;
-				}
-			}
 		`,
 	];
 
@@ -216,7 +207,6 @@ export class AppHeader extends LitElement {
 							</a>`,
 					)}
 				</nav>
-				<app-preferences compact></app-preferences>
 			</header>
 		`;
 	}
