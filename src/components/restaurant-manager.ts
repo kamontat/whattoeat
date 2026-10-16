@@ -23,6 +23,7 @@ import {
 	VALUE_GROUPS,
 	valuesByUsage,
 } from "#lib/restaurant";
+import { type MatchRange, matchName, searchWords } from "#lib/search";
 import {
 	addRestaurant,
 	isMemoryOnly,
@@ -299,6 +300,99 @@ export class RestaurantManager extends LitElement {
 					scroll-margin-bottom: 0;
 				}
 			}
+
+			.head[hidden],
+			.search-row[hidden] {
+				display: none;
+			}
+
+			.search-open {
+				width: var(--tap);
+				min-height: var(--tap);
+				padding: 0;
+				border-radius: var(--radius-pill);
+			}
+
+			.search-row {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.search-field {
+				display: flex;
+				flex: 1;
+				align-items: center;
+				gap: 0.5rem;
+				min-height: var(--tap);
+				padding: 0 0 0 0.75rem;
+				border-radius: var(--radius-sm);
+				background: var(--color-surface-2);
+				color: var(--color-muted);
+				font-weight: 400;
+			}
+
+			.search-field:focus-within {
+				outline: 3px solid var(--color-focus);
+				outline-offset: 2px;
+			}
+
+			.search-field input {
+				flex: 1;
+				min-width: 0;
+				min-height: var(--tap);
+				padding: 0;
+				border: 0;
+				background: transparent;
+				color: var(--color-text);
+			}
+
+			/* The field's own ring is drawn around the whole field above. */
+			.search-field input:focus-visible {
+				outline: none;
+			}
+
+			.search-field input::-webkit-search-cancel-button {
+				display: none;
+			}
+
+			.clear-search {
+				width: var(--tap);
+				padding: 0;
+				border: 0;
+				background: transparent;
+				color: var(--color-muted);
+			}
+
+			.cancel-search {
+				padding: 0 0.25rem;
+				border-color: transparent;
+				background: transparent;
+				color: var(--color-link);
+			}
+
+			.search-count {
+				margin-top: -0.25rem;
+			}
+
+			.name mark {
+				border-radius: 3px;
+				background: var(--color-primary-soft);
+				color: inherit;
+				font-weight: 700;
+			}
+
+			@media (prefers-reduced-motion: no-preference) {
+				.search-row:not([hidden]) {
+					animation: search-in var(--duration) ease-out;
+				}
+
+				@keyframes search-in {
+					from {
+						opacity: 0;
+					}
+				}
+			}
 		`,
 	];
 
@@ -336,6 +430,20 @@ export class RestaurantManager extends LitElement {
 	/** Stored entries the last load could not read. */
 	@state()
 	private skipped = 0;
+
+	/** Whether the header is in search mode. */
+	@state()
+	private searching = false;
+
+	/** What is typed in the search field; never stored. */
+	@state()
+	private query = "";
+
+	/** The result count read out to screen readers once typing pauses. */
+	@state()
+	private announced = "";
+
+	private announceTimer: ReturnType<typeof setTimeout> | undefined;
 
 	/** The form as the open sheet last drew it. */
 	private shownView: FormView | undefined;
@@ -393,6 +501,7 @@ export class RestaurantManager extends LitElement {
 		this.unsubscribeGroups?.();
 		this.unsubscribeGroups = undefined;
 		clearTimeout(this.leaveTimer);
+		clearTimeout(this.announceTimer);
 	}
 
 	/**
@@ -563,6 +672,86 @@ export class RestaurantManager extends LitElement {
 			this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	};
 
+	/**
+	 * iOS only opens the keyboard for a focus made during the tap, so the search row is always
+	 * rendered and is shown and focused here, before any re-render.
+	 */
+	private readonly openSearch = (): void => {
+		const row = this.renderRoot.querySelector<HTMLElement>(".search-row");
+		if (row !== null) row.hidden = false;
+		this.renderRoot.querySelector<HTMLInputElement>("#search")?.focus();
+		this.searching = true;
+	};
+
+	private readonly onSearchInput = (event: Event): void => {
+		this.query = (event.target as HTMLInputElement).value;
+		this.scheduleAnnounce();
+	};
+
+	private readonly onSearchKey = (event: KeyboardEvent): void => {
+		if (event.key !== "Escape") return;
+		event.preventDefault();
+		this.cancelSearch();
+	};
+
+	private readonly clearSearch = (): void => {
+		this.query = "";
+		this.scheduleAnnounce();
+		const input = this.renderRoot.querySelector<HTMLInputElement>("#search");
+		if (input !== null) {
+			input.value = "";
+			input.focus();
+		}
+	};
+
+	private readonly cancelSearch = (): void => {
+		clearTimeout(this.announceTimer);
+		this.searching = false;
+		this.query = "";
+		this.announced = "";
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector('[data-action="search"]'),
+		);
+	};
+
+	/** Say the count once typing pauses, not on every key. */
+	private scheduleAnnounce(): void {
+		clearTimeout(this.announceTimer);
+		this.announced = "";
+		this.announceTimer = setTimeout(() => {
+			this.announced = this.countText(this.sortedRestaurants());
+		}, 500);
+	}
+
+	private sortedRestaurants(): Restaurant[] {
+		return [...this.restaurants].sort((a, b) =>
+			a.name.localeCompare(b.name, getLang()),
+		);
+	}
+
+	/** The restaurants the query keeps, in list order, with what to highlight in each name. */
+	private results(
+		sorted: readonly Restaurant[],
+	): { item: Restaurant; ranges: MatchRange[] }[] {
+		const words = this.searching ? searchWords(this.query) : [];
+		return sorted.flatMap((item) => {
+			const ranges = matchName(item.name, words);
+			return ranges === undefined ? [] : [{ item, ranges }];
+		});
+	}
+
+	private countText(sorted: readonly Restaurant[]): string {
+		const total = sorted.length;
+		if (this.searching && searchWords(this.query).length > 0)
+			return t("search.count", {
+				shown: this.results(sorted).length,
+				total,
+			});
+		return total === 1
+			? t("picker.count.one")
+			: t("picker.count.other", { count: total });
+	}
+
 	/** The sheet closed by ✕, Esc or the backdrop: drop whatever was typed. */
 	private readonly onSheetClose = (): void => {
 		this.sheetOpen = false;
@@ -616,33 +805,83 @@ export class RestaurantManager extends LitElement {
 	}
 
 	override render() {
-		const sorted = [...this.restaurants].sort((a, b) =>
-			a.name.localeCompare(b.name, getLang()),
-		);
+		const sorted = this.sortedRestaurants();
 		const wide = this.wide.matches;
 		const editing = this.restaurants.find((item) => item.id === this.editingId);
 		const formTitle =
 			editing === undefined
 				? t("manager.addTitle")
 				: t("manager.editTitle", { name: editing.name });
-		const count =
-			sorted.length === 1
-				? t("picker.count.one")
-				: t("picker.count.other", { count: sorted.length });
+		const count = this.countText(sorted);
+		const results = this.results(sorted);
 		const add = html`<button type="button" class="primary add" data-action="add" @click=${this.startAdd}>
 			${icon("plus", 20)}<span>${t("manager.add")}</span>
 		</button>`;
 		return html`
-			<header class="head">
+			<header class="head" ?hidden=${this.searching}>
 				<div>
 					<h1 class="page-title">${t("manager.title")}</h1>
 					<p class="count page-sub">${count}</p>
 				</div>
 				<div class="head-actions">
+					${
+						sorted.length > 0
+							? html`<button
+									type="button"
+									class="search-open"
+									data-action="search"
+									aria-label=${t("search.open")}
+									@click=${this.openSearch}
+								>
+									${icon("search", 20)}
+								</button>`
+							: nothing
+					}
 					<a class="tags-link" href="./tags">${icon("tag", 18)}<span>${t("nav.tags")}</span></a>
 					${wide ? add : nothing}
 				</div>
 			</header>
+			<div class="search-row" ?hidden=${!this.searching}>
+				<label class="search-field">
+					${icon("search", 20)}
+					<input
+						id="search"
+						type="search"
+						aria-label=${t("search.open")}
+						placeholder=${t("search.placeholder")}
+						autocomplete="off"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						enterkeyhint="search"
+						.value=${live(this.query)}
+						@input=${this.onSearchInput}
+						@keydown=${this.onSearchKey}
+					/>
+					${
+						this.query !== ""
+							? html`<button
+									type="button"
+									class="clear-search"
+									data-action="clear-search"
+									aria-label=${t("search.clear")}
+									@click=${this.clearSearch}
+								>
+									${icon("x", 18)}
+								</button>`
+							: nothing
+					}
+				</label>
+				<button type="button" class="cancel-search" data-action="cancel-search" @click=${this.cancelSearch}>
+					${t("search.cancel")}
+				</button>
+			</div>
+			${
+				this.searching
+					? html`<p class="search-count page-sub">${count}</p>`
+					: nothing
+			}
+			<p class="visually-hidden search-announce" role="status">${this.announced}</p>
 			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
 				this.skipped > 0
@@ -657,7 +896,7 @@ export class RestaurantManager extends LitElement {
 					${
 						sorted.length === 0
 							? html`<div class="card empty"><p>${t("manager.empty")}</p></div>`
-							: html`<ul class="group list">${sorted.map((item) => this.renderRow(item))}</ul>`
+							: html`<ul class="group list">${results.map(({ item, ranges }) => this.renderRow(item, ranges))}</ul>`
 					}
 				</div>
 				${
@@ -807,7 +1046,7 @@ export class RestaurantManager extends LitElement {
 		></tag-input>`;
 	}
 
-	private renderRow(item: Restaurant) {
+	private renderRow(item: Restaurant, ranges: readonly MatchRange[] = []) {
 		const meta = metaLine(item);
 		const metaId = `meta-${item.id}`;
 		return html`<li data-id=${item.id}>
@@ -821,11 +1060,25 @@ export class RestaurantManager extends LitElement {
 				@click=${() => this.startEdit(item)}
 			>
 				<span class="grow">
-					<b class="name">${item.name}</b>
+					<b class="name">${this.renderName(item.name, ranges)}</b>
 					${meta ? html`<small class="meta" id=${metaId}>${meta}</small>` : nothing}
 				</span>
 				<span class="trail">${icon("chevron", 20)}</span>
 			</button>
 		</li>`;
+	}
+
+	/** The name with the parts the search matched wrapped in `<mark>`. */
+	private renderName(name: string, ranges: readonly MatchRange[]) {
+		if (ranges.length === 0) return name;
+		const parts: unknown[] = [];
+		let at = 0;
+		for (const { start, end } of ranges) {
+			if (start > at) parts.push(name.slice(at, start));
+			parts.push(html`<mark>${name.slice(start, end)}</mark>`);
+			at = end;
+		}
+		if (at < name.length) parts.push(name.slice(at));
+		return parts;
 	}
 }
