@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/random-picker";
+import { RandomPicker } from "#components/random-picker";
 import { FILTER_KEY } from "#lib/filter";
 import { saveGroups } from "#lib/groups";
 import { loadHistory, saveHistory } from "#lib/history";
@@ -208,6 +209,22 @@ test("filter chips list values most used first and cycle off, include, exclude",
 	expect(thai().textContent?.trim()).toBe("✕ thai");
 	await cycle(el, "thai");
 	expect(thai().getAttribute("data-state")).toBe("off");
+});
+
+test("phone: the sheet's filter section relies on the sheet's own heading, not a second name", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	const section = root(el).querySelector("app-sheet section.filter")!;
+	expect(section.hasAttribute("aria-label")).toBe(false);
+	expect(section.hasAttribute("aria-labelledby")).toBe(false);
+});
+
+test("wide: the filter panel's section is named by its own heading", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await mount();
+	const section = root(el).querySelector("aside.filter-panel section.filter")!;
+	expect(section.getAttribute("aria-labelledby")).toBe("filter-title");
+	expect(section.hasAttribute("aria-label")).toBe(false);
 });
 
 test("picks only from restaurants that match the filter", async () => {
@@ -754,4 +771,351 @@ test("a picked card shows custom values as labelled chips before tags", async ()
 		(c) => c.textContent,
 	);
 	expect(chips).toEqual(["Price: cheap", "spicy"]);
+});
+
+type HappyWindow = Window & {
+	happyDOM: { setViewport(viewport: { width: number; height: number }): void };
+};
+const setWidth = (width: number) => {
+	(window as unknown as HappyWindow).happyDOM.setViewport({
+		width,
+		height: 900,
+	});
+	window.dispatchEvent(new Event("resize"));
+};
+const phone = async () => {
+	setWidth(390);
+	return mount();
+};
+
+afterEach(() => setWidth(1024));
+
+test("shows the app name as a visible title with the count under it", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(root(el).querySelector("h1.page-title")?.textContent?.trim()).toBe(
+		"What to Eat",
+	);
+	expect(root(el).querySelector(".head .count")?.textContent?.trim()).toBe(
+		"1 restaurant",
+	);
+});
+
+test("wide: the filter sits in a side panel and the pick button in the heading row", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await mount();
+	expect(
+		root(el).querySelector("aside.filter-panel section.filter"),
+	).not.toBeNull();
+	expect(root(el).querySelector("app-sheet")).toBeNull();
+	expect(root(el).querySelector(".head button.pick")).not.toBeNull();
+	expect(root(el).querySelector(".pinned")).toBeNull();
+	expect(root(el).querySelectorAll("button.pick")).toHaveLength(1);
+});
+
+test("wide: no groups in use means no panel and no empty column", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(root(el).querySelector("aside.filter-panel")).toBeNull();
+	expect(root(el).querySelector(".layout.with-panel")).toBeNull();
+});
+
+test("phone: the filter opens in a sheet from a Filter button", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	expect(root(el).querySelector("aside.filter-panel")).toBeNull();
+	const open = root(el).querySelector<HTMLButtonElement>(
+		'button.filter-open[data-action="open-filter"]',
+	)!;
+	expect(open.textContent?.trim()).toBe("Filter");
+	expect(open.getAttribute("aria-haspopup")).toBe("dialog");
+	const sheet = root(el).querySelector("app-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(false);
+	expect(sheet.querySelector("section.filter")).not.toBeNull();
+	open.click();
+	await el.updateComplete;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	expect(sheet.getAttribute("heading")).toBe("Filter");
+});
+
+test("phone: Done closes the sheet", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="open-filter"]')!
+		.click();
+	await el.updateComplete;
+	const done = root(el).querySelector<HTMLButtonElement>(
+		'app-sheet button[slot="footer"][data-action="filter-done"]',
+	)!;
+	expect(done.textContent?.trim()).toBe("Done");
+	done.click();
+	await el.updateComplete;
+	expect(root(el).querySelector("app-sheet")!.hasAttribute("open")).toBe(false);
+});
+
+test("phone: the Filter button counts active values and the summary lists them", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam", "asok"] } });
+	addRestaurant({ ...base, name: "B", groups: { area: ["asok"] } });
+	const el = await phone();
+	await cycle(el, "siam");
+	await cycle(el, "asok");
+	await cycle(el, "asok");
+	expect(
+		root(el).querySelector('[data-action="open-filter"]')?.textContent?.trim(),
+	).toBe("Filter · 2 on");
+	expect(
+		[...root(el).querySelectorAll("ul.summary li")].map((li) => [
+			li.className,
+			li.textContent?.trim(),
+		]),
+	).toEqual([
+		// Visible text is still "✓ siam" / "✕ asok"; ", included" / ", excluded" is a
+		// visually hidden addition to the chip's accessible name (minor 9).
+		["include", "✓ siam, included"],
+		["exclude", "✕ asok, excluded"],
+	]);
+	expect(root(el).querySelector("ul.summary")?.getAttribute("aria-label")).toBe(
+		"Filter",
+	);
+});
+
+test("phone: tapping an active summary chip opens the filter sheet", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	await cycle(el, "siam");
+	const sheet = root(el).querySelector("app-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(false);
+	const chip = root(el).querySelector<HTMLButtonElement>(
+		'ul.summary button[data-action="open-filter-value"]',
+	)!;
+	expect(chip.getAttribute("aria-haspopup")).toBe("dialog");
+	chip.click();
+	await el.updateComplete;
+	expect(sheet.hasAttribute("open")).toBe(true);
+});
+
+test("phone: the component fills the space above the tab bar so the pinned bar ends the column, even on a short first screen", () => {
+	const css = [RandomPicker.styles]
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(
+		/:host\s*\{[^}]*min-height:\s*calc\(100dvh - 1\.25rem - var\(--tab-bar-height\)\)/,
+	);
+	expect(css).toMatch(/\.pinned\s*\{[^}]*margin-top:\s*auto/);
+});
+
+const flattenStyles = (): string =>
+	[RandomPicker.styles]
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+
+test("tiles stay one column between 48rem and 60rem; two columns from 60rem", () => {
+	const css = flattenStyles();
+	const mid = css.indexOf("@media (min-width: 48rem)");
+	const wide = css.indexOf("@media (min-width: 60rem)");
+	expect(mid).toBeGreaterThan(-1);
+	expect(wide).toBeGreaterThan(mid);
+	const midBlock = css.slice(mid, wide);
+	expect(midBlock).not.toMatch(/\.results\s*\{[^}]*grid-template-columns/);
+	expect(midBlock).toMatch(/\.results\s*\{[^}]*gap:\s*1rem/);
+	const wideBlock = css.slice(wide);
+	expect(wideBlock).toMatch(
+		/\.results\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/,
+	);
+});
+
+test("the pinned bar sits fully above the tab bar, with nothing peeking below it", () => {
+	const pinned = flattenStyles().match(/\.pinned\s*\{[^}]*\}/)?.[0] ?? "";
+	expect(pinned).toMatch(/bottom:\s*var\(--tab-bar-height\)/);
+	expect(pinned).toMatch(/padding:\s*0\.75rem 0 0\.5rem/);
+});
+
+test("phone: the pick button is pinned at the end, once", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await phone();
+	expect(root(el).querySelector(".pinned button.pick")).not.toBeNull();
+	expect(root(el).querySelector(".head button.pick")).toBeNull();
+	expect(root(el).querySelectorAll("button.pick")).toHaveLength(1);
+});
+
+test("phone: a filter that matches nothing disables the pinned button", async () => {
+	addRestaurant({ ...base, name: "A", kinds: ["food"] });
+	addRestaurant({ ...base, name: "B", kinds: ["drinks", "dessert"] });
+	const el = await phone();
+	await cycle(el, "drinks", "kind");
+	await cycle(el, "dessert", "kind");
+	await cycle(el, "dessert", "kind");
+	expect(
+		root(el).querySelector<HTMLButtonElement>(".pinned button.pick")?.disabled,
+	).toBe(true);
+	expect(root(el).querySelector(".no-match")).not.toBeNull();
+});
+
+test("rotating past 48rem while the sheet is open does not reopen it on the way back", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="open-filter"]')!
+		.click();
+	await el.updateComplete;
+	expect(root(el).querySelector("app-sheet")!.hasAttribute("open")).toBe(true);
+	setWidth(1024);
+	await el.updateComplete;
+	setWidth(390);
+	await el.updateComplete;
+	expect(root(el).querySelector("app-sheet")?.hasAttribute("open")).toBe(false);
+});
+
+test("rotating past 48rem while focus is inside the sheet moves it to the panel title instead of losing it", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await phone();
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="open-filter"]')!
+		.click();
+	await el.updateComplete;
+	tagButton(el, "siam")!.focus();
+	setWidth(1024);
+	await el.updateComplete;
+	await el.updateComplete;
+	expect(root(el).activeElement?.id).toBe("filter-title");
+});
+
+test("switching layouts keeps the filter", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	addRestaurant({ ...base, name: "B", groups: { area: ["asok"] } });
+	const el = await mount();
+	await cycle(el, "siam");
+	setWidth(390);
+	await el.updateComplete;
+	expect(root(el).querySelector("aside.filter-panel")).toBeNull();
+	expect(tagButton(el, "siam")?.getAttribute("data-state")).toBe("include");
+	setWidth(1024);
+	await el.updateComplete;
+	expect(root(el).querySelector("aside.filter-panel")).not.toBeNull();
+	expect(tagButton(el, "siam")?.getAttribute("data-state")).toBe("include");
+});
+
+test("the picks are announced by name", async () => {
+	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: "B" });
+	const el = await mount();
+	const announce = () =>
+		root(el).querySelector('p.announce[role="status"]')?.textContent?.trim();
+	expect(announce()).toBe("");
+	await pickOnce(el);
+	const [a, b] = pickedNames(el);
+	expect(announce()).toBe(`Picked ${a} and ${b}`);
+});
+
+test("narrowing the filter to one pick does not invent a fresh announcement", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
+	addRestaurant({ ...base, name: "B", groups: { area: ["noodle"] } });
+	const el = await mount();
+	await pickOnce(el);
+	const [a, b] = pickedNames(el);
+	const announce = () =>
+		root(el).querySelector('p.announce[role="status"]')?.textContent?.trim();
+	const before = announce();
+	expect(before).toBe(`Picked ${a} and ${b}`);
+	await cycle(el, "thai");
+	expect(pickedNames(el)).toEqual(["A"]);
+	// Trimming the result is not a new pick, so the announcement is left as it was.
+	expect(announce()).toBe(before);
+});
+
+test("a pick from one restaurant is announced alone", async () => {
+	addRestaurant({ ...base, name: "Solo" });
+	const el = await mount();
+	await pickOnce(el);
+	expect(
+		root(el).querySelector('p.announce[role="status"]')?.textContent?.trim(),
+	).toBe("Picked Solo");
+});
+
+test("Eat here is a soft button and the result area is not a live region", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	await pickOnce(el);
+	expect(
+		root(el).querySelector("button.visit")?.classList.contains("soft"),
+	).toBe(true);
+	expect(root(el).querySelector(".results")?.hasAttribute("aria-live")).toBe(
+		false,
+	);
+});
+
+test("the empty state links to Restaurants as a button-styled link", async () => {
+	const el = await mount();
+	expect(
+		root(el).querySelector('a.button-link[href="./restaurants"]'),
+	).not.toBeNull();
+});
+
+/** Cycle a value while the panel is hidden: open it, click, hide it again. */
+const cycleHidden = async (
+	el: HTMLElement & { updateComplete: Promise<boolean> },
+	tag: string,
+) => {
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="show-filter"]')!
+		.click();
+	await el.updateComplete;
+	await cycle(el, tag);
+	root(el)
+		.querySelector<HTMLButtonElement>('[data-action="hide-filter"]')!
+		.click();
+	await el.updateComplete;
+};
+
+test("wide: Hide collapses the filter panel, remembers it, and a Filter button brings it back", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const el = await mount();
+	const hide = root(el).querySelector<HTMLButtonElement>(
+		'aside.filter-panel button[data-action="hide-filter"]',
+	)!;
+	expect(hide.textContent?.trim()).toBe("Hide");
+	expect(hide.getAttribute("aria-label")).toBe("Hide filter");
+	expect(hide.getAttribute("aria-expanded")).toBe("true");
+	hide.click();
+	await el.updateComplete;
+	expect(root(el).querySelector("aside.filter-panel")).toBeNull();
+	expect(root(el).querySelector(".layout.with-panel")).toBeNull();
+	expect(localStorage.getItem("whattoeat:filter-panel")).toBe("hidden");
+	const show = root(el).querySelector<HTMLButtonElement>(
+		'.head button[data-action="show-filter"]',
+	)!;
+	expect(show.textContent?.trim()).toBe("Filter");
+	expect(show.getAttribute("aria-expanded")).toBe("false");
+	await el.updateComplete;
+	expect(root(el).activeElement).toBe(show);
+	show.click();
+	await el.updateComplete;
+	await el.updateComplete;
+	expect(root(el).querySelector("aside.filter-panel")).not.toBeNull();
+	expect(localStorage.getItem("whattoeat:filter-panel")).toBeNull();
+	expect(root(el).activeElement?.getAttribute("data-action")).toBe(
+		"hide-filter",
+	);
+});
+
+test("wide: a hidden panel stays hidden on the next visit and its button counts active values", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam", "asok"] } });
+	localStorage.setItem("whattoeat:filter-panel", "hidden");
+	const el = await mount();
+	expect(root(el).querySelector("aside.filter-panel")).toBeNull();
+	await cycleHidden(el, "siam");
+	expect(
+		root(el).querySelector('[data-action="show-filter"]')?.textContent?.trim(),
+	).toBe("Filter · 1 on");
+});
+
+test("phone: the remembered hidden panel does not affect the sheet", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	localStorage.setItem("whattoeat:filter-panel", "hidden");
+	const el = await phone();
+	expect(root(el).querySelector('[data-action="open-filter"]')).not.toBeNull();
+	expect(root(el).querySelector('[data-action="show-filter"]')).toBeNull();
 });

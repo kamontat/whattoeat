@@ -12,7 +12,7 @@ What changed in this project and why, newest first.
   floating tab bar on phones, filtering by tags, filtering by buffet, and search on the
   restaurant and tag lists.
 
-## 2026-10-16: Mobile redesign, stage 1: calm look, tab bar and grouped Settings
+## 2026-10-16: Mobile redesign, stage 1: calm look, tab bar and grouped Settings, and stage 2: Home
 
 ### Features
 
@@ -24,6 +24,14 @@ What changed in this project and why, newest first.
   Export, Import, Reset and About (source, changelog and build, moved from the old footer).
 - Two components for the next stages: `app-sheet`, a bottom sheet on `<dialog>` that returns
   focus to what opened it, and `app-preferences`, language and theme as native radio groups.
+- Home (stage 2) on phones: a Filter button with the active count and the active values as
+  chips beside it; either opens the filter in a bottom sheet with Done. The pick button stays at
+  the bottom, just above the tab bar.
+- Home from 768px: the filter is a side panel and the pick button sits beside the title. A
+  Hide button collapses the panel and a Filter button brings it back; the choice is kept in
+  `whattoeat:filter-panel`.
+- Screen readers hear "Picked A and B" on every pick, instead of both result cards being read
+  again.
 
 ### Improvements
 
@@ -38,13 +46,22 @@ What changed in this project and why, newest first.
   on Restaurants instead of its own header link, and the Restaurants tab stays marked there.
 - Pages fill the screen on notched phones, colour the browser bar for light and dark, and
   turn off sliding animations when the system asks for reduced motion.
-- Home now shows its "What to Eat" title. Home, Restaurants, Tags and History keep their
-  layouts for now; stages 2 to 4 redesign them.
+- Home now shows its "What to Eat" title. Restaurants, Tags and History keep their layouts for
+  now; stages 3 and 4 redesign them.
+- Picks are white tiles with a pin on the location and a soft red "Eat here" button; on wide
+  screens two sit side by side from 960px.
 
 ### Bug fixes
 
 - Focus stays in the Settings reset flow: Delete all data moves it to the confirm button and
   Cancel moves it back.
+- On iPhone, Home no longer scrolls into blank space under the pick button: the page uses the
+  visible screen height (`100dvh`) instead of iOS's `100vh`, and the button sits right on the
+  tab bar.
+- A quick second tap on a filter chip no longer zooms the page on phones; pinch zoom still
+  works.
+- Keyboard focus never hides behind the pinned pick button; the scroll padding covers it and
+  the tab bar.
 
 ### Decisions
 
@@ -56,7 +73,12 @@ What changed in this project and why, newest first.
 - Fonts are inlined as data URIs in the bundled CSS because the build refuses unresolved
   `url()`s; static font files would need a separate copy step.
 - The redesign ships in five stacked pull requests from one spec
-  (`docs/superpowers/specs/2026-10-15-mobile-redesign-design.md`); this is the first.
+  (`docs/superpowers/specs/2026-10-15-mobile-redesign-design.md`); stages 1 and 2 are in.
+- Home switches between the sheet and the side panel with a media-query controller
+  (`src/lib/media.ts`) rather than CSS alone, so only one copy of the filter and of the pick
+  button ever exists.
+- Filter chips are 36px tall, as in the chosen mockup, rather than 44px; that is still above
+  the 24px WCAG AA minimum.
 
 ## 2026-10-15: Cuisine, area and custom groups as tag groups, and a Tags page to manage them, and two ideas dropped
 

@@ -97,8 +97,11 @@
 	--bar-height: 4.75rem;
 	--brand-size: 1.25rem;
 	--duration: 180ms;
-	/* Room the tab bar takes at the bottom of a phone screen. */
-	--tab-bar-space: calc(5rem + env(safe-area-inset-bottom, 0px));
+	/* The phone tab bar's exact height, and the room pages leave for it (a little more). */
+	--tab-bar-height: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+	--tab-bar-space: calc(var(--tab-bar-height) + 0.5rem);
+	/* Room a page's pinned action bar takes above the tab bar; pages opt in with html.has-pinned. */
+	--pinned-space: 0px;
 	--font:
 		"IBM Plex Sans Thai", "Noto Sans Thai", system-ui, -apple-system,
 		"Segoe UI", "Leelawadee UI", Tahoma, sans-serif;
@@ -109,11 +112,16 @@
 	line-height: 1.5;
 	color: var(--color-text);
 	background: var(--color-bg);
-	scroll-padding-bottom: var(--tab-bar-space);
+	scroll-padding-bottom: calc(var(--tab-bar-space) + var(--pinned-space));
 }
 
 :root[data-theme="light"] {
 	color-scheme: light;
+}
+
+/* A page with a pinned action (Home) reserves room for it above the tab bar. */
+:root.has-pinned {
+	--pinned-space: 4.5rem;
 }
 
 /* Dark palette for "auto" on a dark system; keep it in step with the rule below. */
@@ -187,8 +195,20 @@
 	}
 }
 
+/* Double-tap zoom off (it fires on quick taps of chips on iOS); pinch zoom still works. */
+html {
+	touch-action: manipulation;
+}
+
+/* The visible screen height; iOS's 100vh is the height with the toolbar hidden, so it scrolls. */
 body {
 	min-height: 100vh;
+}
+
+@supports (min-height: 100dvh) {
+	body {
+		min-height: 100dvh;
+	}
 }
 
 /* Phones: the tab bar covers the bottom of the screen, so main ends above it. */
@@ -206,11 +226,22 @@ main:focus {
 /* From 48rem the links move to a top bar and nothing covers the bottom. */
 @media (min-width: 48rem) {
 	:root {
+		--tab-bar-height: 0px;
 		--tab-bar-space: 0px;
+	}
+
+	/* No tab bar and no pinned bar from here: the action moves into the page heading row. */
+	:root.has-pinned {
+		--pinned-space: 0px;
 	}
 
 	main {
 		padding: 1.75rem 2rem 3rem;
+	}
+
+	/* Pages with a side panel (Home) get room for two columns. */
+	main.wide {
+		max-width: 65rem;
 	}
 }
 
