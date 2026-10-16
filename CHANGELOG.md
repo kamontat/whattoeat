@@ -2,37 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-16: Paste JSON in one tap, and restaurants can share a name
-
-### Improvements
-
-- Two restaurants can have the same name. The form no longer shows "A restaurant with this
-  name already exists." when adding or editing; a blank name is still refused.
-- Import keeps every restaurant name as it is in the file, instead of adding a ` - <n>` suffix
-  to names that repeat in the file or are already saved.
-
-- Settings > Import: "Paste JSON" is one row that reads the clipboard and checks the export
-  at once. The text box and Check only open when the browser blocks the clipboard, has none,
-  or the clipboard is empty.
-- An import, from a file or the clipboard, is saved straight away when no restaurants,
-  history or groups are saved yet, instead of asking to replace or merge.
-
-### Decisions
-
-- With nothing saved there is nothing to lose, so the Replace or Merge question is only
-  asked when restaurants, history or groups already exist.
-
-## 2026-10-16: TODO list replaces ideas list
-
-### Improvements
-
-- `IDEAS.md` is now `TODO.md`, and the README links point to it.
-- `TODO.md` lists five more planned features: a location that only accepts a link (making the
-  restaurant name clickable on the random result and the restaurant list), an iOS-style
-  floating tab bar on phones, filtering by tags, filtering by buffet, and search on the
-  restaurant and tag lists.
-
-## 2026-10-16: Mobile redesign, stage 1: calm look, tab bar and grouped Settings, stage 2: Home, stage 3: Restaurants, and stage 4: Tags and History
+## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 
 ### Features
 
@@ -95,6 +65,23 @@ What changed in this project and why, newest first.
 - Clear in Home's filter is a full-size button instead of a small inline link.
 - Picks are white tiles with a pin on the location and a soft red "Eat here" button; on wide
   screens two sit side by side from 960px.
+- `IDEAS.md` is now `TODO.md`, and the README links point to it.
+- `TODO.md` lists five more planned features: a location that only accepts a link (making the
+  restaurant name clickable on the random result and the restaurant list), an iOS-style
+  floating tab bar on phones, filtering by tags, filtering by buffet, and search on the
+  restaurant and tag lists.
+- Two restaurants can have the same name. The form no longer shows "A restaurant with this
+  name already exists." when adding or editing; a blank name is still refused.
+- Import keeps every restaurant name as it is in the file, instead of adding a ` - <n>` suffix
+  to names that repeat in the file or are already saved.
+- Settings > Import: "Paste JSON" is one row that reads the clipboard and checks the export
+  at once. The text box and Check only open when the browser blocks the clipboard, has none,
+  or the clipboard is empty.
+- An import, from a file or the clipboard, is saved straight away when no restaurants,
+  history or groups are saved yet, instead of asking to replace or merge.
+- This changelog has one entry per day: entries that shared a date are merged, and each
+  title names only that day's most important changes. The `changelog` skill now merges new
+  work into the day's entry instead of adding a second heading.
 
 ### Bug fixes
 
@@ -139,8 +126,10 @@ What changed in this project and why, newest first.
   value or group is moved or deleted, so it must always be on the page.
 - A closing sheet is closed at once (focus moves, the page is usable) and only drawn for the
   slide-down, rather than waiting for the animation before closing.
+- With nothing saved there is nothing to lose, so the Replace or Merge question is only
+  asked when restaurants, history or groups already exist.
 
-## 2026-10-15: Cuisine, area and custom groups as tag groups, and a Tags page to manage them, and two ideas dropped
+## 2026-10-15: Cuisine, area and custom tag groups with a Tags page
 
 ### BREAKING CHANGES
 
@@ -201,7 +190,7 @@ What changed in this project and why, newest first.
 - CSV import and export, and separate English and Thai names, are removed from `IDEAS.md`
   because they are no longer planned.
 
-## 2026-10-14: Import renames restaurants whose name is already used, history locks are now visits, and clearing old history
+## 2026-10-14: Visit history and clearing old visits
 
 ### BREAKING CHANGES
 
@@ -255,14 +244,13 @@ What changed in this project and why, newest first.
   the visit list so a long history does not push it out of reach.
 - `IDEAS.md` no longer lists pick history, which shipped as visit history.
 
-## 2026-10-13: Dark mode and theme switch, copy and paste import and export, tag rework, build footer, data reset, a warning for unreadable saved data, two random options per pick, a lock history, and filtering by type, cuisine and area
+## 2026-10-13: Dark mode, two picks per press, lock history and type, cuisine and area filters
 
 ### BREAKING CHANGES
 
 - The home page no longer filters by tag. A saved tag filter is ignored and the home page
   starts unfiltered; set the same choice again with the new Type, Cuisine and Area groups.
   Tags stay on restaurants and their cards.
-
 - Stored restaurants that fail validation are no longer copied to
   `whattoeat:restaurants:invalid`, so the next change to the list deletes them for good. To
   keep one, copy `whattoeat:restaurants` from the browser's developer tools before changing
@@ -301,7 +289,6 @@ What changed in this project and why, newest first.
   that names how many restaurants will go, clears every `localStorage` entry: restaurants,
   theme, language and tag filter. The page resets at once without a reload, in English and
   Thai.
-
 - Home, Restaurants and Settings warn when saved restaurants could not be read, for example
   "2 saved restaurants could not be read and were skipped. They will be removed the next
   time the list changes.", in English and Thai. Saved data that is not JSON, or not a list,
@@ -417,38 +404,29 @@ What changed in this project and why, newest first.
 - The export format version stays at 2 because the new fields are optional: older files
   still import, and the app as it is now reads every file.
 
-## 2026-10-12: Site icon, app README and ideas for later
-
-### Features
-
-- Every page has a site icon (an orange plate with fork and knife), so browser tabs show it
-  and the console no longer reports a `/favicon.ico` 404.
-- `IDEAS.md` lists features left for later — tag filter, weighted random, pick history,
-  cloud sync, CSV, separate English and Thai names, recovering invalid entries in the app,
-  dark mode — each with what it gives and what makes it more than a small change.
-
-### Improvements
-
-- The README describes this app rather than the template: getting started clones
-  `kamontat/whattoeat`, the template customization steps and the missing `GET_START.md`
-  are gone, and a new "Data and storage" section lists the `localStorage` keys and how to
-  recover entries from the `whattoeat:restaurants:invalid` backup.
-- `tests/routes/pages.test.ts` fails if a page stops linking the icon.
-
-### Decisions
-
-- The icon is an SVG under `src/assets/` linked from each page, so the build bundles it as a
-  hashed asset; no `--statics` folder or `favicon.ico` was added.
-
 ## 2026-10-12: Random restaurant picker with English and Thai
 
 ### BREAKING CHANGES
 
+- `GET_START.md` no longer creates the repository: run its prompt inside a copy you already
+  have, made with **Use this template** or by cloning the template. An agent started in an
+  empty directory now stops and asks you to clone first.
 - The template's `hello-world` component and its test are gone; the home page is now the
   random restaurant picker.
 
 ### Features
 
+- Claude Code skills in `.claude/skills/` teach an agent the repository's workflow and
+  conventions: `shipping-a-change` (worktree, test first, pull request with a preview URL),
+  `landing-a-change` (changelog, merge commit, cleanup), `changelog`, `adding-a-page`,
+  `ui-components`, `build-and-deploy` and `repo-scripts`.
+- Google Tag Manager loads on every page from `src/lib/gtm.ts` when the production build
+  carries a container id. `Deploy Production` passes it from the `GTM_ID` repository
+  variable as `BUN_PUBLIC_GTM_ID`; without it, and in dev, tests and PR previews, nothing
+  loads. `tests/routes/pages.test.ts` fails if a page under `src/routes/` stops loading it.
+- `GET_START.md` has an optional Google Tag Manager phase: create and publish a Web
+  container, store its id with `gh variable set GTM_ID`, and check the deployed bundle
+  carries it.
 - The home page (`/`) picks a random restaurant from your list with one button, never the
   same one twice in a row, and shows its tags, location (a link only for `http(s)://`) and
   notes.
@@ -464,38 +442,11 @@ What changed in this project and why, newest first.
 - The list lives in `localStorage` (`whattoeat:restaurants`) and stays in sync across tabs.
   When the browser refuses to save, the Restaurants and Settings pages warn that changes
   will be lost instead of claiming success.
-
-### Decisions
-
-- Browser storage only, no backend: each device keeps its own list and JSON export/import
-  moves it between devices.
-- Restaurant names are one free-text field; only the interface is translated.
-- Pages are `restaurants.html` and `settings.html` rather than `*/index.html`, so links
-  have no trailing slash and the built chunks resolve.
-- Stored entries that fail validation are copied to `whattoeat:restaurants:invalid`
-  before a save drops them, rather than being lost or blocking the app.
-
-## 2026-10-12: Agent skills and a green template CI, Google Tag Manager, and clean, fully typechecked builds
-
-### BREAKING CHANGES
-
-- `GET_START.md` no longer creates the repository: run its prompt inside a copy you already
-  have, made with **Use this template** or by cloning the template. An agent started in an
-  empty directory now stops and asks you to clone first.
-
-### Features
-
-- Claude Code skills in `.claude/skills/` teach an agent the repository's workflow and
-  conventions: `shipping-a-change` (worktree, test first, pull request with a preview URL),
-  `landing-a-change` (changelog, merge commit, cleanup), `changelog`, `adding-a-page`,
-  `ui-components`, `build-and-deploy` and `repo-scripts`.
-- Google Tag Manager loads on every page from `src/lib/gtm.ts` when the production build
-  carries a container id. `Deploy Production` passes it from the `GTM_ID` repository
-  variable as `BUN_PUBLIC_GTM_ID`; without it, and in dev, tests and PR previews, nothing
-  loads. `tests/routes/pages.test.ts` fails if a page under `src/routes/` stops loading it.
-- `GET_START.md` has an optional Google Tag Manager phase: create and publish a Web
-  container, store its id with `gh variable set GTM_ID`, and check the deployed bundle
-  carries it.
+- Every page has a site icon (an orange plate with fork and knife), so browser tabs show it
+  and the console no longer reports a `/favicon.ico` 404.
+- `IDEAS.md` lists features left for later — tag filter, weighted random, pick history,
+  cloud sync, CSV, separate English and Thai names, recovering invalid entries in the app,
+  dark mode — each with what it gives and what makes it more than a small change.
 
 ### Improvements
 
@@ -515,6 +466,11 @@ What changed in this project and why, newest first.
   repository or the template, and for a direct clone creates your repository and starts a
   fresh single-commit history.
 - Tests never fetch external scripts: happy-dom reports them as loaded instead.
+- The README describes this app rather than the template: getting started clones
+  `kamontat/whattoeat`, the template customization steps and the missing `GET_START.md`
+  are gone, and a new "Data and storage" section lists the `localStorage` keys and how to
+  recover entries from the `whattoeat:restaurants:invalid` backup.
+- `tests/routes/pages.test.ts` fails if a page stops linking the icon.
 
 ### Bug fixes
 
@@ -540,3 +496,12 @@ What changed in this project and why, newest first.
   `<noscript>` fallback.
 - The id is a repository variable, not a secret, because it ends up in public page source
   anyway; only production receives it so preview traffic never reaches the container.
+- Browser storage only, no backend: each device keeps its own list and JSON export/import
+  moves it between devices.
+- Restaurant names are one free-text field; only the interface is translated.
+- Pages are `restaurants.html` and `settings.html` rather than `*/index.html`, so links
+  have no trailing slash and the built chunks resolve.
+- Stored entries that fail validation are copied to `whattoeat:restaurants:invalid`
+  before a save drops them, rather than being lost or blocking the app.
+- The icon is an SVG under `src/assets/` linked from each page, so the build bundles it as a
+  hashed asset; no `--statics` folder or `favicon.ico` was added.
