@@ -153,8 +153,8 @@ test("move up and down reorder custom groups", async () => {
 	expect(
 		$<HTMLElement>(el, ".group-options")!.querySelector<HTMLButtonElement>(
 			'[data-action="move-up"]',
-		)!.disabled,
-	).toBe(true);
+		)!.getAttribute("aria-disabled"),
+	).toBe("true");
 });
 
 test("deleting a group asks first, then turns its values into tags and drops its filter", async () => {
@@ -677,14 +677,23 @@ test("custom groups open their options in a sheet; moves at the ends are disable
 	const up = options.querySelector<HTMLButtonElement>(
 		'[data-action="move-up"]',
 	)!;
-	expect(up.disabled).toBe(true);
-	expect(up.querySelector(".reason")?.textContent?.trim()).toBe(
-		"Already the first group",
-	);
-	expect(
-		options.querySelector<HTMLButtonElement>('[data-action="move-down"]')!
-			.disabled,
-	).toBe(false);
+	// Stays focusable (not natively disabled) so its reason is reachable, but does nothing.
+	expect(up.disabled).toBe(false);
+	expect(up.getAttribute("aria-disabled")).toBe("true");
+	const reason = up.querySelector(".reason")!;
+	expect(reason.textContent?.trim()).toBe("Already the first group");
+	expect(up.getAttribute("aria-describedby")).toBe(reason.id);
+	expect(reason.id).toBeTruthy();
+	const before = loadGroups().map((def) => def.id);
+	up.click();
+	await el.updateComplete;
+	expect(loadGroups().map((def) => def.id)).toEqual(before);
+	const down = options.querySelector<HTMLButtonElement>(
+		'[data-action="move-down"]',
+	)!;
+	expect(down.disabled).toBe(false);
+	expect(down.getAttribute("aria-disabled")).toBeNull();
+	expect(down.getAttribute("aria-describedby")).toBeNull();
 });
 
 test("another tab deleting the open group closes its sheet", async () => {

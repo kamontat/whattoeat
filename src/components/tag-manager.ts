@@ -122,7 +122,7 @@ export class TagManager extends LitElement {
 				box-shadow: inset 3px 0 0 var(--color-primary);
 			}
 
-			.item:disabled {
+			.item[aria-disabled="true"] {
 				opacity: 1;
 				color: var(--color-muted);
 				cursor: not-allowed;
@@ -304,13 +304,15 @@ export class TagManager extends LitElement {
 	}
 
 	/** Moves a custom group and keeps focus on the button that moved it, or the other arrow once it is disabled. */
-	private moveGroupBy(id: string, step: -1 | 1): void {
+	private moveGroupBy(id: string, step: -1 | 1, atEdge: boolean): void {
+		if (atEdge) return;
 		saveGroups(moveGroup(this.defs, id, step));
 		const [action, other] =
 			step < 0 ? ["move-up", "move-down"] : ["move-down", "move-up"];
 		this.focusAfterRender(() => {
 			const button = this.groupAction(id, action);
-			return button instanceof HTMLButtonElement && button.disabled
+			return button instanceof HTMLButtonElement &&
+				button.getAttribute("aria-disabled") === "true"
 				? this.groupAction(id, other)
 				: button;
 		});
@@ -739,15 +741,15 @@ export class TagManager extends LitElement {
 						type="button"
 						class="item"
 						data-action="move-up"
-						?disabled=${first}
-						aria-label=${t("tags.moveUp", { group: label })}
-						@click=${() => this.moveGroupBy(group, -1)}
+						aria-disabled=${first ? "true" : nothing}
+						aria-describedby=${first ? `move-up-reason-${group}` : nothing}
+						@click=${() => this.moveGroupBy(group, -1, first)}
 					>
 						<span class="lead">${icon("up", 20)}</span>
 						<span class="grow"
 							><b>${t("tags.moveUp", { group: label })}</b>${
 								first
-									? html`<small class="reason">${t("tags.firstGroup")}</small>`
+									? html`<small class="reason" id="move-up-reason-${group}" aria-hidden="true">${t("tags.firstGroup")}</small>`
 									: nothing
 							}</span
 						>
@@ -758,15 +760,15 @@ export class TagManager extends LitElement {
 						type="button"
 						class="item"
 						data-action="move-down"
-						?disabled=${last}
-						aria-label=${t("tags.moveDown", { group: label })}
-						@click=${() => this.moveGroupBy(group, 1)}
+						aria-disabled=${last ? "true" : nothing}
+						aria-describedby=${last ? `move-down-reason-${group}` : nothing}
+						@click=${() => this.moveGroupBy(group, 1, last)}
 					>
 						<span class="lead">${icon("down", 20)}</span>
 						<span class="grow"
 							><b>${t("tags.moveDown", { group: label })}</b>${
 								last
-									? html`<small class="reason">${t("tags.lastGroup")}</small>`
+									? html`<small class="reason" id="move-down-reason-${group}" aria-hidden="true">${t("tags.lastGroup")}</small>`
 									: nothing
 							}</span
 						>
