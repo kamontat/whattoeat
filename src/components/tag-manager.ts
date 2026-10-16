@@ -208,6 +208,10 @@ export class TagManager extends LitElement {
 	/** The custom group whose options sheet is open. */
 	@state() private optionsFor: string | undefined;
 
+	/** What each sheet last showed, kept in it while it slides away after closing. */
+	private lastSelected: { group: string; value: string } | undefined;
+	private lastOptionsFor: string | undefined;
+
 	private unsubscribe: (() => void)[] = [];
 
 	/** The layout as of the last render, to notice the narrow/wide boundary being crossed. */
@@ -554,6 +558,10 @@ export class TagManager extends LitElement {
 		];
 		const wide = this.wide.matches;
 		const selected = this.selected;
+		if (selected !== undefined) this.lastSelected = selected;
+		if (this.optionsFor !== undefined) this.lastOptionsFor = this.optionsFor;
+		const sheetValue = this.lastSelected;
+		const sheetGroup = this.lastOptionsFor;
 		const detailTitle =
 			selected === undefined ? "" : valueLabel(selected.group, selected.value);
 		const detailSub =
@@ -618,7 +626,7 @@ export class TagManager extends LitElement {
 								?open=${selected !== undefined}
 								@sheet-close=${this.closeValue}
 							>
-								${selected === undefined ? nothing : this.renderValueDetail(selected.group, selected.value)}
+								${sheetValue === undefined ? nothing : this.renderValueDetail(sheetValue.group, sheetValue.value)}
 							</app-sheet>`
 				}
 			</div>
@@ -628,7 +636,7 @@ export class TagManager extends LitElement {
 				?open=${this.optionsFor !== undefined}
 				@sheet-close=${this.closeGroupOptions}
 			>
-				${this.optionsFor === undefined ? nothing : this.renderGroupOptions(this.optionsFor)}
+				${sheetGroup === undefined ? nothing : this.renderGroupOptions(sheetGroup)}
 			</app-sheet>
 		`;
 	}

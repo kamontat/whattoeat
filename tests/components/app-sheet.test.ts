@@ -220,3 +220,74 @@ test("containsFocus sees slotted content and the sheet's own Close button", asyn
 		.focus();
 	expect(sheet.containsFocus()).toBe(true);
 });
+
+const sheetCss = () =>
+	[(customElements.get("app-sheet") as unknown as { styles: unknown }).styles]
+		.flat(2)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("");
+
+test("closing slides the sheet back down over a fading scrim, as opening slides it up", () => {
+	const css = sheetCss();
+	expect(css).toMatch(
+		/dialog\.leaving\s*\{[^}]*animation:\s*slide-down var\(--duration\)/,
+	);
+	expect(css).toMatch(/dialog\.leaving\s*\{[^}]*pointer-events:\s*none/);
+	expect(css).toMatch(
+		/\.scrim\s*\{[^}]*animation:\s*fade-out var\(--duration\)/,
+	);
+	expect(css).toMatch(/@keyframes slide-down/);
+});
+
+test("after closing, the sheet stays on screen for the animation, inert, with its last heading", async () => {
+	const { opener, sheet } = await mount();
+	sheet.style.setProperty("--duration", "30ms");
+	opener.focus();
+	sheet.open = true;
+	await sheet.updateComplete;
+	sheet.open = false;
+	sheet.heading = "";
+	await settle(sheet);
+	const d = dialog(sheet);
+	// Closed at once, so focus moves and the page is usable straight away.
+	expect(d.open).toBe(false);
+	expect(document.activeElement).toBe(opener);
+	expect(d.classList.contains("leaving")).toBe(true);
+	expect(d.hasAttribute("inert")).toBe(true);
+	expect(sheet.shadowRoot!.querySelector(".scrim")).not.toBeNull();
+	expect(sheet.shadowRoot!.querySelector("h2")?.textContent?.trim()).toBe(
+		"Filter",
+	);
+	await new Promise((resolve) => setTimeout(resolve, 60));
+	await sheet.updateComplete;
+	expect(d.classList.contains("leaving")).toBe(false);
+	expect(d.hasAttribute("inert")).toBe(false);
+	expect(sheet.shadowRoot!.querySelector(".scrim")).toBeNull();
+});
+
+test("with no motion (reduced motion sets the duration to 0) it closes without lingering", async () => {
+	const { sheet } = await mount();
+	sheet.style.setProperty("--duration", "0ms");
+	sheet.open = true;
+	await sheet.updateComplete;
+	sheet.open = false;
+	await settle(sheet);
+	expect(dialog(sheet).classList.contains("leaving")).toBe(false);
+});
+
+test("reopening during the close animation shows it again straight away", async () => {
+	const { sheet } = await mount();
+	sheet.style.setProperty("--duration", "50ms");
+	sheet.open = true;
+	await sheet.updateComplete;
+	sheet.open = false;
+	await settle(sheet);
+	sheet.open = true;
+	await settle(sheet);
+	const d = dialog(sheet);
+	expect(d.open).toBe(true);
+	expect(d.classList.contains("leaving")).toBe(false);
+	expect(d.hasAttribute("inert")).toBe(false);
+	await new Promise((resolve) => setTimeout(resolve, 80));
+	expect(d.open).toBe(true);
+});

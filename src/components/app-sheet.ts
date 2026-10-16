@@ -53,6 +53,41 @@ export class AppSheet extends LitElement {
 				}
 			}
 
+			/*
+			 * Closing: the dialog is already closed (focus has moved, the page works), but it
+			 * stays drawn for one animation, sliding back down over a fading scrim.
+			 */
+			dialog.leaving {
+				display: block;
+				position: fixed;
+				inset: 0;
+				z-index: 1001;
+				height: fit-content;
+				pointer-events: none;
+				animation: slide-down var(--duration) ease-in forwards;
+			}
+
+			.scrim {
+				position: fixed;
+				inset: 0;
+				z-index: 1000;
+				background: var(--scrim);
+				pointer-events: none;
+				animation: fade-out var(--duration) ease-in forwards;
+			}
+
+			@keyframes slide-down {
+				to {
+					transform: translateY(100%);
+				}
+			}
+
+			@keyframes fade-out {
+				to {
+					opacity: 0;
+				}
+			}
+
 			.box {
 				display: flex;
 				flex-direction: column;
@@ -147,6 +182,15 @@ export class AppSheet extends LitElement {
 	@state()
 	private hasFooter = false;
 
+	/** Drawn for the close animation after the dialog has closed. */
+	@state()
+	private leaving = false;
+
+	private leaveTimer: ReturnType<typeof setTimeout> | undefined;
+
+	/** Heading and subheading as last shown open, kept while the sheet slides away. */
+	private shown = { heading: "", subheading: "" };
+
 	@query("dialog")
 	private dialog!: HTMLDialogElement;
 
@@ -155,9 +199,34 @@ export class AppSheet extends LitElement {
 
 	protected readonly langController = new LangController(this);
 
+	protected override willUpdate(): void {
+		if (this.open)
+			this.shown = { heading: this.heading, subheading: this.subheading };
+	}
+
+	override disconnectedCallback(): void {
+		super.disconnectedCallback();
+		this.stopLeaving();
+	}
+
+	private stopLeaving(): void {
+		clearTimeout(this.leaveTimer);
+		this.leaveTimer = undefined;
+		this.leaving = false;
+	}
+
+	/** The `--duration` token in ms; 0 under reduced motion or when it is not set. */
+	private duration(): number {
+		const value = getComputedStyle(this).getPropertyValue("--duration").trim();
+		const amount = Number.parseFloat(value);
+		if (!Number.isFinite(amount)) return 0;
+		return value.endsWith("ms") ? amount : amount * 1000;
+	}
+
 	protected override updated(changed: PropertyValues<this>): void {
 		if (!changed.has("open")) return;
 		if (this.open && !this.dialog.open) {
+			this.stopLeaving();
 			this.opener = deepActiveElement();
 			this.dialog.showModal();
 			// Start on the title, as the page title does on load: screen readers read it
@@ -171,6 +240,12 @@ export class AppSheet extends LitElement {
 	/** The dialog closed: by the Close button, Esc, a backdrop tap or `open = false`. */
 	private readonly onClose = (): void => {
 		this.open = false;
+		const ms = this.duration();
+		if (ms > 0) {
+			clearTimeout(this.leaveTimer);
+			this.leaving = true;
+			this.leaveTimer = setTimeout(() => this.stopLeaving(), ms);
+		}
 		this.dispatchEvent(
 			new CustomEvent("sheet-close", { bubbles: true, composed: true }),
 		);
@@ -207,14 +282,24 @@ export class AppSheet extends LitElement {
 	}
 
 	override render() {
+		const { heading, subheading } = this.leaving
+			? this.shown
+			: { heading: this.heading, subheading: this.subheading };
 		return html`
-			<dialog aria-labelledby="sheet-title" @close=${this.onClose} @click=${this.onClick}>
+			${this.leaving ? html`<div class="scrim" aria-hidden="true"></div>` : nothing}
+			<dialog
+				aria-labelledby="sheet-title"
+				class=${this.leaving ? "leaving" : ""}
+				?inert=${this.leaving}
+				@close=${this.onClose}
+				@click=${this.onClick}
+			>
 				<div class="box">
 					<span class="grabber" aria-hidden="true"></span>
 					<div class="head">
 						<div>
-							<h2 id="sheet-title" tabindex="-1">${this.heading}</h2>
-							${this.subheading ? html`<p class="sub">${this.subheading}</p>` : nothing}
+							<h2 id="sheet-title" tabindex="-1">${heading}</h2>
+							${subheading ? html`<p class="sub">${subheading}</p>` : nothing}
 						</div>
 						<button
 							type="button"

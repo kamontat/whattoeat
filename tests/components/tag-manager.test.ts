@@ -651,7 +651,8 @@ test("phone: deleting the selected value closes its sheet and focuses the add-gr
 	await click(el, detail, "confirm-delete-value");
 	await settle(el);
 	expect($(el, "app-sheet.value-sheet")?.hasAttribute("open")).toBe(false);
-	expect($(el, ".value-detail")).toBeNull();
+	// The closed sheet keeps its last content only to draw it sliding away.
+	expect($(el, "app-sheet[open] .value-detail")).toBeNull();
 	expect(el.shadowRoot!.activeElement?.id).toBe("new-group");
 });
 
