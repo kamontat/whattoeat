@@ -37,6 +37,10 @@ What changed in this project and why, newest first.
 - Settings > Reset has a "Clear history" row, greyed out with no history, that opens a sheet
   to clear visits older than 1 week, 1 month or 1 year, or all of them, each with its count;
   "Deleted N visits." confirms it.
+- The site can be installed (stage 5): every page links `manifest.webmanifest` (opens full
+  screen at Home, off-white `#f6f5f2`) and a home screen icon, and sets the iPhone "Add to
+  Home Screen" tags. The new square icon (the favicon's plate, fork and knife) comes as SVG
+  and 180, 192 and 512px PNGs, the 512 also as an Android maskable icon.
 
 ### Improvements
 
@@ -114,7 +118,7 @@ What changed in this project and why, newest first.
 - Fonts are inlined as data URIs in the bundled CSS because the build refuses unresolved
   `url()`s; static font files would need a separate copy step.
 - The redesign ships in five stacked pull requests from one spec
-  (`docs/superpowers/specs/2026-10-15-mobile-redesign-design.md`); stages 1 to 4 are in.
+  (`docs/superpowers/specs/2026-10-15-mobile-redesign-design.md`); all five stages are in.
 - Home switches between the sheet and the side panel with a media-query controller
   (`src/lib/media.ts`) rather than CSS alone, so only one copy of the filter and of the pick
   button ever exists.
@@ -126,6 +130,9 @@ What changed in this project and why, newest first.
   value or group is moved or deleted, so it must always be on the page.
 - A closing sheet is closed at once (focus moves, the page is usable) and only drawn for the
   slide-down, rather than waiting for the animation before closing.
+- The app icons ship with `--statics src/assets/icons:icons` because the bundler copies the
+  manifest but does not follow the icon paths inside it. Offline use (a service worker) was
+  left out and added to `TODO.md`.
 - With nothing saved there is nothing to lose, so the Replace or Merge question is only
   asked when restaurants, history or groups already exist.
 
