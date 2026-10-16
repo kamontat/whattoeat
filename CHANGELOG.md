@@ -12,7 +12,7 @@ What changed in this project and why, newest first.
   floating tab bar on phones, filtering by tags, filtering by buffet, and search on the
   restaurant and tag lists.
 
-## 2026-10-16: Mobile redesign, stage 1: calm look, tab bar and grouped Settings, and stage 2: Home
+## 2026-10-16: Mobile redesign, stage 1: calm look, tab bar and grouped Settings, stage 2: Home, and stage 3: Restaurants
 
 ### Features
 
@@ -32,6 +32,11 @@ What changed in this project and why, newest first.
   `whattoeat:filter-panel`.
 - Screen readers hear "Picked A and B" on every pick, instead of both result cards being read
   again.
+- Restaurants (stage 3) on phones: a pinned Add button and rows you tap to edit; the form opens
+  in a bottom sheet titled "New restaurant" or "Edit {name}", with Save and Cancel kept at its
+  bottom. From 768px the list and the form sit side by side and the selected row is marked.
+- "Saved {name}" and "Deleted {name}" confirm every change on Restaurants and are read out each
+  time.
 
 ### Improvements
 
@@ -46,8 +51,12 @@ What changed in this project and why, newest first.
   on Restaurants instead of its own header link, and the Restaurants tab stays marked there.
 - Pages fill the screen on notched phones, colour the browser bar for light and dark, and
   turn off sliding animations when the system asks for reduced motion.
-- Home now shows its "What to Eat" title. Restaurants, Tags and History keep their layouts for
-  now; stages 3 and 4 redesign them.
+- Home now shows its "What to Eat" title. Tags and History keep their layouts for now; stage 4
+  redesigns them.
+- The restaurant list is compact: each row shows the name and type line only; location, notes
+  and tags are in the form. Delete moved from every row to the end of the edit form, behind a
+  prompt that names the restaurant.
+- Clear in Home's filter is a full-size button instead of a small inline link.
 - Picks are white tiles with a pin on the location and a soft red "Eat here" button; on wide
   screens two sit side by side from 960px.
 
@@ -62,6 +71,10 @@ What changed in this project and why, newest first.
   works.
 - Keyboard focus never hides behind the pinned pick button; the scroll padding covers it and
   the tab bar.
+- On phones the restaurant form's cuisine and area stack in one column, so a long chip no
+  longer pushes a box off screen, and nothing shows through under Save and Cancel.
+- Rotating a phone or resizing a window while editing keeps the edit, in either direction; on
+  Home, rotating with the filter sheet's close button focused no longer loses focus.
 
 ### Decisions
 
@@ -73,12 +86,14 @@ What changed in this project and why, newest first.
 - Fonts are inlined as data URIs in the bundled CSS because the build refuses unresolved
   `url()`s; static font files would need a separate copy step.
 - The redesign ships in five stacked pull requests from one spec
-  (`docs/superpowers/specs/2026-10-15-mobile-redesign-design.md`); stages 1 and 2 are in.
+  (`docs/superpowers/specs/2026-10-15-mobile-redesign-design.md`); stages 1 to 3 are in.
 - Home switches between the sheet and the side panel with a media-query controller
   (`src/lib/media.ts`) rather than CSS alone, so only one copy of the filter and of the pick
   button ever exists.
 - Filter chips are 36px tall, as in the chosen mockup, rather than 44px; that is still above
   the 24px WCAG AA minimum.
+- Closing the restaurant sheet without saving discards the edit rather than keeping a draft,
+  so the sheet always opens on what is saved.
 
 ## 2026-10-15: Cuisine, area and custom groups as tag groups, and a Tags page to manage them, and two ideas dropped
 
