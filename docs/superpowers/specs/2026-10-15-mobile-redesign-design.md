@@ -233,13 +233,13 @@ Phone, top to bottom:
    the existing "No restaurant matches this filter." text shown above it.
 
 Filter sheet: title "Filter", the existing hint, one group per filter row (group label +
-chips at 36 px, above the 24 px WCAG AA minimum), **Clear** in the sheet content and **Done**
-in the footer. Behaviour unchanged (`cycleTag`).
+chips at 36 px, above the 24 px WCAG AA minimum), **Clear** (a 36 px quiet button) in the
+sheet content and **Done** in the footer. Behaviour unchanged (`cycleTag`).
 
 Desktop (≥ 48 rem): `main.wide` (65 rem) provides room for two columns. The filter uses
 `MediaController` (src/lib/media.ts), so only one component instance renders and switches
-layout. Left, a side panel with the filter content; Clear sits at the end of the panel, in
-the active-filter sentence, as on phones. A **Hide** button in the panel heading
+layout. Left, a side panel with the filter content; Clear sits as a 36 px quiet button after
+the active-filter sentence, wrapping as a flex row. A **Hide** button in the panel heading
 (`aria-expanded`, named "Hide filter") collapses it: the picks take the full width and a
 "Filter" button (with the active count) appears beside the pick button to bring it back; focus
 stays on the toggle. The choice is remembered in `whattoeat:filter-panel` (`src/lib/panel.ts`).
@@ -261,21 +261,23 @@ Phone:
 
 1. Title "Restaurants" with "5 restaurants" under it, and a "Tags" pill link at the right.
 2. Storage warnings.
-3. One grouped list, A–Z: each row is a link-styled button with the name and meta line and a
-   chevron; its accessible name is "Edit <name>" plus the meta line as description.
-4. Pinned **Add** button.
+3. One grouped list, A–Z: each row is a link-styled button showing only the name and a
+   one-line meta (type); location, notes and chips are in the form. The chevron is included.
+   Its accessible name is "Edit <name>" plus the meta line as description.
+4. Pinned **Add** button (uses `html.has-pinned` scroll room).
 5. Empty list: today's empty text with the Add button.
 
-Form sheet (heading "Add" or "Edit <name>"): today's fields, `tag-input`s and validation;
-footer **Delete** (edit only) and **Save**. Delete shows today's inline confirmation in the
-sheet; focus moves to the confirm button as now. Saving or deleting closes the sheet and
-returns focus to the row (or the Add button, or the title after a delete). A `role="status"`
-message confirms "Saved <name>" / "Deleted <name>".
+Form sheet (heading "New restaurant" or "Edit <name>"): today's fields, `tag-input`s and
+validation; footer **Delete** (edit only) and **Save**. Delete sits at the end of the edit
+form footer and shows today's inline confirmation, naming the restaurant, in the sheet; focus
+moves to the confirm button as now. Saving or deleting closes the sheet and returns focus to
+the row (or the Add button, or the title after a delete). Closing the sheet discards unsaved
+edits. A `role="status"` message confirms "Saved <name>" / "Deleted <name>".
 
 Desktop: the title row holds Tags and Add. Below, list and panel side by side (equal
 columns). The selected row gets `aria-current="true"`, the surface-2 fill and a chili bar on
-its start edge. The panel holds the same form, Cuisine and Area side by side, and Delete,
-Cancel and Save in its footer. No sheet on desktop.
+its start edge. The panel holds the same form (switched by `MediaController`), Cuisine and
+Area side by side, and Delete, Cancel and Save in its footer. No sheet on desktop.
 
 ### Tags (`tag-manager`)
 
