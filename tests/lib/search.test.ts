@@ -34,7 +34,7 @@ test("an unaccented query highlights the accented letters it matched", () => {
 		{ start: 0, end: 4 },
 	]);
 	// Decomposed input: "e" plus a combining acute, 5 code units for 4 letters.
-	expect(matchName("Café Tartine", searchWords("cafe"))).toEqual([
+	expect(matchName("Cafe\u0301 Tartine", searchWords("cafe"))).toEqual([
 		{ start: 0, end: 5 },
 	]);
 });
@@ -44,6 +44,15 @@ test("Thai matches as typed: different tone marks do not match", () => {
 		{ start: 0, end: 4 },
 	]);
 	expect(matchName("ข่าวสด", searchWords("ข้าว"))).toBeUndefined();
+});
+
+test("a Thai highlight range includes a combining mark right after the matched text", () => {
+	expect(matchName("ข้าวมันไก่", searchWords("ไก"))).toEqual([
+		{ start: 7, end: 10 },
+	]);
+	expect(matchName("ข้าวมันไก่", searchWords("ข"))).toEqual([
+		{ start: 0, end: 2 },
+	]);
 });
 
 test("overlapping and repeated words merge into one range", () => {

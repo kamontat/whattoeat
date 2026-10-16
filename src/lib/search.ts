@@ -13,7 +13,10 @@ const fold = (text: string): { folded: string; map: number[] } => {
 	const map: number[] = [];
 	let offset = 0;
 	for (const char of text) {
-		const plain = char.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+		const plain = char
+			.normalize("NFD")
+			.replace(/[\u0300-\u036f]/g, "")
+			.toLowerCase();
 		for (const unit of plain) {
 			for (let i = 0; i < unit.length; i++) map.push(offset);
 			folded += unit;
@@ -43,10 +46,12 @@ export const matchName = (
 	for (const word of words) {
 		const at = folded.indexOf(word);
 		if (at === -1) return undefined;
-		ranges.push({
-			start: map[at] ?? 0,
-			end: map[at + word.length] ?? name.length,
-		});
+		const start = map[at] ?? 0;
+		let end = map[at + word.length] ?? name.length;
+		// A combining mark right after the matched text (e.g. a Thai tone mark) belongs with it,
+		// or the browser draws it detached from the <mark> it decorates.
+		while (/\p{M}/u.test(name[end] ?? "")) end++;
+		ranges.push({ start, end });
 	}
 	ranges.sort((a, b) => a.start - b.start);
 	const merged: MatchRange[] = [];
