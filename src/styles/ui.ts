@@ -44,6 +44,7 @@ export const uiStyles = css`
 		font: inherit;
 		font-weight: 600;
 		cursor: pointer;
+		touch-action: manipulation;
 		border: 1px solid var(--color-control);
 		border-radius: var(--radius-sm);
 		background: var(--color-surface);
