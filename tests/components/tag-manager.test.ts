@@ -586,6 +586,46 @@ test("wide: the panel's aria-labelledby always points to a real, visible id", as
 	expect(panel.querySelector(`#${titleId}`)?.textContent?.trim()).toBe("thai");
 });
 
+test("narrow to wide with a value's sheet open moves focus into the panel's Rename button", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	setWidth(390);
+	const el = await mount();
+	await openValue(el, "cuisine", "thai");
+	setWidth(1024);
+	await settle(el);
+	expect($(el, "section.value-panel")).not.toBeNull();
+	expect(focused(el)).toBe(
+		$(el, ".value-detail")!.querySelector('[data-action="rename-value"]'),
+	);
+});
+
+test("narrow to wide with a rename prompt open moves focus to its input instead", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	setWidth(390);
+	const el = await mount();
+	let detail = await openValue(el, "cuisine", "thai");
+	await click(el, detail, "rename-value");
+	setWidth(1024);
+	await settle(el);
+	detail = $(el, ".value-detail")!;
+	expect(focused(el)).toBe(detail.querySelector("input"));
+});
+
+test("wide to narrow with a value selected returns focus to its row, not body, when the sheet closes", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	await openValue(el, "cuisine", "thai");
+	setWidth(390);
+	await settle(el);
+	const sheet = $(el, "app-sheet.value-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	sheet.shadowRoot!.querySelector("dialog")!.close();
+	await settle(el);
+	expect(focused(el)).toBe(
+		valueRow(el, "cuisine", "thai").querySelector('[data-action="open-value"]'),
+	);
+});
+
 test("phone: a value opens its actions in a sheet titled with the value", async () => {
 	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
 	setWidth(390);

@@ -1,4 +1,4 @@
-import { css, html, LitElement, nothing } from "lit";
+import { css, html, LitElement, nothing, type PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import { repeat } from "lit/directives/repeat.js";
@@ -210,6 +210,9 @@ export class TagManager extends LitElement {
 
 	private unsubscribe: (() => void)[] = [];
 
+	/** The layout as of the last render, to notice the narrow/wide boundary being crossed. */
+	private lastWide: boolean | undefined;
+
 	override connectedCallback(): void {
 		super.connectedCallback();
 		this.reload();
@@ -223,6 +226,53 @@ export class TagManager extends LitElement {
 		super.disconnectedCallback();
 		for (const stop of this.unsubscribe) stop();
 		this.unsubscribe = [];
+	}
+
+	protected override updated(changed: PropertyValues<this>): void {
+		super.updated(changed);
+		const nowWide = this.wide.matches;
+		const wasWide = this.lastWide;
+		this.lastWide = nowWide;
+		if (wasWide === undefined || wasWide === nowWide) return;
+		const selected = this.selected;
+		if (selected === undefined) return;
+		if (nowWide) {
+			// The sheet is gone and the side panel has taken its place; land focus on whatever
+			// of it is live right now, same as opening a value fresh.
+			this.focusAfterRender(() => this.panelCurrentControl());
+		} else {
+			// The panel is gone and a sheet is about to open in its place. Focus the value's own
+			// row *now*, before AppSheet's own update (a microtask away) captures the opener via
+			// the currently focused element — otherwise it would capture whatever (if anything)
+			// happened to be focused before this resize, and return focus there once the sheet
+			// closes instead of to this row.
+			const row = this.valueRowButton(selected.group, selected.value);
+			if (row instanceof HTMLElement) row.focus();
+		}
+	}
+
+	/** The open value's row button in the groups column, found by walking rows so a value's
+	 * text cannot break a selector. */
+	private valueRowButton(group: string, value: string): Element | undefined {
+		const section = [...this.renderRoot.querySelectorAll(".tag-group")].find(
+			(el) => el.getAttribute("data-group") === group,
+		);
+		const row = section
+			? [...section.querySelectorAll("li.value")].find(
+					(li) => li.getAttribute("data-value") === value,
+				)
+			: undefined;
+		return row?.querySelector('[data-action="open-value"]') ?? undefined;
+	}
+
+	/** The wide panel's live control right now: an open prompt's input or select, else Rename. */
+	private panelCurrentControl(): Element | undefined {
+		const detail = this.valueDetail();
+		return (
+			detail?.querySelector("input, select") ??
+			detail?.querySelector('[data-action="rename-value"]') ??
+			undefined
+		);
 	}
 
 	private reload(): void {
