@@ -345,6 +345,8 @@ export class RestaurantManager extends LitElement {
 				border: 0;
 				background: transparent;
 				color: var(--color-text);
+				appearance: none;
+				-webkit-appearance: none;
 			}
 
 			/* The field's own ring is drawn around the whole field above. */
@@ -352,7 +354,8 @@ export class RestaurantManager extends LitElement {
 				outline: none;
 			}
 
-			.search-field input::-webkit-search-cancel-button {
+			.search-field input::-webkit-search-cancel-button,
+			.search-field input::-webkit-search-decoration {
 				display: none;
 			}
 

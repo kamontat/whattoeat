@@ -1174,6 +1174,20 @@ test("search: field, clear and cancel are tap sized; the input text is 16px", ()
 	expect(css).not.toMatch(/\.search-field input\s*\{[^}]*font-size/);
 });
 
+test("search: the field drops iOS's default search styling", () => {
+	const css = (RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(
+		/\.search-field input\s*\{[^}]*appearance:\s*none[^}]*-webkit-appearance:\s*none/,
+	);
+	expect(css).toMatch(
+		/\.search-field input::-webkit-search-decoration\s*\{[^}]*display:\s*none/,
+	);
+});
+
 test("search: no match shows one card that offers to add the name or clear", async () => {
 	seedSearch();
 	const el = await mount();
