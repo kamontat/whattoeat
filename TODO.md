@@ -26,6 +26,17 @@ then delete it here when it ships.
   export and import. Needs a backend (for example Cloudflare KV or D1 behind the Worker),
   sign-in or share links, and conflict handling; the biggest change on this list.
 
+## Settings
+
+- **Tags under settings.** Move the tag page from `/tags` to `/settings/tags`. Needs a nested
+  route under `src/routes/`, the header to mark Settings (not Restaurants) as the current tab
+  for it, and a redirect or 404 decision for the old `/tags` path.
+- **Tag link in settings.** Take the tags link off the restaurant list page and put it on the
+  settings page instead. Needs a place for it in the settings layout that fits on a phone.
+- **Presets under settings.** Serve the bundled neighbourhood presets (pull request #28) from
+  `/settings/presets/<id>.json` instead of `/presets/<id>.json`. Needs #28 merged first, then
+  a change to where the build copies `src/assets/presets/` and to `presetUrl`.
+
 ## Look and feel
 
 - **Work offline.** The installed app opens without a connection. Needs a service worker
