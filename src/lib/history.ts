@@ -197,3 +197,39 @@ export const summarize = (
 			Date.parse(b.lastVisitedAt) - Date.parse(a.lastVisitedAt),
 	);
 };
+
+/** Visits of one local calendar day, in the order they were given (newest first in practice). */
+export type VisitDay = { key: string; day: Date; entries: HistoryEntry[] };
+
+const localDay = (date: Date): Date =>
+	new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+/** Groups consecutive visits that share a local calendar day, keeping their order. */
+export const groupByDay = (entries: readonly HistoryEntry[]): VisitDay[] => {
+	const days: VisitDay[] = [];
+	for (const entry of entries) {
+		const day = localDay(new Date(entry.visitedAt));
+		const key = `${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}`;
+		const last = days.at(-1);
+		if (last?.key === key) last.entries.push(entry);
+		else days.push({ key, day, entries: [entry] });
+	}
+	return days;
+};
+
+/** "today" or "yesterday" for a local day relative to `now`; anything else is undefined. */
+export const relativeDay = (
+	day: Date,
+	now: Date,
+): "today" | "yesterday" | undefined => {
+	const today = localDay(now);
+	const yesterday = new Date(
+		today.getFullYear(),
+		today.getMonth(),
+		today.getDate() - 1,
+	);
+	const time = localDay(day).getTime();
+	if (time === today.getTime()) return "today";
+	if (time === yesterday.getTime()) return "yesterday";
+	return undefined;
+};

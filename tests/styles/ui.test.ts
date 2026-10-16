@@ -32,12 +32,18 @@ test("grouped list rows keep a visible divider and no outline override", () => {
 	expect(css).not.toMatch(/outline:\s*none/);
 });
 
+test("empty states centre their text and offer a button-styled link", () => {
+	expect(css).toMatch(/\.empty\s*\{[^}]*text-align:\s*center/);
+	const link = css.match(/a\.button-link\s*\{([^}]*)\}/)?.[1];
+	expect(link).toContain("min-height: var(--tap)");
+	expect(link).toContain("background: var(--color-primary)");
+	expect(link).toContain("color: var(--color-primary-text)");
+});
+
 // Components not yet redesigned keep their own layouts; none of them may use a class name
 // from the shared grouped-list or segmented-control styles, or it picks up that look too.
 const LEGACY_COMPONENTS = [
 	"random-picker.ts",
-	"tag-manager.ts",
-	"visit-history.ts",
 	"tag-input.ts",
 	"restaurant-chips.ts",
 ];

@@ -2,18 +2,17 @@ import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 import {
-	CLEAR_RANGES,
-	type ClearRange,
-	countOlderThan,
+	groupByDay,
 	type HistoryEntry,
 	isHistoryMemoryOnly,
 	loadHistory,
 	onHistoryChanged,
+	relativeDay,
 	removeVisit,
-	removeVisitsOlderThan,
 	summarize,
 } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
+import { icon } from "#lib/icons";
 import type { Restaurant } from "#lib/restaurant";
 import { loadRestaurants, onRestaurantsChanged } from "#lib/store";
 import { uiStyles } from "#styles/ui";
@@ -25,11 +24,7 @@ export class VisitHistory extends LitElement {
 		css`
 			:host {
 				display: grid;
-				gap: 2rem;
-			}
-
-			h1 {
-				font-size: 1.5rem;
+				gap: 1.25rem;
 			}
 
 			h1:focus {
@@ -38,81 +33,68 @@ export class VisitHistory extends LitElement {
 
 			section {
 				display: grid;
-				gap: 0.75rem;
+				gap: 0.5rem;
 			}
 
 			section > h2 {
-				font-size: 1.125rem;
+				font-size: 1rem;
+				font-weight: 600;
+			}
+
+			.stats {
+				gap: 0.75rem;
 			}
 
 			.table-wrap {
 				overflow-x: auto;
-				border: 1px solid var(--color-border);
-				border-radius: var(--radius);
-				background: var(--color-surface);
 			}
 
 			table {
 				width: 100%;
 				border-collapse: collapse;
-				font-variant-numeric: tabular-nums;
+				font-size: 0.9375rem;
 			}
 
 			th,
 			td {
-				padding: 0.625rem 0.875rem;
-				text-align: left;
+				padding: 0.5rem 0.75rem;
 				border-bottom: 1px solid var(--color-border);
+				text-align: start;
+				white-space: nowrap;
+			}
+
+			th {
+				color: var(--color-muted);
+				font-size: 0.8125rem;
+				font-weight: 500;
+			}
+
+			.num {
+				text-align: end;
 			}
 
 			tbody tr:last-child td {
 				border-bottom: 0;
 			}
 
-			th {
-				font-size: 0.75rem;
-				letter-spacing: 0.05em;
-				text-transform: uppercase;
+			.visit .item {
+				justify-content: space-between;
+			}
+
+			.visit time {
 				color: var(--color-muted);
-				font-weight: 600;
+				font-size: 0.875rem;
 			}
 
-			.num {
-				text-align: right;
+			.visit .actions {
+				flex: none;
+				flex-wrap: nowrap;
 			}
 
-			.visits {
-				display: grid;
-				gap: 0.5rem;
-				margin: 0;
-				padding: 0;
-				list-style: none;
-			}
-
-			.visit {
-				display: flex;
-				flex-wrap: wrap;
-				align-items: center;
-				gap: 0.5rem 1rem;
-			}
-
-			.visit .what {
-				flex: 1 1 12rem;
-				display: grid;
-				gap: 0.125rem;
-			}
-
-			.visit .name {
-				font-weight: 600;
-			}
-
-			time {
-				font-variant-numeric: tabular-nums;
-			}
-
-			.empty {
-				justify-items: center;
-				text-align: center;
+			.visit button {
+				min-height: var(--tap);
+				padding: 0 0.75rem;
+				font-size: 0.875rem;
 			}
 		`,
 	];
@@ -128,10 +110,6 @@ export class VisitHistory extends LitElement {
 	/** The visit whose Delete was pressed and now waits for confirmation. */
 	@state()
 	private confirmingId: string | undefined;
-
-	/** The clear range whose button was pressed and now waits for confirmation. */
-	@state()
-	private clearing: ClearRange | undefined;
 
 	private unsubscribe: (() => void)[] = [];
 
@@ -194,31 +172,9 @@ export class VisitHistory extends LitElement {
 		);
 	}
 
-	private askClear(range: ClearRange): void {
-		this.clearing = range;
-		this.focusAfterRender(() =>
-			this.renderRoot.querySelector('[data-action="clear-confirm"]'),
-		);
-	}
-
-	private cancelClear(): void {
-		const range = this.clearing;
-		this.clearing = undefined;
-		this.focusAfterRender(() =>
-			this.renderRoot.querySelector(`[data-clear="${range}"]`),
-		);
-	}
-
-	private confirmClear(): void {
-		if (this.clearing === undefined) return;
-		removeVisitsOlderThan(this.clearing);
-		this.clearing = undefined;
-		this.focusAfterRender(() => this.renderRoot.querySelector("h1"));
-	}
-
 	override render() {
 		const heading = html`
-			<h1 tabindex="-1">${t("history.title")}</h1>
+			<h1 class="page-title" tabindex="-1">${t("history.title")}</h1>
 			${isHistoryMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 		`;
 		if (this.history.length === 0)
@@ -226,25 +182,23 @@ export class VisitHistory extends LitElement {
 				${heading}
 				<div class="card empty">
 					<p>${t("history.empty")}</p>
-					<a href="./">${t("history.emptyLink")}</a>
+					<a class="button-link" href="./">${t("history.emptyLink")}</a>
 				</div>
 			`;
 		const lang = getLang();
 		const day = new Intl.DateTimeFormat(lang, { dateStyle: "medium" });
-		const dayTime = new Intl.DateTimeFormat(lang, {
-			dateStyle: "medium",
-			timeStyle: "short",
-		});
+		const time = new Intl.DateTimeFormat(lang, { timeStyle: "short" });
 		const total = this.history.length;
 		return html`
 			${heading}
-			<section aria-labelledby="stats-title">
+			<section class="stats card">
 				<h2 id="stats-title">${t("history.statsTitle")}</h2>
-				<p class="total">
+				<p class="total muted">
 					${total === 1 ? t("history.total.one") : t("history.total.other", { count: total })}
 				</p>
-				<div class="table-wrap">
+				<div class="table-wrap" role="region" tabindex="0" aria-labelledby="stats-title">
 					<table>
+						<caption class="visually-hidden">${t("history.statsTitle")}</caption>
 						<thead>
 							<tr>
 								<th scope="col">${t("history.colRestaurant")}</th>
@@ -264,103 +218,64 @@ export class VisitHistory extends LitElement {
 					</table>
 				</div>
 			</section>
-			${this.renderClear()}
-			<section aria-labelledby="visits-title">
+			<section class="visits-list" aria-labelledby="visits-title">
 				<h2 id="visits-title">${t("history.listTitle")}</h2>
-				<ul class="visits">
-					${repeat(
-						this.history,
-						(entry) => entry.id,
-						(entry) => this.renderVisit(entry, dayTime),
-					)}
-				</ul>
+				${groupByDay(this.history).map(
+					({ day: date, entries }) => html`<div class="day">
+						<h3 class="group-label">${this.dayLabel(date, day)}</h3>
+						<ul class="group visits">
+							${repeat(
+								entries,
+								(entry) => entry.id,
+								(entry) => this.renderVisit(entry, time),
+							)}
+						</ul>
+					</div>`,
+				)}
 			</section>
 		`;
 	}
 
-	private renderClear() {
-		const now = new Date();
-		const counts = new Map(
-			CLEAR_RANGES.map((range) => [
-				range,
-				countOlderThan(this.history, range, now),
-			]),
-		);
-		const label = (range: ClearRange) =>
-			range === "all"
-				? t("history.clearAll")
-				: t("history.clearOlder", { range: t(`history.range.${range}`) });
-		return html`
-			<section class="clear" aria-labelledby="clear-title">
-				<h2 id="clear-title">${t("history.clearTitle")}</h2>
-				${
-					this.clearing === undefined
-						? html`<div class="actions">
-								${CLEAR_RANGES.map(
-									(range) => html`<button
-										type="button"
-										data-clear=${range}
-										?disabled=${counts.get(range) === 0}
-										@click=${() => this.askClear(range)}
-									>
-										${label(range)} (${counts.get(range)})
-									</button>`,
-								)}
-							</div>`
-						: this.renderClearPrompt(
-								this.clearing,
-								counts.get(this.clearing) ?? 0,
-							)
-				}
-			</section>
-		`;
-	}
-
-	private renderClearPrompt(range: ClearRange, count: number) {
-		const plural = count === 1 ? "one" : "other";
-		const prompt =
-			range === "all"
-				? t(`history.clearAllPrompt.${plural}`, { count })
-				: t(`history.clearPrompt.${plural}`, {
-						count,
-						range: t(`history.range.${range}`),
-					});
-		return html`
-			<p class="clear-prompt" role="alert">${prompt}</p>
-			<div class="actions">
-				<button type="button" class="danger" data-action="clear-confirm" @click=${this.confirmClear}>
-					${t("history.clearConfirm")}
-				</button>
-				<button type="button" data-action="clear-cancel" @click=${this.cancelClear}>
-					${t("history.cancel")}
-				</button>
-			</div>
-		`;
+	/** Today, Yesterday, or the date. */
+	private dayLabel(date: Date, format: Intl.DateTimeFormat): string {
+		const relative = relativeDay(date, new Date());
+		if (relative === "today") return t("history.today");
+		if (relative === "yesterday") return t("history.yesterday");
+		return format.format(date);
 	}
 
 	private renderVisit(entry: HistoryEntry, format: Intl.DateTimeFormat) {
 		const confirming = this.confirmingId === entry.id;
+		const time = format.format(new Date(entry.visitedAt));
 		return html`
-			<li class="card visit" data-id=${entry.id}>
-				<div class="what">
-					<span class="name">${entry.name}</span>
-					<time class="muted" datetime=${entry.visitedAt}>${format.format(new Date(entry.visitedAt))}</time>
-				</div>
-				<div class="actions">
-					${
-						confirming
-							? html`
-									<button type="button" class="danger" data-action="confirm-delete" @click=${() => this.confirmDelete(entry.id)}>
-										${t("history.confirmDelete")}
-									</button>
-									<button type="button" data-action="cancel-delete" @click=${() => this.cancelDelete(entry.id)}>
-										${t("history.cancel")}
-									</button>
-								`
-							: html`<button type="button" data-action="delete" @click=${() => this.askDelete(entry.id)}>
-									${t("history.delete")}
-								</button>`
-					}
+			<li class="visit" data-id=${entry.id}>
+				<div class="item">
+					<span class="grow">
+						<b class="name">${entry.name}</b>
+						<time datetime=${entry.visitedAt}>${time}</time>
+					</span>
+					<div class="actions">
+						${
+							confirming
+								? html`
+										<button type="button" class="danger" data-action="confirm-delete" @click=${() => this.confirmDelete(entry.id)}>
+											${t("history.confirmDelete")}
+										</button>
+										<button type="button" data-action="cancel-delete" @click=${() => this.cancelDelete(entry.id)}>
+											${t("history.cancel")}
+										</button>
+									`
+								: html`<button
+										type="button"
+										class="quiet"
+										data-action="delete"
+										aria-label=${t("history.deleteVisit", { name: entry.name, time })}
+										@click=${() => this.askDelete(entry.id)}
+									>
+										${icon("trash", 18)}<span>${t("history.delete")}</span>
+									</button>`
+						}
+					</div>
 				</div>
 			</li>
 		`;

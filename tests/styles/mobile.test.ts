@@ -73,3 +73,7 @@ test("a quick second tap never zooms the page, but pinch zoom still works", () =
 	);
 	expect(css).not.toMatch(/touch-action:\s*none/);
 });
+
+test("an open sheet locks the page behind it from scrolling", () => {
+	expect(css).toMatch(/:root\.sheet-open\s*\{[^}]*overflow:\s*hidden/);
+});

@@ -12,6 +12,14 @@ export const deepActiveElement = (): HTMLElement | null => {
 	return active instanceof HTMLElement ? active : null;
 };
 
+/** Open sheets; while there is one, `html.sheet-open` stops the page behind from scrolling. */
+const openSheets = new Set<object>();
+const lockPage = (sheet: object, locked: boolean): void => {
+	if (locked) openSheets.add(sheet);
+	else openSheets.delete(sheet);
+	document.documentElement.classList.toggle("sheet-open", openSheets.size > 0);
+};
+
 /**
  * A modal sheet: slides up from the bottom on phones, centred from 48rem. Built on `<dialog>`
  * so focus moves in, the page behind is inert and Esc closes it.
@@ -53,6 +61,41 @@ export class AppSheet extends LitElement {
 				}
 			}
 
+			/*
+			 * Closing: the dialog is already closed (focus has moved, the page works), but it
+			 * stays drawn for one animation, sliding back down over a fading scrim.
+			 */
+			dialog.leaving {
+				display: block;
+				position: fixed;
+				inset: 0;
+				z-index: 1001;
+				height: fit-content;
+				pointer-events: none;
+				animation: slide-down var(--duration) ease-in forwards;
+			}
+
+			.scrim {
+				position: fixed;
+				inset: 0;
+				z-index: 1000;
+				background: var(--scrim);
+				pointer-events: none;
+				animation: fade-out var(--duration) ease-in forwards;
+			}
+
+			@keyframes slide-down {
+				to {
+					transform: translateY(100%);
+				}
+			}
+
+			@keyframes fade-out {
+				to {
+					opacity: 0;
+				}
+			}
+
 			.box {
 				display: flex;
 				flex-direction: column;
@@ -81,6 +124,11 @@ export class AppSheet extends LitElement {
 				font-weight: 700;
 			}
 
+			/* A starting point, not a control: no ring, even after a keyboard press. */
+			h2:focus {
+				outline: none;
+			}
+
 			.sub {
 				color: var(--color-muted);
 				font-size: 0.9375rem;
@@ -99,6 +147,7 @@ export class AppSheet extends LitElement {
 				gap: 1rem;
 				padding: 0.25rem 1.25rem 1rem;
 				overflow-y: auto;
+				overscroll-behavior: contain;
 			}
 
 			.foot {
@@ -142,6 +191,15 @@ export class AppSheet extends LitElement {
 	@state()
 	private hasFooter = false;
 
+	/** Drawn for the close animation after the dialog has closed. */
+	@state()
+	private leaving = false;
+
+	private leaveTimer: ReturnType<typeof setTimeout> | undefined;
+
+	/** Heading and subheading as last shown open, kept while the sheet slides away. */
+	private shown = { heading: "", subheading: "" };
+
 	@query("dialog")
 	private dialog!: HTMLDialogElement;
 
@@ -150,11 +208,41 @@ export class AppSheet extends LitElement {
 
 	protected readonly langController = new LangController(this);
 
+	protected override willUpdate(): void {
+		if (this.open)
+			this.shown = { heading: this.heading, subheading: this.subheading };
+	}
+
+	override disconnectedCallback(): void {
+		super.disconnectedCallback();
+		this.stopLeaving();
+		lockPage(this, false);
+	}
+
+	private stopLeaving(): void {
+		clearTimeout(this.leaveTimer);
+		this.leaveTimer = undefined;
+		this.leaving = false;
+	}
+
+	/** How long the close animation runs, in ms (the `--duration` token; 0 under reduced motion). */
+	leaveDuration(): number {
+		const value = getComputedStyle(this).getPropertyValue("--duration").trim();
+		const amount = Number.parseFloat(value);
+		if (!Number.isFinite(amount)) return 0;
+		return value.endsWith("ms") ? amount : amount * 1000;
+	}
+
 	protected override updated(changed: PropertyValues<this>): void {
 		if (!changed.has("open")) return;
 		if (this.open && !this.dialog.open) {
+			this.stopLeaving();
 			this.opener = deepActiveElement();
 			this.dialog.showModal();
+			lockPage(this, true);
+			// Start on the title, as the page title does on load: screen readers read it
+			// first, and no button looks pressed on a phone before anything is tapped.
+			this.renderRoot.querySelector<HTMLElement>("#sheet-title")?.focus();
 		} else if (!this.open && this.dialog.open) {
 			this.dialog.close();
 		}
@@ -163,12 +251,27 @@ export class AppSheet extends LitElement {
 	/** The dialog closed: by the Close button, Esc, a backdrop tap or `open = false`. */
 	private readonly onClose = (): void => {
 		this.open = false;
+		lockPage(this, false);
+		const ms = this.leaveDuration();
+		if (ms > 0) {
+			clearTimeout(this.leaveTimer);
+			this.leaving = true;
+			this.leaveTimer = setTimeout(() => this.stopLeaving(), ms);
+		}
 		this.dispatchEvent(
 			new CustomEvent("sheet-close", { bubbles: true, composed: true }),
 		);
 		const opener = this.opener;
 		this.opener = null;
-		opener?.focus();
+		if (opener === null || !opener.isConnected) return;
+		// In real browsers this event fires on a later task, so other code (e.g. the host
+		// moving focus after an item it reused the opener's spot for was removed) may already
+		// have claimed focus by now. Only reclaim it if it is still nowhere in particular
+		// (the body) or still stuck inside this sheet, not somewhere the host deliberately put it.
+		const active = deepActiveElement();
+		if (active !== null && active !== document.body && !this.containsFocus())
+			return;
+		opener.focus();
 	};
 
 	/** A click on the dialog itself, not its content box, is a tap on the backdrop. */
@@ -191,14 +294,24 @@ export class AppSheet extends LitElement {
 	}
 
 	override render() {
+		const { heading, subheading } = this.leaving
+			? this.shown
+			: { heading: this.heading, subheading: this.subheading };
 		return html`
-			<dialog aria-labelledby="sheet-title" @close=${this.onClose} @click=${this.onClick}>
+			${this.leaving ? html`<div class="scrim" aria-hidden="true"></div>` : nothing}
+			<dialog
+				aria-labelledby="sheet-title"
+				class=${this.leaving ? "leaving" : ""}
+				?inert=${this.leaving}
+				@close=${this.onClose}
+				@click=${this.onClick}
+			>
 				<div class="box">
 					<span class="grabber" aria-hidden="true"></span>
 					<div class="head">
 						<div>
-							<h2 id="sheet-title">${this.heading}</h2>
-							${this.subheading ? html`<p class="sub">${this.subheading}</p>` : nothing}
+							<h2 id="sheet-title" tabindex="-1">${heading}</h2>
+							${subheading ? html`<p class="sub">${subheading}</p>` : nothing}
 						</div>
 						<button
 							type="button"

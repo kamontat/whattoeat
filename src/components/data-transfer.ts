@@ -3,6 +3,7 @@ import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import "#components/app-footer";
 import "#components/app-preferences";
+import "#components/history-clear";
 import {
 	type GroupDef,
 	isGroupsMemoryOnly,
@@ -79,12 +80,9 @@ export class DataTransferPanel extends LitElement {
 				font-size: 0.875rem;
 			}
 
-			.reset-prompt {
-				padding: 0 1.125rem;
-			}
-
-			.reset-actions {
-				padding: 0 1.125rem 1rem;
+			.confirm {
+				gap: 0.75rem;
+				padding: 1rem 1.125rem;
 			}
 		`,
 	];
@@ -333,9 +331,9 @@ export class DataTransferPanel extends LitElement {
 	private renderReset() {
 		if (this.reset === "confirm")
 			return html`
-				<div class="group">
-					<p class="reset-prompt item" role="alert">${t("settings.resetPrompt", { count: this.count })}</p>
-					<div class="actions reset-actions">
+				<div class="group confirm">
+					<p class="reset-prompt" role="alert">${t("settings.resetPrompt", { count: this.count })}</p>
+					<div class="actions">
 						<button type="button" class="danger" data-action="reset-confirm" @click=${this.confirmReset}>
 							${t("settings.resetConfirm")}
 						</button>
@@ -485,6 +483,7 @@ export class DataTransferPanel extends LitElement {
 			</section>
 			<section class="reset" aria-labelledby="reset-title">
 				<h2 id="reset-title" class="group-label">${t("settings.resetTitle")}</h2>
+				<history-clear></history-clear>
 				${this.renderReset()}
 			</section>
 			<section class="about" aria-labelledby="about-title">

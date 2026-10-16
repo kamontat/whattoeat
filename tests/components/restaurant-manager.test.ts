@@ -103,6 +103,7 @@ test("shows the empty message with no restaurants", async () => {
 	expect($(el, ".empty")?.textContent?.trim()).toBe(
 		"No restaurants yet. Add your first one.",
 	);
+	expect($(el, ".empty")?.classList.contains("card")).toBe(true);
 });
 
 test("a blank name shows an error and saves nothing", async () => {
@@ -793,6 +794,51 @@ test("phone: tapping a row opens its edit sheet; saving closes it", async () => 
 	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
 		"Saved New",
 	);
+});
+
+const settleFocus = async (el: RestaurantManager) => {
+	await el.updateComplete;
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	await el.updateComplete;
+};
+
+test("phone: opening Add or a row focuses the sheet's heading, not the name field", async () => {
+	addRestaurant({ ...blank, name: "Old" });
+	const el = await phone();
+	const sheet = $<AppSheet>(el, "app-sheet")!;
+	await click(el, '.pinned button[data-action="add"]');
+	await settleFocus(el);
+	expect(sheet.shadowRoot!.activeElement?.id).toBe("sheet-title");
+	sheet.open = false;
+	await settleFocus(el);
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	await settleFocus(el);
+	expect(sheet.shadowRoot!.activeElement?.id).toBe("sheet-title");
+});
+
+test("wide: opening a row focuses the name field in the side panel", async () => {
+	addRestaurant({ ...blank, name: "Old" });
+	const el = await mount();
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	await settleFocus(el);
+	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+});
+
+test("phone: while the closed sheet slides away it still shows what it showed, then drops it", async () => {
+	addRestaurant({ ...blank, name: "Old" });
+	const el = await phone();
+	const sheet = $<AppSheet>(el, "app-sheet")!;
+	sheet.style.setProperty("--duration", "30ms");
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	sheet.open = false;
+	await settleFocus(el);
+	expect(sheet.hasAttribute("open")).toBe(false);
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Old");
+	expect($(el, '[data-action="delete"]')).not.toBeNull();
+	await new Promise((resolve) => setTimeout(resolve, 60));
+	await el.updateComplete;
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
+	expect($(el, '[data-action="delete"]')).toBeNull();
 });
 
 test("phone: closing the sheet discards the edit", async () => {

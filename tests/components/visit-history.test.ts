@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import "#components/visit-history";
-import type { VisitHistory } from "#components/visit-history";
+import { VisitHistory } from "#components/visit-history";
 import {
 	HISTORY_KEY,
 	type HistoryEntry,
@@ -77,11 +76,6 @@ const action = (el: VisitHistory, id: string, name: string) =>
 
 const day = (iso: string) =>
 	new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(iso));
-const dayTime = (iso: string) =>
-	new Intl.DateTimeFormat("en", {
-		dateStyle: "medium",
-		timeStyle: "short",
-	}).format(new Date(iso));
 
 test("shows the page heading, the total and one stats row per restaurant", async () => {
 	const el = await mount();
@@ -103,14 +97,18 @@ test("uses the singular for one visit", async () => {
 	expect(text(root(el).querySelector(".total"))).toBe("1 visit in total");
 });
 
-test("lists every visit newest first with its date and time", async () => {
+test("lists every visit newest first with its time under its day heading", async () => {
 	const el = await mount();
 	expect(visitIds(el)).toEqual(["h1", "h2", "h3", "h4"]);
 	const first = visitRow(el, "h1")!;
 	expect(text(first.querySelector(".name"))).toBe("Som Tam Nua");
 	const time = first.querySelector("time");
 	expect(time?.getAttribute("datetime")).toBe("2026-10-12T05:18:00.000Z");
-	expect(text(time)).toBe(dayTime("2026-10-12T05:18:00.000Z"));
+	expect(text(time)).toBe(
+		new Intl.DateTimeFormat("en", { timeStyle: "short" }).format(
+			new Date("2026-10-12T05:18:00.000Z"),
+		),
+	);
 });
 
 test("the visit list keeps the name a restaurant had when it was visited", async () => {
@@ -157,7 +155,7 @@ test("with no visits shows a link to pick and no stats", async () => {
 	saveHistory([]);
 	const el = await mount();
 	expect(text(root(el).querySelector(".empty p"))).toBe("No visits yet.");
-	const link = root(el).querySelector(".empty a");
+	const link = root(el).querySelector(".empty a.button-link");
 	expect(link?.getAttribute("href")).toBe("./");
 	expect(text(link)).toBe("Pick a restaurant");
 	expect(root(el).querySelector("table")).toBeNull();
@@ -245,101 +243,97 @@ test("warns when the browser could not save a delete", async () => {
 	}
 });
 
-const daysAgo = (days: number) =>
-	new Date(Date.now() - days * 86_400_000).toISOString();
-/** One visit 1 day, 10 days, 60 days and 400 days old. */
-const spread = (): HistoryEntry[] => [
-	visit("d1", "r2", "Som Tam Nua", daysAgo(1)),
-	visit("d10", "r2", "Som Tam Nua", daysAgo(10)),
-	visit("d60", "r4", "Ramen Champion", daysAgo(60)),
-	visit("d400", "r4", "Ramen Champion", daysAgo(400)),
-];
-const clearButton = (el: VisitHistory, range: string) =>
-	root(el).querySelector<HTMLButtonElement>(`[data-clear="${range}"]`);
-const clearAction = (el: VisitHistory, name: string) =>
-	root(el).querySelector<HTMLButtonElement>(`.clear [data-action="${name}"]`);
-
-test("the clear section shows how many visits each range would delete", async () => {
-	saveHistory(spread());
+test("visits sit under day headings, newest day first", async () => {
 	const el = await mount();
-	expect(text(root(el).querySelector("#clear-title"))).toBe("Clear history");
-	expect(
-		["week", "month", "year", "all"].map((range) =>
-			text(clearButton(el, range)),
-		),
-	).toEqual([
-		"Older than 1 week (3)",
-		"Older than 1 month (2)",
-		"Older than 1 year (1)",
-		"All (4)",
+	const headings = [...root(el).querySelectorAll(".day h3")].map((h) =>
+		text(h),
+	);
+	expect(headings.length).toBeGreaterThan(0);
+	for (const group of root(el).querySelectorAll(".day")) {
+		expect(group.querySelector("h3")).not.toBeNull();
+		expect(
+			group.querySelectorAll("ul.group li.visit[data-id]").length,
+		).toBeGreaterThan(0);
+	}
+	expect(visitIds(el)).toEqual(["h1", "h2", "h3", "h4"]);
+});
+
+test("today's and yesterday's visits are headed Today and Yesterday", async () => {
+	const now = new Date();
+	const yesterday = new Date(
+		now.getFullYear(),
+		now.getMonth(),
+		now.getDate() - 1,
+		12,
+	);
+	saveHistory([
+		visit("t1", "r2", "Som Tam Nua", now.toISOString()),
+		visit("y1", "r2", "Som Tam Nua", yesterday.toISOString()),
 	]);
-});
-
-test("a range with nothing to delete is disabled", async () => {
-	saveHistory([visit("d1", "r2", "Som Tam Nua", daysAgo(1))]);
 	const el = await mount();
-	expect(clearButton(el, "week")!.disabled).toBe(true);
-	expect(clearButton(el, "all")!.disabled).toBe(false);
-});
-
-test("clearing asks first, then deletes only the older visits", async () => {
-	saveHistory(spread());
-	const el = await mount();
-	clearButton(el, "month")!.click();
-	await el.updateComplete;
-	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
-		"Delete 2 visits older than 1 month? This cannot be undone.",
+	expect([...root(el).querySelectorAll(".day h3")].map((h) => text(h))).toEqual(
+		["Today", "Yesterday"],
 	);
-	expect(loadHistory()).toHaveLength(4);
-	clearAction(el, "clear-confirm")!.click();
-	await el.updateComplete;
-	await el.updateComplete;
-	expect(loadHistory().map((item) => item.id)).toEqual(["d1", "d10"]);
-	expect(root(el).querySelector(".clear-prompt")).toBeNull();
-	expect(root(el).activeElement).toBe(root(el).querySelector("h1"));
 });
 
-test("clearing all asks with its own wording and empties the history", async () => {
-	saveHistory(spread());
+test("each Delete names the visit it removes", async () => {
 	const el = await mount();
-	clearButton(el, "all")!.click();
-	await el.updateComplete;
-	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
-		"Delete all 4 visits? This cannot be undone.",
+	const button = action(el, "h1", "delete")!;
+	const time = new Intl.DateTimeFormat("en", { timeStyle: "short" }).format(
+		new Date("2026-10-12T05:18:00.000Z"),
 	);
-	clearAction(el, "clear-confirm")!.click();
-	await el.updateComplete;
-	expect(loadHistory()).toEqual([]);
-	expect(text(root(el).querySelector(".empty p"))).toBe("No visits yet.");
+	expect(button.getAttribute("aria-label")).toBe(
+		`Delete visit to Som Tam Nua at ${time}`,
+	);
+	expect(text(button)).toBe("Delete");
 });
 
-test("cancelling a clear keeps every visit and returns focus to its button", async () => {
-	saveHistory(spread());
+test("the stats table scrolls inside a labelled, focusable region with a caption", async () => {
 	const el = await mount();
-	clearButton(el, "year")!.click();
-	await el.updateComplete;
-	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
-		"Delete 1 visit older than 1 year? This cannot be undone.",
-	);
-	clearAction(el, "clear-cancel")!.click();
-	await el.updateComplete;
-	await el.updateComplete;
-	expect(loadHistory()).toHaveLength(4);
-	expect(root(el).querySelector(".clear-prompt")).toBeNull();
-	expect(root(el).activeElement).toBe(clearButton(el, "year"));
+	const region = root(el).querySelector(".stats .table-wrap")!;
+	expect(region.getAttribute("role")).toBe("region");
+	expect(region.getAttribute("tabindex")).toBe("0");
+	expect(region.getAttribute("aria-labelledby")).toBe("stats-title");
+	expect(text(region.querySelector("table caption"))).toBe("Stats");
 });
 
-test("the clear section is translated to Thai", async () => {
-	saveHistory(spread());
+test("the title is a large page title; clearing history lives in Settings, not here", async () => {
 	const el = await mount();
-	setLang("th");
-	await el.updateComplete;
-	expect(text(root(el).querySelector("#clear-title"))).toBe("ล้างประวัติ");
-	expect(text(clearButton(el, "week"))).toBe("เก่ากว่า 1 สัปดาห์ (3)");
-	expect(text(clearButton(el, "all"))).toBe("ทั้งหมด (4)");
-	clearButton(el, "all")!.click();
-	await el.updateComplete;
-	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
-		"ลบประวัติทั้งหมด 4 รายการหรือไม่ การลบนี้ย้อนกลับไม่ได้",
-	);
+	expect(root(el).querySelector("h1.page-title")).not.toBeNull();
+	expect(root(el).querySelector(".clear, [data-clear]")).toBeNull();
+});
+
+test("the visit buttons meet the tap target size", () => {
+	const css = (VisitHistory.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(/\.visit button\s*\{[^}]*min-height:\s*var\(--tap\)/);
+});
+
+test("day groups are plain grouping, not a separately labelled landmark", async () => {
+	const el = await mount();
+	const groups = [...root(el).querySelectorAll(".day")];
+	expect(groups.length).toBeGreaterThan(0);
+	for (const group of groups) {
+		expect(group.tagName).toBe("DIV");
+		expect(group.hasAttribute("aria-labelledby")).toBe(false);
+		expect(group.querySelector("h3")).not.toBeNull();
+		expect(
+			group.querySelectorAll("ul.group li.visit[data-id]").length,
+		).toBeGreaterThan(0);
+	}
+});
+
+test("the stats card itself is not a second region named Stats", async () => {
+	const el = await mount();
+	const section = root(el).querySelector("section.stats")!;
+	expect(section.hasAttribute("aria-labelledby")).toBe(false);
+	// The scroll region keeps its own name on the table-wrap, not duplicated on its container.
+	expect(
+		root(el)
+			.querySelector(".stats .table-wrap")
+			?.getAttribute("aria-labelledby"),
+	).toBe("stats-title");
 });

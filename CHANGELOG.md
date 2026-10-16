@@ -27,7 +27,7 @@ What changed in this project and why, newest first.
   floating tab bar on phones, filtering by tags, filtering by buffet, and search on the
   restaurant and tag lists.
 
-## 2026-10-16: Mobile redesign, stage 1: calm look, tab bar and grouped Settings, stage 2: Home, and stage 3: Restaurants
+## 2026-10-16: Mobile redesign, stage 1: calm look, tab bar and grouped Settings, stage 2: Home, stage 3: Restaurants, and stage 4: Tags and History
 
 ### Features
 
@@ -52,6 +52,16 @@ What changed in this project and why, newest first.
   bottom. From 768px the list and the form sit side by side and the selected row is marked.
 - "Saved {name}" and "Deleted {name}" confirm every change on Restaurants and are read out each
   time.
+- History (stage 4) groups visits under Today, Yesterday and date headings; each row shows the
+  name and time with a Delete button named "Delete visit to {name} at {time}". Stats sit in
+  their own card that scrolls sideways.
+- Tags (stage 4): each value is a row you tap, with its restaurant count; rename, move and
+  delete open in a bottom sheet on phones, or in a side panel from 768px that says "Choose a
+  value to rename, move or delete it." until one is picked. A custom group's options (rename,
+  move up or down, delete) open in a sheet.
+- Settings > Reset has a "Clear history" row, greyed out with no history, that opens a sheet
+  to clear visits older than 1 week, 1 month or 1 year, or all of them, each with its count;
+  "Deleted N visits." confirms it.
 
 ### Improvements
 
@@ -66,8 +76,14 @@ What changed in this project and why, newest first.
   on Restaurants instead of its own header link, and the Restaurants tab stays marked there.
 - Pages fill the screen on notched phones, colour the browser bar for light and dark, and
   turn off sliding animations when the system asks for reduced motion.
-- Home now shows its "What to Eat" title. Tags and History keep their layouts for now; stage 4
-  redesigns them.
+- Home now shows its "What to Eat" title.
+- Clearing history moved from the end of History into Settings, under Reset.
+- History, Tags and Restaurants show the same centred empty-state card as Home, with the next
+  step as a button.
+- Sheets open with focus on their title instead of a button, so nothing looks pressed on a
+  phone before a tap; side panels on wide screens still start on their first control.
+- Sheets slide back down when they close, keeping their content until they are gone, and the
+  page behind an open sheet no longer scrolls.
 - The restaurant list is compact: each row shows the name and type line only; location, notes
   and tags are in the form. Delete moved from every row to the end of the edit form, behind a
   prompt that names the restaurant.
@@ -90,6 +106,11 @@ What changed in this project and why, newest first.
   longer pushes a box off screen, and nothing shows through under Save and Cancel.
 - Rotating a phone or resizing a window while editing keeps the edit, in either direction; on
   Home, rotating with the filter sheet's close button focused no longer loses focus.
+- After deleting or moving a value from its sheet on Tags, focus no longer lands on a different
+  value's row; it goes to the Add a group field.
+- Screen readers now hear why a group cannot move further up or down, and the "Move to…"
+  action's spoken name starts with its visible text.
+- The Delete all data prompt is padded on every side instead of sitting on its card's edge.
 
 ### Decisions
 
@@ -101,7 +122,7 @@ What changed in this project and why, newest first.
 - Fonts are inlined as data URIs in the bundled CSS because the build refuses unresolved
   `url()`s; static font files would need a separate copy step.
 - The redesign ships in five stacked pull requests from one spec
-  (`docs/superpowers/specs/2026-10-15-mobile-redesign-design.md`); stages 1 to 3 are in.
+  (`docs/superpowers/specs/2026-10-15-mobile-redesign-design.md`); stages 1 to 4 are in.
 - Home switches between the sheet and the side panel with a media-query controller
   (`src/lib/media.ts`) rather than CSS alone, so only one copy of the filter and of the pick
   button ever exists.
@@ -109,6 +130,10 @@ What changed in this project and why, newest first.
   the 24px WCAG AA minimum.
 - Closing the restaurant sheet without saving discards the edit rather than keeping a draft,
   so the sheet always opens on what is saved.
+- "Add a group" on Tags stays an inline card rather than a sheet: it is where focus goes after a
+  value or group is moved or deleted, so it must always be on the page.
+- A closing sheet is closed at once (focus moves, the page is usable) and only drawn for the
+  slide-down, rather than waiting for the animation before closing.
 
 ## 2026-10-15: Cuisine, area and custom groups as tag groups, and a Tags page to manage them, and two ideas dropped
 

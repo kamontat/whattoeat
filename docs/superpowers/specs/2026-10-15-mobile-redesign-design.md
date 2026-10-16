@@ -292,21 +292,23 @@ Phone:
    their order, then Tags (plain tags). Rows show the value and its count ("2 restaurants").
    Type rows are plain text (no chevron, not focusable); every other row opens the value
    sheet. A group with no values shows today's "No values yet." row.
-3. Custom groups add a ⋯ icon button beside their label, named "<group> options".
-4. **Add a group** button at the end, opening a sheet with today's name field and Add.
+3. Custom groups add a ⋯ icon button beside their label, named "<group> options" (opens a
+   sheet: Rename, Move up/down—disabled if first or last with a reason—Delete with prompt).
+4. **Add a group** stays an inline card at the end with today's name field, always ready to
+   receive focus after a move or delete.
 
 Value sheet (heading the value, subheading "<group> · <count>"): rows Rename, Move to…
 (subtitle "Another group") and Delete (danger). Each switches the sheet body to today's form
 or confirmation: rename field with the merge prompt when the name exists, the move select,
-the delete prompt.
+the delete prompt. If another browser tab or window removes the open value or group (via
+rename, move or delete), this tab's value sheet or group sheet closes instead of acting on
+something that no longer exists.
 
-Group sheet (heading the group): Rename, Move <group> up, Move <group> down, Delete. A move
-that is not possible stays visible but disabled (`aria-disabled="true"`) with a reason
-("Already the first group" / "Already the last group"). Delete shows today's prompt.
-
-Desktop: back link, title and intro with Add a group at the right; groups on the left; the
-selected value's Rename (field + Save), Move (select + Move) and Delete on the right panel,
-with the same prompts. Group options stay a sheet.
+Desktop: back link, title and intro, with Add a group inline at the end of the groups
+column; groups on the left; the selected value's Rename (field + Save), Move (select + Move)
+and Delete on the right panel, with the same prompts. Until a value is chosen, the panel
+shows "Choose a value to rename, move or delete it." Opening a group's options keeps an
+in-progress value draft on the panel. Group options stay a sheet at every width.
 
 ### History (`visit-history`)
 
@@ -314,11 +316,13 @@ No mockup; it follows the same vocabulary.
 
 1. Title "History" (keeps `tabindex="-1"` for the focus moves it already does).
 2. Stats: total line and the table (Restaurant, Times, Last time) on a surface card, in a
-   horizontally scrollable region with `tabindex="0"`, a label and a `<caption>`.
-3. Visits grouped by local day under group labels "Today", "Yesterday" or the formatted
-   date; each visit a row with name and time and a Delete icon button named "Delete visit to
-   <name> at <time>". The inline confirmation stays, inside the row.
-4. Clear history last: its range buttons in a wrapping row, confirmation unchanged.
+   horizontally scrollable region (focusable with `tabindex="0"`, labelled, with a hidden
+   `<caption>`).
+3. Visits grouped by local day under `<h3>` group labels (Today, Yesterday, formatted date)
+   built with `groupByDay` and `relativeDay` helpers; each visit a row showing name and time
+   only, with a Delete icon button named "Delete visit to <name> at <time>". The inline
+   confirmation stays, inside the row.
+4. No clear history section here: it moved to Settings, under Reset.
 
 Desktop: centred column, 640 px.
 
@@ -334,7 +338,11 @@ Grouped lists in one column (desktop: centred, 640 px):
 3. Import: rows "Choose a JSON file" (a label for the native file input, which stays
    focusable) and "Or paste JSON" (reveals the textarea and Check). The found / replace /
    merge flow is unchanged.
-4. Reset: row "Delete all data" in danger colour; today's confirmation.
+4. Reset: a row "Clear history" (`history-clear`), greyed out while there is no history,
+   opens a sheet listing the ranges (Older than 1 week / 1 month / 1 year, All visits), each
+   with how many visits it would delete and disabled at zero; choosing one asks in the
+   sheet, and a status says "Deleted N visits." after. Then the row "Delete all data" in
+   danger colour; today's confirmation.
 5. About: `<app-footer>` content (source, changelog, build) as rows.
 
 ## Accessibility checklist (WCAG 2.2 AA)

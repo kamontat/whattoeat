@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import {
 	addVisit,
 	countOlderThan,
+	groupByDay,
 	HISTORY_EVENT,
 	HISTORY_KEY,
 	type HistoryEntry,
@@ -9,6 +10,7 @@ import {
 	isHistoryMemoryOnly,
 	loadHistory,
 	onHistoryChanged,
+	relativeDay,
 	removeVisit,
 	removeVisitsOlderThan,
 	saveHistory,
@@ -312,4 +314,46 @@ test("removeVisitsOlderThan all empties the history", () => {
 	saveHistory(ages());
 	expect(removeVisitsOlderThan("all", NOW)).toEqual([]);
 	expect(loadHistory()).toEqual([]);
+});
+
+const at = (id: string, local: [number, number, number, number, number]) => ({
+	id,
+	restaurantId: "r",
+	name: id,
+	visitedAt: new Date(...local).toISOString(),
+});
+
+test("groupByDay keeps the order and groups visits by local calendar day", () => {
+	const days = groupByDay([
+		at("a", [2026, 9, 16, 20, 0]),
+		at("b", [2026, 9, 16, 0, 1]),
+		at("c", [2026, 9, 15, 23, 59]),
+		at("d", [2026, 8, 30, 12, 0]),
+	]);
+	expect(days.map((d) => d.entries.map((e) => e.id))).toEqual([
+		["a", "b"],
+		["c"],
+		["d"],
+	]);
+	expect(days[0]!.day).toEqual(new Date(2026, 9, 16));
+	expect(days[1]!.day).toEqual(new Date(2026, 9, 15));
+	expect(new Set(days.map((d) => d.key)).size).toBe(3);
+});
+
+test("groupByDay of nothing is nothing", () => {
+	expect(groupByDay([])).toEqual([]);
+});
+
+test("relativeDay names today and yesterday by local day, else nothing", () => {
+	const now = new Date(2026, 9, 16, 0, 30);
+	expect(relativeDay(new Date(2026, 9, 16), now)).toBe("today");
+	expect(relativeDay(new Date(2026, 9, 15), now)).toBe("yesterday");
+	expect(relativeDay(new Date(2026, 9, 14), now)).toBeUndefined();
+	expect(relativeDay(new Date(2026, 9, 17), now)).toBeUndefined();
+});
+
+test("relativeDay works across a month boundary", () => {
+	expect(relativeDay(new Date(2026, 8, 30), new Date(2026, 9, 1, 9))).toBe(
+		"yesterday",
+	);
 });
