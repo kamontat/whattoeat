@@ -840,6 +840,38 @@ test("rotating to wide keeps the edit in the panel", async () => {
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Mine 2");
 });
 
+test("narrowing the window mid-edit moves the edit into the sheet instead of dropping it", async () => {
+	addRestaurant({ ...blank, name: "Mine" });
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	type(el, "#name", "Mine 2");
+	setWidth(390);
+	await el.updateComplete;
+	const sheet = $(el, "app-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	expect(sheet.getAttribute("heading")).toBe("Edit Mine");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Mine 2");
+});
+
+test("narrowing the window with a blank add form still open opens the sheet for it", async () => {
+	const el = await mount();
+	type(el, "#name", "New place");
+	setWidth(390);
+	await el.updateComplete;
+	const sheet = $(el, "app-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	expect(sheet.getAttribute("heading")).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("New place");
+});
+
+test("narrowing the window with no edit in progress leaves the sheet closed", async () => {
+	addRestaurant({ ...blank, name: "Mine" });
+	const el = await mount();
+	setWidth(390);
+	await el.updateComplete;
+	expect($(el, "app-sheet")!.hasAttribute("open")).toBe(false);
+});
+
 // The shared uiStyles entry has its own unrelated `:host` rule; skip it so the regexes below
 // only ever see this component's own styles.
 const ownStyles = (): string =>

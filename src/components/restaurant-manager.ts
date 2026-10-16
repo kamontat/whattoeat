@@ -253,6 +253,9 @@ export class RestaurantManager extends LitElement {
 	/** Wide screens show the form in a side panel; phones open it in a sheet. */
 	protected readonly wide = new MediaController(this, WIDE);
 
+	/** The width class as of the last render, to catch a wide-to-narrow crossing mid-edit. */
+	private wasWide = this.wide.matches;
+
 	/** Whether the phone form sheet is open. */
 	@state()
 	private sheetOpen = false;
@@ -333,14 +336,28 @@ export class RestaurantManager extends LitElement {
 	 * modal `<dialog>` from the DOM without ever firing a close: close it here instead, so it does
 	 * not reopen by itself if the screen narrows again. If focus was inside it, send focus to the
 	 * panel's heading rather than losing it.
+	 *
+	 * Crossing back to narrow while an edit (or an unsaved add) is in progress would otherwise
+	 * hide it behind a closed sheet: open the sheet instead, with the same form state.
 	 */
 	protected override willUpdate(): void {
-		if (!this.wide.matches || !this.sheetOpen) return;
-		const focusWasInSheet =
-			this.renderRoot.querySelector("app-sheet")?.containsFocus() ?? false;
-		this.sheetOpen = false;
-		if (focusWasInSheet)
-			this.focusAfterRender(() => this.renderRoot.querySelector("#form-title"));
+		const wide = this.wide.matches;
+		if (wide && this.sheetOpen) {
+			const focusWasInSheet =
+				this.renderRoot.querySelector("app-sheet")?.containsFocus() ?? false;
+			this.sheetOpen = false;
+			if (focusWasInSheet)
+				this.focusAfterRender(() =>
+					this.renderRoot.querySelector("#form-title"),
+				);
+		} else if (
+			this.wasWide &&
+			!wide &&
+			(this.editingId !== undefined || this.form.name !== "")
+		) {
+			this.sheetOpen = true;
+		}
+		this.wasWide = wide;
 	}
 
 	private resetForm(): void {
