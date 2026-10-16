@@ -94,3 +94,12 @@ test.each(pages)(
 		expect(theme).toBeLessThan(html.indexOf('<link rel="stylesheet"'));
 	},
 );
+
+test("home's <html> opts into room for its pinned pick button; other pages do not", async () => {
+	for (const page of pages) {
+		const html = await Bun.file(`src/routes/${page}`).text();
+		const tag = html.match(/<html[^>]*>/)?.[0];
+		expect(tag).not.toBeUndefined();
+		expect(tag?.includes('class="has-pinned"')).toBe(page === "index.html");
+	}
+});
