@@ -2,6 +2,16 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-16: TODO list replaces ideas list
+
+### Improvements
+
+- `IDEAS.md` is now `TODO.md`, and the README links point to it.
+- `TODO.md` lists five more planned features: a location that only accepts a link (making the
+  restaurant name clickable on the random result and the restaurant list), an iOS-style
+  floating tab bar on phones, filtering by tags, filtering by buffet, and search on the
+  restaurant and tag lists.
+
 ## 2026-10-16: Mobile redesign, stage 1: calm look, tab bar and grouped Settings, and stage 2: Home
 
 ### Features
