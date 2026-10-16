@@ -1144,3 +1144,143 @@ test("search: field, clear and cancel are tap sized; the input text is 16px", ()
 		/\.name mark\s*\{[^}]*background:\s*var\(--color-primary-soft\)/,
 	);
 });
+
+test("search: no match shows one card that offers to add the name or clear", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "  zaab ");
+	expect($(el, "ul.list")).toBeNull();
+	const card = $(el, ".card.empty.no-match")!;
+	expect(card.querySelector("p")?.textContent?.trim()).toBe(
+		'No restaurants match "zaab".',
+	);
+	expect(
+		card.querySelector('[data-action="add-named"]')?.textContent?.trim(),
+	).toBe('Add "zaab"');
+	await click(el, '[data-action="clear-search-empty"]');
+	expect(rowNames(el)).toHaveLength(4);
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+});
+
+test("phone: Add from a search opens the new form with the name filled in", async () => {
+	seedSearch();
+	const el = await phone();
+	await openSearch(el);
+	await typeSearch(el, "Zaab Ari");
+	await click(el, '[data-action="add-named"]');
+	expect($(el, "app-sheet")?.hasAttribute("open")).toBe(true);
+	expect($(el, "app-sheet")?.getAttribute("heading")).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Zaab Ari");
+});
+
+test("wide: Add from a search fills the side panel's name", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "Zaab Ari");
+	await click(el, '[data-action="add-named"]');
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Zaab Ari");
+});
+
+test("search: editing a result keeps the search; a rename out of it drops the row", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	type(el, "#name", "Bankara Tonkotsu");
+	await submit(el);
+	await el.updateComplete;
+	expect(searchInput(el).value).toBe("ram");
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	expect(rowNames(el)).toEqual(["Ramen Champion"]);
+	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
+		"Saved Bankara Tonkotsu",
+	);
+});
+
+test("search: a restaurant added in another tab shows up if it matches", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	addRestaurant({ ...blank, name: "Ramen Nagi" });
+	await el.updateComplete;
+	expect(rowNames(el)).toEqual([
+		"Bankara Ramen",
+		"Ramen Champion",
+		"Ramen Nagi",
+	]);
+});
+
+test("search: deleting every restaurant mid-search shows the empty list card", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	saveRestaurants([]);
+	await el.updateComplete;
+	expect($(el, ".card.empty:not(.no-match)")).not.toBeNull();
+	expect($(el, ".no-match")).toBeNull();
+});
+
+const slash = (target: EventTarget = document.body) =>
+	target.dispatchEvent(
+		new KeyboardEvent("keydown", {
+			key: "/",
+			bubbles: true,
+			composed: true,
+			cancelable: true,
+		}),
+	);
+
+test("wide: / opens search, but not while typing in a field", async () => {
+	seedSearch();
+	const el = await mount();
+	slash($<HTMLInputElement>(el, "#name")!);
+	await el.updateComplete;
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+	slash();
+	await el.updateComplete;
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+});
+
+test("phone: / does nothing", async () => {
+	seedSearch();
+	const el = await phone();
+	slash();
+	await el.updateComplete;
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+});
+
+test("wide: / does nothing while a sheet is open", async () => {
+	seedSearch();
+	const el = await mount();
+	document.documentElement.classList.add("sheet-open");
+	try {
+		slash();
+		await el.updateComplete;
+		expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+	} finally {
+		document.documentElement.classList.remove("sheet-open");
+	}
+});
+
+test("search: the no-match card is translated to Thai", async () => {
+	seedSearch();
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	await openSearch(el);
+	await typeSearch(el, "zaab");
+	expect($(el, ".no-match p")?.textContent?.trim()).toBe("ไม่มีร้านที่ตรงกับ “zaab”");
+	expect($(el, '[data-action="add-named"]')?.textContent?.trim()).toBe(
+		"เพิ่ม “zaab”",
+	);
+	expect($(el, '[data-action="clear-search-empty"]')?.textContent?.trim()).toBe(
+		"ล้างการค้นหา",
+	);
+});

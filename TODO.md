@@ -35,5 +35,5 @@ then delete it here when it ships.
 - **Floating tab bar on phones.** Replace the Material-style bottom navigation with an
   iOS-style floating island. Needs new tab bar styles, safe-area handling and a check that
   page content still clears it.
-- **Search lists.** A search box on the restaurant list and the tag list. Needs matching on
-  both English and Thai text, and an empty state when nothing matches.
+- **Search lists.** A search box on the tag list, like the one on Restaurants. Needs matching
+  on both English and Thai text, and an empty state when nothing matches.

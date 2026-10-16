@@ -382,6 +382,10 @@ export class RestaurantManager extends LitElement {
 				font-weight: 700;
 			}
 
+			.no-match .actions {
+				justify-content: center;
+			}
+
 			@media (prefers-reduced-motion: no-preference) {
 				.search-row:not([hidden]) {
 					animation: search-in var(--duration) ease-out;
@@ -470,6 +474,7 @@ export class RestaurantManager extends LitElement {
 
 	override connectedCallback(): void {
 		super.connectedCallback();
+		document.addEventListener("keydown", this.onShortcut);
 		this.restaurants = loadRestaurants();
 		this.skipped = skippedCount();
 		this.defs = loadGroups();
@@ -496,6 +501,7 @@ export class RestaurantManager extends LitElement {
 
 	override disconnectedCallback(): void {
 		super.disconnectedCallback();
+		document.removeEventListener("keydown", this.onShortcut);
 		this.unsubscribe?.();
 		this.unsubscribe = undefined;
 		this.unsubscribeGroups?.();
@@ -672,6 +678,30 @@ export class RestaurantManager extends LitElement {
 			this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	};
 
+	/** The no-match card's Add: a new restaurant already named what was searched for. */
+	private startAddNamed(name: string): void {
+		this.startAdd();
+		this.form = { ...this.form, name };
+	}
+
+	/** `/` opens search on wide screens, unless typing somewhere or a sheet is open. */
+	private readonly onShortcut = (event: KeyboardEvent): void => {
+		if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey)
+			return;
+		if (this.searching || !this.wide.matches || this.restaurants.length === 0)
+			return;
+		if (document.documentElement.classList.contains("sheet-open")) return;
+		const target = event.composedPath()[0];
+		if (
+			target instanceof HTMLElement &&
+			(target.isContentEditable ||
+				["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+		)
+			return;
+		event.preventDefault();
+		this.openSearch();
+	};
+
 	/**
 	 * iOS only opens the keyboard for a focus made during the tap, so the search row is always
 	 * rendered and is shown and focused here, before any re-render.
@@ -738,6 +768,21 @@ export class RestaurantManager extends LitElement {
 			const ranges = matchName(item.name, words);
 			return ranges === undefined ? [] : [{ item, ranges }];
 		});
+	}
+
+	private renderNoMatch() {
+		const query = this.query.trim();
+		return html`<div class="card empty no-match">
+			<p>${t("search.noMatch", { query })}</p>
+			<div class="actions">
+				<button type="button" class="primary" data-action="add-named" @click=${() => this.startAddNamed(query)}>
+					${icon("plus", 20)}<span>${t("search.add", { query })}</span>
+				</button>
+				<button type="button" data-action="clear-search-empty" @click=${this.clearSearch}>
+					${t("search.clear")}
+				</button>
+			</div>
+		</div>`;
 	}
 
 	private countText(sorted: readonly Restaurant[]): string {
@@ -896,7 +941,9 @@ export class RestaurantManager extends LitElement {
 					${
 						sorted.length === 0
 							? html`<div class="card empty"><p>${t("manager.empty")}</p></div>`
-							: html`<ul class="group list">${results.map(({ item, ranges }) => this.renderRow(item, ranges))}</ul>`
+							: results.length === 0
+								? this.renderNoMatch()
+								: html`<ul class="group list">${results.map(({ item, ranges }) => this.renderRow(item, ranges))}</ul>`
 					}
 				</div>
 				${
