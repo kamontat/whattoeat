@@ -69,19 +69,6 @@ export class DataTransferPanel extends LitElement {
 				outline-offset: -3px;
 			}
 
-			summary.item {
-				cursor: pointer;
-				list-style: none;
-			}
-
-			summary.item::-webkit-details-marker {
-				display: none;
-			}
-
-			details[open] summary .trail {
-				transform: rotate(90deg);
-			}
-
 			.paste-body {
 				display: grid;
 				gap: 0.625rem;
@@ -135,6 +122,10 @@ export class DataTransferPanel extends LitElement {
 	@state()
 	private pasteText = "";
 
+	/** True once reading the clipboard failed, so the JSON has to be pasted by hand. */
+	@state()
+	private pasteByHand = false;
+
 	/** "confirm" while the reset prompt is open, "done" after everything was deleted. */
 	@state()
 	private reset: "confirm" | "done" | undefined;
@@ -170,7 +161,10 @@ export class DataTransferPanel extends LitElement {
 		});
 	}
 
-	/** Validate an export file's text and hold it until the user picks Replace or Merge. */
+	/**
+	 * Validate an export file's text and hold it until the user picks Replace or Merge. With
+	 * nothing saved yet there is nothing to lose, so it is saved at once without asking.
+	 */
 	readImport(text: string): void {
 		const result = parseImport(text);
 		this.imported = undefined;
@@ -181,6 +175,11 @@ export class DataTransferPanel extends LitElement {
 				groups: result.groups,
 			};
 			this.error = undefined;
+			const empty =
+				loadRestaurants().length === 0 &&
+				loadHistory().length === 0 &&
+				loadGroups().length === 0;
+			if (empty) this.apply("replace");
 		} else {
 			this.pending = undefined;
 			this.error = result.error;
@@ -248,6 +247,26 @@ export class DataTransferPanel extends LitElement {
 		}
 	};
 
+	/** Read the export straight from the clipboard; open the paste box when the browser will not. */
+	private readonly pasteData = async (): Promise<void> => {
+		let text = "";
+		try {
+			// The clipboard is missing outside secure contexts and can be refused by permission.
+			if (!navigator.clipboard?.readText) throw new Error("no clipboard");
+			text = await navigator.clipboard.readText();
+		} catch {
+			// Fall through to the paste box.
+		}
+		if (text.trim() === "") {
+			this.pasteByHand = true;
+			this.focusAfterRender(() =>
+				this.renderRoot.querySelector("textarea.paste"),
+			);
+			return;
+		}
+		this.readImport(text);
+	};
+
 	private readonly selectAll = (event: Event): void => {
 		(event.target as HTMLTextAreaElement).select();
 	};
@@ -280,6 +299,7 @@ export class DataTransferPanel extends LitElement {
 		}
 		this.pending = undefined;
 		this.pasteText = "";
+		this.pasteByHand = false;
 		this.imported = persisted ? list.length : undefined;
 	}
 
@@ -304,6 +324,7 @@ export class DataTransferPanel extends LitElement {
 		this.imported = undefined;
 		this.copied = undefined;
 		this.pasteText = "";
+		this.pasteByHand = false;
 		this.reset = "done";
 	};
 
@@ -354,6 +375,34 @@ export class DataTransferPanel extends LitElement {
 		`;
 	}
 
+	private renderPasteBox() {
+		return html`
+			<div class="paste-body">
+				<p class="paste-failed" role="status">${t("settings.pasteFailed")}</p>
+				<textarea
+					class="paste"
+					rows="4"
+					spellcheck="false"
+					aria-label=${t("settings.pasteLabel")}
+					.value=${live(this.pasteText)}
+					@input=${(event: Event) => {
+						this.pasteText = (event.target as HTMLTextAreaElement).value;
+					}}
+				></textarea>
+				<div class="actions">
+					<button
+						type="button"
+						data-action="check-paste"
+						?disabled=${this.pasteText.trim() === ""}
+						@click=${() => this.readImport(this.pasteText)}
+					>
+						${t("settings.pasteCheck")}
+					</button>
+				</div>
+			</div>
+		`;
+	}
+
 	override render() {
 		return html`
 			<h1 class="page-title">${t("settings.title")}</h1>
@@ -395,35 +444,11 @@ export class DataTransferPanel extends LitElement {
 						<span class="trail">${icon("chevron", 20)}</span>
 						<input type="file" accept="application/json,.json" @change=${this.onFile} />
 					</label>
-					<details class="paste-row">
-						<summary class="item">
-							<span class="lead">${icon("copy", 22)}</span>
-							<span class="grow"><b>${t("settings.pasteLabel")}</b></span>
-							<span class="trail">${icon("chevron", 20)}</span>
-						</summary>
-						<div class="paste-body">
-							<textarea
-								class="paste"
-								rows="4"
-								spellcheck="false"
-								aria-label=${t("settings.pasteLabel")}
-								.value=${live(this.pasteText)}
-								@input=${(event: Event) => {
-									this.pasteText = (event.target as HTMLTextAreaElement).value;
-								}}
-							></textarea>
-							<div class="actions">
-								<button
-									type="button"
-									data-action="check-paste"
-									?disabled=${this.pasteText.trim() === ""}
-									@click=${() => this.readImport(this.pasteText)}
-								>
-									${t("settings.pasteCheck")}
-								</button>
-							</div>
-						</div>
-					</details>
+					<button type="button" class="item" data-action="paste" @click=${this.pasteData}>
+						<span class="lead">${icon("copy", 22)}</span>
+						<span class="grow"><b>${t("settings.pasteLabel")}</b></span>
+					</button>
+					${this.pasteByHand ? this.renderPasteBox() : nothing}
 				</div>
 				${this.error ? html`<p class="error" role="alert">${t(this.error)}</p>` : nothing}
 				${

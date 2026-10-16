@@ -208,15 +208,46 @@ test("merge keeps existing restaurants and adds new ones", async () => {
 });
 
 test("cancel import discards the pending file", async () => {
+	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
 	const el = await mount();
 	el.readImport(JSON.stringify(toExportFile([make("x")])));
 	await el.updateComplete;
 	await click(el, 'button[data-action="cancel-import"]');
 	expect($(el, ".found")).toBeNull();
+	expect(loadRestaurants().map((r) => r.name)).toEqual(["Old"]);
+});
+
+test("an import saves at once without asking when nothing is saved yet", async () => {
+	const el = await mount();
+	el.readImport(
+		JSON.stringify(
+			toExportFile(
+				[make("x", "X")],
+				[visit("theirs", "2026-10-12T09:00:00.000Z")],
+			),
+		),
+	);
+	await el.updateComplete;
+	expect($(el, 'button[data-action="replace"]')).toBeNull();
+	expect($(el, 'button[data-action="merge"]')).toBeNull();
+	expect(loadRestaurants()).toEqual([make("x", "X")]);
+	expect(loadHistory().map((item) => item.id)).toEqual(["theirs"]);
+	expect($(el, ".success")?.textContent?.trim()).toBe(
+		"Import complete. 1 restaurants saved.",
+	);
+});
+
+test("an import still asks when only history is saved", async () => {
+	saveHistory([visit("mine", "2026-10-01T09:00:00.000Z")]);
+	const el = await mount();
+	el.readImport(JSON.stringify(toExportFile([make("x", "X")])));
+	await el.updateComplete;
+	expect($(el, 'button[data-action="merge"]')).not.toBeNull();
 	expect(loadRestaurants()).toEqual([]);
 });
 
 test("choosing a file reads and validates it", async () => {
+	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
 	const el = await mount();
 	const input =
 		el.shadowRoot!.querySelector<HTMLInputElement>('input[type="file"]')!;
@@ -234,8 +265,6 @@ test("choosing a file reads and validates it", async () => {
 
 test("an import the browser refuses to store warns instead of claiming success", async () => {
 	const el = await mount();
-	el.readImport(JSON.stringify(toExportFile([make("x")])));
-	await el.updateComplete;
 	const real = globalThis.localStorage;
 	const full = {
 		getItem: () => null,
@@ -248,7 +277,8 @@ test("an import the browser refuses to store warns instead of claiming success",
 		configurable: true,
 	});
 	try {
-		await click(el, 'button[data-action="replace"]');
+		el.readImport(JSON.stringify(toExportFile([make("x")])));
+		await el.updateComplete;
 		expect($(el, ".success")).toBeNull();
 		expect($(el, ".warning")?.textContent?.trim()).toBe(
 			"Your browser is not saving changes. They will be lost when you leave this page.",
@@ -325,7 +355,17 @@ test("a browser without a clipboard shows the json to copy by hand", async () =>
 	expect($(el, "textarea.copy-fallback")).not.toBeNull();
 });
 
-const paste = async (el: DataTransferPanel, text: string): Promise<void> => {
+const setClipboardText = (readText: () => Promise<string>) => {
+	Object.defineProperty(navigator, "clipboard", {
+		value: { readText },
+		configurable: true,
+	});
+};
+
+const pasteByHand = async (
+	el: DataTransferPanel,
+	text: string,
+): Promise<void> => {
 	const area =
 		el.shadowRoot!.querySelector<HTMLTextAreaElement>("textarea.paste")!;
 	area.value = text;
@@ -334,33 +374,84 @@ const paste = async (el: DataTransferPanel, text: string): Promise<void> => {
 	await click(el, 'button[data-action="check-paste"]');
 };
 
-test("pasted json is checked and can be merged", async () => {
+test("paste reads the clipboard and checks it in one tap", async () => {
 	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	setClipboardText(() =>
+		Promise.resolve(JSON.stringify(toExportFile([make("x", "X")]))),
+	);
 	const el = await mount();
-	await paste(el, JSON.stringify(toExportFile([make("x", "X")])));
+	$(el, 'button[data-action="paste"]')!.click();
+	await flush(el);
+	expect($(el, "textarea.paste")).toBeNull();
 	expect($(el, ".found")?.textContent?.trim()).toBe("1 restaurants found.");
 	await click(el, 'button[data-action="merge"]');
 	expect(loadRestaurants().map((r) => r.name)).toEqual(["Old", "X"]);
-	expect(
-		el.shadowRoot!.querySelector<HTMLTextAreaElement>("textarea.paste")!.value,
-	).toBe("");
 });
 
-test("pasted text that is not an export shows an error", async () => {
+test("paste imports straight away when nothing is saved", async () => {
+	setClipboardText(() =>
+		Promise.resolve(JSON.stringify(toExportFile([make("x", "X")]))),
+	);
 	const el = await mount();
-	await paste(el, "hello");
+	$(el, 'button[data-action="paste"]')!.click();
+	await flush(el);
+	expect($(el, 'button[data-action="merge"]')).toBeNull();
+	expect(loadRestaurants()).toEqual([make("x", "X")]);
+	expect($(el, ".success")?.textContent?.trim()).toBe(
+		"Import complete. 1 restaurants saved.",
+	);
+});
+
+test("clipboard text that is not an export shows an error", async () => {
+	setClipboardText(() => Promise.resolve("hello"));
+	const el = await mount();
+	$(el, 'button[data-action="paste"]')!.click();
+	await flush(el);
 	expect($(el, '[role="alert"]')?.textContent?.trim()).toBe(
 		"The data is not valid JSON.",
 	);
 	expect($(el, 'button[data-action="merge"]')).toBeNull();
 });
 
-test("check is disabled while the paste box is empty", async () => {
+test("a blocked clipboard read opens a box to paste by hand", async () => {
+	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	setClipboardText(() => Promise.reject(new Error("NotAllowedError")));
 	const el = await mount();
-	const check = el.shadowRoot!.querySelector<HTMLButtonElement>(
-		'button[data-action="check-paste"]',
-	)!;
-	expect(check.disabled).toBe(true);
+	expect($(el, "textarea.paste")).toBeNull();
+	$(el, 'button[data-action="paste"]')!.click();
+	await flush(el);
+	expect($(el, ".paste-failed")?.textContent?.trim()).toBe(
+		"Could not read the clipboard. Paste the JSON below.",
+	);
+	expect($(el, "textarea.paste")?.getAttribute("aria-label")).toBe(
+		"Paste JSON",
+	);
+	expect(
+		el.shadowRoot!.querySelector<HTMLButtonElement>(
+			'button[data-action="check-paste"]',
+		)!.disabled,
+	).toBe(true);
+	await pasteByHand(el, JSON.stringify(toExportFile([make("x", "X")])));
+	expect($(el, ".found")?.textContent?.trim()).toBe("1 restaurants found.");
+	await click(el, 'button[data-action="merge"]');
+	expect(loadRestaurants().map((r) => r.name)).toEqual(["Old", "X"]);
+	expect($(el, "textarea.paste")).toBeNull();
+});
+
+test("an empty clipboard or a browser without one opens the paste box", async () => {
+	setClipboardText(() => Promise.resolve("  "));
+	const el = await mount();
+	$(el, 'button[data-action="paste"]')!.click();
+	await flush(el);
+	expect($(el, "textarea.paste")).not.toBeNull();
+	Object.defineProperty(navigator, "clipboard", {
+		value: undefined,
+		configurable: true,
+	});
+	const other = await mount();
+	$(other, 'button[data-action="paste"]')!.click();
+	await flush(other);
+	expect($(other, "textarea.paste")).not.toBeNull();
 });
 
 test("warns about stored entries that could not be read until a save drops them", async () => {
@@ -544,15 +635,6 @@ test("warns when the browser refuses to save the group list", async () => {
 
 test("an import whose history the browser refuses to store warns", async () => {
 	const el = await mount();
-	el.readImport(
-		JSON.stringify(
-			toExportFile(
-				[make("x", "X")],
-				[visit("theirs", "2026-10-12T09:00:00.000Z")],
-			),
-		),
-	);
-	await el.updateComplete;
 	const real = globalThis.localStorage;
 	Object.defineProperty(globalThis, "localStorage", {
 		value: {
@@ -565,7 +647,15 @@ test("an import whose history the browser refuses to store warns", async () => {
 		configurable: true,
 	});
 	try {
-		await click(el, 'button[data-action="replace"]');
+		el.readImport(
+			JSON.stringify(
+				toExportFile(
+					[make("x", "X")],
+					[visit("theirs", "2026-10-12T09:00:00.000Z")],
+				),
+			),
+		);
+		await el.updateComplete;
 		expect($(el, ".success")).toBeNull();
 		expect($(el, ".warning")?.textContent?.trim()).toBe(
 			"Your browser is not saving changes. They will be lost when you leave this page.",
@@ -689,18 +779,11 @@ test("the file input is still a real input inside its labelled row", async () =>
 	expect(input?.disabled).toBe(false);
 });
 
-test("paste json opens from its own row and the textarea keeps its name", async () => {
+test("paste json is a list row button with its label and icon", async () => {
 	const el = await mount();
-	const details = $(
-		el,
-		"section.import details.paste-row",
-	) as HTMLDetailsElement | null;
-	expect(details?.querySelector("summary")?.textContent).toContain(
-		"Or paste JSON",
-	);
-	expect($(el, "textarea.paste")?.getAttribute("aria-label")).toBe(
-		"Or paste JSON",
-	);
+	const row = $(el, 'section.import button.item[data-action="paste"]');
+	expect(row?.textContent).toContain("Paste JSON");
+	expect(row?.querySelector("svg")).not.toBeNull();
 });
 
 test("the page title is a large title", async () => {
