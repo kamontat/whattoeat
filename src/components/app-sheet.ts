@@ -215,8 +215,8 @@ export class AppSheet extends LitElement {
 		this.leaving = false;
 	}
 
-	/** The `--duration` token in ms; 0 under reduced motion or when it is not set. */
-	private duration(): number {
+	/** How long the close animation runs, in ms (the `--duration` token; 0 under reduced motion). */
+	leaveDuration(): number {
 		const value = getComputedStyle(this).getPropertyValue("--duration").trim();
 		const amount = Number.parseFloat(value);
 		if (!Number.isFinite(amount)) return 0;
@@ -240,7 +240,7 @@ export class AppSheet extends LitElement {
 	/** The dialog closed: by the Close button, Esc, a backdrop tap or `open = false`. */
 	private readonly onClose = (): void => {
 		this.open = false;
-		const ms = this.duration();
+		const ms = this.leaveDuration();
 		if (ms > 0) {
 			clearTimeout(this.leaveTimer);
 			this.leaving = true;

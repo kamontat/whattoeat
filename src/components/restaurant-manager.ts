@@ -1,8 +1,9 @@
-import { css, html, LitElement, nothing } from "lit";
+import { css, html, LitElement, nothing, type PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import { repeat } from "lit/directives/repeat.js";
 import "#components/app-sheet";
+import type { AppSheet } from "#components/app-sheet";
 import "#components/tag-input";
 import type { TagInput } from "#components/tag-input";
 import {
@@ -33,6 +34,14 @@ import {
 	updateRestaurant,
 } from "#lib/store";
 import { uiStyles } from "#styles/ui";
+
+/** Everything the form draws: what is typed, which restaurant, and any open prompt. */
+type FormView = {
+	form: FormState;
+	editingId: string | undefined;
+	confirmingId: string | undefined;
+	nameError: "manager.nameRequired" | "manager.nameTaken" | undefined;
+};
 
 type FormState = {
 	name: string;
@@ -329,6 +338,15 @@ export class RestaurantManager extends LitElement {
 	@state()
 	private skipped = 0;
 
+	/** The form as the open sheet last drew it. */
+	private shownView: FormView | undefined;
+
+	/** Drawn in the sheet while it slides away, so its fields do not empty mid-slide. */
+	@state()
+	private leavingView: FormView | undefined;
+
+	private leaveTimer: ReturnType<typeof setTimeout> | undefined;
+
 	/** The group definitions saved so far, in their stored order. */
 	@state()
 	private defs: GroupDef[] = [];
@@ -375,6 +393,7 @@ export class RestaurantManager extends LitElement {
 		this.unsubscribe = undefined;
 		this.unsubscribeGroups?.();
 		this.unsubscribeGroups = undefined;
+		clearTimeout(this.leaveTimer);
 	}
 
 	/**
@@ -386,7 +405,9 @@ export class RestaurantManager extends LitElement {
 	 * Crossing back to narrow while an edit (or an unsaved add) is in progress would otherwise
 	 * hide it behind a closed sheet: open the sheet instead, with the same form state.
 	 */
-	protected override willUpdate(): void {
+	protected override willUpdate(changed: PropertyValues): void {
+		if (changed.has("sheetOpen"))
+			this.trackLeaving(changed.get("sheetOpen") as boolean | undefined);
 		const wide = this.wide.matches;
 		if (wide && this.sheetOpen) {
 			const focusWasInSheet =
@@ -404,6 +425,30 @@ export class RestaurantManager extends LitElement {
 			this.sheetOpen = true;
 		}
 		this.wasWide = wide;
+	}
+
+	/** Keep the last drawn form for as long as the closed sheet is still sliding away. */
+	private trackLeaving(wasOpen: boolean | undefined): void {
+		clearTimeout(this.leaveTimer);
+		this.leavingView = undefined;
+		if (!wasOpen || this.sheetOpen) return;
+		const ms =
+			this.renderRoot.querySelector<AppSheet>("app-sheet")?.leaveDuration() ??
+			0;
+		if (ms <= 0 || this.shownView === undefined) return;
+		this.leavingView = this.shownView;
+		this.leaveTimer = setTimeout(() => {
+			this.leavingView = undefined;
+		}, ms);
+	}
+
+	private currentView(): FormView {
+		return {
+			form: this.form,
+			editingId: this.editingId,
+			confirmingId: this.confirmingId,
+			nameError: this.nameError,
+		};
 	}
 
 	private resetForm(): void {
@@ -624,7 +669,7 @@ export class RestaurantManager extends LitElement {
 					wide
 						? html`<section class="card edit-panel" aria-labelledby="form-title">
 								<h2 id="form-title" tabindex="-1">${formTitle}</h2>
-								${this.renderForm()}
+								${this.renderForm(this.currentView())}
 							</section>`
 						: nothing
 				}
@@ -634,14 +679,24 @@ export class RestaurantManager extends LitElement {
 					? nothing
 					: html`<div class="pinned">${add}</div>
 							<app-sheet heading=${formTitle} ?open=${this.sheetOpen} @sheet-close=${this.onSheetClose}>
-								${this.renderForm()}
+								${this.renderForm(this.sheetView())}
 							</app-sheet>`
 			}
 		`;
 	}
 
-	private renderForm() {
-		const editing = this.editingId !== undefined;
+	/** The open sheet draws the live form; a sliding-away one keeps what it last drew. */
+	private sheetView(): FormView {
+		if (!this.sheetOpen && this.leavingView !== undefined)
+			return this.leavingView;
+		const view = this.currentView();
+		if (this.sheetOpen) this.shownView = view;
+		return view;
+	}
+
+	private renderForm(view: FormView) {
+		const { form, nameError } = view;
+		const editing = view.editingId !== undefined;
 		return html`
 			<form id="restaurant-form" novalidate @submit=${this.submit}>
 				<label>
@@ -651,13 +706,13 @@ export class RestaurantManager extends LitElement {
 						name="name"
 						autocomplete="off"
 						required
-						aria-invalid=${this.nameError ? "true" : "false"}
-						aria-describedby=${this.nameError ? "name-error" : nothing}
-						.value=${live(this.form.name)}
+						aria-invalid=${nameError ? "true" : "false"}
+						aria-describedby=${nameError ? "name-error" : nothing}
+						.value=${live(form.name)}
 						@input=${this.onInput}
 					/>
 				</label>
-				${this.nameError ? html`<p id="name-error" class="error" role="alert">${t(this.nameError)}</p>` : nothing}
+				${nameError ? html`<p id="name-error" class="error" role="alert">${t(nameError)}</p>` : nothing}
 				<fieldset class="kinds">
 					<legend>${t("group.kind")}</legend>
 					${KINDS.map(
@@ -666,7 +721,7 @@ export class RestaurantManager extends LitElement {
 								type="checkbox"
 								name="kinds"
 								value=${kind}
-								.checked=${live(this.form.kinds.includes(kind))}
+								.checked=${live(form.kinds.includes(kind))}
 								@change=${this.onKindChange}
 							/>
 							${t(`kind.${kind}`)}
@@ -677,17 +732,17 @@ export class RestaurantManager extends LitElement {
 					${repeat(
 						[...VALUE_GROUPS, ...this.defs.map((def) => def.id)],
 						(group) => group,
-						(group) => this.renderGroupInput(group),
+						(group) => this.renderGroupInput(group, form),
 					)}
 				</div>
 				<label>
 					${t("field.location")}
-					<input id="location" name="location" autocomplete="off" .value=${live(this.form.location)} @input=${this.onInput} />
+					<input id="location" name="location" autocomplete="off" .value=${live(form.location)} @input=${this.onInput} />
 				</label>
-				${this.renderGroupInput("tags")}
+				${this.renderGroupInput("tags", form)}
 				<label>
 					${t("field.notes")}
-					<textarea id="notes" name="notes" rows="2" .value=${live(this.form.notes)} @input=${this.onInput}></textarea>
+					<textarea id="notes" name="notes" rows="2" .value=${live(form.notes)} @input=${this.onInput}></textarea>
 				</label>
 				<div class="actions form-actions">
 					<button type="submit" class="primary">${editing ? t("manager.save") : t("manager.add")}</button>
@@ -699,19 +754,19 @@ export class RestaurantManager extends LitElement {
 							: nothing
 					}
 				</div>
-				${editing ? this.renderDelete() : nothing}
+				${editing ? this.renderDelete(view) : nothing}
 			</form>
 		`;
 	}
 
 	/** Delete lives at the end of the edit form, behind an inline confirmation. */
-	private renderDelete() {
-		const id = this.editingId;
+	private renderDelete(view: FormView) {
+		const id = view.editingId;
 		if (id === undefined) return nothing;
 		const name = this.restaurants.find((item) => item.id === id)?.name ?? "";
 		return html`<div class="delete-zone">
 			${
-				this.confirmingId === id
+				view.confirmingId === id
 					? html`<p class="delete-prompt" role="alert">${t("manager.deletePrompt", { name })}</p>
 							<div class="actions">
 								<button type="button" class="danger" data-action="confirm-delete" @click=${() => this.confirmDelete(id)}>
@@ -731,7 +786,7 @@ export class RestaurantManager extends LitElement {
 	}
 
 	/** A chip input for one group, suggesting the values other restaurants already use. */
-	private renderGroupInput(group: string) {
+	private renderGroupInput(group: string, form: FormState) {
 		const hint =
 			group === "tags"
 				? t("field.tagsHint")
@@ -740,10 +795,10 @@ export class RestaurantManager extends LitElement {
 							? (HINTS[group] ?? "field.groupHint")
 							: "field.groupHint",
 					);
-		const groups = this.form.groups;
+		const groups = form.groups;
 		const value =
 			group === "tags"
-				? this.form.tags
+				? form.tags
 				: Object.hasOwn(groups, group)
 					? (groups[group] ?? [])
 					: [];
