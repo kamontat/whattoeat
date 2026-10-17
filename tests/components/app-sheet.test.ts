@@ -221,6 +221,17 @@ test("containsFocus sees slotted content and the sheet's own Close button", asyn
 	expect(sheet.containsFocus()).toBe(true);
 });
 
+test("containsFocus sees focus inside a slotted component's own shadow root", async () => {
+	const { sheet } = await mount();
+	const inner = document.createElement("div");
+	inner.attachShadow({ mode: "open" }).innerHTML = "<input />";
+	sheet.append(inner);
+	sheet.open = true;
+	await sheet.updateComplete;
+	inner.shadowRoot!.querySelector("input")!.focus();
+	expect(sheet.containsFocus()).toBe(true);
+});
+
 const sheetCss = () =>
 	[(customElements.get("app-sheet") as unknown as { styles: unknown }).styles]
 		.flat(2)

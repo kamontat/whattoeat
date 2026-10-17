@@ -284,13 +284,17 @@ export class AppSheet extends LitElement {
 			(event.target as HTMLSlotElement).assignedElements().length > 0;
 	};
 
-	/** Whether focus is in this sheet: in its slotted content or on its own Close button. */
+	/**
+	 * Whether focus is in this sheet: in its slotted content (including inside a slotted
+	 * component's shadow root) or on its own Close button.
+	 */
 	containsFocus(): boolean {
-		const active = deepActiveElement();
-		if (active === null) return false;
-		return (
-			this.contains(active) || (this.shadowRoot?.contains(active) ?? false)
-		);
+		let node: Node | null = deepActiveElement();
+		while (node !== null) {
+			if (node === this) return true;
+			node = node instanceof ShadowRoot ? node.host : node.parentNode;
+		}
+		return false;
 	}
 
 	override render() {

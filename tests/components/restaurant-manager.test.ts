@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { AppSheet } from "#components/app-sheet";
 import "#components/restaurant-manager";
+import { RestaurantForm } from "#components/restaurant/form";
 import { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
 import { saveGroups } from "#lib/groups";
@@ -32,8 +33,41 @@ const mount = async () => {
 	return el;
 };
 
-const $ = <T extends Element>(el: RestaurantManager, selector: string) =>
-	el.shadowRoot!.querySelector<T>(selector);
+/** Mount (wide) and open the add form in the side panel. */
+const mountForm = async () => {
+	const el = await mount();
+	el.shadowRoot!.querySelector<HTMLButtonElement>(".head button.add")!.click();
+	await el.updateComplete;
+	return el;
+};
+
+/** The page's parts (restaurant-search, -list, -form) each have a shadow root; look inside them too. */
+const isPart = (node: Element): boolean =>
+	node.localName.startsWith("restaurant-");
+
+/** Every match in `el` and its parts, in document order. */
+const $$ = <T extends Element>(el: Element, selector: string): T[] => {
+	const found: T[] = [];
+	const walk = (root: ParentNode): void => {
+		for (const node of root.querySelectorAll("*")) {
+			if (node.matches(selector)) found.push(node as T);
+			if (isPart(node) && node.shadowRoot !== null) walk(node.shadowRoot);
+		}
+	};
+	walk(el.shadowRoot!);
+	return found;
+};
+
+const $ = <T extends Element>(el: Element, selector: string): T | null =>
+	$$<T>(el, selector)[0] ?? null;
+
+/** The focused element, looking through the page's parts but not into a tag-input. */
+const active = (el: Element): Element | null => {
+	let focused = el.shadowRoot!.activeElement;
+	while (focused !== null && isPart(focused) && focused.shadowRoot !== null)
+		focused = focused.shadowRoot.activeElement;
+	return focused;
+};
 
 const type = (el: RestaurantManager, selector: string, value: string): void => {
 	const input = $<HTMLInputElement | HTMLTextAreaElement>(el, selector)!;
@@ -73,9 +107,7 @@ const submit = async (el: RestaurantManager): Promise<void> => {
 };
 
 const rowNames = (el: RestaurantManager) =>
-	[...el.shadowRoot!.querySelectorAll("li[data-id] .name")].map(
-		(n) => n.textContent,
-	);
+	[...$$(el, "li[data-id] .name")].map((n) => n.textContent);
 
 const click = async (
 	el: RestaurantManager,
@@ -100,14 +132,14 @@ test("the heading links to the tags page", async () => {
 
 test("shows the empty message with no restaurants", async () => {
 	const el = await mount();
-	expect($(el, ".empty")?.textContent?.trim()).toBe(
+	expect($(el, ".empty p")?.textContent?.trim()).toBe(
 		"No restaurants yet. Add your first one.",
 	);
 	expect($(el, ".empty")?.classList.contains("card")).toBe(true);
 });
 
 test("a blank name shows an error and saves nothing", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "   ");
 	await submit(el);
 	expect($(el, "#name-error")?.textContent?.trim()).toBe("Name is required.");
@@ -117,7 +149,7 @@ test("a blank name shows an error and saves nothing", async () => {
 
 test("a name already in the list saves another restaurant", async () => {
 	addRestaurant({ name: "Jay Fai", tags: [], location: "", notes: "" });
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Jay Fai");
 	await submit(el);
 	expect($(el, "#name-error")).toBeNull();
@@ -139,7 +171,7 @@ test("editing can take another restaurant's name", async () => {
 });
 
 test("typing in the name clears the error", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	await submit(el);
 	type(el, "#name", "x");
 	await el.updateComplete;
@@ -147,7 +179,7 @@ test("typing in the name clears the error", async () => {
 });
 
 test("adds a restaurant with cleaned tags and resets the form", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", " Jay Fai ");
 	await typeTags(el, " Thai, ,noodle ,thai,");
 	type(el, "#location", "Bangkok");
@@ -162,13 +194,14 @@ test("adds a restaurant with cleaned tags and resets the form", async () => {
 		},
 	]);
 	expect(rowNames(el)).toEqual(["Jay Fai"]);
+	await click(el, ".head button.add");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
 	await tagInput(el).updateComplete;
 	expect(tagChips(el)).toEqual([]);
 });
 
 test("a tag typed but not confirmed is saved on submit", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Jay Fai");
 	await typeTags(el, "Spicy");
 	await submit(el);
@@ -176,7 +209,7 @@ test("a tag typed but not confirmed is saved on submit", async () => {
 });
 
 test("a blank name keeps a typed tag as a chip instead of losing it", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	await typeTags(el, "spicy");
 	await submit(el);
 	expect(loadRestaurants()).toEqual([]);
@@ -192,7 +225,7 @@ test("suggests existing tags, most used first", async () => {
 		notes: "",
 	});
 	addRestaurant({ name: "B", tags: ["noodle"], location: "", notes: "" });
-	const el = await mount();
+	const el = await mountForm();
 	expect(tagInput(el).suggestions).toEqual(["noodle", "thai"]);
 	expect(tagInput(el).label).toBe("Tags");
 	expect(tagInput(el).hint).toBe(
@@ -247,6 +280,7 @@ test("edit fills the form and save updates the restaurant", async () => {
 		{ name: "New", tags: ["a", "b"], location: "Here", notes: "n" },
 	]);
 	expect(loadRestaurants()).toHaveLength(1);
+	await click(el, ".head button.add");
 	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("Add");
 });
 
@@ -262,12 +296,10 @@ const toggleKind = async (
 };
 
 test("type boxes are labelled and a second click unticks", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	expect($(el, "fieldset.kinds legend")?.textContent?.trim()).toBe("Type");
 	expect(
-		[...el.shadowRoot!.querySelectorAll("fieldset.kinds label")].map((l) =>
-			l.textContent?.trim(),
-		),
+		[...$$(el, "fieldset.kinds label")].map((l) => l.textContent?.trim()),
 	).toEqual(["Food", "Drinks", "Dessert"]);
 	type(el, "#name", "Shop");
 	await toggleKind(el, "food");
@@ -277,7 +309,7 @@ test("type boxes are labelled and a second click unticks", async () => {
 });
 
 test("adds a restaurant with several cuisines and areas, committing text left in each box", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Cafe");
 	await typeInto(el, "cuisine", "Thai, Japanese");
 	await typeInto(el, "area", "Siam");
@@ -293,10 +325,11 @@ test("each custom group gets its own input, in stored order, before plain tags",
 		{ id: "g2", name: "Vibe" },
 		{ id: "g1", name: "Price" },
 	]);
-	const el = await mount();
-	const groups = [...el.shadowRoot!.querySelectorAll("tag-input")].map(
-		(input) => [input.getAttribute("data-group"), input.label],
-	);
+	const el = await mountForm();
+	const groups = $$<TagInput>(el, "tag-input").map((input) => [
+		input.getAttribute("data-group"),
+		input.label,
+	]);
 	expect(groups).toEqual([
 		["cuisine", "Cuisine"],
 		["area", "Area"],
@@ -308,7 +341,7 @@ test("each custom group gets its own input, in stored order, before plain tags",
 
 test("saves custom group values", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Cafe");
 	await typeInto(el, "g1", "cheap");
 	await typeTags(el, "spicy");
@@ -330,7 +363,7 @@ test("suggests each group's values, most used first", async () => {
 		name: "B",
 		groups: { cuisine: ["thai", "lao"], area: ["ari"] },
 	});
-	const el = await mount();
+	const el = await mountForm();
 	expect(groupInput(el, "cuisine").suggestions).toEqual(["thai", "lao"]);
 	expect(groupInput(el, "area").suggestions).toEqual(["ari", "siam"]);
 });
@@ -351,7 +384,7 @@ test("edit fills type and every group", async () => {
 });
 
 test("a group added in another tab shows up in the open form", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	saveGroups([{ id: "g1", name: "Price" }]);
 	await el.updateComplete;
 	expect(groupInput(el, "g1")).not.toBeNull();
@@ -359,7 +392,7 @@ test("a group added in another tab shows up in the open form", async () => {
 
 test("a group renamed in another tab relabels its input and keeps the values typed so far", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	const el = await mount();
+	const el = await mountForm();
 	await typeInto(el, "g1", "cheap,");
 	saveGroups([{ id: "g1", name: "Cost" }]);
 	await el.updateComplete;
@@ -369,7 +402,7 @@ test("a group renamed in another tab relabels its input and keeps the values typ
 
 test("a custom group deleted in another tab before submit moves its typed values into tags", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Cafe");
 	await typeInto(el, "g1", "cheap,");
 	// Another tab deletes the group while this form is still open.
@@ -386,7 +419,7 @@ test("text typed in a group's box stays with that group when another tab reorder
 		{ id: "g1", name: "Price" },
 		{ id: "g2", name: "Vibe" },
 	]);
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Cafe");
 	await typeInto(el, "g1", "cheap");
 	saveGroups([
@@ -402,7 +435,7 @@ test("text typed in a group's box stays with that group when another tab reorder
 
 test("a group whose id names an Object member gets the plain hint and no values", async () => {
 	saveGroups([{ id: "constructor", name: "Odd" }]);
-	const el = await mount();
+	const el = await mountForm();
 	expect(groupInput(el, "constructor").hint).toBe(
 		"Press Enter or comma to add",
 	);
@@ -410,7 +443,7 @@ test("a group whose id names an Object member gets the plain hint and no values"
 });
 
 test("type and group labels render in Thai", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	setLang("th");
 	await el.updateComplete;
 	expect($(el, "fieldset.kinds legend")?.textContent?.trim()).toBe("ประเภท");
@@ -425,6 +458,7 @@ test("cancel edit resets the form without saving", async () => {
 	type(el, "#name", "Changed");
 	await typeTags(el, "half");
 	await click(el, 'button[data-action="cancel-edit"]');
+	await click(el, ".head button.add");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
 	await tagInput(el).updateComplete;
 	expect(
@@ -476,6 +510,7 @@ test("deleting the restaurant being edited resets the form", async () => {
 	await click(el, 'button[data-action="edit"]');
 	await click(el, 'button[data-action="delete"]');
 	await click(el, 'button[data-action="confirm-delete"]');
+	await click(el, ".head button.add");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
 	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("Add");
 	type(el, "#name", "Fresh");
@@ -484,7 +519,7 @@ test("deleting the restaurant being edited resets the form", async () => {
 });
 
 test("re-renders labels in Thai", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	setLang("th");
 	await el.updateComplete;
 	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("เพิ่ม");
@@ -496,24 +531,10 @@ test("delete moves focus to the confirm button, cancel moves it back", async () 
 	await click(el, 'button[data-action="edit"]');
 	await click(el, 'button[data-action="delete"]');
 	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
-		"confirm-delete",
-	);
+	expect(active(el)?.getAttribute("data-action")).toBe("confirm-delete");
 	await click(el, 'button[data-action="cancel-delete"]');
 	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
-		"delete",
-	);
-});
-
-test("a confirmed delete moves focus to the name field", async () => {
-	addRestaurant({ name: "Bye", tags: [], location: "", notes: "" });
-	const el = await mount();
-	await click(el, 'button[data-action="edit"]');
-	await click(el, 'button[data-action="delete"]');
-	await click(el, 'button[data-action="confirm-delete"]');
-	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+	expect(active(el)?.getAttribute("data-action")).toBe("delete");
 });
 
 test("warns when the browser refuses to save", async () => {
@@ -548,9 +569,9 @@ test("warns when the browser refuses to save", async () => {
 test("starting an edit drops text left in the tag box", async () => {
 	addRestaurant({ name: "A", tags: ["x"], location: "", notes: "" });
 	addRestaurant({ name: "B", tags: ["y"], location: "", notes: "" });
-	const el = await mount();
+	const el = await mountForm();
 	await typeTags(el, "spi");
-	const editB = [...el.shadowRoot!.querySelectorAll("li[data-id]")]
+	const editB = [...$$(el, "li[data-id]")]
 		.find((row) => row.querySelector(".name")?.textContent === "B")!
 		.querySelector<HTMLButtonElement>('[data-action="edit"]')!;
 	editB.click();
@@ -565,28 +586,26 @@ test("warns about stored entries that could not be read until a save drops them"
 		JSON.stringify([{ name: "broken" }, null]),
 	);
 	const el = await mount();
-	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
+	expect($(el, ".skipped")?.textContent?.trim()).toBe(
 		"2 saved restaurants could not be read and were skipped. They will be removed the next time the list changes.",
 	);
 	addRestaurant({ name: "Fresh", tags: [], location: "", notes: "" });
 	await el.updateComplete;
-	expect(el.shadowRoot!.querySelector(".skipped")).toBeNull();
+	expect($(el, ".skipped")).toBeNull();
 });
 
 test("uses the singular when one stored entry could not be read", async () => {
 	localStorage.setItem("whattoeat:restaurants", "{not json");
 	const el = await mount();
-	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
+	expect($(el, ".skipped")?.textContent?.trim()).toBe(
 		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
 	);
 });
 
 test("the form asks for name, type, groups, location, then tags and notes", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	const order = [
-		...el.shadowRoot!.querySelectorAll(
-			"#name, fieldset.kinds, tag-input, #location, #notes",
-		),
+		...$$(el, "#name, fieldset.kinds, tag-input, #location, #notes"),
 	].map(
 		(node) =>
 			(node instanceof HTMLElement && node.getAttribute("data-group")) ||
@@ -655,27 +674,11 @@ test("a row with no type line has no aria-describedby", async () => {
 	expect(row.getAttribute("aria-describedby")).toBeNull();
 });
 
-test("the selected row shows an outline in forced-colours", () => {
-	const css = ownStyles();
-	const forced = css.indexOf("@media (forced-colors: active)");
-	expect(forced).toBeGreaterThan(-1);
-	const forcedBlock = css.slice(forced);
-	expect(forcedBlock).toMatch(
-		/\.list \.row\[aria-current="true"\]\s*\{[^}]*outline:\s*2px solid CanvasText/,
-	);
-	expect(forcedBlock).toMatch(
-		/\.list \.row\[aria-current="true"\]\s*\{[^}]*outline-offset:\s*-2px/,
-	);
-});
-
-test("wide: the form sits in a side panel titled for adding, then for editing", async () => {
+test("wide: the form sits in a side panel titled for editing, then for adding", async () => {
 	addRestaurant({ ...blank, name: "Jay Fai" });
 	const el = await mount();
 	expect($(el, "app-sheet")).toBeNull();
 	expect($(el, ".pinned")).toBeNull();
-	expect($(el, "section.edit-panel #form-title")?.textContent?.trim()).toBe(
-		"New restaurant",
-	);
 	expect($(el, ".head button.add")).not.toBeNull();
 	await click(el, 'button[data-action="edit"]');
 	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Jay Fai");
@@ -686,7 +689,7 @@ test("wide: the form sits in a side panel titled for adding, then for editing", 
 	expect($(el, "#form-title")?.textContent?.trim()).toBe("New restaurant");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
 	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+	expect(active(el)?.id).toBe("name");
 });
 
 test("Delete is only in the edit form, never in rows or the add form", async () => {
@@ -710,7 +713,7 @@ test("the delete prompt names the restaurant", async () => {
 });
 
 test("saving and deleting are confirmed in the status line", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Fresh");
 	await submit(el);
 	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
@@ -725,7 +728,7 @@ test("saving and deleting are confirmed in the status line", async () => {
 });
 
 test("saving the same name twice re-announces the status instead of leaving it unchanged", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Fresh");
 	await submit(el);
 	const status = () => $(el, 'p.status[role="status"]')?.textContent?.trim();
@@ -743,7 +746,7 @@ test("saving the same name twice re-announces the status instead of leaving it u
 
 test("starting an edit clears an old status", async () => {
 	addRestaurant({ ...blank, name: "Other" });
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Fresh");
 	await submit(el);
 	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
@@ -760,10 +763,9 @@ test("phone: Add is pinned and opens the form in a sheet", async () => {
 		el,
 		'.pinned button.add[data-action="add"]',
 	)!;
-	expect(add.textContent?.trim()).toBe("Add");
 	const sheet = $(el, "app-sheet")!;
 	expect(sheet.hasAttribute("open")).toBe(false);
-	expect(sheet.querySelector("form#restaurant-form")).not.toBeNull();
+	expect(sheet.querySelector("restaurant-form")).not.toBeNull();
 	add.click();
 	await el.updateComplete;
 	expect(sheet.hasAttribute("open")).toBe(true);
@@ -811,7 +813,7 @@ test("wide: opening a row focuses the name field in the side panel", async () =>
 	const el = await mount();
 	await click(el, 'li[data-id] button[data-action="edit"]');
 	await settleFocus(el);
-	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+	expect(active(el)?.id).toBe("name");
 });
 
 test("phone: while the closed sheet slides away it still shows what it showed, then drops it", async () => {
@@ -891,7 +893,7 @@ test("narrowing the window mid-edit moves the edit into the sheet instead of dro
 });
 
 test("narrowing the window with a blank add form still open opens the sheet for it", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "New place");
 	setWidth(390);
 	await el.updateComplete;
@@ -918,27 +920,20 @@ const ownStyles = (): string =>
 		.map((style) => (style as { cssText: string }).cssText)
 		.join("\n");
 
-test("phone: cuisine and area stack in one column and may shrink; side by side only from 48rem", () => {
-	const css = ownStyles();
-	expect(css).toMatch(
-		/\.pair\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/,
-	);
-	expect(css).toMatch(/\.pair\s*>\s*\*\s*\{[^}]*min-width:\s*0/);
-	const wide = css.slice(css.indexOf("@media (min-width: 48rem)"));
-	expect(wide).toMatch(
-		/\.pair\s*\{[^}]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,\s*12rem\),\s*1fr\)\)/,
-	);
-});
-
-test("phone: the sticky Save row covers the sheet's bottom padding, so no form content peeks out below it", () => {
-	const sheetCss = (AppSheet.styles as unknown[])
-		.flat(Number.POSITIVE_INFINITY)
-		.map((style) => (style as { cssText: string }).cssText)
-		.join("\n");
+test("phone: the form's sticky Save row covers the sheet's bottom padding, so no form content peeks out below it", () => {
+	const cssOf = (styles: unknown) =>
+		[styles]
+			.flat(Number.POSITIVE_INFINITY)
+			.map((style) => (style as { cssText: string }).cssText)
+			.join("\n");
 	// The offset below must match the sheet body's bottom padding.
-	expect(sheetCss).toMatch(/\.body\s*\{[^}]*padding:\s*0\.25rem 1\.25rem 1rem/);
+	expect(cssOf(AppSheet.styles)).toMatch(
+		/\.body\s*\{[^}]*padding:\s*0\.25rem 1\.25rem 1rem/,
+	);
 	const row =
-		ownStyles().match(/\.actions\.form-actions\s*\{([^}]*)\}/)?.[1] ?? "";
+		cssOf(RestaurantForm.styles).match(
+			/\.actions\.form-actions\s*\{([^}]*)\}/,
+		)?.[1] ?? "";
 	expect(row).toContain("bottom: -1rem");
 	expect(row).toContain("padding: 0.75rem 0 1.75rem");
 });
@@ -960,34 +955,618 @@ test("phone: the component fills the space above the tab bar so the pinned Add e
 });
 
 test("the form's Save/Cancel row has the form-actions class", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	expect($(el, "form .actions.form-actions")).not.toBeNull();
 });
 
-test("phone: Save stays reachable at the bottom of the scrolling sheet", () => {
-	const css = ownStyles();
-	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*position:\s*sticky/);
-	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*bottom:\s*-1rem/);
-	expect(css).toMatch(
-		/\.actions\.form-actions\s*\{[^}]*background:\s*var\(--color-bg\)/,
+test("wide: the side panel starts hidden and the list takes the full width", async () => {
+	addRestaurant({ ...blank, name: "A" });
+	const el = await mount();
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect($(el, "form#restaurant-form")).toBeNull();
+	expect($(el, ".layout")?.classList.contains("wide")).toBe(false);
+});
+
+test("Add is an icon button labelled for screen readers", async () => {
+	const el = await mount();
+	const add = $<HTMLButtonElement>(el, '.head button.add[data-action="add"]')!;
+	expect(add.textContent?.trim()).toBe("");
+	expect(add.getAttribute("aria-label")).toBe("Add restaurant");
+	expect(add.getAttribute("title")).toBe("Add restaurant");
+	expect(add.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+	setLang("th");
+	await el.updateComplete;
+	expect(add.getAttribute("aria-label")).toBe("เพิ่มร้าน");
+});
+
+test("phone: the pinned Add is an icon button labelled for screen readers", async () => {
+	const el = await phone();
+	const add = $<HTMLButtonElement>(el, ".pinned button.add")!;
+	expect(add.textContent?.trim()).toBe("");
+	expect(add.getAttribute("aria-label")).toBe("Add restaurant");
+});
+
+test("wide: Add toggles the panel open and closed, dropping what was typed", async () => {
+	addRestaurant({ ...blank, name: "A" });
+	const el = await mount();
+	const add = () => $<HTMLButtonElement>(el, ".head button.add")!;
+	expect(add().getAttribute("aria-expanded")).toBe("false");
+	await click(el, ".head button.add");
+	expect($(el, "section.edit-panel #form-title")?.textContent?.trim()).toBe(
+		"New restaurant",
 	);
-	const wideIndex = css.indexOf("@media (min-width: 48rem)");
-	expect(wideIndex).toBeGreaterThan(-1);
-	const wideBlock = css.slice(wideIndex);
-	expect(wideBlock).toMatch(
-		/\.actions\.form-actions\s*\{[^}]*position:\s*static/,
+	expect($(el, ".layout")?.classList.contains("wide")).toBe(true);
+	expect(add().getAttribute("aria-expanded")).toBe("true");
+	expect(add().getAttribute("aria-controls")).toBe("edit-panel");
+	await el.updateComplete;
+	expect(active(el)?.id).toBe("name");
+	type(el, "#name", "Half typed");
+	await click(el, ".head button.add");
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect(add().getAttribute("aria-expanded")).toBe("false");
+	await el.updateComplete;
+	expect(active(el)?.getAttribute("data-action")).toBe("add");
+	await click(el, ".head button.add");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
+});
+
+test("wide: Add while editing switches the panel to a new restaurant instead of closing it", async () => {
+	addRestaurant({ ...blank, name: "Jay Fai" });
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Jay Fai");
+	await click(el, ".head button.add");
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
+});
+
+test("wide: the panel's close button hides it and drops the edit", async () => {
+	addRestaurant({ ...blank, name: "Keep" });
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	type(el, "#name", "Changed");
+	const close = $<HTMLButtonElement>(
+		el,
+		'section.edit-panel button[data-action="close-panel"]',
+	)!;
+	expect(close.getAttribute("aria-label")).toBe("Close");
+	await click(el, 'button[data-action="close-panel"]');
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect(loadRestaurants()[0]?.name).toBe("Keep");
+	await el.updateComplete;
+	expect(active(el)?.getAttribute("data-action")).toBe("add");
+});
+
+test("wide: saving, cancelling and deleting close the panel and return focus to Add", async () => {
+	addRestaurant({ ...blank, name: "A" });
+	const el = await mount();
+	const focused = async () => {
+		await el.updateComplete;
+		return active(el)?.getAttribute("data-action");
+	};
+
+	await click(el, ".head button.add");
+	type(el, "#name", "B");
+	await submit(el);
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect(await focused()).toBe("add");
+
+	await click(el, 'button[data-action="edit"]');
+	await click(el, 'button[data-action="cancel-edit"]');
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect(await focused()).toBe("add");
+
+	await click(el, 'button[data-action="edit"]');
+	await click(el, 'button[data-action="delete"]');
+	await click(el, 'button[data-action="confirm-delete"]');
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect(await focused()).toBe("add");
+});
+
+test("wide: a blank name keeps the panel open with its error", async () => {
+	const el = await mount();
+	await click(el, ".head button.add");
+	await submit(el);
+	expect($(el, "section.edit-panel")).not.toBeNull();
+	expect($(el, "#name-error")).not.toBeNull();
+});
+
+test("wide: another tab deleting the restaurant being edited closes the panel", async () => {
+	const [item] = addRestaurant({ ...blank, name: "Gone" });
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	removeRestaurant(item!.id);
+	await el.updateComplete;
+	expect($(el, "section.edit-panel")).toBeNull();
+});
+
+test("the empty list has its own Add button that opens the form", async () => {
+	const el = await mount();
+	const add = $<HTMLButtonElement>(el, '.empty button[data-action="add"]')!;
+	expect(add.textContent?.trim()).toBe("Add restaurant");
+	add.click();
+	await el.updateComplete;
+	expect($(el, "section.edit-panel #form-title")?.textContent?.trim()).toBe(
+		"New restaurant",
 	);
 });
 
-test("phone: focused fields scroll clear of the sticky save row", () => {
-	const css = ownStyles();
+const searchInput = (el: RestaurantManager) =>
+	$<HTMLInputElement>(el, "#search")!;
+const openSearch = async (el: RestaurantManager) => {
+	$<HTMLButtonElement>(el, '[data-action="search"]')!.click();
+	await el.updateComplete;
+};
+const typeSearch = async (el: RestaurantManager, text: string) => {
+	type(el, "#search", text);
+	await el.updateComplete;
+};
+const seedSearch = () => {
+	for (const name of [
+		"Bankara Ramen",
+		"Café Tartine",
+		"Jay Fai",
+		"Ramen Champion",
+	])
+		addRestaurant({ ...blank, name });
+};
+
+test("search: the header button shows only once there is a restaurant", async () => {
+	const el = await mount();
+	expect($(el, '[data-action="search"]')).toBeNull();
+	addRestaurant({ ...blank, name: "Jay Fai" });
+	await el.updateComplete;
+	const button = $(el, '.head-actions [data-action="search"]')!;
+	expect(button.getAttribute("aria-label")).toBe("Search restaurants");
+	expect(button.nextElementSibling?.classList.contains("tags-link")).toBe(true);
+});
+
+test("search: opening focuses the field inside the tap, so iOS opens the keyboard", async () => {
+	seedSearch();
+	const el = await mount();
+	$<HTMLButtonElement>(el, '[data-action="search"]')!.click();
+	// No await: the focus must already have moved when the click handler returns.
+	expect(active(el)?.id).toBe("search");
+	await el.updateComplete;
+	// The title stays in the accessibility tree (visually hidden) while the actions go dark.
+	expect($(el, ".head-actions")?.hasAttribute("hidden")).toBe(true);
+	expect($(el, ".head > div")?.classList.contains("visually-hidden")).toBe(
+		true,
+	);
+	expect($(el, ".head h1.page-title")?.textContent?.trim()).toBe("Restaurants");
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	const input = searchInput(el);
+	expect(input.type).toBe("search");
+	expect(input.getAttribute("aria-label")).toBe("Search restaurants");
+	expect(input.placeholder).toBe("Search by name");
+	expect(input.getAttribute("autocomplete")).toBe("off");
+	expect(input.getAttribute("autocapitalize")).toBe("off");
+	expect(input.getAttribute("spellcheck")).toBe("false");
+	expect(input.getAttribute("enterkeyhint")).toBe("search");
+});
+
+test("search: typing narrows the list to matching names, A to Z, with the match in a mark", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	expect(rowNames(el)).toEqual(["Bankara Ramen", "Ramen Champion"]);
+	const marks = [...$$(el, "li[data-id] .name mark")].map(
+		(mark) => mark.textContent,
+	);
+	expect(marks).toEqual(["Ram", "Ram"]);
+	expect($(el, "li[data-id] button.row")?.getAttribute("aria-label")).toBe(
+		"Edit Bankara Ramen",
+	);
+	await typeSearch(el, "cafe");
+	expect(rowNames(el)).toEqual(["Café Tartine"]);
+	expect($(el, "li[data-id] .name mark")?.textContent).toBe("Café");
+	await typeSearch(el, "champion ramen");
+	expect(rowNames(el)).toEqual(["Ramen Champion"]);
+});
+
+test("search: the count shows at once; screen readers hear it after typing pauses", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	expect($(el, ".search-count")?.textContent?.trim()).toBe("4 restaurants");
+	await typeSearch(el, "ram");
+	expect($(el, ".search-count")?.textContent?.trim()).toBe(
+		"2 of 4 restaurants",
+	);
+	const live = $(el, '.search-announce[role="status"]')!;
+	expect(live.textContent?.trim()).toBe("");
+	await new Promise((resolve) => setTimeout(resolve, 550));
+	await el.updateComplete;
+	expect(live.textContent?.trim()).toBe("2 of 4 restaurants");
+});
+
+test("search: clear empties the field but stays in search with focus in the field", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	expect($(el, '[data-action="clear-search"]')).toBeNull();
+	await typeSearch(el, "ram");
+	await click(el, '[data-action="clear-search"]');
+	expect(searchInput(el).value).toBe("");
+	expect(rowNames(el)).toHaveLength(4);
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	expect(active(el)?.id).toBe("search");
+});
+
+test("search: a pointerdown on clear does not blur the field first, so the keyboard stays up", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	const clear = $<HTMLButtonElement>(el, '[data-action="clear-search"]')!;
+	const event = new PointerEvent("pointerdown", {
+		bubbles: true,
+		cancelable: true,
+	});
+	clear.dispatchEvent(event);
+	expect(event.defaultPrevented).toBe(true);
+});
+
+test("search: Cancel and Escape end search, restore the header and focus the button", async () => {
+	seedSearch();
+	const el = await mount();
+	for (const end of ["cancel", "escape"]) {
+		await openSearch(el);
+		await typeSearch(el, "ram");
+		if (end === "cancel") await click(el, '[data-action="cancel-search"]');
+		else {
+			searchInput(el).dispatchEvent(
+				new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+			);
+			await el.updateComplete;
+		}
+		await el.updateComplete;
+		expect($(el, ".head-actions")?.hasAttribute("hidden")).toBe(false);
+		expect($(el, ".head > div")?.classList.contains("visually-hidden")).toBe(
+			false,
+		);
+		expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+		expect(rowNames(el)).toHaveLength(4);
+		expect(searchInput(el).value).toBe("");
+		expect(active(el)?.getAttribute("data-action")).toBe("search");
+	}
+});
+
+test("search: is translated to Thai", async () => {
+	seedSearch();
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	expect($(el, '[data-action="search"]')?.getAttribute("aria-label")).toBe(
+		"ค้นหาร้านอาหาร",
+	);
+	await openSearch(el);
+	expect(searchInput(el).placeholder).toBe("ค้นหาด้วยชื่อ");
+	expect($(el, '[data-action="cancel-search"]')?.textContent?.trim()).toBe(
+		"ยกเลิก",
+	);
+	await typeSearch(el, "ram");
+	expect($(el, ".search-count")?.textContent?.trim()).toBe("2 จาก 4 ร้าน");
+});
+
+test("the magnifier and the Tags link are the same height", () => {
+	const css = (RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(/\.tags-link\s*\{[^}]*min-height:\s*var\(--tap\)/);
+	// A link's min-height leaves out its border unless it is border-box, like the button.
+	expect(css).toMatch(/\.tags-link\s*\{[^}]*box-sizing:\s*border-box/);
+	expect(css).toMatch(/\.search-open\s*\{[^}]*min-height:\s*var\(--tap\)/);
+});
+
+test("search: no match shows one card that offers to add the name or clear", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "  zaab ");
+	expect($(el, "ul.list")).toBeNull();
+	const card = $(el, ".card.empty.no-match")!;
+	expect(card.querySelector("p")?.textContent?.trim()).toBe(
+		'No restaurants match "zaab".',
+	);
+	expect(
+		card.querySelector('[data-action="add-named"]')?.textContent?.trim(),
+	).toBe('Add "zaab"');
+	await click(el, '[data-action="clear-search-empty"]');
+	expect(rowNames(el)).toHaveLength(4);
+	expect(active(el)?.id).toBe("search");
+});
+
+test("phone: Add from a search opens the new form with the name filled in", async () => {
+	seedSearch();
+	const el = await phone();
+	await openSearch(el);
+	await typeSearch(el, "Zaab Ari");
+	await click(el, '[data-action="add-named"]');
+	expect($(el, "app-sheet")?.hasAttribute("open")).toBe(true);
+	expect($(el, "app-sheet")?.getAttribute("heading")).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Zaab Ari");
+});
+
+test("wide: Add from a search fills the side panel's name", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "Zaab Ari");
+	await click(el, '[data-action="add-named"]');
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Zaab Ari");
+});
+
+test("phone: Add from a search focuses the saved row, now shown among the results", async () => {
+	seedSearch();
+	const el = await phone();
+	await openSearch(el);
+	await typeSearch(el, "Zaab");
+	await click(el, '[data-action="add-named"]');
+	await submit(el);
+	await settleFocus(el);
+	expect(rowNames(el)).toEqual(["Zaab"]);
+	const row = [...$$(el, "li[data-id]")].find(
+		(li) => li.querySelector(".name")?.textContent === "Zaab",
+	)!;
+	expect(active(el)).toBe(row.querySelector('button[data-action="edit"]'));
+});
+
+test("search: editing a result keeps the search; a rename out of it drops the row", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	type(el, "#name", "Bankara Tonkotsu");
+	await submit(el);
+	await el.updateComplete;
+	expect(searchInput(el).value).toBe("ram");
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	expect(rowNames(el)).toEqual(["Ramen Champion"]);
+	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
+		"Saved Bankara Tonkotsu",
+	);
+	// Renamed out of the query: its row is gone, so focus goes back to the search field.
+	expect(active(el)?.id).toBe("search");
+});
+
+test("search: a restaurant added in another tab shows up if it matches", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	addRestaurant({ ...blank, name: "Ramen Nagi" });
+	await el.updateComplete;
+	expect(rowNames(el)).toEqual([
+		"Bankara Ramen",
+		"Ramen Champion",
+		"Ramen Nagi",
+	]);
+});
+
+test("search: deleting every restaurant mid-search shows the empty list card", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	saveRestaurants([]);
+	await el.updateComplete;
+	expect($(el, ".card.empty:not(.no-match)")).not.toBeNull();
+	expect($(el, ".no-match")).toBeNull();
+	// An empty list ends the search outright instead of leaving a dead "0 of 0" view behind.
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+	expect($(el, ".head-actions")?.hasAttribute("hidden")).toBe(false);
+	expect($(el, ".head > div")?.classList.contains("visually-hidden")).toBe(
+		false,
+	);
+	expect($(el, ".search-count")).toBeNull();
+	expect(searchInput(el).value).toBe("");
+	await new Promise((resolve) => setTimeout(resolve, 550));
+	await el.updateComplete;
+	expect($(el, '.search-announce[role="status"]')?.textContent?.trim()).toBe(
+		"",
+	);
+});
+
+const slash = (target: EventTarget = document.body) =>
+	target.dispatchEvent(
+		new KeyboardEvent("keydown", {
+			key: "/",
+			bubbles: true,
+			composed: true,
+			cancelable: true,
+		}),
+	);
+
+test("wide: / opens search, but not while typing in a field", async () => {
+	seedSearch();
+	const el = await mountForm();
+	slash($<HTMLInputElement>(el, "#name")!);
+	await el.updateComplete;
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+	slash();
+	await el.updateComplete;
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	expect(active(el)?.id).toBe("search");
+});
+
+test("phone: / does nothing", async () => {
+	seedSearch();
+	const el = await phone();
+	slash();
+	await el.updateComplete;
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+});
+
+test("wide: / does nothing while a sheet is open", async () => {
+	seedSearch();
+	const el = await mount();
+	document.documentElement.classList.add("sheet-open");
+	try {
+		slash();
+		await el.updateComplete;
+		expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+	} finally {
+		document.documentElement.classList.remove("sheet-open");
+	}
+});
+
+test("wide: / while already searching moves focus back to the field, from outside a typing control", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	const row = $<HTMLButtonElement>(
+		el,
+		'li[data-id] button[data-action="edit"]',
+	)!;
+	row.focus();
+	const event = new KeyboardEvent("keydown", {
+		key: "/",
+		bubbles: true,
+		composed: true,
+		cancelable: true,
+	});
+	row.dispatchEvent(event);
+	await el.updateComplete;
+	expect(event.defaultPrevented).toBe(true);
+	expect(active(el)?.id).toBe("search");
+});
+
+test("search: the no-match card is translated to Thai", async () => {
+	seedSearch();
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	await openSearch(el);
+	await typeSearch(el, "zaab");
+	expect($(el, ".no-match p")?.textContent?.trim()).toBe("ไม่มีร้านที่ตรงกับ “zaab”");
+	expect($(el, '[data-action="add-named"]')?.textContent?.trim()).toBe(
+		"เพิ่ม “zaab”",
+	);
+	expect($(el, '[data-action="clear-search-empty"]')?.textContent?.trim()).toBe(
+		"ล้างการค้นหา",
+	);
+});
+
+const pressEnter = (el: RestaurantManager) => {
+	const event = new KeyboardEvent("keydown", {
+		key: "Enter",
+		bubbles: true,
+		cancelable: true,
+	});
+	searchInput(el).dispatchEvent(event);
+	return event;
+};
+
+test("phone: the title row and the search row stay stuck to the top while the list scrolls", async () => {
+	seedSearch();
+	const el = await phone();
+	const top = $(el, ".top")!;
+	expect(top.querySelector(".head")).not.toBeNull();
+	expect(top.querySelector("restaurant-search")).not.toBeNull();
+	const css = (RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
 	expect(css).toMatch(
-		/form input,\s*form textarea,\s*form tag-input,\s*fieldset\.kinds label\s*\{[^}]*scroll-margin-bottom:\s*5rem/,
+		/\.top\s*\{[^}]*position:\s*sticky[^}]*top:\s*0[^}]*background:\s*var\(--color-bg\)/,
 	);
-	const wideIndex = css.indexOf("@media (min-width: 48rem)");
-	expect(wideIndex).toBeGreaterThan(-1);
-	const wideBlock = css.slice(wideIndex);
-	expect(wideBlock).toMatch(
-		/form input,\s*form textarea,\s*form tag-input,\s*fieldset\.kinds label\s*\{[^}]*scroll-margin-bottom:\s*0/,
+	// Wide screens keep a sticky side panel, so the top row scrolls normally there.
+	expect(css).toMatch(
+		/@media \(min-width: 48rem\)[\s\S]*\.top\s*\{[^}]*position:\s*static/,
 	);
+});
+
+test("search: the Search key with one match opens that restaurant", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "champion");
+	const event = pressEnter(el);
+	await el.updateComplete;
+	expect(event.defaultPrevented).toBe(true);
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Ramen Champion");
+	expect(searchInput(el).value).toBe("champion");
+});
+
+test("phone: the Search key with one match opens its edit sheet", async () => {
+	seedSearch();
+	const el = await phone();
+	await openSearch(el);
+	await typeSearch(el, "jay");
+	pressEnter(el);
+	await el.updateComplete;
+	expect($(el, "app-sheet")?.hasAttribute("open")).toBe(true);
+	expect($(el, "app-sheet")?.getAttribute("heading")).toBe("Edit Jay Fai");
+});
+
+test("search: the Search key with several matches hides the keyboard and keeps the results", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	const event = pressEnter(el);
+	await el.updateComplete;
+	expect(event.defaultPrevented).toBe(true);
+	expect(active(el)?.id).not.toBe("search");
+	expect(rowNames(el)).toEqual(["Bankara Ramen", "Ramen Champion"]);
+	expect($(el, "section.edit-panel")).toBeNull();
+});
+
+test("search: the no-match Add keeps an already open add panel open, with the name filled in", async () => {
+	seedSearch();
+	const el = await mountForm();
+	await openSearch(el);
+	await typeSearch(el, "zaab");
+	await click(el, '[data-action="add-named"]');
+	expect($(el, "section.edit-panel #form-title")?.textContent?.trim()).toBe(
+		"New restaurant",
+	);
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("zaab");
+});
+
+test("search: closing the panel while searching returns focus to the search field", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	await click(el, 'button[data-action="close-panel"]');
+	await el.updateComplete;
+	expect(active(el)?.id).toBe("search");
+});
+
+test("search: no match drops the count line; screen readers hear the no-match message", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "zaab");
+	expect($(el, ".search-count")).toBeNull();
+	await new Promise((resolve) => setTimeout(resolve, 550));
+	await el.updateComplete;
+	expect($(el, ".search-announce")?.textContent?.trim()).toBe(
+		'No restaurants match "zaab".',
+	);
+});
+
+test("search: screen readers hear the count once, from the line under the field", async () => {
+	seedSearch();
+	const el = await mount();
+	const headerCount = $(el, ".head .count")!;
+	expect(headerCount.hasAttribute("aria-hidden")).toBe(false);
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	// The title stays for screen readers while searching, but its count would repeat the
+	// visible "2 of 4 restaurants" line, so it is hidden from them.
+	expect(headerCount.getAttribute("aria-hidden")).toBe("true");
+	expect($(el, ".search-count")?.hasAttribute("aria-hidden")).toBe(false);
+	await click(el, '[data-action="cancel-search"]');
+	expect(headerCount.hasAttribute("aria-hidden")).toBe(false);
 });

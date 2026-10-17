@@ -7,6 +7,9 @@ import type { DataTransferPanel } from "#components/data-transfer";
 import type { HistoryClear } from "#components/history-clear";
 import type { PresetPicker } from "#components/preset-picker";
 import type { RandomPicker } from "#components/random-picker";
+import type { RestaurantForm } from "#components/restaurant/form";
+import type { RestaurantList } from "#components/restaurant/list";
+import type { RestaurantSearch } from "#components/restaurant/search";
 import type { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
 import type { TagManager } from "#components/tag-manager";
@@ -24,7 +27,10 @@ declare global {
 		"visit-history": VisitHistory;
 		"preset-picker": PresetPicker;
 		"random-picker": RandomPicker;
+		"restaurant-form": RestaurantForm;
+		"restaurant-list": RestaurantList;
 		"restaurant-manager": RestaurantManager;
+		"restaurant-search": RestaurantSearch;
 		"tag-input": TagInput;
 		"tag-manager": TagManager;
 	}

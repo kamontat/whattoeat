@@ -2,6 +2,78 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-17: Search restaurants by name
+
+### Features
+
+- Restaurants has a search button beside Tags. It turns the title row into a search field
+  with a clear button and Cancel, and the list narrows to names that contain every word you
+  type, in any order. Case and Latin accents are ignored ("cafe" finds "Café"); Thai is
+  matched as typed. The matched part of each name is bold.
+- "2 of 157 restaurants" shows while searching; screen readers hear it once typing pauses.
+- When nothing matches, a card offers **Add "…"**, which opens the new-restaurant form with
+  the name filled in, or **Clear search**.
+- The keyboard's Search key opens the restaurant when only one matches, and otherwise puts the
+  keyboard away so every result is in view. On wide screens `/` opens search and `Esc`
+  closes it.
+
+### Improvements
+
+- On phones the Restaurants title row, and the search field while searching, stay at the top
+  of the screen, so search is one tap away in a long list.
+- Editing from the results keeps the search; after a save, focus lands on the saved
+  restaurant, or back in the field if it no longer matches. A change in another tab re-filters
+  the results, and emptying the list ends search.
+- The Tags link on Restaurants is the same height as the search button: 44px on touch
+  screens, 36px with a mouse.
+- From 768px the Restaurants edit panel starts hidden and the list takes the full width. Add
+  opens the panel beside the list and pressing it again hides it; Add while editing switches
+  to a new restaurant instead. Clicking a row opens the panel for editing, and Save, Cancel,
+  Delete or the panel's new close button hide it again, returning focus to Add (or to the
+  search field while searching).
+- Add on Restaurants is a round plus button, in the header and pinned on phones, labelled
+  "Add restaurant" for screen readers and on hover. The empty list card has its own "Add
+  restaurant" button.
+- `restaurant-manager` is split into `restaurant-search`, `restaurant-list` and
+  `restaurant-form` under `src/components/restaurant/`. Each has its own shadow root and
+  styles, takes data through properties and reports back with events, so each is tested alone
+  without the store. `restaurant-manager` keeps the store, the sheet and side panel, and the
+  form state. Name matching and the count line (`searchByName`, `noMatch`, `countText`) moved
+  to `#lib/search`.
+- `app-sheet`'s `containsFocus()` now sees focus inside a slotted component's own shadow
+  root, so closing the sheet does not take focus back from where the page put it.
+
+### Bug fixes
+
+- While searching, screen readers read the result count once instead of twice: the title kept
+  for them had its own copy of "N of M restaurants".
+
+### Decisions
+
+- Search matches names only, because it is for finding a place you already know in order to
+  edit it; browsing by cuisine or area stays with the Home filter.
+- It sits behind a header button that turns the title into the field, iOS style, rather than
+  an always-visible field or a separate sheet. The field is focused inside the tap itself,
+  because iOS only opens the keyboard for a focus made during the tap.
+- Only Latin accents are folded (U+0300 to U+036F). Thai vowel and tone marks are combining
+  marks too, and stripping them would make different Thai words match; a highlight always
+  takes the marks after the last matched letter, so they are never split from their letter.
+- The visible count updates at once, while a separate hidden line speaks it after a 500 ms
+  pause, so screen readers are not interrupted on every key.
+- The title row stays put only on phones; from 768px the edit side panel is already the part
+  that stays in view, and two stuck areas would overlap.
+- Search on the Tags page stays in `TODO.md`.
+- The edit panel used to always show an empty "New restaurant" form, which repeated the Add
+  button in the header. Hiding it until Add or a row opens it gives the list the full width
+  and works like the phone sheet. Closing it drops anything typed, the same as closing the
+  sheet.
+- The restaurant parts are separate custom elements rather than render functions sharing one
+  shadow root, so a test of one never has to mount or mock the others. `restaurant-form` is
+  controlled by the manager rather than keeping its own state, because the side panel and the
+  phone sheet are two form elements, and what is typed must survive crossing between them.
+  `restaurant-search` uses `display: contents` so its row and count stay items of the sticky
+  top bar's grid.
+
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 
 ### Features
