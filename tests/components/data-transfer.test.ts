@@ -486,7 +486,9 @@ test("the reset prompt is padded on every side inside its card, not a squeezed l
 	await click(el, 'button[data-action="reset"]');
 	const prompt = $(el, ".reset-prompt")!;
 	expect(prompt.classList.contains("item")).toBe(false);
-	expect(prompt.closest(".group.confirm")).not.toBeNull();
+	expect(prompt.closest(".confirm")?.closest(".group")).toBe(
+		$(el, "section.reset .group"),
+	);
 	const css = [
 		(customElements.get("data-transfer") as unknown as { styles: unknown })
 			.styles,
@@ -918,6 +920,63 @@ test("the Reset section orders delete restaurants, delete history, then delete a
 	).toBeTruthy();
 });
 
+test("the three delete rows share one card", async () => {
+	const el = await mount();
+	const reset = $(el, "section.reset")!;
+	const cards = reset.querySelectorAll(".group");
+	expect(cards).toHaveLength(1);
+	const card = $(el, "section.reset .group");
+	expect(
+		reset.querySelector('button[data-action="clear-restaurants"]')
+			?.parentElement,
+	).toBe(card);
+	expect(reset.querySelector("history-clear")?.parentElement).toBe(card);
+	expect(
+		reset.querySelector('button[data-action="reset"]')?.parentElement,
+	).toBe(card);
+});
+
+test("a delete prompt opens inside the card, keeping the other rows", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	const el = await mount();
+	await click(el, 'button[data-action="clear-restaurants"]');
+	const card = $(el, "section.reset .group")!;
+	expect(card.querySelector(".clear-restaurants-prompt")).not.toBeNull();
+	expect(card.querySelector("history-clear")).not.toBeNull();
+	expect(card.querySelector('button[data-action="reset"]')).not.toBeNull();
+});
+
+test("a history clear is reported under the card; focus lands there once the row greys out", async () => {
+	const el = await mount();
+	const history = $(el, "history-clear")!;
+	history.dispatchEvent(
+		new CustomEvent("history-cleared", {
+			detail: { count: 3 },
+			bubbles: true,
+			composed: true,
+		}),
+	);
+	await el.updateComplete;
+	await el.updateComplete;
+	const done = $(el, ".clear-history-done")!;
+	expect(done.textContent?.trim()).toBe("Deleted 3 visits.");
+	expect(done.getAttribute("role")).toBe("status");
+	expect(done.closest(".group")).toBeNull();
+	expect(el.shadowRoot!.activeElement).toBe(done);
+});
+
+test("starting another delete drops the last result", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	const el = await mount();
+	$(el, "history-clear")!.dispatchEvent(
+		new CustomEvent("history-cleared", { detail: { count: 1 } }),
+	);
+	await el.updateComplete;
+	expect($(el, ".clear-history-done")).not.toBeNull();
+	await click(el, 'button[data-action="clear-restaurants"]');
+	expect($(el, ".clear-history-done")).toBeNull();
+});
+
 test("delete restaurants is greyed out while there are none", async () => {
 	const el = await mount();
 	const button = () =>
@@ -938,7 +997,9 @@ test("delete restaurants asks first and can be cancelled, with focus following",
 		"Delete all 2 restaurants? Your history, groups and settings are kept. This cannot be undone.",
 	);
 	expect(prompt.getAttribute("role")).toBe("alert");
-	expect(prompt.closest(".group.confirm")).not.toBeNull();
+	expect(prompt.closest(".confirm")?.closest(".group")).toBe(
+		$(el, "section.reset .group"),
+	);
 	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
 		"clear-restaurants-confirm",
 	);
@@ -969,6 +1030,7 @@ test("confirming delete restaurants empties only the restaurant list and added p
 	expect($(el, ".clear-restaurants-done")?.textContent?.trim()).toBe(
 		"Deleted 1 restaurant.",
 	);
+	expect($(el, ".clear-restaurants-done")?.closest(".group")).toBeNull();
 	expect(el.shadowRoot!.activeElement).toBe($(el, ".clear-restaurants-done"));
 });
 
