@@ -51,7 +51,6 @@ import {
 } from "#lib/store";
 import {
 	editValue,
-	type GroupKind,
 	loadPick,
 	savePick,
 	type TagEntry,
@@ -78,12 +77,15 @@ const restaurantsText = (count: number): string =>
 const valuesText = (count: number): string =>
 	count === 1 ? t("tags.values.one") : t("tags.values.other", { count });
 
-const groupsText = (count: number): string =>
-	count === 1 ? t("tags.groups.one") : t("tags.groups.other", { count });
-
-/** What kind of group this is, in a search result's sub line; Type counts as built in. */
-const kindText = (kind: GroupKind): string =>
-	t(`tags.kind.${kind === "fixed" ? "built-in" : kind}`);
+/** The subtitle for the picked group: its values, and how many restaurants use it (plain tags
+ * say they are not filtered instead). */
+const groupSummary = (group: TagGroup): string =>
+	group.kind === "tags"
+		? t("tags.summaryTags", { values: valuesText(group.values) })
+		: t("tags.summary", {
+				values: valuesText(group.values),
+				count: restaurantsText(group.restaurants),
+			});
 
 const isValueDraft = (draft: ValueDraft | GroupDraft): draft is ValueDraft =>
 	"target" in draft;
@@ -156,7 +158,8 @@ export class TagManager extends LitElement {
 				display: none;
 			}
 
-			.search-open {
+			.search-open,
+			.edit-group {
 				width: var(--tap);
 				min-height: var(--tap);
 				padding: 0;
@@ -168,21 +171,6 @@ export class TagManager extends LitElement {
 				width: var(--tap);
 				padding: 0;
 				border-radius: 50%;
-			}
-
-			.group-head {
-				display: flex;
-				flex-wrap: wrap;
-				align-items: center;
-				justify-content: space-between;
-				gap: 0.25rem 0.75rem;
-				min-height: var(--tap);
-				color: var(--color-muted);
-				font-size: 0.875rem;
-			}
-
-			.group-head .edit-group {
-				font-size: 0.875rem;
 			}
 
 			.status:empty {
@@ -488,7 +476,7 @@ export class TagManager extends LitElement {
 		const opener =
 			form.kind === "group"
 				? this.renderRoot.querySelector<HTMLElement>(
-						'.group-head [data-action="edit-group"]',
+						'.head-actions [data-action="edit-group"]',
 					)
 				: form.kind === "new-group" && !this.searching
 					? this.renderRoot.querySelector<HTMLElement>("button.add")
@@ -662,11 +650,7 @@ export class TagManager extends LitElement {
 		const form = this.form;
 		if (form !== undefined) this.sheetForm = { form, draft: this.draft };
 		const showPicker = !searching && picked !== undefined;
-		const valueTotal = groups.reduce((sum, group) => sum + group.values, 0);
-		const summary = t("tags.summary", {
-			groups: groupsText(groups.length),
-			values: valuesText(valueTotal),
-		});
+		const summary = picked === undefined ? "" : groupSummary(picked);
 		const newGroup = t("tags.newGroup");
 		const add = html`<button
 			type="button"
@@ -697,6 +681,7 @@ export class TagManager extends LitElement {
 						>
 							${icon("search", 20)}
 						</button>
+						${showPicker && picked.kind === "custom" ? this.renderEditGroup(picked, wide) : nothing}
 						${wide ? add : nothing}
 					</div>
 				</header>
@@ -709,7 +694,7 @@ export class TagManager extends LitElement {
 				></restaurant-search>
 				${
 					showPicker && stage !== "large"
-						? html`${this.renderPicker(groups, "pills", stage === "small")}${this.renderGroupHead(picked, wide)}`
+						? this.renderPicker(groups, "pills", stage === "small")
 						: nothing
 				}
 			</div>
@@ -736,7 +721,6 @@ export class TagManager extends LitElement {
 			>
 				${showPicker && stage === "large" ? this.renderPicker(groups, "column", false) : nothing}
 				<div class="values-col">
-					${showPicker && stage === "large" ? this.renderGroupHead(picked, wide) : nothing}
 					${searching ? this.renderResults(entries, groups) : picked === undefined ? nothing : this.renderValues(picked)}
 				</div>
 				${
@@ -865,26 +849,20 @@ export class TagManager extends LitElement {
 		></tag-picker>`;
 	}
 
-	/** The picked group's kind and restaurant total, with Edit group for custom groups. */
-	private renderGroupHead(group: TagGroup, wide: boolean) {
-		const kind =
-			group.kind === "fixed" ? t("tags.fixedNote") : kindText(group.kind);
-		return html`<div class="group-head" data-group=${group.id}>
-			<p><span class="kind">${kind}</span> · <span class="total">${restaurantsText(group.restaurants)}</span></p>
-			${
-				group.kind === "custom"
-					? html`<button
-							type="button"
-							class="quiet edit-group"
-							data-action="edit-group"
-							aria-haspopup=${wide ? nothing : "dialog"}
-							@click=${() => this.openGroupForm(group.id)}
-						>
-							${icon("edit", 18)}<span>${t("tags.editGroup")}</span>
-						</button>`
-					: nothing
-			}
-		</div>`;
+	/** Icon only, next to search: the pencil says Edit, the label says which group. */
+	private renderEditGroup(group: TagGroup, wide: boolean) {
+		const label = t("tags.editGroup", { group: group.label });
+		return html`<button
+			type="button"
+			class="edit-group"
+			data-action="edit-group"
+			aria-label=${label}
+			title=${label}
+			aria-haspopup=${wide ? nothing : "dialog"}
+			@click=${() => this.openGroupForm(group.id)}
+		>
+			${icon("edit", 20)}
+		</button>`;
 	}
 
 	private renderValues(group: TagGroup) {
@@ -914,12 +892,12 @@ export class TagManager extends LitElement {
 		return this.renderList(
 			searchByName(entries, query).map(({ item, ranges }): ListRow => {
 				if (item.type === "group") {
-					const kind =
-						groups.find((group) => group.id === item.group)?.kind ?? "custom";
+					const values =
+						groups.find((group) => group.id === item.group)?.values ?? 0;
 					return {
 						group: item.group,
 						name: item.name,
-						sub: kindText(kind),
+						sub: valuesText(values),
 						ranges,
 					};
 				}

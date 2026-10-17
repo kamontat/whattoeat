@@ -49,14 +49,13 @@ Three stages by viewport width.
 Top to bottom:
 
 1. Back link "‹ Settings".
-2. Header row: title "Tags" with count line under it (`6 groups · 48 values`), search icon button
-   on the right. Header stays sticky like the restaurants page.
+2. Header row: title "Tags" with the picked group's subtitle under it (see "Picked group"), search
+   icon button (and Edit for a custom group) on the right. Header stays sticky like restaurants.
 3. Group pill strip: one pill per group in the order Type, Cuisine, Area, custom groups (stored
    order), plain Tags. Each pill shows the group name and its value count. One row, scrolls
    sideways; the selected pill is scrolled into view.
-4. Group header line for the picked group (see "Picked group" below).
-   The header row, the pill strip and the group header line stay pinned together under the sticky
-   top while the values scroll, so switching groups never needs scrolling back up (decided by the
+4. The header row and the pill strip stay pinned together under the sticky top while the values
+   scroll, so switching groups never needs scrolling back up (decided by the
    user). On wide screens they scroll away as on restaurants; the side panel is the sticky part.
 5. The picked group's values as a list of rows in the restaurants list style: value name, sub line
    `N restaurants`, chevron. Tapping a row opens the edit-value form in a bottom sheet.
@@ -76,9 +75,8 @@ Same as phone (pills + values) but:
 Three columns, no pills:
 
 1. Groups column: one row per group (same order as pills) with name and value count; the picked
-   group row is marked current (same highlight as the current restaurant row). Type's row says
-   "fixed".
-2. Values column: group header line + values list for the picked group.
+   group row is marked current (same highlight as the current restaurant row).
+2. Values column: the values list for the picked group.
 3. Side panel with the open form.
 
 64rem is my call for the cut-off (main is capped at 65rem). Add a second media constant next to
@@ -89,16 +87,17 @@ Three columns, no pills:
 Type is a group in the picker like any other (a pill on phone and small desktop, a row on large
 desktop). When Type is picked its values (Food, Drinks, Dessert) show as read-only rows: dashed
 outline instead of the card surface, muted text, `N restaurants` on the right, no chevron, not
-buttons. A note above them: "Type is fixed. Set it on each restaurant."
+buttons. No note: the dashed rows alone say they are for information only.
 
 ## Picked group
 
-- A line above the values: group kind and restaurant total (e.g. `Custom group · 11 restaurants`).
-  For custom groups it also has an "Edit group" button that opens the edit-group form.
-  Cuisine, Area and plain Tags cannot be renamed or deleted, so they get no button.
-- When plain Tags is picked, the line carries what today's intro says: plain tags show on
-  restaurants but are not used by the home filter. The intro paragraph under the title goes away;
-  the count line replaces it. (My call.)
+- No line above the values (revised after review by the user). The page subtitle follows the
+  picked group instead: `{N values} · {N restaurants}` (Type included), or
+  `{N values} · not used by the home filter` for plain Tags. The intro paragraph goes away.
+- Custom groups get an icon-only pencil button in the header actions, next to search, labelled
+  "Edit {group}", that opens the edit-group form. Cuisine, Area, Type and plain Tags get none.
+- Type carries no "fixed" label or note anywhere; its dashed, chevron-less rows say it is for
+  information only.
 - Default pick: the first group that can be edited (Cuisine). The pick is remembered in
   `sessionStorage` so returning to the page in the same session lands on the same group; a
   remembered group that no longer exists falls back to the default. (My call.)

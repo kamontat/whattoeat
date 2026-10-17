@@ -145,7 +145,7 @@ const openValue = async (el: TagManager, group: string, value: string) => {
 /** Picks the custom group, opens its Edit group form and returns it. */
 const openGroup = async (el: TagManager, id: string) => {
 	if (pressed(el) !== id) await pick(el, id);
-	await clickOn(el, $(el, '.group-head [data-action="edit-group"]'));
+	await clickOn(el, $(el, '.head-actions [data-action="edit-group"]'));
 	return groupForm(el)!;
 };
 
@@ -199,7 +199,7 @@ test("phone: pills in the sticky top, pinned add, one form sheet", async () => {
 	expect(pills.getAttribute("variant")).toBe("pills");
 	expect(pills.hasAttribute("wrap")).toBe(false);
 	expect(pills.closest(".top")).not.toBeNull();
-	expect($(el, ".top .group-head")).not.toBeNull();
+	expect($(el, ".group-head")).toBeNull();
 	expect($(el, ".pinned button.add")).not.toBeNull();
 	expect($(el, ".head-actions button.add")).toBeNull();
 	expect($(el, "section#edit-panel")).toBeNull();
@@ -215,7 +215,7 @@ test("the picker lists groups in order, ending with plain tags", async () => {
 	expect(pickerIds(el)).toEqual(["kind", "cuisine", "area", "g1", "tags"]);
 });
 
-test("count line shows groups and values", async () => {
+test("the subtitle counts the picked group's values and restaurants", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
 	addRestaurant({
 		...base,
@@ -223,8 +223,15 @@ test("count line shows groups and values", async () => {
 		tags: ["spicy"],
 		groups: { cuisine: ["thai", "lao"] },
 	});
+	addRestaurant({ ...base, name: "B", groups: { cuisine: ["thai"] } });
 	const el = await mount();
-	expect($(el, "p.count")?.textContent?.trim()).toBe("5 groups · 3 values");
+	expect($(el, "p.count")?.textContent?.trim()).toBe(
+		"2 values · 2 restaurants",
+	);
+	await pick(el, "g1");
+	expect($(el, "p.count")?.textContent?.trim()).toBe(
+		"0 values · 0 restaurants",
+	);
 });
 
 test("Cuisine is picked first and the pick is remembered for the session", async () => {
@@ -261,7 +268,7 @@ test("values show how many restaurants use them, most used first", async () => {
 	expect(rowButton(el, "cuisine", "thai")).not.toBeNull();
 });
 
-test("Type values are read-only with the fixed note", async () => {
+test("Type values are read-only, with the usual subtitle and no note", async () => {
 	addRestaurant({ ...base, name: "A", kinds: ["food"] });
 	const el = await mount();
 	await pick(el, "kind");
@@ -270,32 +277,25 @@ test("Type values are read-only with the fixed note", async () => {
 	expect(rowFor(el, "kind", "food")?.querySelector(".name")?.textContent).toBe(
 		"Food",
 	);
-	const head = $(el, ".group-head")!;
-	expect(head.getAttribute("data-group")).toBe("kind");
-	expect(head.querySelector(".kind")?.textContent?.trim()).toBe(
-		"Type is fixed. Set it on each restaurant.",
-	);
-	expect(head.textContent).toContain("1 restaurant");
+	expect($(el, ".group-head")).toBeNull();
+	expect($(el, "p.count")?.textContent?.trim()).toBe("1 value · 1 restaurant");
 });
 
-test("only custom groups have Edit group", async () => {
+test("only custom groups have Edit group, in the header actions", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
 	const el = await mount();
-	expect($(el, ".group-head")?.textContent).toContain("Built-in group");
 	expect($(el, '[data-action="edit-group"]')).toBeNull();
 	await pick(el, "g1");
-	const head = $(el, ".group-head")!;
-	expect(head.textContent).toContain("Custom group");
-	expect(
-		head.querySelector('[data-action="edit-group"]')?.textContent?.trim(),
-	).toBe("Edit group");
+	const edit = $(el, '.head-actions [data-action="edit-group"]')!;
+	expect(edit.getAttribute("aria-label")).toBe("Edit Price");
+	expect(edit.getAttribute("title")).toBe("Edit Price");
 });
 
 test("plain tags explain they are not filtered", async () => {
 	const el = await mount();
 	await pick(el, "tags");
-	expect($(el, ".group-head")?.textContent).toContain(
-		"Shown on restaurants, not used by the home filter",
+	expect($(el, "p.count")?.textContent?.trim()).toBe(
+		"0 values · not used by the home filter",
 	);
 	expect($(el, "p.muted.no-values")?.textContent?.trim()).toBe(
 		"No values yet.",
@@ -550,7 +550,7 @@ test("search finds groups and values across groups and highlights them", async (
 			li.querySelector(".sub")?.textContent?.trim(),
 		]),
 	).toEqual([
-		["Jam", "Custom group"],
+		["Jam", "0 values"],
 		["japanese", "Cuisine · 1 restaurant"],
 		["jazz", "Tags · 1 restaurant"],
 	]);
@@ -881,8 +881,7 @@ test("renders in Thai", async () => {
 			b.textContent?.trim(),
 		),
 	).toEqual(["ประเภท", "สัญชาติอาหาร", "ย่าน", "แท็ก"]);
-	expect($(el, "p.count")?.textContent?.trim()).toBe("4 กลุ่ม · 0 ค่า");
-	expect($(el, ".group-head .kind")?.textContent?.trim()).toBe("กลุ่มพื้นฐาน");
+	expect($(el, "p.count")?.textContent?.trim()).toBe("0 ค่า · 0 ร้าน");
 });
 
 test("warns about stored restaurants that could not be read", async () => {

@@ -1,4 +1,4 @@
-import { css, html, LitElement, nothing, type PropertyValues } from "lit";
+import { css, html, LitElement, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 import { LangController, t } from "#lib/i18n";
@@ -136,7 +136,6 @@ export class TagPicker extends LitElement {
 			>
 				<span class="grow">
 					<b>${group.label}</b>
-					${group.kind === "fixed" ? html`<small class="sub">${t("tags.fixed")}</small>` : nothing}
 				</span>
 				<span class="trail">${group.values}</span>
 			</button>`;

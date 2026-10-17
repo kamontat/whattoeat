@@ -107,11 +107,11 @@ test("clicking a pill reports group-pick", async () => {
 	expect(picks).toEqual(["g1"]);
 });
 
-test("column variant marks Type as fixed", async () => {
+test("column variant rows have no sub line, not even Type", async () => {
 	const el = await mount({ variant: "column" });
 	expect(el.getAttribute("variant")).toBe("column");
 	const kindRow = $<HTMLButtonElement>(el, '[data-group="kind"]')!;
-	expect(text(kindRow.querySelector(".sub"))).toBe("fixed");
+	expect(kindRow.querySelector(".sub")).toBeNull();
 	const cuisineRow = $<HTMLButtonElement>(el, '[data-group="cuisine"]')!;
 	expect(cuisineRow.querySelector(".sub")).toBeNull();
 });
