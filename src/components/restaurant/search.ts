@@ -1,159 +1,213 @@
-import {
-	css,
-	html,
-	type LitElement,
-	nothing,
-	type ReactiveController,
-} from "lit";
+import { css, html, LitElement, nothing, type PropertyValues } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
-import { t } from "#lib/i18n";
+import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
+import { MediaController, WIDE } from "#lib/media";
 import type { Restaurant } from "#lib/restaurant";
-import { type MatchRange, matchName, searchWords } from "#lib/search";
-
-export const searchStyles = css`
-	.search-row[hidden] {
-		display: none;
-	}
-
-	.search-open {
-		width: var(--tap);
-		min-height: var(--tap);
-		padding: 0;
-		border-radius: var(--radius-pill);
-	}
-
-	.search-row {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.search-field {
-		display: flex;
-		flex: 1;
-		align-items: center;
-		gap: 0.5rem;
-		min-height: var(--tap);
-		padding: 0 0 0 0.75rem;
-		border-radius: var(--radius-sm);
-		background: var(--color-surface-2);
-		color: var(--color-muted);
-		font-weight: 400;
-	}
-
-	.search-field:focus-within {
-		outline: 3px solid var(--color-focus);
-		outline-offset: 2px;
-	}
-
-	.search-field input {
-		flex: 1;
-		min-width: 0;
-		min-height: var(--tap);
-		padding: 0;
-		border: 0;
-		background: transparent;
-		color: var(--color-text);
-		appearance: none;
-		-webkit-appearance: none;
-	}
-
-	/* The field's own ring is drawn around the whole field above. */
-	.search-field input:focus-visible {
-		outline: none;
-	}
-
-	.search-field input::-webkit-search-cancel-button,
-	.search-field input::-webkit-search-decoration {
-		display: none;
-	}
-
-	.clear-search {
-		width: var(--tap);
-		padding: 0;
-		border: 0;
-		background: transparent;
-		color: var(--color-muted);
-	}
-
-	.cancel-search {
-		padding: 0 0.25rem;
-		border-color: transparent;
-		background: transparent;
-		color: var(--color-link);
-	}
-
-	.search-count {
-		margin-top: -0.25rem;
-	}
-
-	.no-match .actions {
-		justify-content: center;
-	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		.search-row:not([hidden]) {
-			animation: search-in var(--duration) ease-out;
-		}
-
-		@keyframes search-in {
-			from {
-				opacity: 0;
-			}
-		}
-	}
-`;
-
-export type SearchResult = { item: Restaurant; ranges: MatchRange[] };
-
-type SearchOptions = {
-	/** Every restaurant, in list order. */
-	sorted: () => Restaurant[];
-	/** Whether `/` may open search right now. */
-	shortcutEnabled: () => boolean;
-	/** Enter with exactly one match opens it. */
-	onPick: (item: Restaurant) => void;
-	/** The no-match card's Add: a new restaurant already named what was searched for. */
-	onAddNamed: (name: string) => void;
-	focusAfterRender: (find: () => Element | null | undefined) => void;
-};
+import { countText, noMatch, searchByName, searchWords } from "#lib/search";
+import { uiStyles } from "#styles/ui";
 
 /**
- * The restaurant list's search: whether it is open, what is typed (never stored), the result
- * count read out once typing pauses, and the `/` shortcut that opens it on wide screens.
+ * The search field for the restaurant list. It owns what is typed (never stored) and the `/`
+ * shortcut, and reports `search-change` (detail: `{ searching, query }`) on every change,
+ * `search-cancel` when the user ends search, and `search-pick` (detail: the restaurant) when
+ * the Search key is pressed with exactly one match.
  */
-export class RestaurantSearch implements ReactiveController {
-	/** Whether the header is in search mode. */
+@customElement("restaurant-search")
+export class RestaurantSearch extends LitElement {
+	static override styles = [
+		uiStyles,
+		css`
+			/* The row and the count are items of the parent's grid, as if written there. */
+			:host {
+				display: contents;
+			}
+
+			.search-row {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.search-row[hidden] {
+				display: none;
+			}
+
+			.search-field {
+				display: flex;
+				flex: 1;
+				align-items: center;
+				gap: 0.5rem;
+				min-height: var(--tap);
+				padding: 0 0 0 0.75rem;
+				border-radius: var(--radius-sm);
+				background: var(--color-surface-2);
+				color: var(--color-muted);
+				font-weight: 400;
+			}
+
+			.search-field:focus-within {
+				outline: 3px solid var(--color-focus);
+				outline-offset: 2px;
+			}
+
+			.search-field input {
+				flex: 1;
+				min-width: 0;
+				min-height: var(--tap);
+				padding: 0;
+				border: 0;
+				background: transparent;
+				color: var(--color-text);
+				appearance: none;
+				-webkit-appearance: none;
+			}
+
+			/* The field's own ring is drawn around the whole field above. */
+			.search-field input:focus-visible {
+				outline: none;
+			}
+
+			.search-field input::-webkit-search-cancel-button,
+			.search-field input::-webkit-search-decoration {
+				display: none;
+			}
+
+			.clear-search {
+				width: var(--tap);
+				padding: 0;
+				border: 0;
+				background: transparent;
+				color: var(--color-muted);
+			}
+
+			.cancel-search {
+				padding: 0 0.25rem;
+				border-color: transparent;
+				background: transparent;
+				color: var(--color-link);
+			}
+
+			.search-count {
+				margin-top: -0.25rem;
+			}
+
+			@media (prefers-reduced-motion: no-preference) {
+				.search-row:not([hidden]) {
+					animation: search-in var(--duration) ease-out;
+				}
+
+				@keyframes search-in {
+					from {
+						opacity: 0;
+					}
+				}
+			}
+		`,
+	];
+
+	protected readonly langController = new LangController(this);
+
+	/** `/` opens search on wide screens only. */
+	protected readonly wide = new MediaController(this, WIDE);
+
+	/** The restaurants to count and pick from. */
+	@property({ attribute: false })
+	restaurants: readonly Restaurant[] = [];
+
+	/** Whether search is open; read it, open it with `open()`. */
+	@state()
 	searching = false;
 
-	/** What is typed in the search field; never stored. */
-	query = "";
+	/** What is typed in the field; never stored. */
+	@state()
+	private query = "";
 
 	/** The result count read out to screen readers once typing pauses. */
-	announced = "";
+	@state()
+	private announced = "";
 
 	private announceTimer: ReturnType<typeof setTimeout> | undefined;
 
-	constructor(
-		private readonly host: LitElement,
-		private readonly options: SearchOptions,
-	) {
-		host.addController(this);
-	}
-
-	hostConnected(): void {
+	override connectedCallback(): void {
+		super.connectedCallback();
 		document.addEventListener("keydown", this.onShortcut);
 	}
 
-	hostDisconnected(): void {
+	override disconnectedCallback(): void {
+		super.disconnectedCallback();
 		document.removeEventListener("keydown", this.onShortcut);
 		clearTimeout(this.announceTimer);
 	}
 
-	private get field(): HTMLInputElement | null {
-		return this.host.renderRoot.querySelector<HTMLInputElement>("#search");
+	/** Nothing left to search: end search outright rather than leave a dead "0 of 0" view. */
+	protected override willUpdate(changed: PropertyValues): void {
+		if (
+			changed.has("restaurants") &&
+			this.searching &&
+			this.restaurants.length === 0
+		)
+			this.end();
 	}
+
+	private get field(): HTMLInputElement | null {
+		return this.renderRoot.querySelector<HTMLInputElement>("#search");
+	}
+
+	focusField(): void {
+		this.field?.focus();
+	}
+
+	/**
+	 * iOS only opens the keyboard for a focus made during the tap, so the row is always rendered
+	 * and is shown and focused here, before any re-render.
+	 */
+	open(): void {
+		const row = this.renderRoot.querySelector<HTMLElement>(".search-row");
+		if (row !== null) row.hidden = false;
+		this.focusField();
+		this.searching = true;
+		this.emitChange();
+	}
+
+	/** Empty the field and put focus back in it, staying in search. */
+	readonly clear = (): void => {
+		this.query = "";
+		this.scheduleAnnounce();
+		const input = this.field;
+		if (input !== null) {
+			input.value = "";
+			input.focus();
+		}
+		this.emitChange();
+	};
+
+	private emit(type: string, detail?: unknown): void {
+		this.dispatchEvent(
+			new CustomEvent(type, { detail, bubbles: true, composed: true }),
+		);
+	}
+
+	private emitChange(): void {
+		this.emit("search-change", {
+			searching: this.searching,
+			query: this.query,
+		});
+	}
+
+	private end(): void {
+		clearTimeout(this.announceTimer);
+		this.searching = false;
+		this.query = "";
+		this.announced = "";
+		this.emitChange();
+	}
+
+	private readonly cancel = (): void => {
+		this.end();
+		this.emit("search-cancel");
+	};
 
 	/**
 	 * `/` opens search on wide screens, unless typing somewhere or a sheet is open. Already
@@ -163,7 +217,7 @@ export class RestaurantSearch implements ReactiveController {
 	private readonly onShortcut = (event: KeyboardEvent): void => {
 		if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey)
 			return;
-		if (!this.options.shortcutEnabled()) return;
+		if (!this.wide.matches || this.restaurants.length === 0) return;
 		if (document.documentElement.classList.contains("sheet-open")) return;
 		const target = event.composedPath()[0];
 		if (
@@ -173,32 +227,18 @@ export class RestaurantSearch implements ReactiveController {
 		)
 			return;
 		event.preventDefault();
-		if (this.searching) {
-			this.field?.focus();
-			return;
-		}
-		this.open();
-	};
-
-	/**
-	 * iOS only opens the keyboard for a focus made during the tap, so the search row is always
-	 * rendered and is shown and focused here, before any re-render.
-	 */
-	readonly open = (): void => {
-		const row = this.host.renderRoot.querySelector<HTMLElement>(".search-row");
-		if (row !== null) row.hidden = false;
-		this.field?.focus();
-		this.searching = true;
-		this.host.requestUpdate();
+		if (this.searching) this.focusField();
+		else this.open();
 	};
 
 	private readonly onInput = (event: Event): void => {
 		this.query = (event.target as HTMLInputElement).value;
 		this.scheduleAnnounce();
+		this.emitChange();
 	};
 
 	/**
-	 * Escape ends search. Enter (the keyboard's Search key) opens the only match, or else just
+	 * Escape ends search. Enter (the keyboard's Search key) picks the only match, or else just
 	 * puts the keyboard away so every result is in view.
 	 */
 	private readonly onKey = (event: KeyboardEvent): void => {
@@ -209,98 +249,27 @@ export class RestaurantSearch implements ReactiveController {
 		}
 		if (event.key !== "Enter") return;
 		event.preventDefault();
-		const results = this.results(this.options.sorted());
-		const only = searchWords(this.query).length > 0 ? results : [];
-		if (only.length === 1 && only[0] !== undefined)
-			this.options.onPick(only[0].item);
+		const results =
+			searchWords(this.query).length > 0
+				? searchByName(this.restaurants, this.query)
+				: [];
+		if (results.length === 1 && results[0] !== undefined)
+			this.emit("search-pick", results[0].item);
 		else (event.target as HTMLInputElement).blur();
-	};
-
-	private readonly clear = (): void => {
-		this.query = "";
-		this.scheduleAnnounce();
-		const input = this.field;
-		if (input !== null) {
-			input.value = "";
-			input.focus();
-		}
-	};
-
-	/** Leave search without moving focus, e.g. when there is nothing left to search. */
-	end(): void {
-		clearTimeout(this.announceTimer);
-		this.searching = false;
-		this.query = "";
-		this.announced = "";
-		this.host.requestUpdate();
-	}
-
-	private readonly cancel = (): void => {
-		this.end();
-		this.options.focusAfterRender(() =>
-			this.host.renderRoot.querySelector('[data-action="search"]'),
-		);
 	};
 
 	/** Say the count once typing pauses, not on every key. */
 	private scheduleAnnounce(): void {
 		clearTimeout(this.announceTimer);
 		this.announced = "";
-		this.host.requestUpdate();
 		this.announceTimer = setTimeout(() => {
-			const sorted = this.options.sorted();
-			this.announced = this.noMatch(sorted)
+			this.announced = noMatch(this.restaurants, this.query)
 				? t("search.noMatch", { query: this.query.trim() })
-				: this.countText(sorted);
-			this.host.requestUpdate();
+				: countText(this.restaurants, this.query);
 		}, 500);
 	}
 
-	/** The restaurants the query keeps, in list order, with what to highlight in each name. */
-	results(sorted: readonly Restaurant[]): SearchResult[] {
-		const words = this.searching ? searchWords(this.query) : [];
-		return sorted.flatMap((item) => {
-			const ranges = matchName(item.name, words);
-			return ranges === undefined ? [] : [{ item, ranges }];
-		});
-	}
-
-	/** Searching for words that no restaurant name has (the no-match card shows instead). */
-	noMatch(sorted: readonly Restaurant[]): boolean {
-		return (
-			sorted.length > 0 &&
-			searchWords(this.query).length > 0 &&
-			this.results(sorted).length === 0
-		);
-	}
-
-	countText(sorted: readonly Restaurant[]): string {
-		const total = sorted.length;
-		if (this.searching && searchWords(this.query).length > 0)
-			return t("search.count", {
-				shown: this.results(sorted).length,
-				total,
-			});
-		return total === 1
-			? t("picker.count.one")
-			: t("picker.count.other", { count: total });
-	}
-
-	/** The magnifier in the header that opens search. */
-	renderOpen() {
-		return html`<button
-			type="button"
-			class="search-open"
-			data-action="search"
-			aria-label=${t("search.open")}
-			@click=${this.open}
-		>
-			${icon("search", 20)}
-		</button>`;
-	}
-
-	/** The search field, always rendered (see `open`), and the count under it while searching. */
-	renderRow(sorted: readonly Restaurant[], count: string) {
+	override render() {
 		return html`<div class="search-row" ?hidden=${!this.searching}>
 				<label class="search-field">
 					${icon("search", 20)}
@@ -338,28 +307,10 @@ export class RestaurantSearch implements ReactiveController {
 				</button>
 			</div>
 			${
-				this.searching && !this.noMatch(sorted)
-					? html`<p class="search-count page-sub">${count}</p>`
+				this.searching && !noMatch(this.restaurants, this.query)
+					? html`<p class="search-count page-sub">${countText(this.restaurants, this.query)}</p>`
 					: nothing
-			}`;
-	}
-
-	renderAnnounce() {
-		return html`<p class="visually-hidden search-announce" role="status">${this.announced}</p>`;
-	}
-
-	renderNoMatch() {
-		const query = this.query.trim();
-		return html`<div class="card empty no-match">
-			<p>${t("search.noMatch", { query })}</p>
-			<div class="actions">
-				<button type="button" class="primary" data-action="add-named" @click=${() => this.options.onAddNamed(query)}>
-					${icon("plus", 20)}<span>${t("search.add", { query })}</span>
-				</button>
-				<button type="button" data-action="clear-search-empty" @click=${this.clear}>
-					${t("search.clear")}
-				</button>
-			</div>
-		</div>`;
+			}
+			<p class="visually-hidden search-announce" role="status">${this.announced}</p>`;
 	}
 }
