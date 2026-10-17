@@ -18,7 +18,7 @@ import { uiStyles } from "#styles/ui";
 
 export type FormState = {
 	name: string;
-	location: string;
+	link: string;
 	notes: string;
 	kinds: Kind[];
 	tags: string[];
@@ -28,7 +28,7 @@ export type FormState = {
 
 export const EMPTY_FORM: FormState = {
 	name: "",
-	location: "",
+	link: "",
 	notes: "",
 	kinds: [],
 	tags: [],
@@ -41,6 +41,7 @@ export type FormView = {
 	editingId: string | undefined;
 	confirmingId: string | undefined;
 	nameError: "manager.nameRequired" | undefined;
+	linkError: "manager.linkInvalid" | undefined;
 };
 
 export const EMPTY_VIEW: FormView = {
@@ -48,11 +49,12 @@ export const EMPTY_VIEW: FormView = {
 	editingId: undefined,
 	confirmingId: undefined,
 	nameError: undefined,
+	linkError: undefined,
 };
 
 export const formFromRestaurant = (item: Restaurant): FormState => ({
 	name: item.name,
-	location: item.location,
+	link: item.link,
 	notes: item.notes,
 	kinds: item.kinds,
 	tags: item.tags,
@@ -261,7 +263,7 @@ export class RestaurantForm extends LitElement {
 
 	private readonly onInput = (event: Event): void => {
 		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
-		const field = target.name as "name" | "location" | "notes";
+		const field = target.name as "name" | "link" | "notes";
 		this.change({ ...this.current, [field]: target.value });
 	};
 
@@ -310,7 +312,7 @@ export class RestaurantForm extends LitElement {
 	};
 
 	override render() {
-		const { form, nameError } = this.view;
+		const { form, nameError, linkError } = this.view;
 		const editing = this.view.editingId !== undefined;
 		return html`
 			<form id="restaurant-form" novalidate @submit=${this.submit}>
@@ -351,9 +353,21 @@ export class RestaurantForm extends LitElement {
 					)}
 				</div>
 				<label>
-					${t("field.location")}
-					<input id="location" name="location" autocomplete="off" .value=${live(form.location)} @input=${this.onInput} />
+					${t("field.link")}
+					<input
+						id="link"
+						name="link"
+						type="url"
+						inputmode="url"
+						autocomplete="off"
+						placeholder="https://"
+						aria-invalid=${linkError ? "true" : "false"}
+						aria-describedby=${linkError ? "link-error" : nothing}
+						.value=${live(form.link)}
+						@input=${this.onInput}
+					/>
 				</label>
+				${linkError ? html`<p id="link-error" class="error" role="alert">${t(linkError)}</p>` : nothing}
 				${this.renderGroupInput("tags")}
 				<label>
 					${t("field.notes")}

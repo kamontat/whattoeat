@@ -12,7 +12,7 @@ import {
 	updateRestaurant,
 } from "#lib/store";
 
-const base = { tags: [], location: "", notes: "" };
+const base = { tags: [], link: "", notes: "" };
 
 beforeEach(() => {
 	localStorage.clear();
