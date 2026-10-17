@@ -27,6 +27,11 @@ What changed in this project and why, newest first.
 - The Tags link on Restaurants is the same height as the search button: 44px on touch
   screens, 36px with a mouse.
 
+### Bug fixes
+
+- While searching, screen readers read the result count once instead of twice: the title kept
+  for them had its own copy of "N of M restaurants".
+
 ### Decisions
 
 - Search matches names only, because it is for finding a place you already know in order to
