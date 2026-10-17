@@ -2,6 +2,30 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-18: About names its environment
+
+### Improvements
+
+- About always names where the page came from — `production`, `preview`, `local` (a
+  `bun run build` on a workstation) or `development` (`bun run dev`) — and lists its rows as
+  Environment, Built, Source on GitHub, Commit, Changelog. The commit and changelog show only
+  on a deployed page, the build time everywhere but the dev server, and the pull request and
+  branch only on a preview. The "Development build" row is gone.
+- The `build` script stamps `BUN_PUBLIC_BUILD_DATE` itself, so local builds show their build
+  time too; the deploy workflows now set `BUN_PUBLIC_ENVIRONMENT` instead of the date.
+
+### Bug fixes
+
+- Production About said "Development build" instead of showing its commit and build time.
+  Production sets no branch or pull request, so the bundle kept those as reads of
+  `process.env`, which throw in the browser, and one shared `try` blanked every value. Each
+  variable now reads on its own.
+
+### Decisions
+
+- A build with no named environment counts as `local`, and one with no build date at all as
+  `development`, so `bun run dev` needs no variable of its own.
+
 ## 2026-10-17: Neighbourhood presets, a new filter bar, search by name and a new Tags page
 
 ### BREAKING CHANGES
