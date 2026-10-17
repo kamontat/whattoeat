@@ -77,7 +77,7 @@ export class DataTransferPanel extends LitElement {
 				color: var(--color-muted);
 			}
 
-			/* The Delete card holds rows from two components, so it draws their dividers itself. */
+			/* This card holds rows from two components, so it draws their dividers itself. */
 			.deletes > * + * {
 				border-top: 1px solid var(--color-border);
 			}
@@ -444,9 +444,20 @@ export class DataTransferPanel extends LitElement {
 		`;
 	}
 
-	/** One card: Delete restaurants, Delete history, Delete all data; prompts open in place. */
-	private renderDeletes() {
+	/** The last delete's result, when it came from one of `kinds`; it sits under that card. */
+	private renderDeleted(...kinds: DeleteKind[]) {
 		const deleted = this.deleted;
+		if (deleted === undefined || !kinds.includes(deleted.kind)) return nothing;
+		return html`<p class="success deleted ${DONE_CLASS[deleted.kind]}" role="status" tabindex="-1">
+			${deleted.message}
+		</p>`;
+	}
+
+	/**
+	 * Delete restaurants and Delete history share a card; Delete all data has its own. Prompts
+	 * open in place.
+	 */
+	private renderDeletes() {
 		return html`
 			<div class="group deletes">
 				${
@@ -469,6 +480,9 @@ export class DataTransferPanel extends LitElement {
 							</button>`
 				}
 				<history-clear @history-cleared=${this.onHistoryCleared}></history-clear>
+			</div>
+			${this.renderDeleted("restaurants", "history")}
+			<div class="group reset-all">
 				${
 					this.confirming === "all"
 						? this.renderPrompt(
@@ -488,13 +502,7 @@ export class DataTransferPanel extends LitElement {
 							</button>`
 				}
 			</div>
-			${
-				deleted === undefined
-					? nothing
-					: html`<p class="success deleted ${DONE_CLASS[deleted.kind]}" role="status" tabindex="-1">
-							${deleted.message}
-						</p>`
-			}
+			${this.renderDeleted("all")}
 		`;
 	}
 

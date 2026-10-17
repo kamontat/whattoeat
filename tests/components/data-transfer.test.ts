@@ -487,7 +487,7 @@ test("the reset prompt is padded on every side inside its card, not a squeezed l
 	const prompt = $(el, ".reset-prompt")!;
 	expect(prompt.classList.contains("item")).toBe(false);
 	expect(prompt.closest(".confirm")?.closest(".group")).toBe(
-		$(el, "section.reset .group"),
+		$(el, "section.reset .group.reset-all"),
 	);
 	const css = [
 		(customElements.get("data-transfer") as unknown as { styles: unknown })
@@ -920,30 +920,45 @@ test("the Reset section orders delete restaurants, delete history, then delete a
 	).toBeTruthy();
 });
 
-test("the three delete rows share one card", async () => {
+test("delete restaurants and delete history share one card; delete all data stands alone", async () => {
 	const el = await mount();
 	const reset = $(el, "section.reset")!;
-	const cards = reset.querySelectorAll(".group");
-	expect(cards).toHaveLength(1);
-	const card = $(el, "section.reset .group");
+	expect(reset.querySelectorAll(".group")).toHaveLength(2);
+	const deletes = $(el, "section.reset .group");
+	const all = $(el, "section.reset .group.reset-all");
 	expect(
 		reset.querySelector('button[data-action="clear-restaurants"]')
 			?.parentElement,
-	).toBe(card);
-	expect(reset.querySelector("history-clear")?.parentElement).toBe(card);
+	).toBe(deletes);
+	expect(reset.querySelector("history-clear")?.parentElement).toBe(deletes);
 	expect(
 		reset.querySelector('button[data-action="reset"]')?.parentElement,
-	).toBe(card);
+	).toBe(all);
+	expect(all?.children).toHaveLength(1);
 });
 
-test("a delete prompt opens inside the card, keeping the other rows", async () => {
+test("the delete restaurants prompt opens inside its card, keeping the history row", async () => {
 	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
 	const el = await mount();
 	await click(el, 'button[data-action="clear-restaurants"]');
 	const card = $(el, "section.reset .group")!;
 	expect(card.querySelector(".clear-restaurants-prompt")).not.toBeNull();
 	expect(card.querySelector("history-clear")).not.toBeNull();
-	expect(card.querySelector('button[data-action="reset"]')).not.toBeNull();
+	expect($(el, 'button[data-action="reset"]')).not.toBeNull();
+});
+
+test("each result shows under its own card", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	const el = await mount();
+	await click(el, 'button[data-action="clear-restaurants"]');
+	await click(el, 'button[data-action="clear-restaurants-confirm"]');
+	const deletes = $(el, "section.reset .group")!;
+	const all = $(el, "section.reset .group.reset-all")!;
+	const done = $(el, ".clear-restaurants-done")!;
+	expect(deletes.nextElementSibling).toBe(done);
+	await click(el, 'button[data-action="reset"]');
+	await click(el, 'button[data-action="reset-confirm"]');
+	expect(all.nextElementSibling).toBe($(el, ".reset-done"));
 });
 
 test("a history clear is reported under the card; focus lands there once the row greys out", async () => {
