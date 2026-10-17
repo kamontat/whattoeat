@@ -1,10 +1,9 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import "#components/app-sheet";
+import "#components/filter-bar";
 import { restaurantChips } from "#components/restaurant-chips";
 import {
 	applyFilter,
-	cycleTag,
 	EMPTY_FILTER,
 	type Filter,
 	isFilterActive,
@@ -12,29 +11,19 @@ import {
 	onFilterChanged,
 	pruneFilter,
 	saveFilter,
-	type TagState,
-	tagState,
 } from "#lib/filter";
 import {
 	allGroupIds,
 	type GroupDef,
-	groupLabel,
 	loadGroups,
 	onGroupsChanged,
-	valueLabel,
 } from "#lib/groups";
 import { addVisit, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
-import { isFilterPanelHidden, setFilterPanelHidden } from "#lib/panel";
 import { pickOptions } from "#lib/random";
-import {
-	isLink,
-	metaLine,
-	type Restaurant,
-	valuesByUsage,
-} from "#lib/restaurant";
+import { isLink, metaLine, type Restaurant } from "#lib/restaurant";
 import {
 	loadRestaurants,
 	onRestaurantsChanged,
@@ -60,11 +49,6 @@ export class RandomPicker extends LitElement {
 				margin-bottom: calc(var(--tab-bar-height) - var(--tab-bar-space));
 			}
 
-			.layout {
-				display: grid;
-				gap: 1rem;
-			}
-
 			.main-col {
 				display: grid;
 				align-content: start;
@@ -80,128 +64,11 @@ export class RandomPicker extends LitElement {
 				gap: 0.75rem;
 			}
 
-			/* Phone: a Filter button and the active values beside it. */
-			.filter-row {
-				display: flex;
-				flex-wrap: wrap;
-				align-items: center;
-				gap: 0.375rem;
-			}
-
-			.filter-open {
-				min-height: 2.25rem;
-				padding: 0 0.75rem;
-				border-radius: var(--radius-pill);
-				font-size: 0.875rem;
-				font-weight: 500;
-			}
-
-			/* Active values beside the Filter button: buttons, so tapping one reopens the sheet. */
-			.summary-chip {
-				min-height: 2.25rem;
-				padding: 0 0.75rem;
-				/* Transparent, not absent: forced-colours still draws an edge around the chip. */
-				border: 1px solid transparent;
-				border-radius: var(--radius-pill);
-				font-size: 0.875rem;
-				font-weight: 500;
-			}
-
-			.summary-chip.include {
-				background: var(--color-primary-soft);
-				color: var(--color-link);
-				font-weight: 600;
-			}
-
-			.summary-chip.exclude {
-				border-style: dashed;
-				border-color: var(--color-control);
-				color: var(--color-muted);
-				text-decoration: line-through;
-			}
-
-			/* The filter itself: in the sheet on phones, in the side panel when wide. */
-			.filter {
-				display: grid;
-				gap: 0.875rem;
-			}
-
 			.head-actions {
 				display: flex;
 				flex-wrap: wrap;
 				align-items: center;
 				gap: 0.5rem;
-			}
-
-			.panel-head {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				gap: 0.5rem;
-			}
-
-			.hide-filter {
-				min-height: 2.25rem;
-				padding: 0 0.5rem;
-				gap: 0.25rem;
-				font-size: 0.875rem;
-				font-weight: 500;
-			}
-
-			.filter-title {
-				font-size: 1rem;
-				font-weight: 600;
-			}
-
-			.filter-group {
-				display: grid;
-				gap: 0.375rem;
-			}
-
-			.filter-group h3 {
-				margin: 0;
-				color: var(--color-muted);
-				font-size: 0.8125rem;
-				font-weight: 500;
-			}
-
-			button.tag {
-				min-height: 2.25rem;
-				padding: 0 0.75rem;
-				border-radius: var(--radius-pill);
-				font-size: 0.875rem;
-				font-weight: 500;
-				line-height: 1.2;
-			}
-
-			button.tag.include {
-				border-color: var(--color-primary);
-				background: var(--color-primary-soft);
-				color: var(--color-link);
-				font-weight: 600;
-			}
-
-			button.tag.exclude {
-				border-style: dashed;
-				color: var(--color-muted);
-				text-decoration: line-through;
-			}
-
-			.active-filter {
-				display: flex;
-				flex-wrap: wrap;
-				align-items: center;
-				justify-content: space-between;
-				gap: 0.25rem 0.5rem;
-				padding-top: 0.75rem;
-				border-top: 1px solid var(--color-border);
-				color: var(--color-muted);
-				font-size: 0.875rem;
-			}
-
-			.active-filter .quiet {
-				min-height: 2.25rem;
-				padding: 0 0.5rem;
 			}
 
 			.no-match {
@@ -312,22 +179,8 @@ export class RandomPicker extends LitElement {
 					margin-bottom: 0;
 				}
 
-				.layout.with-panel {
-					grid-template-columns: 17.5rem minmax(0, 1fr);
-					align-items: start;
-					gap: 1.5rem;
-				}
-
-				.filter-panel {
-					position: sticky;
-					top: 1rem;
-					padding: var(--pad-x);
-					border: 1px solid var(--color-border);
-					border-radius: var(--radius);
-					background: var(--color-surface);
-				}
-
 				.results {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
 					gap: 1rem;
 				}
 
@@ -337,28 +190,13 @@ export class RandomPicker extends LitElement {
 					font-size: 0.9375rem;
 				}
 			}
-
-			/* Two tiles side by side need more room than 48rem gives the narrower (panel) column. */
-			@media (min-width: 60rem) {
-				.results {
-					grid-template-columns: repeat(2, minmax(0, 1fr));
-				}
-			}
 		`,
 	];
 
 	protected readonly langController = new LangController(this);
 
-	/** Wide screens show the filter in a side panel; phones open it in a sheet. */
+	/** Wide screens put the pick button in the heading row; phones pin it above the tab bar. */
 	protected readonly wide = new MediaController(this, WIDE);
-
-	/** Whether the phone filter sheet is open. */
-	@state()
-	private filterOpen = false;
-
-	/** Whether the wide filter panel is collapsed; remembered in this browser. */
-	@state()
-	private panelHidden = isFilterPanelHidden();
 
 	@state()
 	private restaurants: Restaurant[] = [];
@@ -430,28 +268,6 @@ export class RandomPicker extends LitElement {
 		this.unsubscribeFilter = undefined;
 	}
 
-	/**
-	 * Crossing into the wide layout stops rendering the phone sheet entirely, which removes its
-	 * modal `<dialog>` from the DOM without ever firing a close: close it here instead, so it does
-	 * not reopen by itself if the screen narrows again. If focus was inside it, send focus to the
-	 * side panel's heading rather than losing it.
-	 */
-	protected override willUpdate(): void {
-		if (!this.wide.matches || !this.filterOpen) return;
-		const focusWasInSheet =
-			this.renderRoot.querySelector("app-sheet")?.containsFocus() ?? false;
-		this.filterOpen = false;
-		if (focusWasInSheet) {
-			void this.updateComplete.then(() => {
-				this.renderRoot
-					.querySelector<HTMLElement>(
-						'#filter-title, [data-action="show-filter"]',
-					)
-					?.focus();
-			});
-		}
-	}
-
 	private get pool(): Restaurant[] {
 		return applyFilter(this.restaurants, this.filter);
 	}
@@ -486,10 +302,6 @@ export class RandomPicker extends LitElement {
 		saveFilter(next);
 		this.keepPickInPool();
 	}
-
-	private readonly clearFilter = (): void => {
-		this.setFilter(EMPTY_FILTER);
-	};
 
 	private readonly pick = (): void => {
 		this.visited = undefined;
@@ -529,40 +341,27 @@ export class RandomPicker extends LitElement {
 				</div>
 			`;
 		}
-		const groups = allGroupIds(this.defs)
-			.map((group) => ({
-				group,
-				values: valuesByUsage(this.restaurants, group),
-			}))
-			.filter(({ values }) => values.length > 0);
 		const empty = this.pool.length === 0;
 		const wide = this.wide.matches;
-		const collapsible = wide && groups.length > 0;
-		const panel = collapsible && !this.panelHidden;
 		const pick = html`<button type="button" class="primary pick" ?disabled=${empty} @click=${this.pick}>
 			${icon("dice", 22)}<span>${this.picked.length > 0 ? t("picker.again") : t("picker.button")}</span>
 		</button>`;
 		return html`
 			${warnings}
-			<div class="layout ${panel ? "with-panel" : ""}">
-				${panel ? html`<aside class="filter-panel">${this.renderFilterBody(groups, true)}</aside>` : nothing}
-				<div class="main-col">
-					<header class="head">
-						<div>${title}<p class="count page-sub">${this.countText()}</p></div>
-						${
-							wide
-								? html`<div class="head-actions">
-										${collapsible && this.panelHidden ? this.renderShowFilter() : nothing}
-										${pick}
-									</div>`
-								: nothing
-						}
-					</header>
-					${!wide && groups.length > 0 ? this.renderFilterRow(groups) : nothing}
-					${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
-					<p class="announce visually-hidden" role="status">${this.announced}</p>
-					<div class="results">${this.picked.map((item) => this.renderResult(item))}</div>
-				</div>
+			<div class="main-col">
+				<header class="head">
+					<div>${title}<p class="count page-sub">${this.countText()}</p></div>
+					${wide ? html`<div class="head-actions">${pick}</div>` : nothing}
+				</header>
+				<filter-bar
+					.restaurants=${this.restaurants}
+					.defs=${this.defs}
+					.filter=${this.filter}
+					@filter-change=${(event: CustomEvent<Filter>) => this.setFilter(event.detail)}
+				></filter-bar>
+				${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
+				<p class="announce visually-hidden" role="status">${this.announced}</p>
+				<div class="results">${this.picked.map((item) => this.renderResult(item))}</div>
 			</div>
 			${wide ? nothing : html`<div class="pinned">${pick}</div>`}
 		`;
@@ -577,14 +376,6 @@ export class RandomPicker extends LitElement {
 			: t("picker.announce.two", { a, b });
 	}
 
-	/** How many values the filter includes or excludes, across every group. */
-	private activeValueCount(): number {
-		return Object.values(this.filter).reduce(
-			(count, group) => count + group.include.length + group.exclude.length,
-			0,
-		);
-	}
-
 	private countText(): string {
 		const total = this.restaurants.length;
 		if (isFilterActive(this.filter)) {
@@ -593,218 +384,6 @@ export class RandomPicker extends LitElement {
 		return total === 1
 			? t("picker.count.one")
 			: t("picker.count.other", { count: total });
-	}
-
-	private filterSummary(): {
-		symbol: Record<TagState, string>;
-		summary: string;
-	} {
-		const symbol: Record<TagState, string> = {
-			off: "",
-			include: "✓ ",
-			exclude: "✕ ",
-		};
-		const summary = allGroupIds(this.defs)
-			.map((group) => {
-				const filterGroup = Object.hasOwn(this.filter, group)
-					? this.filter[group]
-					: undefined;
-				if (filterGroup === undefined) return "";
-				const { include, exclude } = filterGroup;
-				const values = [
-					...include.map(
-						(value) => `${symbol.include}${valueLabel(group, value)}`,
-					),
-					...exclude.map(
-						(value) => `${symbol.exclude}${valueLabel(group, value)}`,
-					),
-				];
-				return values.length > 0
-					? `${groupLabel(group, this.defs)}: ${values.join(", ")}`
-					: "";
-			})
-			.filter((part) => part !== "")
-			.join("; ");
-		return { symbol, summary };
-	}
-
-	/** Wide, panel collapsed: the button beside the title that brings it back. */
-	private renderShowFilter() {
-		const count = this.activeValueCount();
-		return html`<button
-			type="button"
-			class="filter-open show-filter"
-			data-action="show-filter"
-			aria-expanded="false"
-			@click=${this.showPanel}
-		>
-			${icon("funnel", 18)}<span>${count > 0 ? t("filter.openCount", { count }) : t("filter.title")}</span>
-		</button>`;
-	}
-
-	private readonly hidePanel = (): void => {
-		this.setPanelHidden(true, '[data-action="show-filter"]');
-	};
-
-	private readonly showPanel = (): void => {
-		this.setPanelHidden(false, '[data-action="hide-filter"]');
-	};
-
-	/** Collapse or expand the wide panel, remember it, and keep focus on the matching toggle. */
-	private setPanelHidden(hidden: boolean, focus: string): void {
-		this.panelHidden = hidden;
-		setFilterPanelHidden(hidden);
-		void this.updateComplete.then(() => {
-			this.renderRoot.querySelector<HTMLElement>(focus)?.focus();
-		});
-	}
-
-	/** The filter's groups and chips; titled in the side panel, untitled in the sheet (the sheet has the heading). */
-	private renderFilterBody(
-		groups: { group: string; values: string[] }[],
-		titled: boolean,
-	) {
-		const { symbol, summary } = this.filterSummary();
-		return html`
-			<section class="filter" aria-labelledby=${titled ? "filter-title" : nothing}>
-				${
-					titled
-						? html`<div class="panel-head">
-								<h2 id="filter-title" class="filter-title" tabindex="-1">${t("filter.title")}</h2>
-								<button
-									type="button"
-									class="quiet hide-filter"
-									data-action="hide-filter"
-									aria-expanded="true"
-									aria-label=${t("filter.hideLabel")}
-									@click=${this.hidePanel}
-								>
-									${icon("back", 18)}<span>${t("filter.hide")}</span>
-								</button>
-							</div>`
-						: nothing
-				}
-				<p class="hint">${t("filter.hint")}</p>
-				${groups.map(
-					({
-						group,
-						values,
-					}) => html`<div class="filter-group" role="group" aria-labelledby="group-${group}">
-						<h3 id="group-${group}">${groupLabel(group, this.defs)}</h3>
-						<ul class="chips">
-							${values.map((value) => {
-								const state = tagState(this.filter, group, value);
-								const label = valueLabel(group, value);
-								return html`<li>
-									<button
-										type="button"
-										class="chip tag ${state}"
-										data-group=${group}
-										data-tag=${value}
-										data-state=${state}
-										aria-pressed=${state === "off" ? "false" : "true"}
-										aria-label=${t("filter.tagState", {
-											group: groupLabel(group, this.defs),
-											tag: label,
-											state: t(`filter.state.${state}`),
-										})}
-										@click=${() => this.setFilter(cycleTag(this.filter, group, value))}
-									>
-										${symbol[state]}${label}
-									</button>
-								</li>`;
-							})}
-						</ul>
-					</div>`,
-				)}
-				${
-					isFilterActive(this.filter)
-						? html`<p class="active-filter">
-								<span>${t("filter.active", { tags: summary })}</span>
-								<button type="button" class="quiet" data-action="clear-filter" @click=${this.clearFilter}>
-									${t("filter.clear")}
-								</button>
-							</p>`
-						: nothing
-				}
-			</section>
-		`;
-	}
-
-	/** Phone: the Filter button, the active values beside it, and the sheet it opens. */
-	private renderFilterRow(groups: { group: string; values: string[] }[]) {
-		const { symbol } = this.filterSummary();
-		const count = this.activeValueCount();
-		const active = allGroupIds(this.defs).flatMap((group) => {
-			const filterGroup = Object.hasOwn(this.filter, group)
-				? this.filter[group]
-				: undefined;
-			if (filterGroup === undefined) return [];
-			return [
-				...filterGroup.include.map((value) => ({
-					state: "include" as const,
-					label: valueLabel(group, value),
-				})),
-				...filterGroup.exclude.map((value) => ({
-					state: "exclude" as const,
-					label: valueLabel(group, value),
-				})),
-			];
-		});
-		return html`
-			<div class="filter-row">
-				<button
-					type="button"
-					class="filter-open"
-					data-action="open-filter"
-					aria-haspopup="dialog"
-					@click=${() => {
-						this.filterOpen = true;
-					}}
-				>
-					${icon("funnel", 18)}<span>${count > 0 ? t("filter.openCount", { count }) : t("filter.title")}</span>
-				</button>
-				${
-					active.length > 0
-						? html`<ul class="chips summary" aria-label=${t("filter.title")}>
-								${active.map(
-									({ state, label }) => html`<li class=${state}>
-										<button
-											type="button"
-											class="summary-chip ${state}"
-											data-action="open-filter-value"
-											aria-haspopup="dialog"
-											@click=${() => {
-												this.filterOpen = true;
-											}}
-										><span aria-hidden="true">${symbol[state]}</span>${label}<span class="visually-hidden">, ${t(`filter.state.${state}`)}</span></button>
-									</li>`,
-								)}
-							</ul>`
-						: nothing
-				}
-			</div>
-			<app-sheet
-				heading=${t("filter.title")}
-				?open=${this.filterOpen}
-				@sheet-close=${() => {
-					this.filterOpen = false;
-				}}
-			>
-				${this.renderFilterBody(groups, false)}
-				<button
-					slot="footer"
-					type="button"
-					class="primary"
-					data-action="filter-done"
-					@click=${() => {
-						this.filterOpen = false;
-					}}
-				>
-					${t("filter.done")}
-				</button>
-			</app-sheet>
-		`;
 	}
 
 	private visit(item: Restaurant): void {

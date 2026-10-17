@@ -42,9 +42,9 @@ const mountForm = async () => {
 	return el;
 };
 
-/** The page's parts (restaurant-search, -list, -form) each have a shadow root; look inside them too. */
+/** The page's parts (restaurant-search, -list, -form, filter-bar) each have a shadow root; look inside them too. */
 const isPart = (node: Element): boolean =>
-	node.localName.startsWith("restaurant-");
+	node.localName.startsWith("restaurant-") || node.localName === "filter-bar";
 
 /** Every match in `el` and its parts, in document order. */
 const $$ = <T extends Element>(el: Element, selector: string): T[] => {
@@ -1581,50 +1581,57 @@ test("search: screen readers hear the count once, from the line under the field"
 	expect(headerCount.hasAttribute("aria-hidden")).toBe(false);
 });
 
+/** Open the plain tags group in the filter bar and press Want or Skip on one value. */
+const chooseTag = async (
+	el: RestaurantManager,
+	tag: string,
+	action: "want" | "skip",
+): Promise<void> => {
+	if ($(el, '.row button[data-action="want"]') === null)
+		await click(el, 'button.pill[data-group="tags"]');
+	await click(el, `.row button[data-action="${action}"][data-value="${tag}"]`);
+};
+
 const seedTags = () => {
 	addRestaurant({ ...blank, name: "Jay Fai", tags: ["spicy"] });
 	addRestaurant({ ...blank, name: "Ramen Champion", tags: ["spicy", "late"] });
 	addRestaurant({ ...blank, name: "Café Tartine" });
 };
 
-test("filter: no Filter button when no restaurant has a tag or group value", async () => {
+test("filter: no filter pills when no restaurant has a tag or group value", async () => {
 	addRestaurant({ ...blank, name: "A" });
 	const el = await mount();
-	expect($(el, '[data-action="open-filter"]')).toBeNull();
+	expect($(el, "button.pill")).toBeNull();
 });
 
-test("filter: the Filter button opens the sheet of values, plain tags included", async () => {
+test("filter: plain tags get a pill that lists their values", async () => {
 	seedTags();
 	const el = await mount();
-	await click(el, '[data-action="open-filter"]');
-	expect($<AppSheet>(el, "restaurant-filter app-sheet")?.open).toBe(true);
-	expect(
-		$$(el, '.chip[data-group="tags"]').map((chip) =>
-			chip.getAttribute("data-tag"),
-		),
-	).toEqual(["spicy", "late"]);
+	await click(el, 'button.pill[data-group="tags"]');
+	expect($(el, "filter-bar .popover")).not.toBeNull();
+	expect($$(el, ".row .label").map((label) => label.textContent)).toEqual([
+		"spicy",
+		"late",
+	]);
 });
 
-test("filter: tapping a tag narrows the list and the count, and is saved apart from Home's", async () => {
+test("filter: wanting a tag narrows the list and the count, and is saved apart from Home's", async () => {
 	seedTags();
 	const el = await mount();
-	await click(el, '.chip[data-group="tags"][data-tag="late"]');
+	await chooseTag(el, "late", "want");
 	expect(rowNames(el)).toEqual(["Ramen Champion"]);
 	expect($(el, ".head .count")?.textContent?.trim()).toBe("1 of 3 restaurants");
-	expect($(el, '[data-action="open-filter"]')?.textContent?.trim()).toBe(
-		"Filter · 1 on",
-	);
+	expect($(el, 'button.pill[data-group="tags"] .badge')?.textContent).toBe("1");
 	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
 		tags: { include: ["late"], exclude: [] },
 	});
 	expect(localStorage.getItem(FILTER_KEY)).toBeNull();
 });
 
-test("filter: excluding a tag drops restaurants that have it", async () => {
+test("filter: skipping a tag drops restaurants that have it", async () => {
 	seedTags();
 	const el = await mount();
-	await click(el, '.chip[data-group="tags"][data-tag="spicy"]');
-	await click(el, '.chip[data-group="tags"][data-tag="spicy"]');
+	await chooseTag(el, "spicy", "skip");
 	expect(rowNames(el)).toEqual(["Café Tartine"]);
 });
 
@@ -1645,7 +1652,7 @@ test("filter: remembered across visits, and Home's filter is ignored", async () 
 test("filter: search looks only within the filtered restaurants", async () => {
 	seedTags();
 	const el = await mount();
-	await click(el, '.chip[data-group="tags"][data-tag="late"]');
+	await chooseTag(el, "late", "want");
 	await openSearch(el);
 	await typeSearch(el, "a");
 	expect(rowNames(el)).toEqual(["Ramen Champion"]);
