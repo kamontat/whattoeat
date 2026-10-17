@@ -3,7 +3,11 @@ import { Glob } from "bun";
 
 const pages = Array.from(new Glob("**/*.html").scanSync({ cwd: "src/routes" }));
 const WIDE_PAGES = ["index.html", "restaurants.html", "tags.html"];
-const PINNED_PAGES = ["index.html", "restaurants.html"];
+const PINNED_PAGES = [
+	"index.html",
+	"restaurants.html",
+	"settings/presets.html",
+];
 
 test("src/routes has at least one page", () => {
 	expect(pages.length).toBeGreaterThan(0);
@@ -80,7 +84,7 @@ test.each(pages)("%s links the site icon", async (page) => {
 	expect(match).not.toBeNull();
 	expect(
 		await Bun.file(
-			new URL(match![1]!, `file://${process.cwd()}/src/routes/`),
+			new URL(match![1]!, `file://${process.cwd()}/src/routes/${page}`),
 		).exists(),
 	).toBe(true);
 });
@@ -97,7 +101,7 @@ test.each(pages)(
 	},
 );
 
-test("home and restaurants opt into room for their pinned buttons; other pages do not", async () => {
+test("home, restaurants and settings/presets opt into room for their pinned areas; other pages do not", async () => {
 	for (const page of pages) {
 		const html = await Bun.file(`src/routes/${page}`).text();
 		const tag = html.match(/<html[^>]*>/)?.[0];
@@ -136,3 +140,15 @@ test.each(pages)(
 		);
 	},
 );
+
+test("settings/presets links its assets one folder deeper", async () => {
+	const html = await Bun.file("src/routes/settings/presets.html").text();
+	const links = Array.from(html.matchAll(/(?:src|href)="([^"]+)"/g)).map(
+		(match) => match[1]!,
+	);
+	expect(links.length).toBeGreaterThan(0);
+	for (const link of links) {
+		if (link === "#main") continue;
+		expect(link.startsWith("../../")).toBe(true);
+	}
+});

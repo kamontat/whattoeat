@@ -13,7 +13,8 @@ app (see [Install on a phone](#install-on-a-phone)).
 | `/`            | Two random options; press Eat here to save a visit to History |
 | `/restaurants` | Add, edit and delete restaurants; search them by name |
 | `/history`     | Visits grouped by day, stats per restaurant, delete a visit |
-| `/settings`    | Language and theme; export or import JSON as a file or by copy and paste, with replace or merge; clear history by age; delete all data; about |
+| `/settings`    | Language and theme; export or import JSON as a file or by copy and paste, with replace or merge; neighbourhood presets; clear history by age; delete all data; about |
+| `/settings/presets` | Tick neighbourhoods and add them to the list or replace it, with undo |
 | `/tags`        | Groups and their values: counts, add, rename, reorder and delete groups; rename, merge, move and delete values |
 
 Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static
@@ -99,6 +100,7 @@ is sent to a server.
 | `whattoeat:lang`        | The chosen language, `en` or `th`                          |
 | `whattoeat:theme`       | The chosen theme, `auto`, `light` or `dark`                |
 | `whattoeat:groups`      | Custom groups, like "price" (JSON array of `{ id, name }`) |
+| `whattoeat:presets`     | Presets added in this browser (JSON array of `{ id, updatedAt, ids }`) |
 | `whattoeat:filter-panel` | `hidden` while Home's wide filter panel is collapsed; absent when shown |
 
 A stored entry that fails validation is skipped when the list loads, and every page shows a
@@ -115,16 +117,18 @@ Planned future work lives in [TODO.md](TODO.md).
 ```text
 .
 ├── src/                 # application code
-│   ├── routes/          # HTML pages: index, restaurants, history, settings, tags
+│   ├── routes/          # HTML pages: index, restaurants, history, settings, settings/presets, tags
 │   ├── assets/          # files pages link to: favicon.svg, fonts, manifest.webmanifest
-│   │   └── icons/       # app icons, copied to dist/icons/ by --statics
+│   │   ├── icons/       # app icons, copied to dist/icons/ by --statics
+│   │   └── data/        # neighbourhood restaurant lists and index, copied to dist/data/ by --statics
+│   │       └── presets/ # neighbourhood restaurant lists and index.json
 │   ├── components/      # Lit components        (import as #components/*)
 │   ├── lib/             # shared TypeScript     (import as #lib/*), e.g. gtm.ts
 │   ├── styles/          # global CSS and shared Lit styles (#styles/*)
 │   └── types/           # global type declarations (HTMLElementTagNameMap, Bun.Env)
 ├── tests/               # tests, mirroring src/ (src/lib/gtm.ts -> tests/lib/gtm.test.ts)
 │   └── setup-happydom.ts  # registers happy-dom globals for bun test
-├── scripts/             # standalone programs run by package scripts (none yet)
+├── scripts/             # standalone programs run by package scripts: presets-index.ts rewrites the preset counts in index.json (bun run presets:index)
 ├── .claude/skills/      # Claude Code skills for working in this repo
 ├── .github/workflows/   # CI, preview, and production deploy pipelines
 ├── CHANGELOG.md         # what changed and why, newest first
@@ -159,6 +163,7 @@ import { sharedStyles } from "#styles/shared"; // ./src/styles/shared.ts
 | `bun run check:type`  | Type check every `.ts` file with `tsc --noEmit`          |
 | `bun run check:biome` | Lint and format check with Biome, without changing files |
 | `bun run format`      | Apply Biome fixes and formatting (including unsafe ones) |
+| `bun run presets:index` | Refresh neighbourhood preset counts in `src/assets/data/presets/index.json` |
 
 `dev` and `preview` accept `--port` / `--hostname`, for example
 `bun run dev --port 3001`, and move to the next free port when theirs is busy.

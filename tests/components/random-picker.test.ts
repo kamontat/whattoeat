@@ -69,6 +69,34 @@ test("empty list shows a link to the restaurants page and no button", async () =
 	).toBe("Add some restaurants");
 });
 
+test("the empty home card links Start with a neighbourhood to ./settings/presets as the primary link, above Add some restaurants as the secondary one", async () => {
+	const el = await mount();
+	const links = [
+		...root(el).querySelectorAll<HTMLAnchorElement>(".card.empty a"),
+	];
+	expect(links.map((a) => a.textContent?.trim())).toEqual([
+		"Start with a neighbourhood",
+		"Add some restaurants",
+	]);
+	const [presetsLink, addLink] = links as [
+		HTMLAnchorElement,
+		HTMLAnchorElement,
+	];
+	expect(presetsLink.getAttribute("href")).toBe("./settings/presets");
+	expect(presetsLink.classList.contains("button-link")).toBe(true);
+	expect(presetsLink.classList.contains("primary")).toBe(true);
+	expect(addLink.getAttribute("href")).toBe("./restaurants");
+	expect(addLink.classList.contains("button-link")).toBe(true);
+	expect(addLink.classList.contains("secondary")).toBe(true);
+});
+
+test("the home card is unchanged when restaurants exist", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(root(el).querySelector(".card.empty")).toBeNull();
+	expect(root(el).querySelector('a[href="./settings/presets"]')).toBeNull();
+});
+
 test("clicking the button shows a restaurant with its details", async () => {
 	addRestaurant({
 		name: "Jay Fai",

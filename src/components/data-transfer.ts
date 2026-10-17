@@ -21,6 +21,12 @@ import {
 } from "#lib/history";
 import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
+import {
+	fetchIndex,
+	loadAddedPresets,
+	type PresetIndex,
+	presetState,
+} from "#lib/presets";
 import type { Restaurant } from "#lib/restaurant";
 import {
 	isMemoryOnly,
@@ -112,6 +118,11 @@ export class DataTransferPanel extends LitElement {
 	@state()
 	private error: ImportError | undefined;
 
+	/** The bundled neighbourhood index, for the presets row's subtitle; `undefined` until it
+	 * loads or if it fails to. */
+	@state()
+	private presetIndex: PresetIndex | undefined;
+
 	@state()
 	private imported: number | undefined;
 
@@ -143,6 +154,7 @@ export class DataTransferPanel extends LitElement {
 		});
 		// A group list the browser refused to store turns the storage warning on.
 		this.unsubscribeGroups = onGroupsChanged(() => this.requestUpdate());
+		void this.loadPresetIndex();
 	}
 
 	override disconnectedCallback(): void {
@@ -183,6 +195,15 @@ export class DataTransferPanel extends LitElement {
 		} else {
 			this.pending = undefined;
 			this.error = result.error;
+		}
+	}
+
+	/** Fetch the bundled neighbourhood index for the presets row's subtitle; silent on failure. */
+	private async loadPresetIndex(): Promise<void> {
+		try {
+			this.presetIndex = await fetchIndex("./");
+		} catch {
+			this.presetIndex = undefined;
 		}
 	}
 
@@ -363,6 +384,20 @@ export class DataTransferPanel extends LitElement {
 		`;
 	}
 
+	/** "{added} of {total} added", once the index has loaded; `nothing` until then or on failure. */
+	private presetsSubtitle() {
+		if (this.presetIndex === undefined) return nothing;
+		const savedIds = new Set(loadRestaurants().map((item) => item.id));
+		const added = loadAddedPresets();
+		const addedCount = this.presetIndex.presets.filter(
+			(entry) => presetState(entry, added, savedIds) !== "new",
+		).length;
+		return html`<small>${t("settings.presetsAdded", {
+			added: addedCount,
+			total: this.presetIndex.presets.length,
+		})}</small>`;
+	}
+
 	private renderCopied() {
 		if (this.copied === undefined) return nothing;
 		if ("count" in this.copied)
@@ -437,6 +472,16 @@ export class DataTransferPanel extends LitElement {
 			</section>
 			<section class="import" aria-labelledby="import-title">
 				<h2 id="import-title" class="group-label">${t("settings.importTitle")}</h2>
+				<div class="group">
+					<a class="item" href="./settings/presets" data-action="presets">
+						<span class="lead">${icon("pin", 22)}</span>
+						<span class="grow">
+							<b>${t("settings.presets")}</b>
+							${this.presetsSubtitle()}
+						</span>
+						<span class="trail">${icon("chevron", 20)}</span>
+					</a>
+				</div>
 				<div class="group">
 					<label class="item file">
 						<span class="lead">${icon("upload", 22)}</span>
