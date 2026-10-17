@@ -1154,6 +1154,16 @@ test("search: is translated to Thai", async () => {
 	expect($(el, ".search-count")?.textContent?.trim()).toBe("2 จาก 4 ร้าน");
 });
 
+test("the magnifier and the Tags link are the same height", () => {
+	const css = (RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(/\.tags-link\s*\{[^}]*min-height:\s*var\(--tap\)/);
+	expect(css).toMatch(/\.search-open\s*\{[^}]*min-height:\s*var\(--tap\)/);
+});
+
 test("search: field, clear and cancel are tap sized; the input text is 16px", () => {
 	const css = (RestaurantManager.styles as unknown[])
 		.slice(1)
