@@ -205,6 +205,7 @@ export const en = {
 	"footer.changelog": "Changelog",
 	"footer.dev": "Development build",
 	"footer.built": "Built",
+	"footer.env": "Environment",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -405,6 +406,7 @@ export const th: Record<MessageKey, string> = {
 	"footer.changelog": "บันทึกการเปลี่ยนแปลง",
 	"footer.dev": "รุ่นพัฒนา",
 	"footer.built": "สร้างเมื่อ",
+	"footer.env": "สภาพแวดล้อม",
 };
 
 const dictionaries: Record<Lang, Record<MessageKey, string>> = { en, th };

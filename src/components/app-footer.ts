@@ -65,18 +65,15 @@ export class AppFooter extends LitElement {
 		</div>`;
 	}
 
-	/** A preview links its pull request as `#n - branch (sha)`; production links the commit. */
-	private renderVersion(sha: string) {
-		if (this.pr === undefined)
-			return html`<a class="item" data-link="commit" href=${commitUrl(sha)} target="_blank" rel="noopener">
-				<span class="lead">${icon("tag", 22)}</span>
-				<span class="grow"><code>${shortSha(sha)}</code></span>
-				<span class="trail">${icon("chevron", 20)}</span>
-			</a>`;
-		const branch = this.branch === undefined ? "" : ` - ${this.branch}`;
-		return html`<a class="item" data-link="pull" href=${pullUrl(this.pr)} target="_blank" rel="noopener">
-			<span class="lead">${icon("branch", 22)}</span>
-			<span class="grow"><code>#${this.pr}${branch} (${shortSha(sha)})</code></span>
+	/** A preview names its pull request under the source link, which then opens that pull request. */
+	private renderSource() {
+		const pr =
+			this.pr === undefined
+				? nothing
+				: html`<small>#${this.pr}${this.branch === undefined ? "" : ` - ${this.branch}`}</small>`;
+		return html`<a class="item" data-link="source" href=${this.pr === undefined ? REPO_URL : pullUrl(this.pr)} target="_blank" rel="noopener">
+			<span class="lead">${icon("code", 22)}</span>
+			<span class="grow"><b>${t("footer.source")}</b>${pr}</span>
 			<span class="trail">${icon("chevron", 20)}</span>
 		</a>`;
 	}
@@ -84,11 +81,7 @@ export class AppFooter extends LitElement {
 	override render() {
 		return html`
 			<footer class="group">
-				<a class="item" data-link="source" href=${REPO_URL} target="_blank" rel="noopener">
-					<span class="lead">${icon("code", 22)}</span>
-					<span class="grow"><b>${t("footer.source")}</b></span>
-					<span class="trail">${icon("chevron", 20)}</span>
-				</a>
+				${this.renderSource()}
 				<a class="item" data-link="changelog" href=${CHANGELOG_URL} target="_blank" rel="noopener">
 					<span class="lead">${icon("list", 22)}</span>
 					<span class="grow"><b>${t("footer.changelog")}</b></span>
@@ -97,7 +90,16 @@ export class AppFooter extends LitElement {
 				${
 					this.sha === undefined
 						? html`<div class="item"><span class="lead">${icon("tag", 22)}</span><span class="grow">${t("footer.dev")}</span></div>`
-						: this.renderVersion(this.sha)
+						: html`<a class="item" data-link="commit" href=${commitUrl(this.sha)} target="_blank" rel="noopener">
+								<span class="lead">${icon("tag", 22)}</span>
+								<span class="grow"><code>${shortSha(this.sha)}</code></span>
+								<span class="trail">${icon("chevron", 20)}</span>
+							</a>
+							<div class="item" data-row="env">
+								<span class="lead">${icon("cloud", 22)}</span>
+								<span class="grow"><b>${t("footer.env")}</b></span>
+								<small class="trail"><code>${this.pr === undefined ? "production" : "preview"}</code></small>
+							</div>`
 				}
 				${this.built === undefined ? nothing : this.renderBuilt(this.built)}
 			</footer>
