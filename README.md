@@ -301,8 +301,8 @@ The site deploys to Cloudflare Workers as static assets. `wrangler.jsonc` runs
 
 A manual deploy builds without `BUN_PUBLIC_GTM_ID`, so it ships with Google Tag
 Manager off unless you set the variable in your shell first. It also leaves out
-`BUN_PUBLIC_COMMIT_SHA` and `BUN_PUBLIC_BUILD_DATE`, so the footer says
-"Development build" instead of linking the commit and showing the build time.
+`BUN_PUBLIC_ENVIRONMENT` and `BUN_PUBLIC_COMMIT_SHA`, so the About section calls it
+a `local` build: it shows the build time but neither the commit nor the changelog.
 
 ```bash
 bunx wrangler login
@@ -317,9 +317,12 @@ bunx wrangler deploy
 | `deploy-preview.yml`      | pull requests      | uploads a preview version aliased `pr-<number>`                       |
 | `deploy-production.yml`   | push to `main`     | deploys to production, with `BUN_PUBLIC_GTM_ID` from `vars.GTM_ID`    |
 
-Both deploy jobs set `BUN_PUBLIC_COMMIT_SHA` (the pull request head for a preview)
-and `BUN_PUBLIC_BUILD_DATE` for the footer, which links the commit and shows when
-the page was built.
+Both deploy jobs set `BUN_PUBLIC_ENVIRONMENT` (`production` or `preview`) and
+`BUN_PUBLIC_COMMIT_SHA` (the pull request head for a preview) for the About
+section, which then links the commit and the changelog; a preview also sets
+`BUN_PUBLIC_BRANCH` and `BUN_PUBLIC_PR_NUMBER`. The `build` script stamps
+`BUN_PUBLIC_BUILD_DATE` itself, so every build, local ones too, shows when it was
+built; only `bun run dev` shows no build time.
 
 Both deploy jobs skip in a template repository
 (`github.event.repository.is_template`), so this template never tries to deploy

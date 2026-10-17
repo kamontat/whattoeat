@@ -3,6 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 import {
 	CHANGELOG_URL,
 	commitUrl,
+	type Environment,
 	pullUrl,
 	REPO_URL,
 	readBuildInfo,
@@ -29,11 +30,15 @@ export class AppFooter extends LitElement {
 		`,
 	];
 
-	/** Full commit sha this page was built from; unset in development. */
+	/** Where this page came from; only deployed pages link their commit and the changelog. */
+	@property({ attribute: false })
+	environment: Environment = build.environment;
+
+	/** Full commit sha this page was built from; set only when deployed. */
 	@property({ attribute: false })
 	sha: string | undefined = build.sha;
 
-	/** When this page was built; unset in development. */
+	/** When this page was built; unset on the development server. */
 	@property({ attribute: false })
 	built: Date | undefined = build.date;
 
@@ -68,41 +73,49 @@ export class AppFooter extends LitElement {
 
 	/** A preview names its pull request under the source link, which then opens that pull request. */
 	private renderSource() {
+		const number = this.environment === "preview" ? this.pr : undefined;
 		const pr =
-			this.pr === undefined
+			number === undefined
 				? nothing
-				: html`<small>#${this.pr}${this.branch === undefined ? "" : ` - ${this.branch}`}</small>`;
-		return html`<a class="item" data-link="source" href=${this.pr === undefined ? REPO_URL : pullUrl(this.pr)} target="_blank" rel="noopener">
+				: html`<small>#${number}${this.branch === undefined ? "" : ` - ${this.branch}`}</small>`;
+		return html`<a class="item" data-link="source" href=${number === undefined ? REPO_URL : pullUrl(number)} target="_blank" rel="noopener">
 			<span class="lead">${icon("code", 22)}</span>
 			<span class="grow"><b>${t("footer.source")}</b>${pr}</span>
 			<span class="trail">${icon("chevron", 20)}</span>
 		</a>`;
 	}
 
+	/** The changelog and commit only mean something for a page deployed from a known commit. */
+	private renderDeployed() {
+		return html`<a class="item" data-link="changelog" href=${CHANGELOG_URL} target="_blank" rel="noopener">
+				<span class="lead">${icon("list", 22)}</span>
+				<span class="grow"><b>${t("footer.changelog")}</b></span>
+				<span class="trail">${icon("chevron", 20)}</span>
+			</a>
+			${
+				this.sha === undefined
+					? nothing
+					: html`<a class="item" data-link="commit" href=${commitUrl(this.sha)} target="_blank" rel="noopener">
+							<span class="lead">${icon("tag", 22)}</span>
+							<span class="grow"><code>${shortSha(this.sha)}</code></span>
+							<span class="trail">${icon("chevron", 20)}</span>
+						</a>`
+			}`;
+	}
+
 	override render() {
+		const deployed =
+			this.environment === "production" || this.environment === "preview";
 		return html`
 			<footer class="group">
 				${this.renderSource()}
-				<a class="item" data-link="changelog" href=${CHANGELOG_URL} target="_blank" rel="noopener">
-					<span class="lead">${icon("list", 22)}</span>
-					<span class="grow"><b>${t("footer.changelog")}</b></span>
-					<span class="trail">${icon("chevron", 20)}</span>
-				</a>
-				${
-					this.sha === undefined
-						? html`<div class="item"><span class="lead">${icon("tag", 22)}</span><span class="grow">${t("footer.dev")}</span></div>`
-						: html`<a class="item" data-link="commit" href=${commitUrl(this.sha)} target="_blank" rel="noopener">
-								<span class="lead">${icon("tag", 22)}</span>
-								<span class="grow"><code>${shortSha(this.sha)}</code></span>
-								<span class="trail">${icon("chevron", 20)}</span>
-							</a>
-							<div class="item" data-row="env">
-								<span class="lead">${icon("cloud", 22)}</span>
-								<span class="grow"><b>${t("footer.env")}</b></span>
-								<small class="trail"><code>${this.pr === undefined ? "production" : "preview"}</code></small>
-							</div>`
-				}
-				${this.built === undefined ? nothing : this.renderBuilt(this.built)}
+				${deployed ? this.renderDeployed() : nothing}
+				<div class="item" data-row="env">
+					<span class="lead">${icon("cloud", 22)}</span>
+					<span class="grow"><b>${t("footer.env")}</b></span>
+					<small class="trail"><code>${this.environment}</code></small>
+				</div>
+				${this.environment === "development" || this.built === undefined ? nothing : this.renderBuilt(this.built)}
 			</footer>
 		`;
 	}

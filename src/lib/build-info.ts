@@ -16,7 +16,14 @@ export const parseBuildDate = (value: string | undefined): Date | undefined => {
 	return Number.isNaN(date.getTime()) ? undefined : date;
 };
 
+/**
+ * Where a page came from: `production` is `main` deployed, `preview` a pull request deployed,
+ * `local` a `bun run build` on a workstation and `development` the `bun run dev` server.
+ */
+export type Environment = "production" | "preview" | "local" | "development";
+
 export interface BuildInfo {
+	environment: Environment;
 	sha: string | undefined;
 	date: Date | undefined;
 	/** Set only by the preview workflow, like `pr`, so production shows neither. */
@@ -34,18 +41,27 @@ const readEnv = (read: () => string | undefined): string | undefined => {
 };
 
 /**
- * The commit, build time, branch and pull request baked in by `bun-server build`, which inlines
- * `BUN_PUBLIC_*` variables written as property access; the deploy workflows set them. Only set
- * variables are inlined, and the browser has no `process`, so each unset one throws on its own:
- * production sets no branch or pull request, and the dev server inlines nothing.
+ * The environment, commit, build time, branch and pull request baked in by `bun-server build`,
+ * which inlines `BUN_PUBLIC_*` variables written as property access. The `build` script stamps
+ * the build time and the deploy workflows set the rest. Only set variables are inlined, and the
+ * browser has no `process`, so each unset one throws on its own: production sets no branch or
+ * pull request, a local build sets only the build time, and the dev server inlines nothing.
  */
 export const readBuildInfo = (): BuildInfo => {
 	const sha = readEnv(() => process.env.BUN_PUBLIC_COMMIT_SHA);
 	const branch = readEnv(() => process.env.BUN_PUBLIC_BRANCH)?.trim();
 	const pr = readEnv(() => process.env.BUN_PUBLIC_PR_NUMBER);
+	const deployed = readEnv(() => process.env.BUN_PUBLIC_ENVIRONMENT);
+	const date = parseBuildDate(readEnv(() => process.env.BUN_PUBLIC_BUILD_DATE));
 	return {
+		environment:
+			deployed === "production" || deployed === "preview"
+				? deployed
+				: date === undefined
+					? "development"
+					: "local",
 		sha: sha !== undefined && SHA.test(sha) ? sha : undefined,
-		date: parseBuildDate(readEnv(() => process.env.BUN_PUBLIC_BUILD_DATE)),
+		date,
 		branch: branch ? branch : undefined,
 		pr: pr !== undefined && PR.test(pr) ? Number(pr) : undefined,
 	};
