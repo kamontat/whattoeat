@@ -53,8 +53,8 @@ export class AppToast extends LitElement {
 
 			button[data-action="toast-action"] {
 				flex: none;
-				min-height: 0;
-				padding: 0;
+				min-height: var(--tap);
+				padding: 0 0.25rem;
 				border: 0;
 				background: none;
 				color: inherit;

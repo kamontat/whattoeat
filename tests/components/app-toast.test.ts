@@ -1,6 +1,6 @@
 import { afterEach, expect, spyOn, test } from "bun:test";
 import "#components/app-toast";
-import type { AppToast } from "#components/app-toast";
+import { AppToast } from "#components/app-toast";
 
 afterEach(() => {
 	document.body.innerHTML = "";
@@ -20,13 +20,16 @@ const $ = (el: AppToast, selector: string) =>
 const fakeTimers = () => {
 	const delays: number[] = [];
 	const cleared: unknown[] = [];
+	const handlers = new Map<number, () => void>();
 	let nextId = 0;
 	const timeout = spyOn(globalThis, "setTimeout").mockImplementation(((
-		_handler: () => void,
+		handler: () => void,
 		delay?: number,
 	) => {
 		delays.push(delay ?? 0);
-		return ++nextId as unknown as ReturnType<typeof setTimeout>;
+		const id = ++nextId;
+		handlers.set(id, handler);
+		return id as unknown as ReturnType<typeof setTimeout>;
 	}) as unknown as typeof setTimeout);
 	const clear = spyOn(globalThis, "clearTimeout").mockImplementation(((
 		handle?: ReturnType<typeof setTimeout>,
@@ -36,12 +39,21 @@ const fakeTimers = () => {
 	return {
 		delays,
 		cleared,
+		/** Runs the most recently scheduled timer's callback, as if it had fired. */
+		fire: (): void => handlers.get(nextId)?.(),
 		restore: () => {
 			timeout.mockRestore();
 			clear.mockRestore();
 		},
 	};
 };
+
+/** Flattens a Lit `styles` array (which may nest `uiStyles` and other arrays) to one string. */
+const flatten = (styles: unknown): string =>
+	[styles]
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
 
 test("show renders the message and the action", async () => {
 	const el = await mount();
@@ -81,45 +93,29 @@ test("the action runs onAction and hides", async () => {
 });
 
 test("it hides after the duration", async () => {
-	const delays: number[] = [];
-	let fire: (() => void) | undefined;
-	const timer = spyOn(globalThis, "setTimeout").mockImplementation(((
-		handler: () => void,
-		delay?: number,
-	) => {
-		delays.push(delay ?? 0);
-		fire = handler;
-		return 0;
-	}) as unknown as typeof setTimeout);
+	const timers = fakeTimers();
 	try {
 		const el = await mount();
 		el.show("Added 3 restaurants", { action: "Undo" });
 		await el.updateComplete;
-		expect(delays).toEqual([6000]);
-		fire?.();
+		expect(timers.delays).toEqual([6000]);
+		timers.fire();
 		await el.updateComplete;
 		expect($(el, '[role="status"]')).toBeNull();
 	} finally {
-		timer.mockRestore();
+		timers.restore();
 	}
 });
 
 test("a custom duration is used instead of the default", async () => {
-	const delays: number[] = [];
-	const timer = spyOn(globalThis, "setTimeout").mockImplementation(((
-		_handler: () => void,
-		delay?: number,
-	) => {
-		delays.push(delay ?? 0);
-		return 0;
-	}) as unknown as typeof setTimeout);
+	const timers = fakeTimers();
 	try {
 		const el = await mount();
 		el.show("Undone.", { duration: 3000 });
 		await el.updateComplete;
-		expect(delays).toEqual([3000]);
+		expect(timers.delays).toEqual([3000]);
 	} finally {
-		timer.mockRestore();
+		timers.restore();
 	}
 });
 
@@ -179,4 +175,13 @@ test("hide clears the timer and removes the message", async () => {
 	} finally {
 		timers.restore();
 	}
+});
+
+test("the action button keeps the 44px tap target, not a shrunk link", () => {
+	const css = flatten(AppToast.styles);
+	const rule = css.match(
+		/button\[data-action="toast-action"\]\s*\{([^}]*)\}/,
+	)?.[1];
+	expect(rule).toContain("min-height: var(--tap)");
+	expect(rule).not.toContain("min-height: 0");
 });
