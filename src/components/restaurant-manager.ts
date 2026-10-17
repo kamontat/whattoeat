@@ -120,7 +120,8 @@ export class RestaurantManager extends LitElement {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.375rem;
-				/* Same height as the magnifier beside it. */
+				/* Same height as the magnifier beside it, borders included. */
+				box-sizing: border-box;
 				min-height: var(--tap);
 				padding: 0 0.875rem;
 				border: 1px solid var(--color-control);

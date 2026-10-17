@@ -1161,6 +1161,8 @@ test("the magnifier and the Tags link are the same height", () => {
 		.map((style) => (style as { cssText: string }).cssText)
 		.join("\n");
 	expect(css).toMatch(/\.tags-link\s*\{[^}]*min-height:\s*var\(--tap\)/);
+	// A link's min-height leaves out its border unless it is border-box, like the button.
+	expect(css).toMatch(/\.tags-link\s*\{[^}]*box-sizing:\s*border-box/);
 	expect(css).toMatch(/\.search-open\s*\{[^}]*min-height:\s*var\(--tap\)/);
 });
 
