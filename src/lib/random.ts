@@ -1,5 +1,34 @@
 import type { Restaurant } from "#lib/restaurant";
 
+/** How many restaurants one press of the pick button can show. */
+export const PICK_COUNTS = [1, 2, 3, 4, 5] as const;
+export type PickCount = (typeof PICK_COUNTS)[number];
+export const DEFAULT_PICK_COUNT: PickCount = 2;
+
+export const PICK_COUNT_KEY = "whattoeat:pick-count";
+
+const isPickCount = (value: number): value is PickCount =>
+	(PICK_COUNTS as readonly number[]).includes(value);
+
+/** The stored pick count, else two. */
+export const loadPickCount = (): PickCount => {
+	try {
+		const stored = Number(localStorage.getItem(PICK_COUNT_KEY) || Number.NaN);
+		if (isPickCount(stored)) return stored;
+	} catch {
+		// Storage blocked: fall back to the default.
+	}
+	return DEFAULT_PICK_COUNT;
+};
+
+export const savePickCount = (count: PickCount): void => {
+	try {
+		localStorage.setItem(PICK_COUNT_KEY, String(count));
+	} catch {
+		// Storage blocked: the choice lasts for this page only.
+	}
+};
+
 /** Take up to `count` different items from `pool`, each uniformly from what is left. */
 const take = (
 	pool: readonly Restaurant[],

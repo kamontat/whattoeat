@@ -1,5 +1,11 @@
 import { expect, test } from "bun:test";
-import { pickOptions } from "#lib/random";
+import {
+	loadPickCount,
+	PICK_COUNT_KEY,
+	PICK_COUNTS,
+	pickOptions,
+	savePickCount,
+} from "#lib/random";
 import type { Restaurant } from "#lib/restaurant";
 
 const make = (id: string): Restaurant => ({
@@ -62,4 +68,29 @@ test("with two items returns both", () => {
 		"a",
 		"b",
 	]);
+});
+
+test("the pick counts run from one to five", () => {
+	expect(PICK_COUNTS).toEqual([1, 2, 3, 4, 5]);
+});
+
+test("the pick count defaults to two", () => {
+	localStorage.clear();
+	expect(loadPickCount()).toBe(2);
+});
+
+test("the pick count is saved and read back", () => {
+	localStorage.clear();
+	savePickCount(4);
+	expect(localStorage.getItem(PICK_COUNT_KEY)).toBe("4");
+	expect(loadPickCount()).toBe(4);
+	localStorage.clear();
+});
+
+test("a stored pick count outside 1 to 5 falls back to two", () => {
+	for (const stored of ["0", "6", "2.5", "abc", ""]) {
+		localStorage.setItem(PICK_COUNT_KEY, stored);
+		expect(loadPickCount()).toBe(2);
+	}
+	localStorage.clear();
 });
