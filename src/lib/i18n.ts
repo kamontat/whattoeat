@@ -242,6 +242,12 @@ export const en = {
 	"settings.visitCount.other": "{count} visits",
 	"settings.cleared.one": "Deleted 1 visit.",
 	"settings.cleared.other": "Deleted {count} visits.",
+	"settings.clearRestaurants": "Delete restaurants",
+	"settings.clearRestaurantsPrompt":
+		"Delete all {count} restaurants? Your history, groups and settings are kept. This cannot be undone.",
+	"settings.clearRestaurantsConfirm": "Delete restaurants",
+	"settings.clearedRestaurants.one": "Deleted 1 restaurant.",
+	"settings.clearedRestaurants.other": "Deleted {count} restaurants.",
 	"settings.reset": "Delete all data",
 	"settings.resetPrompt":
 		"Delete all {count} restaurants, your history and settings saved in this browser? This cannot be undone.",
@@ -499,6 +505,12 @@ export const th: Record<MessageKey, string> = {
 	"settings.visitCount.other": "{count} รายการ",
 	"settings.cleared.one": "ลบประวัติ 1 รายการแล้ว",
 	"settings.cleared.other": "ลบประวัติ {count} รายการแล้ว",
+	"settings.clearRestaurants": "ลบร้านอาหาร",
+	"settings.clearRestaurantsPrompt":
+		"ลบร้านอาหารทั้งหมด {count} ร้านหรือไม่ ประวัติ กลุ่ม และการตั้งค่าจะยังอยู่ การลบนี้ย้อนกลับไม่ได้",
+	"settings.clearRestaurantsConfirm": "ลบร้านอาหาร",
+	"settings.clearedRestaurants.one": "ลบร้านอาหาร 1 ร้านแล้ว",
+	"settings.clearedRestaurants.other": "ลบร้านอาหาร {count} ร้านแล้ว",
 	"settings.reset": "ลบข้อมูลทั้งหมด",
 	"settings.resetPrompt":
 		"ลบร้านอาหาร {count} ร้าน ประวัติ และการตั้งค่าทั้งหมดที่บันทึกไว้ในเบราว์เซอร์นี้หรือไม่ การลบนี้ย้อนกลับไม่ได้",

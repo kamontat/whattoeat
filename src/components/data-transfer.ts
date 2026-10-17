@@ -26,6 +26,7 @@ import {
 	loadAddedPresets,
 	type PresetIndex,
 	presetState,
+	saveAddedPresets,
 } from "#lib/presets";
 import type { Restaurant } from "#lib/restaurant";
 import {
@@ -61,6 +62,15 @@ export class DataTransferPanel extends LitElement {
 			section {
 				display: grid;
 				gap: 0.5rem;
+			}
+
+			.item:disabled .grow {
+				color: var(--color-muted);
+			}
+
+			/* Focus lands here once the delete-restaurants row is greyed out; it is a message, not a control. */
+			.clear-restaurants-done:focus {
+				outline: none;
 			}
 
 			.file input {
@@ -140,6 +150,10 @@ export class DataTransferPanel extends LitElement {
 	/** "confirm" while the reset prompt is open, "done" after everything was deleted. */
 	@state()
 	private reset: "confirm" | "done" | undefined;
+
+	/** "confirm" while the delete-restaurants prompt is open, then how many were deleted. */
+	@state()
+	private clearRestaurants: "confirm" | { deleted: number } | undefined;
 
 	private unsubscribe: (() => void) | undefined;
 	private unsubscribeGroups: (() => void) | undefined;
@@ -346,8 +360,90 @@ export class DataTransferPanel extends LitElement {
 		this.copied = undefined;
 		this.pasteText = "";
 		this.pasteByHand = false;
+		this.clearRestaurants = undefined;
 		this.reset = "done";
 	};
+
+	private readonly askClearRestaurants = (): void => {
+		this.clearRestaurants = "confirm";
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector(
+				'[data-action="clear-restaurants-confirm"]',
+			),
+		);
+	};
+
+	private readonly cancelClearRestaurants = (): void => {
+		this.clearRestaurants = undefined;
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector('[data-action="clear-restaurants"]'),
+		);
+	};
+
+	/**
+	 * Empty the restaurant list and forget which presets were added, so every preset reads as
+	 * new again. History, groups, theme and language stay. The row is now greyed out, so
+	 * focus lands on the result.
+	 */
+	private readonly confirmClearRestaurants = (): void => {
+		const deleted = loadRestaurants().length;
+		saveRestaurants([]);
+		saveAddedPresets([]);
+		this.clearRestaurants = { deleted };
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector(".clear-restaurants-done"),
+		);
+	};
+
+	private renderClearRestaurants() {
+		if (this.clearRestaurants === "confirm")
+			return html`
+				<div class="group confirm">
+					<p class="clear-restaurants-prompt" role="alert">
+						${t("settings.clearRestaurantsPrompt", { count: this.count })}
+					</p>
+					<div class="actions">
+						<button
+							type="button"
+							class="danger"
+							data-action="clear-restaurants-confirm"
+							@click=${this.confirmClearRestaurants}
+						>
+							${t("settings.clearRestaurantsConfirm")}
+						</button>
+						<button
+							type="button"
+							data-action="clear-restaurants-cancel"
+							@click=${this.cancelClearRestaurants}
+						>
+							${t("settings.cancel")}
+						</button>
+					</div>
+				</div>
+			`;
+		const deleted = this.clearRestaurants?.deleted;
+		return html`
+			<div class="group">
+				<button
+					type="button"
+					class="item"
+					data-action="clear-restaurants"
+					?disabled=${this.count === 0}
+					@click=${this.askClearRestaurants}
+				>
+					<span class="lead">${icon("bowl", 22)}</span>
+					<span class="grow"><b>${t("settings.clearRestaurants")}</b></span>
+				</button>
+			</div>
+			${
+				deleted === undefined
+					? nothing
+					: html`<p class="success clear-restaurants-done" role="status" tabindex="-1">
+							${t(`settings.clearedRestaurants.${deleted === 1 ? "one" : "other"}`, { count: deleted })}
+						</p>`
+			}
+		`;
+	}
 
 	private renderReset() {
 		if (this.reset === "confirm")
@@ -542,6 +638,7 @@ export class DataTransferPanel extends LitElement {
 			<section class="reset" aria-labelledby="reset-title">
 				<h2 id="reset-title" class="group-label">${t("settings.resetTitle")}</h2>
 				<history-clear></history-clear>
+				${this.renderClearRestaurants()}
 				${this.renderReset()}
 			</section>
 			<section class="about" aria-labelledby="about-title">

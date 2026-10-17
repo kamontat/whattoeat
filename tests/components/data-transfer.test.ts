@@ -14,7 +14,11 @@ import {
 	saveHistory,
 } from "#lib/history";
 import { getLang, setLang } from "#lib/i18n";
-import { type PresetIndex, saveAddedPresets } from "#lib/presets";
+import {
+	loadAddedPresets,
+	type PresetIndex,
+	saveAddedPresets,
+} from "#lib/presets";
 import type { Restaurant } from "#lib/restaurant";
 import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
 import { toExportFile } from "#lib/transfer";
@@ -904,5 +908,95 @@ test("an Organise section links to the tags page", async () => {
 	expect($(el, "section.organise h2")?.textContent?.trim()).toBe("จัดระเบียบ");
 	expect($(el, 'a.item[data-action="tags"] b')?.textContent?.trim()).toBe(
 		"แท็ก",
+	);
+});
+
+test("the Reset section holds deleting restaurants between clearing history and deleting all data", async () => {
+	const el = await mount();
+	const reset = $(el, "section.reset")!;
+	const clear = reset.querySelector("history-clear")!;
+	const restaurants = reset.querySelector(
+		'button[data-action="clear-restaurants"]',
+	)!;
+	const all = reset.querySelector('button[data-action="reset"]')!;
+	expect(restaurants.textContent?.trim()).toBe("Delete restaurants");
+	expect(
+		clear.compareDocumentPosition(restaurants) &
+			Node.DOCUMENT_POSITION_FOLLOWING,
+	).toBeTruthy();
+	expect(
+		restaurants.compareDocumentPosition(all) & Node.DOCUMENT_POSITION_FOLLOWING,
+	).toBeTruthy();
+});
+
+test("delete restaurants is greyed out while there are none", async () => {
+	const el = await mount();
+	const button = () =>
+		$(el, 'button[data-action="clear-restaurants"]') as HTMLButtonElement;
+	expect(button().disabled).toBe(true);
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	await el.updateComplete;
+	expect(button().disabled).toBe(false);
+});
+
+test("delete restaurants asks first and can be cancelled, with focus following", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	addRestaurant({ name: "B", tags: [], link: "", notes: "" });
+	const el = await mount();
+	await click(el, 'button[data-action="clear-restaurants"]');
+	const prompt = $(el, ".clear-restaurants-prompt")!;
+	expect(prompt.textContent?.trim()).toBe(
+		"Delete all 2 restaurants? Your history, groups and settings are kept. This cannot be undone.",
+	);
+	expect(prompt.getAttribute("role")).toBe("alert");
+	expect(prompt.closest(".group.confirm")).not.toBeNull();
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+		"clear-restaurants-confirm",
+	);
+	await click(el, 'button[data-action="clear-restaurants-cancel"]');
+	expect($(el, ".clear-restaurants-prompt")).toBeNull();
+	expect(loadRestaurants()).toHaveLength(2);
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+		"clear-restaurants",
+	);
+});
+
+test("confirming delete restaurants empties only the restaurant list and added presets", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	saveHistory([visit("mine", "2026-10-01T09:00:00.000Z")]);
+	saveGroups([{ id: "g1", name: "Price" }]);
+	saveAddedPresets([{ id: "siam", updatedAt: "2026-10-01", ids: ["a"] }]);
+	localStorage.setItem("whattoeat:theme", "dark");
+	const el = await mount();
+	await click(el, 'button[data-action="clear-restaurants"]');
+	await click(el, 'button[data-action="clear-restaurants-confirm"]');
+	expect(loadRestaurants()).toEqual([]);
+	expect(loadAddedPresets()).toEqual([]);
+	expect(loadHistory().map((item) => item.id)).toEqual(["mine"]);
+	expect(loadGroups()).toEqual([{ id: "g1", name: "Price" }]);
+	expect(localStorage.getItem("whattoeat:theme")).toBe("dark");
+	await el.updateComplete;
+	expect($(el, ".count")?.textContent?.trim()).toBe("Restaurants saved: 0");
+	expect($(el, ".clear-restaurants-done")?.textContent?.trim()).toBe(
+		"Deleted 1 restaurant.",
+	);
+	expect(el.shadowRoot!.activeElement).toBe($(el, ".clear-restaurants-done"));
+});
+
+test("delete restaurants is translated to Thai", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	addRestaurant({ name: "B", tags: [], link: "", notes: "" });
+	setLang("th");
+	const el = await mount();
+	expect(
+		$(el, 'button[data-action="clear-restaurants"]')?.textContent?.trim(),
+	).toBe("ลบร้านอาหาร");
+	await click(el, 'button[data-action="clear-restaurants"]');
+	expect($(el, ".clear-restaurants-prompt")?.textContent?.trim()).toBe(
+		"ลบร้านอาหารทั้งหมด 2 ร้านหรือไม่ ประวัติ กลุ่ม และการตั้งค่าจะยังอยู่ การลบนี้ย้อนกลับไม่ได้",
+	);
+	await click(el, 'button[data-action="clear-restaurants-confirm"]');
+	expect($(el, ".clear-restaurants-done")?.textContent?.trim()).toBe(
+		"ลบร้านอาหาร 2 ร้านแล้ว",
 	);
 });
