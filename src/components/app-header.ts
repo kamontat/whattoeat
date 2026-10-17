@@ -95,7 +95,7 @@ export class AppHeader extends LitElement {
 			 */
 			header.preview nav {
 				border-top-color: var(--color-preview);
-				box-shadow: 0 -3px 0 var(--color-preview);
+				box-shadow: 0 -5px 0 var(--color-preview);
 			}
 
 			nav a {
@@ -151,7 +151,7 @@ export class AppHeader extends LitElement {
 				/* The top bar is the nav here, so the line moves to its bottom edge. */
 				header.preview {
 					border-bottom-color: var(--color-preview);
-					box-shadow: 0 3px 0 var(--color-preview);
+					box-shadow: 0 5px 0 var(--color-preview);
 				}
 
 				.brand {

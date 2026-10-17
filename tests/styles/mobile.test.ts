@@ -58,10 +58,10 @@ test("a preview draws its line between the page and the nav at both widths", () 
 	const header = flatten(AppHeader.styles);
 	const at = header.indexOf("@media (min-width: 48rem)");
 	const phone = block(header.slice(0, at), "header.preview nav {");
-	expect(phone).toContain("box-shadow: 0 -3px 0 var(--color-preview)");
+	expect(phone).toContain("box-shadow: 0 -5px 0 var(--color-preview)");
 	const wide = header.slice(at);
 	expect(block(wide, "header.preview {")).toContain(
-		"box-shadow: 0 3px 0 var(--color-preview)",
+		"box-shadow: 0 5px 0 var(--color-preview)",
 	);
 	expect(block(wide, "header.preview nav {")).toContain("box-shadow: none");
 });
