@@ -15,7 +15,7 @@ app (see [Install on a phone](#install-on-a-phone)).
 | `/history`     | Visits grouped by day, stats per restaurant, delete a visit |
 | `/settings`    | Language and theme; link to tags; export or import JSON as a file or by copy and paste, with replace or merge; neighbourhood presets; clear history by age; delete all data; about |
 | `/settings/presets` | Tick neighbourhoods and add them to the list or replace it, with undo |
-| `/settings/tags` | Groups and their values: counts, add, rename, reorder and delete groups; rename, merge, move and delete values |
+| `/settings/tags` | Pick a group from pills or a column; search groups and values; add, rename, reorder and delete groups; rename, merge, move and delete values in a form |
 
 Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static
 [Lit](https://lit.dev/) web components, bundled by [Bun](https://bun.com/) through
