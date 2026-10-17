@@ -2,6 +2,47 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-17: Search restaurants by name
+
+### Features
+
+- Restaurants has a search button beside Tags. It turns the title row into a search field
+  with a clear button and Cancel, and the list narrows to names that contain every word you
+  type, in any order. Case and Latin accents are ignored ("cafe" finds "Café"); Thai is
+  matched as typed. The matched part of each name is bold.
+- "2 of 157 restaurants" shows while searching; screen readers hear it once typing pauses.
+- When nothing matches, a card offers **Add "…"**, which opens the new-restaurant form with
+  the name filled in, or **Clear search**.
+- The keyboard's Search key opens the restaurant when only one matches, and otherwise puts the
+  keyboard away so every result is in view. On wide screens `/` opens search and `Esc`
+  closes it.
+
+### Improvements
+
+- On phones the Restaurants title row, and the search field while searching, stay at the top
+  of the screen, so search is one tap away in a long list.
+- Editing from the results keeps the search; after a save, focus lands on the saved
+  restaurant, or back in the field if it no longer matches. A change in another tab re-filters
+  the results, and emptying the list ends search.
+- The Tags link on Restaurants is the same height as the search button: 44px on touch
+  screens, 36px with a mouse.
+
+### Decisions
+
+- Search matches names only, because it is for finding a place you already know in order to
+  edit it; browsing by cuisine or area stays with the Home filter.
+- It sits behind a header button that turns the title into the field, iOS style, rather than
+  an always-visible field or a separate sheet. The field is focused inside the tap itself,
+  because iOS only opens the keyboard for a focus made during the tap.
+- Only Latin accents are folded (U+0300 to U+036F). Thai vowel and tone marks are combining
+  marks too, and stripping them would make different Thai words match; a highlight always
+  takes the marks after the last matched letter, so they are never split from their letter.
+- The visible count updates at once, while a separate hidden line speaks it after a 500 ms
+  pause, so screen readers are not interrupted on every key.
+- The title row stays put only on phones; from 768px the edit side panel is already the part
+  that stays in view, and two stuck areas would overlap.
+- Search on the Tags page stays in `TODO.md`.
+
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 
 ### Features
