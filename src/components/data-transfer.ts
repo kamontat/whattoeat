@@ -26,6 +26,7 @@ import {
 	loadAddedPresets,
 	type PresetIndex,
 	presetState,
+	saveAddedPresets,
 } from "#lib/presets";
 import type { Restaurant } from "#lib/restaurant";
 import {
@@ -46,6 +47,15 @@ import {
 } from "#lib/transfer";
 import { uiStyles } from "#styles/ui";
 
+type DeleteKind = "restaurants" | "history" | "all";
+
+/** The class of each delete's result line, by what was deleted. */
+const DONE_CLASS: Record<DeleteKind, string> = {
+	restaurants: "clear-restaurants-done",
+	history: "clear-history-done",
+	all: "reset-done",
+};
+
 @customElement("data-transfer")
 export class DataTransferPanel extends LitElement {
 	static override styles = [
@@ -61,6 +71,20 @@ export class DataTransferPanel extends LitElement {
 			section {
 				display: grid;
 				gap: 0.5rem;
+			}
+
+			.item:disabled .grow {
+				color: var(--color-muted);
+			}
+
+			/* This card holds rows from two components, so it draws their dividers itself. */
+			.deletes > * + * {
+				border-top: 1px solid var(--color-border);
+			}
+
+			/* Focus lands here once a delete greys its row out; it is a message, not a control. */
+			.deleted:focus {
+				outline: none;
 			}
 
 			.file input {
@@ -87,6 +111,7 @@ export class DataTransferPanel extends LitElement {
 			}
 
 			.confirm {
+				display: grid;
 				gap: 0.75rem;
 				padding: 1rem 1.125rem;
 			}
@@ -137,9 +162,13 @@ export class DataTransferPanel extends LitElement {
 	@state()
 	private pasteByHand = false;
 
-	/** "confirm" while the reset prompt is open, "done" after everything was deleted. */
+	/** Which delete row has its prompt open in the Delete card. */
 	@state()
-	private reset: "confirm" | "done" | undefined;
+	private confirming: "restaurants" | "all" | undefined;
+
+	/** What the last delete did, shown under the Delete card until another delete starts. */
+	@state()
+	private deleted: { kind: DeleteKind; message: string } | undefined;
 
 	private unsubscribe: (() => void) | undefined;
 	private unsubscribeGroups: (() => void) | undefined;
@@ -324,19 +353,32 @@ export class DataTransferPanel extends LitElement {
 		this.imported = persisted ? list.length : undefined;
 	}
 
-	private readonly askReset = (): void => {
-		this.reset = "confirm";
+	/** Open a delete row's prompt in place, dropping the last result. */
+	private ask(row: "restaurants" | "all"): void {
+		this.confirming = row;
+		this.deleted = undefined;
+		const confirm =
+			row === "all" ? "reset-confirm" : "clear-restaurants-confirm";
 		this.focusAfterRender(() =>
-			this.renderRoot.querySelector('[data-action="reset-confirm"]'),
+			this.renderRoot.querySelector(`[data-action="${confirm}"]`),
+		);
+	}
+
+	private readonly cancelDelete = (): void => {
+		const row = this.confirming;
+		this.confirming = undefined;
+		const action = row === "all" ? "reset" : "clear-restaurants";
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector(`[data-action="${action}"]`),
 		);
 	};
 
-	private readonly cancelReset = (): void => {
-		this.reset = undefined;
-		this.focusAfterRender(() =>
-			this.renderRoot.querySelector('[data-action="reset"]'),
-		);
-	};
+	/** Show what a delete did under the card; when its row greyed out, focus lands there. */
+	private report(kind: DeleteKind, message: string, focus: boolean): void {
+		this.deleted = { kind, message };
+		if (focus)
+			this.focusAfterRender(() => this.renderRoot.querySelector(".deleted"));
+	}
 
 	private readonly confirmReset = (): void => {
 		resetStorage();
@@ -346,41 +388,121 @@ export class DataTransferPanel extends LitElement {
 		this.copied = undefined;
 		this.pasteText = "";
 		this.pasteByHand = false;
-		this.reset = "done";
+		this.confirming = undefined;
+		this.report("all", t("settings.resetDone"), false);
 	};
 
-	private renderReset() {
-		if (this.reset === "confirm")
-			return html`
-				<div class="group confirm">
-					<p class="reset-prompt" role="alert">${t("settings.resetPrompt", { count: this.count })}</p>
-					<div class="actions">
-						<button type="button" class="danger" data-action="reset-confirm" @click=${this.confirmReset}>
-							${t("settings.resetConfirm")}
-						</button>
-						<button type="button" data-action="reset-cancel" @click=${this.cancelReset}>
-							${t("settings.cancel")}
-						</button>
-					</div>
-				</div>
-			`;
+	/**
+	 * Empty the restaurant list and forget which presets were added, so every preset reads as
+	 * new again. History, groups, theme and language stay.
+	 */
+	private readonly confirmClearRestaurants = (): void => {
+		const count = loadRestaurants().length;
+		saveRestaurants([]);
+		saveAddedPresets([]);
+		this.confirming = undefined;
+		this.report(
+			"restaurants",
+			t(`settings.clearedRestaurants.${count === 1 ? "one" : "other"}`, {
+				count,
+			}),
+			true,
+		);
+	};
+
+	private readonly onHistoryCleared = (
+		event: CustomEvent<{ count: number }>,
+	): void => {
+		const { count } = event.detail;
+		this.confirming = undefined;
+		this.report(
+			"history",
+			t(`settings.cleared.${count === 1 ? "one" : "other"}`, { count }),
+			loadHistory().length === 0,
+		);
+	};
+
+	private renderPrompt(
+		row: "restaurants" | "all",
+		prompt: string,
+		confirm: string,
+		onConfirm: () => void,
+	) {
+		const name = row === "all" ? "reset" : "clear-restaurants";
 		return html`
-			<div class="group">
-				<button
-					type="button"
-					class="item danger"
-					data-action="reset"
-					@click=${this.askReset}
-				>
-					<span class="lead">${icon("trash", 22)}</span>
-					<span class="grow"><b>${t("settings.reset")}</b></span>
-				</button>
+			<div class="confirm">
+				<p class="${name}-prompt" role="alert">${prompt}</p>
+				<div class="actions">
+					<button type="button" class="danger" data-action="${name}-confirm" @click=${onConfirm}>
+						${confirm}
+					</button>
+					<button type="button" data-action="${name}-cancel" @click=${this.cancelDelete}>
+						${t("settings.cancel")}
+					</button>
+				</div>
 			</div>
-			${
-				this.reset === "done"
-					? html`<p class="success reset-done" role="status">${t("settings.resetDone")}</p>`
-					: nothing
-			}
+		`;
+	}
+
+	/** The last delete's result, when it came from one of `kinds`; it sits under that card. */
+	private renderDeleted(...kinds: DeleteKind[]) {
+		const deleted = this.deleted;
+		if (deleted === undefined || !kinds.includes(deleted.kind)) return nothing;
+		return html`<p class="success deleted ${DONE_CLASS[deleted.kind]}" role="status" tabindex="-1">
+			${deleted.message}
+		</p>`;
+	}
+
+	/**
+	 * Delete restaurants and Delete history share a card; Delete all data has its own. Prompts
+	 * open in place.
+	 */
+	private renderDeletes() {
+		return html`
+			<div class="group deletes">
+				${
+					this.confirming === "restaurants"
+						? this.renderPrompt(
+								"restaurants",
+								t("settings.clearRestaurantsPrompt", { count: this.count }),
+								t("settings.clearRestaurantsConfirm"),
+								this.confirmClearRestaurants,
+							)
+						: html`<button
+								type="button"
+								class="item"
+								data-action="clear-restaurants"
+								?disabled=${this.count === 0}
+								@click=${() => this.ask("restaurants")}
+							>
+								<span class="lead">${icon("bowl", 22)}</span>
+								<span class="grow"><b>${t("settings.clearRestaurants")}</b></span>
+							</button>`
+				}
+				<history-clear @history-cleared=${this.onHistoryCleared}></history-clear>
+			</div>
+			${this.renderDeleted("restaurants", "history")}
+			<div class="group reset-all">
+				${
+					this.confirming === "all"
+						? this.renderPrompt(
+								"all",
+								t("settings.resetPrompt", { count: this.count }),
+								t("settings.resetConfirm"),
+								this.confirmReset,
+							)
+						: html`<button
+								type="button"
+								class="item danger"
+								data-action="reset"
+								@click=${() => this.ask("all")}
+							>
+								<span class="lead">${icon("trash", 22)}</span>
+								<span class="grow"><b>${t("settings.reset")}</b></span>
+							</button>`
+				}
+			</div>
+			${this.renderDeleted("all")}
 		`;
 	}
 
@@ -541,8 +663,7 @@ export class DataTransferPanel extends LitElement {
 			</section>
 			<section class="reset" aria-labelledby="reset-title">
 				<h2 id="reset-title" class="group-label">${t("settings.resetTitle")}</h2>
-				<history-clear></history-clear>
-				${this.renderReset()}
+				${this.renderDeletes()}
 			</section>
 			<section class="about" aria-labelledby="about-title">
 				<h2 id="about-title" class="group-label">${t("settings.about")}</h2>

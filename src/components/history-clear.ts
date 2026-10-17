@@ -1,4 +1,4 @@
-import { css, html, LitElement, nothing } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import "#components/app-sheet";
 import {
@@ -15,8 +15,10 @@ import { icon } from "#lib/icons";
 import { uiStyles } from "#styles/ui";
 
 /**
- * A Settings row, "Clear history", that opens a sheet to choose how far back to delete,
- * then asks before deleting. Greyed out while there is no history.
+ * A Settings row, "Delete history", that opens a sheet to choose how far back to delete,
+ * then asks before deleting. Greyed out while there is no history. It sits in the parent's
+ * card, so it brings no card of its own, and reports each clear as a `history-cleared`
+ * event with the number of visits deleted for the parent to show.
  */
 @customElement("history-clear")
 export class HistoryClear extends LitElement {
@@ -24,21 +26,11 @@ export class HistoryClear extends LitElement {
 		uiStyles,
 		css`
 			:host {
-				display: grid;
-				gap: 0.5rem;
+				display: block;
 			}
 
 			.item:disabled .grow {
 				color: var(--color-muted);
-			}
-
-			.cleared:empty {
-				display: none;
-			}
-
-			/* Focus lands here only when the row is greyed out; it is a message, not a control. */
-			.cleared:focus {
-				outline: none;
 			}
 		`,
 	];
@@ -54,10 +46,6 @@ export class HistoryClear extends LitElement {
 	/** The range chosen in the sheet, waiting for confirmation. */
 	@state()
 	private clearing: ClearRange | undefined;
-
-	/** What the last clear did, read out once. */
-	@state()
-	private status = "";
 
 	private unsubscribe: (() => void) | undefined;
 
@@ -84,7 +72,6 @@ export class HistoryClear extends LitElement {
 
 	private readonly openSheet = (): void => {
 		this.clearing = undefined;
-		this.status = "";
 		this.sheetOpen = true;
 	};
 
@@ -110,7 +97,7 @@ export class HistoryClear extends LitElement {
 			);
 	};
 
-	/** The sheet hands focus back to the row; once nothing is left, to the result instead. */
+	/** The sheet hands focus back to the row; the parent moves it on if the row greyed out. */
 	private readonly confirmClear = (): void => {
 		const range = this.clearing;
 		if (range === undefined) return;
@@ -118,11 +105,13 @@ export class HistoryClear extends LitElement {
 		removeVisitsOlderThan(range);
 		this.clearing = undefined;
 		this.sheetOpen = false;
-		this.status = t(`settings.cleared.${count === 1 ? "one" : "other"}`, {
-			count,
-		});
-		if (loadHistory().length === 0)
-			this.focusAfterRender(() => this.renderRoot.querySelector(".cleared"));
+		this.dispatchEvent(
+			new CustomEvent("history-cleared", {
+				detail: { count },
+				bubbles: true,
+				composed: true,
+			}),
+		);
 	};
 
 	private renderRanges() {
@@ -181,21 +170,18 @@ export class HistoryClear extends LitElement {
 
 	override render() {
 		return html`
-			<div class="group">
-				<button
-					type="button"
-					class="item"
-					data-action="clear-history"
-					aria-haspopup="dialog"
-					?disabled=${this.history.length === 0}
-					@click=${this.openSheet}
-				>
-					<span class="lead">${icon("clock", 22)}</span>
-					<span class="grow"><b>${t("settings.clearHistory")}</b></span>
-					<span class="trail">${icon("chevron", 18)}</span>
-				</button>
-			</div>
-			<p class="success cleared" role="status" tabindex="-1">${this.status || nothing}</p>
+			<button
+				type="button"
+				class="item"
+				data-action="clear-history"
+				aria-haspopup="dialog"
+				?disabled=${this.history.length === 0}
+				@click=${this.openSheet}
+			>
+				<span class="lead">${icon("clock", 22)}</span>
+				<span class="grow"><b>${t("settings.clearHistory")}</b></span>
+				<span class="trail">${icon("chevron", 18)}</span>
+			</button>
 			<app-sheet heading=${t("settings.clearHistory")} ?open=${this.sheetOpen} @sheet-close=${this.onSheetClose}>
 				${
 					this.clearing === undefined

@@ -66,19 +66,20 @@ const choose = async (el: HistoryClear, range: string) => {
 	await settle(el);
 };
 
-test("one Clear history row opens a sheet; the ranges are not listed on the page", async () => {
+test("one Delete history row opens a sheet; the ranges are not listed on the page", async () => {
 	const el = await mount();
 	const button = open(el)!;
 	expect(button.classList.contains("item")).toBe(true);
-	expect(button.closest("ul.group, div.group")).not.toBeNull();
-	expect(text(button.querySelector("b"))).toBe("Clear history");
+	// The row sits in the parent's Delete card, so it brings no card of its own.
+	expect(button.closest(".group")).toBeNull();
+	expect(text(button.querySelector("b"))).toBe("Delete history");
 	expect(button.getAttribute("aria-haspopup")).toBe("dialog");
 	expect(sheet(el).hasAttribute("open")).toBe(false);
 	expect(row(el, "week")?.closest("app-sheet")).toBe(sheet(el));
 	button.click();
 	await settle(el);
 	expect(sheet(el).hasAttribute("open")).toBe(true);
-	expect(sheet(el).getAttribute("heading")).toBe("Clear history");
+	expect(sheet(el).getAttribute("heading")).toBe("Delete history");
 });
 
 test("with no history the row is greyed out and cannot open the sheet", async () => {
@@ -119,8 +120,17 @@ test("a range with nothing to delete is disabled", async () => {
 	expect(row(el, "all")!.disabled).toBe(false);
 });
 
-test("choosing a range asks first, then deletes only the older visits and says so", async () => {
+const cleared = (el: HistoryClear) => {
+	const counts: number[] = [];
+	el.addEventListener("history-cleared", (event) =>
+		counts.push((event as CustomEvent<{ count: number }>).detail.count),
+	);
+	return counts;
+};
+
+test("choosing a range asks first, then deletes only the older visits and says how many", async () => {
 	const el = await mount();
+	const counts = cleared(el);
 	await choose(el, "month");
 	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
 		"Delete 2 visits older than 1 month? This cannot be undone.",
@@ -134,14 +144,14 @@ test("choosing a range asks first, then deletes only the older visits and says s
 	await settle(el);
 	expect(loadHistory().map((item) => item.id)).toEqual(["d1", "d10"]);
 	expect(sheet(el).hasAttribute("open")).toBe(false);
-	expect(text(root(el).querySelector('[role="status"]'))).toBe(
-		"Deleted 2 visits.",
-	);
+	expect(counts).toEqual([2]);
+	expect(root(el).querySelector('[role="status"]')).toBeNull();
 	expect(root(el).activeElement).toBe(open(el));
 });
 
-test("clearing all empties the history; with the row now greyed out, focus lands on the result", async () => {
+test("clearing all empties the history and greys the row out", async () => {
 	const el = await mount();
+	const counts = cleared(el);
 	await choose(el, "all");
 	expect(text(root(el).querySelector(".clear-prompt"))).toBe(
 		"Delete all 4 visits? This cannot be undone.",
@@ -150,9 +160,7 @@ test("clearing all empties the history; with the row now greyed out, focus lands
 	await settle(el);
 	expect(loadHistory()).toEqual([]);
 	expect(open(el)!.disabled).toBe(true);
-	const status = root(el).querySelector(".cleared");
-	expect(text(status)).toBe("Deleted 4 visits.");
-	expect(root(el).activeElement).toBe(status);
+	expect(counts).toEqual([4]);
 });
 
 test("cancelling the prompt goes back to the ranges, focused on the one chosen", async () => {
@@ -192,7 +200,7 @@ test("is translated to Thai", async () => {
 	const el = await mount();
 	setLang("th");
 	await el.updateComplete;
-	expect(text(open(el)?.querySelector("b"))).toBe("ล้างประวัติ");
+	expect(text(open(el)?.querySelector("b"))).toBe("ลบประวัติ");
 	open(el)!.click();
 	await settle(el);
 	expect(text(row(el, "week")?.querySelector("b"))).toBe("เก่ากว่า 1 สัปดาห์");

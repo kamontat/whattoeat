@@ -14,7 +14,11 @@ import {
 	saveHistory,
 } from "#lib/history";
 import { getLang, setLang } from "#lib/i18n";
-import { type PresetIndex, saveAddedPresets } from "#lib/presets";
+import {
+	loadAddedPresets,
+	type PresetIndex,
+	saveAddedPresets,
+} from "#lib/presets";
 import type { Restaurant } from "#lib/restaurant";
 import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
 import { toExportFile } from "#lib/transfer";
@@ -477,24 +481,14 @@ test("uses the singular when one stored entry could not be read", async () => {
 	);
 });
 
-test("the Reset section holds clearing history above deleting all data", async () => {
-	const el = await mount();
-	const reset = $(el, "section.reset")!;
-	const clear = reset.querySelector("history-clear");
-	const all = reset.querySelector('button[data-action="reset"]');
-	expect(clear).not.toBeNull();
-	expect(all).not.toBeNull();
-	expect(
-		clear!.compareDocumentPosition(all!) & Node.DOCUMENT_POSITION_FOLLOWING,
-	).toBeTruthy();
-});
-
 test("the reset prompt is padded on every side inside its card, not a squeezed list row", async () => {
 	const el = await mount();
 	await click(el, 'button[data-action="reset"]');
 	const prompt = $(el, ".reset-prompt")!;
 	expect(prompt.classList.contains("item")).toBe(false);
-	expect(prompt.closest(".group.confirm")).not.toBeNull();
+	expect(prompt.closest(".confirm")?.closest(".group")).toBe(
+		$(el, "section.reset .group.reset-all"),
+	);
 	const css = [
 		(customElements.get("data-transfer") as unknown as { styles: unknown })
 			.styles,
@@ -904,5 +898,171 @@ test("an Organise section links to the tags page", async () => {
 	expect($(el, "section.organise h2")?.textContent?.trim()).toBe("จัดระเบียบ");
 	expect($(el, 'a.item[data-action="tags"] b')?.textContent?.trim()).toBe(
 		"แท็ก",
+	);
+});
+
+test("the Reset section orders delete restaurants, delete history, then delete all data", async () => {
+	const el = await mount();
+	const reset = $(el, "section.reset")!;
+	const restaurants = reset.querySelector(
+		'button[data-action="clear-restaurants"]',
+	)!;
+	const history = reset.querySelector("history-clear")!;
+	const all = reset.querySelector('button[data-action="reset"]')!;
+	expect(restaurants.textContent?.trim()).toBe("Delete restaurants");
+	expect(all.textContent?.trim()).toBe("Delete all data");
+	expect(
+		restaurants.compareDocumentPosition(history) &
+			Node.DOCUMENT_POSITION_FOLLOWING,
+	).toBeTruthy();
+	expect(
+		history.compareDocumentPosition(all) & Node.DOCUMENT_POSITION_FOLLOWING,
+	).toBeTruthy();
+});
+
+test("delete restaurants and delete history share one card; delete all data stands alone", async () => {
+	const el = await mount();
+	const reset = $(el, "section.reset")!;
+	expect(reset.querySelectorAll(".group")).toHaveLength(2);
+	const deletes = $(el, "section.reset .group");
+	const all = $(el, "section.reset .group.reset-all");
+	expect(
+		reset.querySelector('button[data-action="clear-restaurants"]')
+			?.parentElement,
+	).toBe(deletes);
+	expect(reset.querySelector("history-clear")?.parentElement).toBe(deletes);
+	expect(
+		reset.querySelector('button[data-action="reset"]')?.parentElement,
+	).toBe(all);
+	expect(all?.children).toHaveLength(1);
+});
+
+test("the delete restaurants prompt opens inside its card, keeping the history row", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	const el = await mount();
+	await click(el, 'button[data-action="clear-restaurants"]');
+	const card = $(el, "section.reset .group")!;
+	expect(card.querySelector(".clear-restaurants-prompt")).not.toBeNull();
+	expect(card.querySelector("history-clear")).not.toBeNull();
+	expect($(el, 'button[data-action="reset"]')).not.toBeNull();
+});
+
+test("each result shows under its own card", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	const el = await mount();
+	await click(el, 'button[data-action="clear-restaurants"]');
+	await click(el, 'button[data-action="clear-restaurants-confirm"]');
+	const deletes = $(el, "section.reset .group")!;
+	const all = $(el, "section.reset .group.reset-all")!;
+	const done = $(el, ".clear-restaurants-done")!;
+	expect(deletes.nextElementSibling).toBe(done);
+	await click(el, 'button[data-action="reset"]');
+	await click(el, 'button[data-action="reset-confirm"]');
+	expect(all.nextElementSibling).toBe($(el, ".reset-done"));
+});
+
+test("a history clear is reported under the card; focus lands there once the row greys out", async () => {
+	const el = await mount();
+	const history = $(el, "history-clear")!;
+	history.dispatchEvent(
+		new CustomEvent("history-cleared", {
+			detail: { count: 3 },
+			bubbles: true,
+			composed: true,
+		}),
+	);
+	await el.updateComplete;
+	await el.updateComplete;
+	const done = $(el, ".clear-history-done")!;
+	expect(done.textContent?.trim()).toBe("Deleted 3 visits.");
+	expect(done.getAttribute("role")).toBe("status");
+	expect(done.closest(".group")).toBeNull();
+	expect(el.shadowRoot!.activeElement).toBe(done);
+});
+
+test("starting another delete drops the last result", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	const el = await mount();
+	$(el, "history-clear")!.dispatchEvent(
+		new CustomEvent("history-cleared", { detail: { count: 1 } }),
+	);
+	await el.updateComplete;
+	expect($(el, ".clear-history-done")).not.toBeNull();
+	await click(el, 'button[data-action="clear-restaurants"]');
+	expect($(el, ".clear-history-done")).toBeNull();
+});
+
+test("delete restaurants is greyed out while there are none", async () => {
+	const el = await mount();
+	const button = () =>
+		$(el, 'button[data-action="clear-restaurants"]') as HTMLButtonElement;
+	expect(button().disabled).toBe(true);
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	await el.updateComplete;
+	expect(button().disabled).toBe(false);
+});
+
+test("delete restaurants asks first and can be cancelled, with focus following", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	addRestaurant({ name: "B", tags: [], link: "", notes: "" });
+	const el = await mount();
+	await click(el, 'button[data-action="clear-restaurants"]');
+	const prompt = $(el, ".clear-restaurants-prompt")!;
+	expect(prompt.textContent?.trim()).toBe(
+		"Delete all 2 restaurants? Your history, groups and settings are kept. This cannot be undone.",
+	);
+	expect(prompt.getAttribute("role")).toBe("alert");
+	expect(prompt.closest(".confirm")?.closest(".group")).toBe(
+		$(el, "section.reset .group"),
+	);
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+		"clear-restaurants-confirm",
+	);
+	await click(el, 'button[data-action="clear-restaurants-cancel"]');
+	expect($(el, ".clear-restaurants-prompt")).toBeNull();
+	expect(loadRestaurants()).toHaveLength(2);
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+		"clear-restaurants",
+	);
+});
+
+test("confirming delete restaurants empties only the restaurant list and added presets", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	saveHistory([visit("mine", "2026-10-01T09:00:00.000Z")]);
+	saveGroups([{ id: "g1", name: "Price" }]);
+	saveAddedPresets([{ id: "siam", updatedAt: "2026-10-01", ids: ["a"] }]);
+	localStorage.setItem("whattoeat:theme", "dark");
+	const el = await mount();
+	await click(el, 'button[data-action="clear-restaurants"]');
+	await click(el, 'button[data-action="clear-restaurants-confirm"]');
+	expect(loadRestaurants()).toEqual([]);
+	expect(loadAddedPresets()).toEqual([]);
+	expect(loadHistory().map((item) => item.id)).toEqual(["mine"]);
+	expect(loadGroups()).toEqual([{ id: "g1", name: "Price" }]);
+	expect(localStorage.getItem("whattoeat:theme")).toBe("dark");
+	await el.updateComplete;
+	expect($(el, ".count")?.textContent?.trim()).toBe("Restaurants saved: 0");
+	expect($(el, ".clear-restaurants-done")?.textContent?.trim()).toBe(
+		"Deleted 1 restaurant.",
+	);
+	expect($(el, ".clear-restaurants-done")?.closest(".group")).toBeNull();
+	expect(el.shadowRoot!.activeElement).toBe($(el, ".clear-restaurants-done"));
+});
+
+test("delete restaurants is translated to Thai", async () => {
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	addRestaurant({ name: "B", tags: [], link: "", notes: "" });
+	setLang("th");
+	const el = await mount();
+	expect(
+		$(el, 'button[data-action="clear-restaurants"]')?.textContent?.trim(),
+	).toBe("ลบร้านอาหาร");
+	await click(el, 'button[data-action="clear-restaurants"]');
+	expect($(el, ".clear-restaurants-prompt")?.textContent?.trim()).toBe(
+		"ลบร้านอาหารทั้งหมด 2 ร้านหรือไม่ ประวัติ กลุ่ม และการตั้งค่าจะยังอยู่ การลบนี้ย้อนกลับไม่ได้",
+	);
+	await click(el, 'button[data-action="clear-restaurants-confirm"]');
+	expect($(el, ".clear-restaurants-done")?.textContent?.trim()).toBe(
+		"ลบร้านอาหาร 2 ร้านแล้ว",
 	);
 });
