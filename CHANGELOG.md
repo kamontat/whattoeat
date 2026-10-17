@@ -16,7 +16,9 @@ What changed in this project and why, newest first.
 ### Features
 
 - A Neighbourhoods page at `/settings/presets` fills the list from ready-made restaurant lists
-  bundled with the site: Ladprao (144 restaurants) and Ratchayothin (55). Tick one or more,
+  bundled with the site: Ladprao (144 restaurants), Ratchayothin (55), Siam (29, across Siam
+  Paragon, Siam Center and Siam Square One) and Ngamwongwan (12, at The Mall Ngamwongwan, the
+  first preset outside Bangkok, under Nonthaburi). Tick one or more,
   grouped by district, and press **Add to my list** to merge them in, or switch to **Replace
   my list** to swap the whole list after an inline confirm. Both offer Undo for 6 seconds.
   Presets you have added show **Added**; one whose list changed since shows **Update**.
