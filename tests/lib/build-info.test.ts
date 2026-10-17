@@ -1,5 +1,9 @@
 import { afterEach, expect, test } from "bun:test";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
+	type BuildInfo,
 	CHANGELOG_URL,
 	commitUrl,
 	parseBuildDate,
@@ -90,4 +94,48 @@ test("ignores a malformed pull request number", () => {
 test("ignores an empty branch", () => {
 	process.env.BUN_PUBLIC_BRANCH = "  ";
 	expect(readBuildInfo().branch).toBeUndefined();
+});
+
+test("keeps the sha and date when a production build leaves branch and pull request unset", async () => {
+	// A build inlines only the variables it was given; the rest stay as reads of `process`,
+	// which the browser does not have.
+	const dir = mkdtempSync(join(tmpdir(), "build-info-"));
+	const entry = join(dir, "entry.ts");
+	const source = join(import.meta.dir, "../../src/lib/build-info.ts");
+	writeFileSync(
+		entry,
+		`import { readBuildInfo } from ${JSON.stringify(source)};\nglobalThis.__buildInfo = readBuildInfo();\n`,
+	);
+	try {
+		// The bundler reads the environment once at startup, so the build runs in its own process.
+		const build = Bun.spawnSync(
+			[
+				process.execPath,
+				"build",
+				entry,
+				"--target=browser",
+				"--format=iife",
+				"--env=BUN_PUBLIC_*",
+			],
+			{
+				env: {
+					PATH: process.env["PATH"],
+					BUN_PUBLIC_COMMIT_SHA: SHA,
+					BUN_PUBLIC_BUILD_DATE: "2026-10-13T08:30:00Z",
+				},
+			},
+		);
+		expect(build.exitCode).toBe(0);
+		const code = build.stdout.toString();
+		const scope: { __buildInfo?: BuildInfo } = {};
+		new Function("process", "globalThis", code)(undefined, scope);
+		expect(scope.__buildInfo?.sha).toBe(SHA);
+		expect(scope.__buildInfo?.date?.toISOString()).toBe(
+			"2026-10-13T08:30:00.000Z",
+		);
+		expect(scope.__buildInfo?.branch).toBeUndefined();
+		expect(scope.__buildInfo?.pr).toBeUndefined();
+	} finally {
+		rmSync(dir, { recursive: true, force: true });
+	}
 });

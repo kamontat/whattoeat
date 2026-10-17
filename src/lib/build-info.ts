@@ -24,28 +24,29 @@ export interface BuildInfo {
 	pr: number | undefined;
 }
 
+/** Runs one variable read, which throws where the build left it as a read of `process`. */
+const readEnv = (read: () => string | undefined): string | undefined => {
+	try {
+		return read();
+	} catch {
+		return undefined;
+	}
+};
+
 /**
  * The commit, build time, branch and pull request baked in by `bun-server build`, which inlines
- * `BUN_PUBLIC_*` variables written as property access; the deploy workflows set them. The dev
- * server inlines nothing and has no `process`, so the read throws there and all stay unset.
+ * `BUN_PUBLIC_*` variables written as property access; the deploy workflows set them. Only set
+ * variables are inlined, and the browser has no `process`, so each unset one throws on its own:
+ * production sets no branch or pull request, and the dev server inlines nothing.
  */
 export const readBuildInfo = (): BuildInfo => {
-	try {
-		const sha = process.env.BUN_PUBLIC_COMMIT_SHA;
-		const branch = process.env.BUN_PUBLIC_BRANCH?.trim();
-		const pr = process.env.BUN_PUBLIC_PR_NUMBER;
-		return {
-			sha: sha !== undefined && SHA.test(sha) ? sha : undefined,
-			date: parseBuildDate(process.env.BUN_PUBLIC_BUILD_DATE),
-			branch: branch ? branch : undefined,
-			pr: pr !== undefined && PR.test(pr) ? Number(pr) : undefined,
-		};
-	} catch {
-		return {
-			sha: undefined,
-			date: undefined,
-			branch: undefined,
-			pr: undefined,
-		};
-	}
+	const sha = readEnv(() => process.env.BUN_PUBLIC_COMMIT_SHA);
+	const branch = readEnv(() => process.env.BUN_PUBLIC_BRANCH)?.trim();
+	const pr = readEnv(() => process.env.BUN_PUBLIC_PR_NUMBER);
+	return {
+		sha: sha !== undefined && SHA.test(sha) ? sha : undefined,
+		date: parseBuildDate(readEnv(() => process.env.BUN_PUBLIC_BUILD_DATE)),
+		branch: branch ? branch : undefined,
+		pr: pr !== undefined && PR.test(pr) ? Number(pr) : undefined,
+	};
 };
