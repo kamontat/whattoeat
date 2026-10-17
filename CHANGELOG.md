@@ -72,6 +72,13 @@ What changed in this project and why, newest first.
   name opens the link in a new tab, and in the Restaurants list an open-link button sits
   beside the row.
 
+- Restaurants has its own filter. A **Filter** button beside search opens a sheet of every
+  group's values plus plain tags; tap once to include, twice to exclude, again to clear.
+  Active values show as chips under the header, and the list, search and count follow it
+  ("1 of 3 restaurants"). When nothing matches, a card offers **Clear**.
+- The Restaurants filter is saved under `whattoeat:list-filter`, apart from Home's
+  `whattoeat:filter`. Renaming, moving or deleting a value on the Tags page updates both.
+
 ### Improvements
 
 - The Ratchayothin preset drops Ohkajhu at Major Ratchayothin (closed), moves Sushiro there
@@ -181,6 +188,12 @@ What changed in this project and why, newest first.
 - An old text location goes into the notes rather than being dropped, so nothing typed is
   lost. The bundled Ladprao and Ratchayothin presets were rewritten the same way, so their
   mall and floor now lead each note.
+- The Restaurants filter is kept separate from Home's rather than shared, so narrowing the
+  list to review or edit some places never changes what Home picks from. Plain tags filter
+  only there; Home still filters groups alone, so a value moved into plain tags stays in the
+  Restaurants filter and drops out of Home's.
+- The Restaurants filter opens in a sheet on every width, rather than in a side panel like
+  Home's, because the wide side panel there already holds the restaurant form.
 
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 

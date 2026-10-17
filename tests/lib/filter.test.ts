@@ -8,6 +8,8 @@ import {
 	FILTER_KEY,
 	type Filter,
 	isFilterActive,
+	LIST_FILTER,
+	LIST_FILTER_KEY,
 	loadFilter,
 	moveFilterValue,
 	onFilterChanged,
@@ -314,5 +316,58 @@ test("onFilterChanged fires for filter storage events only", () => {
 	window.dispatchEvent(new StorageEvent("storage", { key: "other" }));
 	stop();
 	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	expect(count).toBe(1);
+});
+
+test("the list filter keeps plain tags, stored apart from the home filter", () => {
+	const filter: Filter = { tags: f(["thai"], ["spicy"]), area: f(["siam"]) };
+	saveFilter(filter, LIST_FILTER);
+	expect(localStorage.getItem(LIST_FILTER_KEY)).not.toBeNull();
+	expect(localStorage.getItem(FILTER_KEY)).toBeNull();
+	expect(loadFilter(LIST_FILTER)).toEqual(filter);
+	expect(loadFilter()).toEqual(EMPTY_FILTER);
+});
+
+test("plain tags filter restaurants like any group", () => {
+	const tagged = [
+		make("A", { tags: ["thai", "spicy"] }),
+		make("B", { tags: ["thai"] }),
+		make("C"),
+	];
+	expect(names(applyFilter(tagged, { tags: f(["thai"], ["spicy"]) }))).toEqual([
+		"B",
+	]);
+});
+
+test("pruneFilter keeps used plain tags for the list filter", () => {
+	const items = [make("A", { tags: ["thai"] })];
+	expect(
+		pruneFilter(
+			{ tags: f(["thai", "gone"]) },
+			items,
+			["kind", "tags"],
+			LIST_FILTER,
+		),
+	).toEqual({ tags: f(["thai"]) });
+});
+
+test("moveFilterValue carries the state into plain tags for the list filter", () => {
+	expect(
+		moveFilterValue(
+			{ g1: f([], ["cheap"]) },
+			"g1",
+			"cheap",
+			"tags",
+			LIST_FILTER,
+		),
+	).toEqual({ tags: f([], ["cheap"]) });
+});
+
+test("onFilterChanged listens to the list filter key when asked", () => {
+	let count = 0;
+	const stop = onFilterChanged(() => count++, LIST_FILTER);
+	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	window.dispatchEvent(new StorageEvent("storage", { key: LIST_FILTER_KEY }));
+	stop();
 	expect(count).toBe(1);
 });

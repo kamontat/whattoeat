@@ -1,4 +1,10 @@
-import { type Filter, moveFilterValue, renameFilterValue } from "#lib/filter";
+import {
+	type Filter,
+	type FilterScope,
+	HOME_FILTER,
+	moveFilterValue,
+	renameFilterValue,
+} from "#lib/filter";
 import {
 	type GroupDef,
 	groupLabel,
@@ -105,7 +111,7 @@ export const wouldMerge = (
 
 /**
  * Rename `from.value` to `to.value` within `from.group`, then move it to `to.group`; each step
- * is a no-op when its endpoints match. The filter follows the same two steps.
+ * is a no-op when its endpoints match. The filter (of `scope`) follows the same two steps.
  */
 export const editValue = (
 	list: readonly Restaurant[],
@@ -113,6 +119,7 @@ export const editValue = (
 	from: { group: string; value: string },
 	to: { group: string; value: string },
 	now: Date,
+	scope: FilterScope = HOME_FILTER,
 ): { restaurants: Restaurant[]; filter: Filter } => {
 	const renamed = renameValue(list, from.group, from.value, to.value, now);
 	const restaurants = moveValue(renamed, from.group, to.value, to.group, now);
@@ -127,6 +134,7 @@ export const editValue = (
 		from.group,
 		to.value,
 		to.group,
+		scope,
 	);
 	return { restaurants, filter: nextFilter };
 };

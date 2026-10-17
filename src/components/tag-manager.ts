@@ -21,8 +21,8 @@ import {
 import {
 	dropFilterGroup,
 	dropFilterValue,
-	loadFilter,
-	saveFilter,
+	EMPTY_FILTER,
+	updateSavedFilters,
 } from "#lib/filter";
 import {
 	deleteGroup,
@@ -575,15 +575,14 @@ export class TagManager extends LitElement {
 		event: CustomEvent<{ from: Move; to: Move }>,
 	): void => {
 		const { from, to } = event.detail;
-		const result = editValue(
-			this.restaurants,
-			loadFilter(),
-			from,
-			to,
-			new Date(),
-		);
+		const now = new Date();
+		// The restaurants do not depend on the filter; each saved filter follows separately.
+		const result = editValue(this.restaurants, EMPTY_FILTER, from, to, now);
 		this.form = undefined;
-		saveFilter(result.filter);
+		updateSavedFilters(
+			(filter, scope) =>
+				editValue(this.restaurants, filter, from, to, now, scope).filter,
+		);
 		saveRestaurants(result.restaurants);
 		this.announce(t("tags.saved", { name: valueLabel(to.group, to.value) }));
 		this.focusAfterRender(() => {
@@ -594,7 +593,7 @@ export class TagManager extends LitElement {
 	private readonly onValueDelete = (event: CustomEvent<Move>): void => {
 		const { group, value } = event.detail;
 		this.form = undefined;
-		saveFilter(dropFilterValue(loadFilter(), group, value));
+		updateSavedFilters((filter) => dropFilterValue(filter, group, value));
 		saveRestaurants(deleteValue(this.restaurants, group, value, new Date()));
 		this.announce(t("tags.removed", { value: valueLabel(group, value) }));
 		this.focusAfterRender(() => this.focusPicked());
@@ -631,7 +630,7 @@ export class TagManager extends LitElement {
 		const result = deleteGroup(this.restaurants, this.defs, id, new Date());
 		this.form = undefined;
 		this.pickGroup("cuisine");
-		saveFilter(dropFilterGroup(loadFilter(), id));
+		updateSavedFilters((filter) => dropFilterGroup(filter, id));
 		// Restaurants first: if the group list save fails, the next load still turns its values into tags.
 		saveRestaurants(result.restaurants);
 		saveGroups(result.groups);

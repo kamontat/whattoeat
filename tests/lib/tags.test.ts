@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import type { Filter } from "#lib/filter";
+import { type Filter, LIST_FILTER } from "#lib/filter";
 import type { GroupDef } from "#lib/groups";
 import { setLang } from "#lib/i18n";
 import { groupValues, type Restaurant } from "#lib/restaurant";
@@ -158,6 +158,17 @@ test("editValue renames then moves, keeping one copy and following the filter", 
 	expect(groupValues(item!, "cuisine")).toEqual([]);
 	expect(groupValues(item!, "area")).toEqual(["Thai"]);
 	expect(result.filter).toEqual({ area: { include: ["Thai"], exclude: [] } });
+});
+
+test("editValue keeps a value moved into plain tags in a filter that filters them", () => {
+	const list = [make("a", { area: ["siam"] })];
+	const filter: Filter = { area: { include: [], exclude: ["siam"] } };
+	const from = { group: "area", value: "siam" };
+	const to = { group: "tags", value: "siam" };
+	expect(editValue(list, filter, from, to, NOW).filter).toEqual({});
+	expect(editValue(list, filter, from, to, NOW, LIST_FILTER).filter).toEqual({
+		tags: { include: [], exclude: ["siam"] },
+	});
 });
 
 test("loadPick falls back to cuisine for a missing or unknown group", () => {

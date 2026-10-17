@@ -6,7 +6,7 @@ import type { TagGroupForm } from "#components/tags/group-form";
 import type { TagList } from "#components/tags/list";
 import type { TagPicker } from "#components/tags/picker";
 import type { TagValueForm } from "#components/tags/value-form";
-import { FILTER_KEY } from "#lib/filter";
+import { FILTER_KEY, LIST_FILTER_KEY } from "#lib/filter";
 import { forgetGroupsMemory, loadGroups, saveGroups } from "#lib/groups";
 import { setLang } from "#lib/i18n";
 import {
@@ -957,4 +957,65 @@ test("base prefixes the back link and the restaurants link", async () => {
 	expect($(el, ".empty a.button-link")?.getAttribute("href")).toBe(
 		"../restaurants",
 	);
+});
+
+test("editing a plain tag renames it in the restaurants page filter too", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["spicey"] });
+	localStorage.setItem(
+		LIST_FILTER_KEY,
+		JSON.stringify({ tags: { include: ["spicey"], exclude: [] } }),
+	);
+	const el = await mount();
+	const form = await openValue(el, "tags", "spicey");
+	await typeIn(el, inForm(form, "#name"), "spicy");
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	await settle(el);
+	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
+		tags: { include: ["spicy"], exclude: [] },
+	});
+});
+
+test("moving a value into plain tags keeps it in the restaurants page filter only", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const filter = JSON.stringify({ area: { include: [], exclude: ["siam"] } });
+	localStorage.setItem(FILTER_KEY, filter);
+	localStorage.setItem(LIST_FILTER_KEY, filter);
+	const el = await mount();
+	const form = await openValue(el, "area", "siam");
+	const select = inForm<HTMLSelectElement>(form, "select");
+	select.value = "tags";
+	select.dispatchEvent(new Event("change"));
+	await el.updateComplete;
+	await clickOn(el, inForm(valueForm(el)!, '[data-action="save"]'));
+	await settle(el);
+	expect(JSON.parse(localStorage.getItem(FILTER_KEY)!)).toEqual({});
+	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
+		tags: { include: [], exclude: ["siam"] },
+	});
+});
+
+test("deleting a value or a group drops it from the restaurants page filter too", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	addRestaurant({
+		...base,
+		name: "A",
+		groups: { g1: ["cheap"], area: ["ari"] },
+	});
+	localStorage.setItem(
+		LIST_FILTER_KEY,
+		JSON.stringify({
+			g1: { include: ["cheap"], exclude: [] },
+			area: { include: ["ari"], exclude: [] },
+		}),
+	);
+	const el = await mount();
+	const form = await openValue(el, "area", "ari");
+	await clickOn(el, inForm(form, '[data-action="delete"]'));
+	await clickOn(el, inForm(valueForm(el)!, '[data-action="confirm-delete"]'));
+	await settle(el);
+	const group = await openGroup(el, "g1");
+	await clickOn(el, inForm(group, '[data-action="delete"]'));
+	await clickOn(el, inForm(groupForm(el)!, '[data-action="confirm-delete"]'));
+	await settle(el);
+	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({});
 });
