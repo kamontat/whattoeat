@@ -960,3 +960,65 @@ test("Clear all is a quiet button", async () => {
 	expect(clear.textContent?.trim()).toBe("Clear all");
 	expect(clear.classList.contains("quiet")).toBe(true);
 });
+
+const countInputs = (el: HTMLElement) => [
+	...root(el).querySelectorAll<HTMLInputElement>(
+		'.pick-count input[type="radio"]',
+	),
+];
+const checkedCount = (el: HTMLElement) =>
+	countInputs(el).find((input) => input.checked)?.value;
+const chooseCount = async (el: Lit, count: number) => {
+	const input = countInputs(el).find((item) => item.value === String(count))!;
+	input.checked = true;
+	input.dispatchEvent(new Event("change", { bubbles: true }));
+	await settle(el);
+};
+
+test("the pick count offers 1 to 5 under a label and starts at 2", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(countInputs(el).map((input) => input.value)).toEqual([
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+	]);
+	expect(checkedCount(el)).toBe("2");
+	expect(
+		root(el).querySelector(".pick-count legend")?.textContent?.trim(),
+	).toBe("How many");
+});
+
+test("the chosen pick count sets how many restaurants a press shows", async () => {
+	for (const name of ["A", "B", "C", "D", "E", "F"])
+		addRestaurant({ ...base, name });
+	const el = await mount();
+	await chooseCount(el, 4);
+	await pickOnce(el);
+	expect(new Set(pickedNames(el)).size).toBe(4);
+	await chooseCount(el, 1);
+	await pickOnce(el);
+	expect(pickedNames(el)).toHaveLength(1);
+});
+
+test("the pick count is remembered across visits", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	await chooseCount(el, 5);
+	document.body.innerHTML = "";
+	const again = await mount();
+	expect(checkedCount(again)).toBe("5");
+});
+
+test("three picks are announced as a list", async () => {
+	for (const name of ["A", "B", "C"]) addRestaurant({ ...base, name });
+	const el = await mount();
+	await chooseCount(el, 3);
+	await pickOnce(el);
+	const [a, b, c] = pickedNames(el);
+	expect(
+		root(el).querySelector('p.announce[role="status"]')?.textContent?.trim(),
+	).toBe(`Picked ${a}, ${b}, and ${c}`);
+});

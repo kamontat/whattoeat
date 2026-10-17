@@ -42,11 +42,13 @@ test("empty states centre their text and offer a button-styled link", () => {
 
 // Components not yet redesigned keep their own layouts; none of them may use a class name
 // from the shared grouped-list or segmented-control styles, or it picks up that look too.
-const LEGACY_COMPONENTS = [
-	"random-picker.ts",
-	"tag-input.ts",
-	"restaurant-chips.ts",
-];
+// Each maps to the reserved classes it uses on purpose: the picker's count choice is a real
+// segmented control.
+const LEGACY_COMPONENTS: Record<string, readonly string[]> = {
+	"random-picker.ts": ["seg"],
+	"tag-input.ts": [],
+	"restaurant-chips.ts": [],
+};
 const RESERVED_CLASSES = [
 	"group",
 	"item",
@@ -58,11 +60,12 @@ const RESERVED_CLASSES = [
 ];
 
 test("not-yet-redesigned components never use a class name reserved by the shared grouped-list or segmented-control styles", async () => {
-	for (const file of LEGACY_COMPONENTS) {
+	for (const [file, allowed] of Object.entries(LEGACY_COMPONENTS)) {
 		const source = await Bun.file(`src/components/${file}`).text();
 		for (const match of source.matchAll(/class="([^"]*)"/g)) {
 			const tokens = match[1]!.split(/\s+/).filter(Boolean);
 			for (const reserved of RESERVED_CLASSES) {
+				if (allowed.includes(reserved)) continue;
 				expect(
 					tokens,
 					`${file}: class="${match[1]}" should not use the reserved class "${reserved}"`,
