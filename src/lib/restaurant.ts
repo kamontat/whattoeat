@@ -21,7 +21,8 @@ export type GroupValues = Record<string, string[]>;
 export type Restaurant = {
 	id: string;
 	name: string;
-	location: string;
+	/** A web page for the place: a map, its own site or a social page. Empty when there is none. */
+	link: string;
 	notes: string;
 	kinds: Kind[];
 	/** Plain tags: shown, not filtered. */
@@ -32,10 +33,13 @@ export type Restaurant = {
 };
 
 /**
- * A restaurant as stored or imported: the old shape with `area` and `cuisine` strings, the new
- * shape with `groups`, or a mix. Kinds may be missing or unknown.
+ * A restaurant as stored or imported: the old shape with `area` and `cuisine` strings and a
+ * `location` instead of a `link`, the new shape with `groups`, or a mix. Kinds may be missing
+ * or unknown.
  */
-export type StoredRestaurant = Omit<Restaurant, "kinds" | "groups"> & {
+export type StoredRestaurant = Omit<Restaurant, "kinds" | "groups" | "link"> & {
+	link?: string;
+	location?: string;
 	area?: string;
 	cuisine?: string;
 	kinds?: string[];
@@ -45,7 +49,7 @@ export type StoredRestaurant = Omit<Restaurant, "kinds" | "groups"> & {
 export type RestaurantInput = {
 	name: string;
 	tags: readonly string[];
-	location: string;
+	link: string;
 	notes: string;
 	kinds?: readonly string[];
 	groups?: Readonly<Record<string, readonly string[]>>;
@@ -106,15 +110,32 @@ export const normalizeInput = (
 	customIds: readonly string[] = [],
 ): CleanInput => ({
 	name: input.name.trim(),
-	location: input.location.trim(),
+	link: input.link.trim(),
 	notes: input.notes.trim(),
 	kinds: cleanKinds(input.kinds),
 	...cleanGroups(input.groups ?? {}, input.tags, customIds),
 });
 
 /**
+ * An old free-text `location` becomes the link when it is one and there is no link yet;
+ * otherwise it goes on the first line of the notes so nothing is lost.
+ */
+const moveLocation = (
+	item: StoredRestaurant,
+): Pick<Restaurant, "link" | "notes"> => {
+	const link = (item.link ?? "").trim();
+	const location = (item.location ?? "").trim();
+	if (location === "" || location === link) return { link, notes: item.notes };
+	if (link === "" && isLink(location))
+		return { link: location, notes: item.notes };
+	const notes = item.notes.trim();
+	return { link, notes: notes === "" ? location : `${location}\n${notes}` };
+};
+
+/**
  * A stored or imported restaurant in canonical form: old `area` and `cuisine` strings join their
- * group, values of unknown groups become tags, and only known fields are kept.
+ * group, an old `location` becomes the link or part of the notes, values of unknown groups
+ * become tags, and only known fields are kept.
  */
 export const cleanStored = (
 	item: StoredRestaurant,
@@ -134,8 +155,7 @@ export const cleanStored = (
 		...normalizeInput(
 			{
 				name: item.name,
-				location: item.location,
-				notes: item.notes,
+				...moveLocation(item),
 				tags: item.tags,
 				...(item.kinds !== undefined ? { kinds: item.kinds } : {}),
 				groups,
@@ -198,7 +218,7 @@ const isGroupValues = (value: unknown): boolean =>
 export const isRestaurant = (value: unknown): value is StoredRestaurant => {
 	if (typeof value !== "object" || value === null) return false;
 	const item = value as Partial<
-		Record<keyof Restaurant | "area" | "cuisine", unknown>
+		Record<keyof Restaurant | "location" | "area" | "cuisine", unknown>
 	>;
 	const id = item.id;
 	const name = item.name;
@@ -210,7 +230,8 @@ export const isRestaurant = (value: unknown): value is StoredRestaurant => {
 		name.trim() !== "" &&
 		Array.isArray(tags) &&
 		tags.every(isString) &&
-		isString(item.location) &&
+		isOptionalString(item.link) &&
+		isOptionalString(item.location) &&
 		isString(item.notes) &&
 		isOptionalString(item.area) &&
 		isOptionalString(item.cuisine) &&

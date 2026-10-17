@@ -22,7 +22,7 @@ afterEach(() => {
 const make = (id: string, name: string, extra = {}): Restaurant => ({
 	id,
 	name,
-	location: "",
+	link: "",
 	notes: "",
 	kinds: [],
 	tags: [],
@@ -37,6 +37,7 @@ const addView = (form: Partial<FormState> = {}): FormView => ({
 	editingId: undefined,
 	confirmingId: undefined,
 	nameError: undefined,
+	linkError: undefined,
 });
 
 const editView = (
@@ -47,6 +48,7 @@ const editView = (
 	editingId: item.id,
 	confirmingId: undefined,
 	nameError: undefined,
+	linkError: undefined,
 	...extra,
 });
 
@@ -105,7 +107,7 @@ const own = (el: RestaurantForm): void => {
 
 test("draws the view's values", async () => {
 	const item = make("1", "Old", {
-		location: "Here",
+		link: "Here",
 		notes: "n",
 		kinds: ["food"],
 		tags: ["a"],
@@ -113,7 +115,7 @@ test("draws the view's values", async () => {
 	});
 	const el = await mount(editView(item));
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Old");
-	expect($<HTMLInputElement>(el, "#location")?.value).toBe("Here");
+	expect($<HTMLInputElement>(el, "#link")?.value).toBe("Here");
 	expect($<HTMLTextAreaElement>(el, "#notes")?.value).toBe("n");
 	expect(
 		$<HTMLInputElement>(el, 'input[name="kinds"][value="food"]')?.checked,
@@ -131,7 +133,7 @@ test("an add view says Add and has no Cancel or Delete", async () => {
 	expect($(el, '[data-action="delete"]')).toBeNull();
 });
 
-test("asks for name, type, groups, location, then tags and notes", async () => {
+test("asks for name, type, groups, link, then tags and notes", async () => {
 	const el = await mount(addView(), {
 		defs: [
 			{ id: "g2", name: "Vibe" },
@@ -140,7 +142,7 @@ test("asks for name, type, groups, location, then tags and notes", async () => {
 	});
 	const order = [
 		...el.shadowRoot!.querySelectorAll(
-			"#name, fieldset.kinds, tag-input, #location, #notes",
+			"#name, fieldset.kinds, tag-input, #link, #notes",
 		),
 	].map(
 		(node) =>
@@ -155,7 +157,7 @@ test("asks for name, type, groups, location, then tags and notes", async () => {
 		"area",
 		"g2",
 		"g1",
-		"location",
+		"link",
 		"tags",
 		"notes",
 	]);
@@ -167,7 +169,7 @@ test("reports every edit as a whole new form state", async () => {
 	own(el);
 	const changes = listen<FormState>(el, "form-change");
 	type(el, "#name", "Cafe");
-	type(el, "#location", "Ari");
+	type(el, "#link", "Ari");
 	type(el, "#notes", "late");
 	await el.updateComplete;
 	$<HTMLInputElement>(el, 'input[name="kinds"][value="dessert"]')!.click();
@@ -178,7 +180,7 @@ test("reports every edit as a whole new form state", async () => {
 	await el.updateComplete;
 	expect(changes.at(-1)).toEqual({
 		name: "Cafe",
-		location: "Ari",
+		link: "Ari",
 		notes: "late",
 		kinds: ["food", "dessert"],
 		tags: [],
@@ -228,6 +230,16 @@ test("shows the view's name error on the name field", async () => {
 	expect($(el, "#name-error")?.textContent?.trim()).toBe("Name is required.");
 	expect($(el, "#name")?.getAttribute("aria-invalid")).toBe("true");
 	expect($(el, "#name")?.getAttribute("aria-describedby")).toBe("name-error");
+});
+
+test("the link field is a URL box and shows the view's link error", async () => {
+	const el = await mount({ ...addView(), linkError: "manager.linkInvalid" });
+	expect($(el, "#link")?.getAttribute("type")).toBe("url");
+	expect($(el, "#link-error")?.textContent?.trim()).toBe(
+		"Enter a link that starts with https:// or http://.",
+	);
+	expect($(el, "#link")?.getAttribute("aria-invalid")).toBe("true");
+	expect($(el, "#link")?.getAttribute("aria-describedby")).toBe("link-error");
 });
 
 test("suggests each group's values from the other restaurants, most used first", async () => {

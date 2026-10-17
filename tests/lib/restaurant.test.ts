@@ -20,7 +20,7 @@ const valid: Restaurant = {
 	id: "a1",
 	name: "Som Tam Nua",
 	tags: ["thai", "spicy"],
-	location: "Siam Square",
+	link: "https://maps.example/siam",
 	notes: "",
 	groups: { area: ["siam"], cuisine: ["thai"] },
 	kinds: ["food"],
@@ -76,13 +76,13 @@ test("normalizeInput trims every field and cleans tags", () => {
 		normalizeInput({
 			name: "  Jay Fai ",
 			tags: [" street ", "", "street"],
-			location: " Bangkok ",
+			link: " Bangkok ",
 			notes: " ok ",
 		}),
 	).toEqual({
 		name: "Jay Fai",
 		tags: ["street"],
-		location: "Bangkok",
+		link: "Bangkok",
 		notes: "ok",
 		groups: {},
 		kinds: [],
@@ -95,7 +95,7 @@ test("normalizeInput cleans group values like tags, drops empty groups and keeps
 			{
 				name: "Cafe",
 				tags: [],
-				location: "",
+				link: "",
 				notes: "",
 				groups: {
 					area: ["  Old   Town ", "old town"],
@@ -118,7 +118,7 @@ test("normalizeInput moves values of unknown groups into tags", () => {
 			{
 				name: "Cafe",
 				tags: ["spicy"],
-				location: "",
+				link: "",
 				notes: "",
 				groups: { gone: ["Cheap"], kind: ["food"], g1: ["cosy"] },
 			},
@@ -176,6 +176,39 @@ test("cleanStored keeps only known fields and trims text", () => {
 	).toEqual({ ...valid, name: "Som" });
 });
 
+test("isRestaurant accepts the old shape with a location and no link", () => {
+	const { link: _l, ...rest } = valid;
+	expect(isRestaurant({ ...rest, location: "Siam Square" })).toBe(true);
+	expect(isRestaurant(rest)).toBe(true);
+});
+
+test("cleanStored moves an old location that is a link into link", () => {
+	const { link: _l, ...rest } = valid;
+	expect(
+		cleanStored({ ...rest, location: " https://maps.example/x " }),
+	).toEqual({ ...valid, link: "https://maps.example/x" });
+});
+
+test("cleanStored moves an old location that is not a link to the start of the notes", () => {
+	const { link: _l, ...rest } = valid;
+	expect(
+		cleanStored({ ...rest, location: " Siam, 2F ", notes: "Queue early" }),
+	).toEqual({ ...valid, link: "", notes: "Siam, 2F\nQueue early" });
+	expect(cleanStored({ ...rest, location: "Siam", notes: "" })).toEqual({
+		...valid,
+		link: "",
+		notes: "Siam",
+	});
+});
+
+test("cleanStored keeps an existing link and moves a different old location to the notes", () => {
+	expect(
+		cleanStored({ ...valid, location: "https://other.example", notes: "" }),
+	).toEqual({ ...valid, notes: "https://other.example" });
+	expect(cleanStored({ ...valid, location: valid.link })).toEqual(valid);
+	expect(cleanStored({ ...valid, location: " " })).toEqual(valid);
+});
+
 test("groupValues reads kinds, tags and any group, and never a prototype member", () => {
 	expect(groupValues(valid, "kind")).toEqual(["food"]);
 	expect(groupValues(valid, "tags")).toEqual(["thai", "spicy"]);
@@ -229,6 +262,7 @@ test.each([
 	["blank name", { ...valid, name: "   " }],
 	["missing tags", { ...valid, tags: undefined }],
 	["non-string tag", { ...valid, tags: ["ok", 1] }],
+	["numeric link", { ...valid, link: 5 }],
 	["numeric location", { ...valid, location: 5 }],
 	["missing notes", { ...valid, notes: undefined }],
 	["missing createdAt", { ...valid, createdAt: undefined }],

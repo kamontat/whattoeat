@@ -12,7 +12,7 @@ import {
 	saveRestaurants,
 } from "#lib/store";
 
-const base = { tags: [], location: "", notes: "" };
+const base = { tags: [], link: "", notes: "" };
 
 beforeEach(() => {
 	localStorage.clear();
@@ -101,7 +101,7 @@ test("clicking the button shows a restaurant with its details", async () => {
 	addRestaurant({
 		name: "Jay Fai",
 		tags: ["street", "crab"],
-		location: "https://maps.example/jayfai",
+		link: "https://maps.example/jayfai",
 		notes: "Queue early",
 	});
 	const el = await mount();
@@ -114,7 +114,8 @@ test("clicking the button shows a restaurant with its details", async () => {
 			(c) => c.textContent,
 		),
 	).toEqual(["street", "crab"]);
-	const link = el.shadowRoot!.querySelector<HTMLAnchorElement>(".result a");
+	const link = el.shadowRoot!.querySelector<HTMLAnchorElement>(".result h2 a");
+	expect(link?.textContent?.trim()).toBe("Jay Fai");
 	expect(link?.getAttribute("href")).toBe("https://maps.example/jayfai");
 	expect(link?.getAttribute("target")).toBe("_blank");
 	expect(link?.getAttribute("rel")).toBe("noopener noreferrer");
@@ -124,15 +125,16 @@ test("clicking the button shows a restaurant with its details", async () => {
 	expect(pickButton(el)?.textContent?.trim()).toBe("Pick again");
 });
 
-test("a non-http location renders as text, not a link", async () => {
-	addRestaurant({ ...base, name: "Sneaky", location: "javascript:alert(1)" });
+test("a non-http link leaves the name as plain text and is not shown", async () => {
+	addRestaurant({ ...base, name: "Sneaky", link: "javascript:alert(1)" });
 	const el = await mount();
 	pickButton(el)!.click();
 	await el.updateComplete;
 	expect(el.shadowRoot!.querySelector(".result a")).toBeNull();
-	expect(
-		el.shadowRoot!.querySelector(".result .location")?.textContent?.trim(),
-	).toBe("javascript:alert(1)");
+	expect(pickedName(el)).toBe("Sneaky");
+	expect(el.shadowRoot!.querySelector(".result")?.textContent).not.toContain(
+		"javascript:",
+	);
 });
 
 test("shows two different restaurants to choose from", async () => {
@@ -570,7 +572,7 @@ test("warns about stored entries that could not be read until a save drops them"
 	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
 		"2 saved restaurants could not be read and were skipped. They will be removed the next time the list changes.",
 	);
-	addRestaurant({ name: "Fresh", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Fresh", tags: [], link: "", notes: "" });
 	await el.updateComplete;
 	expect(el.shadowRoot!.querySelector(".skipped")).toBeNull();
 });
@@ -720,12 +722,12 @@ test("warns when the browser could not save the visit", async () => {
 	}
 });
 
-test("a picked card shows the type line before the location and keeps Eat here in its footer", async () => {
+test("a picked card shows the type line under the name and keeps Eat here in its footer", async () => {
 	addRestaurant({
 		...base,
 		name: "Cafe",
 		tags: ["latte"],
-		location: "Ari",
+		link: "https://maps.example/cafe",
 		kinds: ["drinks"],
 	});
 	const el = await mount();
@@ -735,7 +737,6 @@ test("a picked card shows the type line before the location and keeps Eat here i
 	expect([...card.children].map((child) => child.className.trim())).toEqual([
 		"",
 		"meta",
-		"location",
 		"chips",
 		"foot",
 	]);

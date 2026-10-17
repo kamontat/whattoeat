@@ -4,12 +4,24 @@
 		"bangkok": {
 			"en": "Bangkok",
 			"th": "กรุงเทพฯ"
+		},
+		"nonthaburi": {
+			"en": "Nonthaburi",
+			"th": "นนทบุรี"
 		}
 	},
 	"districts": {
 		"chatuchak": {
 			"en": "Chatuchak",
 			"th": "จตุจักร"
+		},
+		"pathum-wan": {
+			"en": "Pathum Wan",
+			"th": "ปทุมวัน"
+		},
+		"mueang-nonthaburi": {
+			"en": "Mueang Nonthaburi",
+			"th": "เมืองนนทบุรี"
 		}
 	},
 	"presets": [
@@ -47,9 +59,35 @@
 				"th": "รัชโยธิน"
 			},
 			"count": 55,
-			"updatedAt": "2026-10-16",
+			"updatedAt": "2026-10-17",
 			"places": ["Major Ratchayothin", "Avenue Ratchayothin", "SCB Park"],
 			"areas": ["major ratchayothin", "avenue ratchayothin", "ratchada"]
+		},
+		{
+			"id": "siam",
+			"city": "bangkok",
+			"district": "pathum-wan",
+			"name": {
+				"en": "Siam",
+				"th": "สยาม"
+			},
+			"count": 29,
+			"updatedAt": "2026-10-17",
+			"places": ["Siam Paragon", "Siam Center", "Siam Square One"],
+			"areas": ["siam paragon", "siam center", "siam square one"]
+		},
+		{
+			"id": "ngamwongwan",
+			"city": "nonthaburi",
+			"district": "mueang-nonthaburi",
+			"name": {
+				"en": "Ngamwongwan",
+				"th": "งามวงศ์วาน"
+			},
+			"count": 12,
+			"updatedAt": "2026-10-17",
+			"places": ["The Mall Ngamwongwan"],
+			"areas": ["the mall ngamwongwan"]
 		}
 	]
 }
