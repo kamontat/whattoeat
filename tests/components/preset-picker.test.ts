@@ -1,10 +1,17 @@
 import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
+import "#components/app-toast";
 import "#components/preset-picker";
+import type { AppToast } from "#components/app-toast";
 import type { PresetPicker } from "#components/preset-picker";
 import { setLang } from "#lib/i18n";
-import { PRESETS_KEY, type PresetIndex } from "#lib/presets";
+import {
+	type AddedPreset,
+	loadAddedPresets,
+	PRESETS_KEY,
+	type PresetIndex,
+} from "#lib/presets";
 import type { Restaurant } from "#lib/restaurant";
-import { saveRestaurants } from "#lib/store";
+import { isMemoryOnly, loadRestaurants, saveRestaurants } from "#lib/store";
 
 const make = (id: string, name = id): Restaurant => ({
 	id,
@@ -470,6 +477,590 @@ test("a back link points to the base plus settings", async () => {
 		const back = $(el, "a.back") as HTMLAnchorElement;
 		expect(back.getAttribute("href")).toBe("../../settings");
 		expect(back.textContent?.trim()).toBe("Settings");
+	} finally {
+		restore();
+	}
+});
+
+// --- Task 6: mode, add, replace, undo ---
+
+/** 1 city, 1 district, 3 presets with the counts the button label tests need. */
+const INDEX_M: PresetIndex = {
+	version: 1,
+	cities: { bangkok: { en: "Bangkok", th: "กรุงเทพฯ" } },
+	districts: { chatuchak: { en: "Chatuchak", th: "จตุจักร" } },
+	presets: [
+		{
+			id: "ladprao",
+			city: "bangkok",
+			district: "chatuchak",
+			name: { en: "Ladprao", th: "ลาดพร้าว" },
+			count: 55,
+			updatedAt: "2026-10-16",
+			places: ["Central Ladprao"],
+			areas: [],
+		},
+		{
+			id: "ratchayothin",
+			city: "bangkok",
+			district: "chatuchak",
+			name: { en: "Ratchayothin", th: "รัชโยธิน" },
+			count: 72,
+			updatedAt: "2026-10-16",
+			places: ["Major Ratchayothin"],
+			areas: [],
+		},
+		{
+			id: "kaset",
+			city: "bangkok",
+			district: "chatuchak",
+			name: { en: "Kaset", th: "เกษตร" },
+			count: 1,
+			updatedAt: "2026-10-16",
+			places: ["Kaset Fair"],
+			areas: [],
+		},
+	],
+};
+
+const fileOf = (...items: Restaurant[]) => ({
+	app: "whattoeat",
+	version: 1,
+	restaurants: items,
+});
+
+/** The preset files, keyed by id. `shared` sits in both ladprao and ratchayothin. */
+const FILES: Record<string, ReturnType<typeof fileOf>> = {
+	ladprao: fileOf(make("l1"), make("l2"), make("shared")),
+	ratchayothin: fileOf(make("r1"), make("shared")),
+	kaset: fileOf(make("k1")),
+};
+
+/**
+ * Answer the index fetch with `index` and each preset file from `FILES`; an id in `failing`
+ * answers 500. Records every requested URL.
+ */
+const stubRoutes = (index: PresetIndex = INDEX_M, failing: string[] = []) => {
+	const urls: string[] = [];
+	const spy = spyOn(globalThis, "fetch").mockImplementation(((
+		input: RequestInfo | URL,
+	) => {
+		const url = String(input);
+		urls.push(url);
+		if (url.endsWith("index.json")) return jsonResponse(index);
+		const id = /presets\/([\w-]+)\.json$/.exec(url)?.[1] ?? "";
+		if (failing.includes(id))
+			return Promise.resolve(new Response("nope", { status: 500 }));
+		const file = FILES[id];
+		if (file === undefined)
+			return Promise.resolve(new Response("missing", { status: 404 }));
+		return jsonResponse(file);
+	}) as typeof fetch);
+	return { urls, restore: () => spy.mockRestore() };
+};
+
+const fileUrls = (urls: string[]): string[] =>
+	urls.filter((url) => !url.endsWith("index.json"));
+
+const savedIdsNow = (): string[] => loadRestaurants().map((item) => item.id);
+
+const storedIds = (): string[] =>
+	(
+		JSON.parse(
+			localStorage.getItem("whattoeat:restaurants") ?? "[]",
+		) as Restaurant[]
+	).map((item) => item.id);
+
+const storedPresets = (): AddedPreset[] =>
+	JSON.parse(localStorage.getItem(PRESETS_KEY) ?? "[]") as AddedPreset[];
+
+const modeInput = (el: PresetPicker, mode: "add" | "replace") =>
+	$(el, `input[name="preset-mode"][value="${mode}"]`) as HTMLInputElement;
+
+const setMode = async (
+	el: PresetPicker,
+	mode: "add" | "replace",
+): Promise<void> => {
+	const input = modeInput(el, mode);
+	input.checked = true;
+	input.dispatchEvent(new Event("change"));
+	await el.updateComplete;
+};
+
+const applyButton = (el: PresetPicker) =>
+	$(el, 'button[data-action="apply"]') as HTMLButtonElement | null;
+
+const press = async (el: PresetPicker, selector: string): Promise<void> => {
+	($(el, selector) as HTMLElement).click();
+	await el.updateComplete;
+	await flush(el);
+	await flush(el);
+};
+
+/** The picker's own toast: these tests mount no page-level `<app-toast>`. */
+const toastOf = (el: PresetPicker): AppToast =>
+	$(el, "app-toast") as unknown as AppToast;
+
+const toastText = (el: PresetPicker): string | undefined =>
+	toastOf(el).shadowRoot?.querySelector(".toast span")?.textContent?.trim();
+
+const toastAction = (el: PresetPicker) =>
+	toastOf(el).shadowRoot?.querySelector<HTMLButtonElement>(
+		'[data-action="toast-action"]',
+	) ?? null;
+
+const clickUndo = async (el: PresetPicker): Promise<void> => {
+	const toast = toastOf(el);
+	await toast.updateComplete;
+	toastAction(el)!.click();
+	await el.updateComplete;
+	await toast.updateComplete;
+};
+
+test("the switch is hidden with no saved restaurants; the mode is Add", async () => {
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		expect($(el, 'input[name="preset-mode"]')).toBeNull();
+		await setChecked(el, "kaset", true);
+		expect(applyButton(el)?.textContent?.trim()).toBe(
+			"Add 1 area · 1 restaurant",
+		);
+	} finally {
+		restore();
+	}
+});
+
+test("the mode starts as Add on every mount, and changing it clears the selection", async () => {
+	saveRestaurants([make("s1")]);
+	const { restore } = stubRoutes();
+	try {
+		const first = await mount();
+		expect(modeInput(first, "add").checked).toBe(true);
+		expect($(first, '[role="radiogroup"] legend')?.textContent?.trim()).toBe(
+			"When adding",
+		);
+		await setMode(first, "replace");
+		expect(modeInput(first, "replace").checked).toBe(true);
+		await setChecked(first, "kaset", true);
+		await setMode(first, "add");
+		const box = $(first, '[data-preset="kaset"] input') as HTMLInputElement;
+		expect(box.checked).toBe(false);
+		expect($(first, 'a[data-action="go-picker"]')).not.toBeNull();
+
+		await setMode(first, "replace");
+		first.remove();
+		const second = await mount();
+		expect(modeInput(second, "add").checked).toBe(true);
+		expect(modeInput(second, "replace").checked).toBe(false);
+	} finally {
+		restore();
+	}
+});
+
+test("arrow keys move between the two mode options", async () => {
+	saveRestaurants([make("s1")]);
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		await setChecked(el, "kaset", true);
+		const add = modeInput(el, "add");
+		add.focus();
+		add.dispatchEvent(
+			new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+		);
+		await el.updateComplete;
+		await el.updateComplete;
+		expect(modeInput(el, "replace").checked).toBe(true);
+		expect(el.shadowRoot!.activeElement).toBe(modeInput(el, "replace"));
+		// The mode change cleared the selection.
+		expect(
+			($(el, '[data-preset="kaset"] input') as HTMLInputElement).checked,
+		).toBe(false);
+
+		modeInput(el, "replace").dispatchEvent(
+			new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }),
+		);
+		await el.updateComplete;
+		await el.updateComplete;
+		expect(modeInput(el, "add").checked).toBe(true);
+		expect(el.shadowRoot!.activeElement).toBe(modeInput(el, "add"));
+	} finally {
+		restore();
+	}
+});
+
+test("with nothing ticked the button is a Go to picker link to the base", async () => {
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount("../../");
+		expect(applyButton(el)).toBeNull();
+		const link = $(el, 'a[data-action="go-picker"]') as HTMLAnchorElement;
+		expect(link.getAttribute("href")).toBe("../../");
+		expect(link.textContent?.trim()).toBe("Go to picker");
+		expect(link.closest(".pinned")).not.toBeNull();
+	} finally {
+		restore();
+	}
+});
+
+test('in Add mode, the label sums ticked counts, skipping Added rows: "Add 2 areas · 127 restaurants"', async () => {
+	saveRestaurants([make("k1")]);
+	// kaset is Added: it shows ticked and locked, but does not count.
+	localStorage.setItem(
+		PRESETS_KEY,
+		JSON.stringify([{ id: "kaset", updatedAt: "2026-10-16", ids: ["k1"] }]),
+	);
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		await setChecked(el, "ratchayothin", true);
+		expect(
+			($(el, '[data-preset="kaset"] input') as HTMLInputElement).checked,
+		).toBe(true);
+		const button = applyButton(el)!;
+		expect(button.textContent?.trim()).toBe("Add 2 areas · 127 restaurants");
+		expect(button.classList.contains("primary")).toBe(true);
+	} finally {
+		restore();
+	}
+});
+
+test('singular label "Add 1 area · 1 restaurant"', async () => {
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		await setChecked(el, "kaset", true);
+		expect(applyButton(el)?.textContent?.trim()).toBe(
+			"Add 1 area · 1 restaurant",
+		);
+	} finally {
+		restore();
+	}
+});
+
+test('Add merges, records the presets, clears the selection, and shows "Added {k} restaurants" with Undo', async () => {
+	// l1 is saved already, with an edited name that must survive.
+	saveRestaurants([make("s1"), make("l1", "My edited L1")]);
+	const { restore, urls } = stubRoutes();
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		await setChecked(el, "ratchayothin", true);
+		await press(el, '[data-action="apply"]');
+
+		expect(fileUrls(urls).sort()).toEqual([
+			"../data/presets/ladprao.json",
+			"../data/presets/ratchayothin.json",
+		]);
+		// Saved first, then the new ids in file order, "shared" only once.
+		expect(storedIds()).toEqual(["s1", "l1", "l2", "shared", "r1"]);
+		expect(loadRestaurants().find((item) => item.id === "l1")?.name).toBe(
+			"My edited L1",
+		);
+		expect(storedPresets()).toEqual([
+			{ id: "ladprao", updatedAt: "2026-10-16", ids: ["l1", "l2", "shared"] },
+			{ id: "ratchayothin", updatedAt: "2026-10-16", ids: ["r1", "shared"] },
+		]);
+
+		expect(toastText(el)).toBe("Added 3 restaurants");
+		expect(toastAction(el)?.textContent?.trim()).toBe("Undo");
+		// Selection cleared; the rows are now Added, and the button falls back to the link.
+		expect($(el, 'a[data-action="go-picker"]')).not.toBeNull();
+		const row = $(el, '[data-preset="ladprao"]')!;
+		expect(row.querySelector(".badge")?.textContent?.trim()).toBe("Added");
+		expect((row.querySelector("input") as HTMLInputElement).disabled).toBe(
+			true,
+		);
+		expect($(el, ".warning")).toBeNull();
+	} finally {
+		restore();
+	}
+});
+
+test("Add with nothing new shows the nothing-new message with no Undo, and still records the presets", async () => {
+	saveRestaurants([make("k1")]);
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		await setChecked(el, "kaset", true);
+		await press(el, '[data-action="apply"]');
+		expect(storedIds()).toEqual(["k1"]);
+		expect(storedPresets()).toEqual([
+			{ id: "kaset", updatedAt: "2026-10-16", ids: ["k1"] },
+		]);
+		expect(toastText(el)).toBe(
+			"Nothing new to add. These restaurants are already in your list.",
+		);
+		expect(toastAction(el)).toBeNull();
+	} finally {
+		restore();
+	}
+});
+
+test("in Replace mode, Added rows unlock and show In your list; the warning line and the danger button show", async () => {
+	saveRestaurants([make("l1"), make("r1")]);
+	localStorage.setItem(
+		PRESETS_KEY,
+		JSON.stringify([
+			{ id: "ladprao", updatedAt: "2026-10-16", ids: ["l1"] },
+			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1"] },
+		]),
+	);
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		await setMode(el, "replace");
+		for (const id of ["ladprao", "ratchayothin"]) {
+			const row = $(el, `[data-preset="${id}"]`)!;
+			const box = row.querySelector("input") as HTMLInputElement;
+			expect(box.checked).toBe(false);
+			expect(box.disabled).toBe(false);
+			expect(row.querySelector(".badge")?.textContent?.trim()).toBe(
+				"In your list",
+			);
+		}
+		expect($(el, ".replace-warning")).toBeNull();
+
+		await setChecked(el, "ladprao", true);
+		await setChecked(el, "kaset", true);
+		expect($(el, ".replace-warning")?.textContent?.trim()).toBe(
+			"Your 2 saved restaurants will be removed.",
+		);
+		const button = applyButton(el)!;
+		expect(button.classList.contains("danger")).toBe(true);
+		expect(button.textContent?.trim()).toBe("Replace with 56 restaurants");
+	} finally {
+		restore();
+	}
+});
+
+test("Replace opens the confirm with the counts and names; Cancel returns focus to the button; confirming saves only the ticked restaurants and keeps history and groups", async () => {
+	saveRestaurants([make("s1"), make("s2")]);
+	localStorage.setItem(
+		PRESETS_KEY,
+		JSON.stringify([{ id: "kaset", updatedAt: "2026-10-16", ids: ["s1"] }]),
+	);
+	const history = JSON.stringify([
+		{
+			id: "h1",
+			restaurantId: "s1",
+			name: "s1",
+			eatenAt: "2026-10-12T09:00:00.000Z",
+		},
+	]);
+	const groups = JSON.stringify([{ id: "g1", name: "Mine" }]);
+	localStorage.setItem("whattoeat:history", history);
+	localStorage.setItem("whattoeat:groups", groups);
+	const { restore, urls } = stubRoutes();
+	try {
+		const el = await mount();
+		await setMode(el, "replace");
+		await setChecked(el, "ladprao", true);
+		await setChecked(el, "ratchayothin", true);
+		await press(el, '[data-action="apply"]');
+
+		// Nothing fetched or saved yet: only the confirm card shows.
+		expect(fileUrls(urls)).toEqual([]);
+		expect(applyButton(el)).toBeNull();
+		expect($(el, ".replace-prompt")?.textContent?.trim()).toBe(
+			"Replace your 2 restaurants with 127 from Ladprao, Ratchayothin? Your history and groups stay.",
+		);
+		expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+			"replace-confirm",
+		);
+
+		($(el, '[data-action="replace-cancel"]') as HTMLButtonElement).click();
+		await el.updateComplete;
+		await el.updateComplete;
+		expect($(el, ".replace-prompt")).toBeNull();
+		expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+			"apply",
+		);
+		expect(storedIds()).toEqual(["s1", "s2"]);
+
+		await press(el, '[data-action="apply"]');
+		await press(el, '[data-action="replace-confirm"]');
+		expect(storedIds()).toEqual(["l1", "l2", "shared", "r1"]);
+		// Exactly the ticked presets: the old kaset record is gone.
+		expect(storedPresets().map((item) => item.id)).toEqual([
+			"ladprao",
+			"ratchayothin",
+		]);
+		expect(localStorage.getItem("whattoeat:history")).toBe(history);
+		expect(localStorage.getItem("whattoeat:groups")).toBe(groups);
+		expect(toastText(el)).toBe("Replaced with 4 restaurants");
+		expect(toastAction(el)?.textContent?.trim()).toBe("Undo");
+		expect($(el, ".replace-prompt")).toBeNull();
+		expect($(el, 'a[data-action="go-picker"]')).not.toBeNull();
+	} finally {
+		restore();
+	}
+});
+
+test("Undo restores the list and whattoeat:presets from before, then shows Undone.", async () => {
+	saveRestaurants([make("s1")]);
+	const before = [{ id: "kaset", updatedAt: "2026-10-01", ids: ["s1"] }];
+	localStorage.setItem(PRESETS_KEY, JSON.stringify(before));
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+		expect(storedIds()).toEqual(["s1", "l1", "l2", "shared"]);
+		expect(storedPresets().length).toBe(2);
+
+		const show = spyOn(toastOf(el), "show");
+		await clickUndo(el);
+		expect(storedIds()).toEqual(["s1"]);
+		expect(storedPresets()).toEqual(before);
+		expect(loadAddedPresets()).toEqual(before);
+		expect(show).toHaveBeenLastCalledWith("Undone.", { duration: 3000 });
+		await toastOf(el).updateComplete;
+		expect(toastText(el)).toBe("Undone.");
+		expect(toastAction(el)).toBeNull();
+		// The rows follow: ladprao is tickable again with no badge.
+		const row = $(el, '[data-preset="ladprao"]')!;
+		expect(row.querySelector(".badge")).toBeNull();
+	} finally {
+		restore();
+	}
+});
+
+test("one file failing leaves storage untouched, keeps the selection, and shows the files error", async () => {
+	saveRestaurants([make("s1")]);
+	const presets = JSON.stringify([
+		{ id: "kaset", updatedAt: "2026-10-16", ids: ["s1"] },
+	]);
+	localStorage.setItem(PRESETS_KEY, presets);
+	const rawBefore = localStorage.getItem("whattoeat:restaurants");
+	const { restore } = stubRoutes(INDEX_M, ["ratchayothin"]);
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		await setChecked(el, "ratchayothin", true);
+		await press(el, '[data-action="apply"]');
+		expect(localStorage.getItem("whattoeat:restaurants")).toBe(rawBefore);
+		expect(localStorage.getItem(PRESETS_KEY)).toBe(presets);
+		expect($(el, ".files-error")?.textContent?.trim()).toBe(
+			"The selected neighbourhoods could not be loaded. Nothing was changed. Try again.",
+		);
+		expect($(el, ".files-error")?.getAttribute("role")).toBe("alert");
+		for (const id of ["ladprao", "ratchayothin"])
+			expect(
+				($(el, `[data-preset="${id}"] input`) as HTMLInputElement).checked,
+			).toBe(true);
+		expect(applyButton(el)?.textContent?.trim()).toBe(
+			"Add 2 areas · 127 restaurants",
+		);
+		expect(toastText(el)).toBeUndefined();
+
+		// The same failure in Replace mode, after confirming, changes nothing either.
+		await setMode(el, "replace");
+		await setChecked(el, "ratchayothin", true);
+		await press(el, '[data-action="apply"]');
+		await press(el, '[data-action="replace-confirm"]');
+		expect(localStorage.getItem("whattoeat:restaurants")).toBe(rawBefore);
+		expect(localStorage.getItem(PRESETS_KEY)).toBe(presets);
+		expect($(el, ".files-error")).not.toBeNull();
+		expect(
+			($(el, '[data-preset="ratchayothin"] input') as HTMLInputElement).checked,
+		).toBe(true);
+	} finally {
+		restore();
+	}
+});
+
+test('a refused write shows the storage warning and "Added for this session only"; Undo after Replace still restores the in-memory list', async () => {
+	saveRestaurants([make("s1"), make("s2")]);
+	const { restore } = stubRoutes();
+	// happy-dom bypasses a mocked Storage.prototype.setItem after real writes (see store.test.ts),
+	// so swap the global for one that reads through but refuses every write.
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: (key: string) => real.getItem(key),
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+		},
+		configurable: true,
+	});
+	try {
+		const el = await mount();
+		await setMode(el, "replace");
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+		await press(el, '[data-action="replace-confirm"]');
+
+		expect(isMemoryOnly()).toBe(true);
+		expect(savedIdsNow()).toEqual(["l1", "l2", "shared"]);
+		// Storage itself was never changed.
+		expect(storedIds()).toEqual(["s1", "s2"]);
+		expect(real.getItem(PRESETS_KEY)).toBeNull();
+		const warning = $(el, ".warning");
+		expect(warning?.getAttribute("role")).toBe("alert");
+		expect(warning?.textContent?.trim()).toBe(
+			"Your browser is not saving changes. They will be lost when you leave this page.",
+		);
+		expect(toastText(el)).toBe("Added for this session only");
+		expect(toastAction(el)?.textContent?.trim()).toBe("Undo");
+
+		await clickUndo(el);
+		expect(savedIdsNow()).toEqual(["s1", "s2"]);
+		await toastOf(el).updateComplete;
+		expect(toastText(el)).toBe("Undone.");
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		restore();
+		// Leave memory mode so later tests read localStorage again.
+		saveRestaurants([]);
+	}
+});
+
+test("an aria-live region announces the button label after a change", async () => {
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		const live = () => $(el, '[aria-live="polite"]');
+		expect(live()).not.toBeNull();
+		await setChecked(el, "ladprao", true);
+		expect(live()?.textContent?.trim()).toBe("Add 1 area · 55 restaurants");
+		await setChecked(el, "kaset", true);
+		expect(live()?.textContent?.trim()).toBe("Add 2 areas · 56 restaurants");
+	} finally {
+		restore();
+	}
+});
+
+test("messages go to the page's <app-toast> when one is mounted", async () => {
+	const pageToast = document.createElement("app-toast");
+	document.body.append(pageToast);
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		expect($(el, "app-toast")).toBeNull();
+		await setChecked(el, "kaset", true);
+		await press(el, '[data-action="apply"]');
+		await pageToast.updateComplete;
+		expect(
+			pageToast.shadowRoot?.querySelector(".toast span")?.textContent?.trim(),
+		).toBe("Added 1 restaurants");
+	} finally {
+		restore();
+	}
+});
+
+test("the no-match line is a status", async () => {
+	const restore = stubFetch(() => jsonResponse(INDEX9));
+	try {
+		const el = await mount();
+		await search(el, "doesnotexist");
+		expect($(el, ".no-match")?.getAttribute("role")).toBe("status");
 	} finally {
 		restore();
 	}

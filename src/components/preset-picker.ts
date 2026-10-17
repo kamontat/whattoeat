@@ -1,21 +1,51 @@
 import { css, html, LitElement, nothing, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
+import "#components/app-toast";
+import type { AppToast } from "#components/app-toast";
 import { getLang, LangController, type MessageKey, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import {
 	type AddedPreset,
+	addPresets,
 	fetchIndex,
+	fetchPresetFiles,
 	type Localized,
 	loadAddedPresets,
 	localize,
 	type PresetEntry,
+	type PresetFile,
 	type PresetIndex,
 	type PresetState,
 	presetState,
+	replaceWithPresets,
+	saveAddedPresets,
 } from "#lib/presets";
-import { loadRestaurants, onRestaurantsChanged } from "#lib/store";
+import type { Restaurant } from "#lib/restaurant";
+import {
+	isMemoryOnly,
+	loadRestaurants,
+	onRestaurantsChanged,
+	saveRestaurants,
+} from "#lib/store";
 import { uiStyles } from "#styles/ui";
+
+type Mode = "add" | "replace";
+
+const MODES: readonly Mode[] = ["add", "replace"];
+
+const MODE_KEYS = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"];
+
+/** How long "Undone." stays, shorter than the default 6 s because it has no action. */
+const UNDONE_DURATION = 3000;
+
+const areasText = (n: number): string =>
+	n === 1 ? t("presets.areas.one") : t("presets.areas.other", { n });
+
+const restaurantsText = (n: number): string =>
+	n === 1
+		? t("presets.restaurants.one")
+		: t("presets.restaurants.other", { n });
 
 /** Above this many presets a search box earns its place. */
 const SEARCH_THRESHOLD = 7;
@@ -46,17 +76,65 @@ type Badge = { label: MessageKey; state: string };
 
 /**
  * The `/settings/presets` page body: fetches the bundled neighbourhood index, then lists its
- * presets grouped by district with search and a city filter. Ticking rows and saving them is
- * added in a later task; for now every row renders in Add mode.
+ * presets grouped by district with search and a city filter. A pinned area at the bottom holds
+ * the Add / Replace switch and the action button; saving fetches the ticked preset files, then
+ * merges them into (Add) or swaps them for (Replace) the saved list, with an Undo message.
+ *
+ * Messages go to the page's `<app-toast>` when one is mounted, otherwise to one rendered in
+ * this component's own shadow root.
  */
 @customElement("preset-picker")
 export class PresetPicker extends LitElement {
 	static override styles = [
 		uiStyles,
 		css`
+			/*
+			 * Phone: fill the space above the tab bar so the pinned area ends the column even
+			 * with a short list, as Home does (the 1.25rem is main's top padding on phones).
+			 */
 			:host {
-				display: grid;
+				display: flex;
+				flex-direction: column;
 				gap: 1rem;
+				min-height: calc(100dvh - 1.25rem - var(--tab-bar-height));
+				/* main leaves --tab-bar-space below; pull back so the pinned area sits on the tab bar. */
+				margin-bottom: calc(var(--tab-bar-height) - var(--tab-bar-space));
+			}
+
+			.pinned {
+				position: sticky;
+				z-index: 5;
+				bottom: var(--tab-bar-height);
+				margin-top: auto;
+				display: grid;
+				gap: 0.625rem;
+				padding: 0.75rem 0 0.5rem;
+				background: linear-gradient(to bottom, transparent, var(--color-bg) 35%);
+			}
+
+			fieldset {
+				margin: 0;
+				padding: 0;
+				border: 0;
+				min-width: 0;
+			}
+
+			.pinned .action {
+				box-sizing: border-box;
+				width: 100%;
+				justify-content: center;
+			}
+
+			.confirm {
+				gap: 0.75rem;
+				padding: 1rem 1.125rem;
+			}
+
+			@media (min-width: 48rem) {
+				:host {
+					min-height: 0;
+					margin-bottom: 0;
+				}
 			}
 
 			.back {
@@ -137,16 +215,36 @@ export class PresetPicker extends LitElement {
 	@state() private added: AddedPreset[] = [];
 
 	/**
-	 * Add mode shows a locked "Added" row and a tickable "Update" one; Replace mode (a later
-	 * task) shows "In your list" for both, starting unticked. Row rendering already reads this
-	 * field so that task only has to flip it.
+	 * Add mode shows a locked "Added" row and a tickable "Update" one; Replace mode shows "In
+	 * your list" for both, starting unticked. Starts as Add on every mount and is never stored.
 	 */
-	private mode: "add" | "replace" = "add";
+	@state() mode: Mode = "add";
+
+	/** True while the Replace confirm card stands in for the pinned area. */
+	@state() confirming = false;
+
+	/** True while the ticked preset files are being fetched. */
+	@state() private busy = false;
+
+	/** A ticked preset file failed to load; nothing was saved. */
+	@state() private filesError = false;
+
+	/** Render a `<app-toast>` of our own, because the page did not mount one. */
+	private ownToast = false;
+
+	/**
+	 * The saved list and `whattoeat:presets` from just before the last save, for Undo. Memory
+	 * only: leaving the page drops it.
+	 */
+	private snapshot: { list: Restaurant[]; added: AddedPreset[] } | undefined;
 
 	private unsubscribe: (() => void) | undefined;
 
 	override connectedCallback(): void {
 		super.connectedCallback();
+		this.mode = "add";
+		this.confirming = false;
+		this.ownToast = document.querySelector("app-toast") === null;
 		this.reloadStore();
 		this.unsubscribe = onRestaurantsChanged(() => this.reloadStore());
 		void this.loadIndex();
@@ -161,7 +259,163 @@ export class PresetPicker extends LitElement {
 	private reloadStore(): void {
 		this.savedIds = new Set(loadRestaurants().map((item) => item.id));
 		this.added = loadAddedPresets();
+		// The switch hides with nothing saved, and the mode is then Add.
+		if (this.savedIds.size === 0) this.setMode("add");
 	}
+
+	/** Changing the mode clears the selection: ticking means something different in each. */
+	private setMode(mode: Mode): void {
+		if (mode === this.mode) return;
+		this.mode = mode;
+		this.selected = new Set();
+		this.confirming = false;
+		this.filesError = false;
+	}
+
+	/** Runs `find` after the next render and focuses what it returns, as data-transfer does. */
+	private focusAfterRender(find: () => Element | null | undefined): void {
+		void this.updateComplete.then(() => {
+			const target = find();
+			if (target instanceof HTMLElement) target.focus();
+		});
+	}
+
+	private modeInput(mode: Mode): Element | null {
+		return this.renderRoot.querySelector(
+			`input[name="preset-mode"][value="${mode}"]`,
+		);
+	}
+
+	/** Arrow keys move between the two options, wrapping, like a native radio group. */
+	private readonly onModeKey = (event: KeyboardEvent): void => {
+		if (!MODE_KEYS.includes(event.key)) return;
+		event.preventDefault();
+		const next: Mode = this.mode === "add" ? "replace" : "add";
+		this.setMode(next);
+		this.focusAfterRender(() => this.modeInput(next));
+	};
+
+	/** The page's toast if it mounted one, otherwise our own. */
+	private toast(): AppToast | null {
+		return (document.querySelector("app-toast") ??
+			this.renderRoot.querySelector("app-toast")) as AppToast | null;
+	}
+
+	/**
+	 * The presets the action applies to, in index order. In Add mode an Added row shows ticked
+	 * but is locked, so it is never part of the action.
+	 */
+	private tickedEntries(index: PresetIndex): PresetEntry[] {
+		return index.presets.filter(
+			(entry) =>
+				this.selected.has(entry.id) &&
+				!(
+					this.mode === "add" &&
+					presetState(entry, this.added, this.savedIds) === "added"
+				),
+		);
+	}
+
+	/** The action button's label; the restaurant count is the index's estimate. */
+	private actionLabel(ticked: readonly PresetEntry[]): string {
+		if (ticked.length === 0) return t("presets.goPicker");
+		const count = restaurantsText(
+			ticked.reduce((sum, entry) => sum + entry.count, 0),
+		);
+		return this.mode === "replace"
+			? t("presets.replace", { count })
+			: t("presets.add", { areas: areasText(ticked.length), count });
+	}
+
+	private readonly onApply = (): void => {
+		if (this.mode === "add") {
+			void this.save();
+			return;
+		}
+		this.confirming = true;
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector('[data-action="replace-confirm"]'),
+		);
+	};
+
+	private readonly cancelReplace = (): void => {
+		this.confirming = false;
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector('[data-action="apply"]'),
+		);
+	};
+
+	private readonly confirmReplace = (): void => {
+		void this.save();
+	};
+
+	/**
+	 * Fetch every ticked file, then save. If any file fails, nothing is saved and the selection
+	 * is kept. The list and `whattoeat:presets` are snapshotted right before saving, for Undo.
+	 */
+	private async save(): Promise<void> {
+		const index = this.index;
+		if (index === undefined || this.busy) return;
+		const mode = this.mode;
+		const ticked = this.tickedEntries(index);
+		if (ticked.length === 0) return;
+		this.busy = true;
+		this.filesError = false;
+		let files: PresetFile[];
+		try {
+			files = await fetchPresetFiles(this.base, ticked);
+		} catch {
+			this.busy = false;
+			this.filesError = true;
+			if (this.confirming) this.cancelReplace();
+			return;
+		}
+
+		const before = { list: loadRestaurants(), added: loadAddedPresets() };
+		let message: string;
+		let undoable = true;
+		// Presets first: saving restaurants announces the change, and the rows reload from both.
+		if (mode === "add") {
+			const result = addPresets(before.list, files, before.added);
+			saveAddedPresets(result.added);
+			if (result.newCount === 0) {
+				// Nothing to undo: the list is unchanged, only the presets were recorded.
+				undoable = false;
+				message = t("presets.nothingNew");
+			} else {
+				message = saveRestaurants(result.list)
+					? t("presets.added", { count: result.newCount })
+					: t("presets.sessionOnly");
+			}
+		} else {
+			const result = replaceWithPresets(files);
+			saveAddedPresets(result.added);
+			message = saveRestaurants(result.list)
+				? t("presets.replaced", { count: result.list.length })
+				: t("presets.sessionOnly");
+		}
+		this.snapshot = undoable ? before : undefined;
+		this.busy = false;
+		this.confirming = false;
+		this.selected = new Set();
+		this.reloadStore();
+		await this.updateComplete;
+		this.toast()?.show(
+			message,
+			undoable ? { action: t("presets.undo"), onAction: this.undo } : {},
+		);
+	}
+
+	/** Put back the list and `whattoeat:presets` from before the last save. */
+	private readonly undo = (): void => {
+		const snapshot = this.snapshot;
+		if (snapshot === undefined) return;
+		this.snapshot = undefined;
+		saveAddedPresets(snapshot.added);
+		saveRestaurants(snapshot.list);
+		this.reloadStore();
+		this.toast()?.show(t("presets.undone"), { duration: UNDONE_DURATION });
+	};
 
 	private async loadIndex(): Promise<void> {
 		this.loadError = false;
@@ -214,8 +468,98 @@ export class PresetPicker extends LitElement {
 		return html`
 			<a class="back" href=${`${this.base}settings`}>${icon("back", 20)}<span>${t("presets.back")}</span></a>
 			<h1 class="page-title">${t("presets.title")}</h1>
+			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${this.renderBody()}
+			${this.ownToast ? html`<app-toast></app-toast>` : nothing}
 		`;
+	}
+
+	private renderPinned(index: PresetIndex) {
+		const ticked = this.tickedEntries(index);
+		const label = this.actionLabel(ticked);
+		const announce = html`<p class="visually-hidden" aria-live="polite">${label}</p>`;
+		if (this.confirming)
+			return html`
+				${announce}
+				<div class="pinned">
+					<div class="group confirm">
+						<p class="replace-prompt" role="alert">${t(
+							"presets.replacePrompt",
+							{
+								saved: this.savedIds.size,
+								count: ticked.reduce((sum, entry) => sum + entry.count, 0),
+								names: ticked.map((entry) => localize(entry.name)).join(", "),
+							},
+						)}</p>
+						<div class="actions">
+							<button
+								type="button"
+								class="danger"
+								data-action="replace-confirm"
+								?disabled=${this.busy}
+								@click=${this.confirmReplace}
+							>${t("presets.replaceConfirm")}</button>
+							<button
+								type="button"
+								data-action="replace-cancel"
+								?disabled=${this.busy}
+								@click=${this.cancelReplace}
+							>
+								${t("settings.cancel")}
+							</button>
+						</div>
+					</div>
+				</div>
+			`;
+		const replacing = this.mode === "replace";
+		return html`
+			${announce}
+			<div class="pinned">
+				${this.savedIds.size > 0 ? this.renderSwitch() : nothing}
+				${this.filesError ? html`<p class="error files-error" role="alert">${t("presets.filesError")}</p>` : nothing}
+				${
+					replacing && ticked.length > 0
+						? html`<p class="muted replace-warning">${t("presets.replaceWarning", { count: this.savedIds.size })}</p>`
+						: nothing
+				}
+				${
+					ticked.length === 0
+						? html`<a class="button-link action" data-action="go-picker" href=${this.base}>${label}</a>`
+						: html`<button
+								type="button"
+								class="action ${replacing ? "danger" : "primary"}"
+								data-action="apply"
+								?disabled=${this.busy}
+								@click=${this.onApply}
+							>${label}</button>`
+				}
+			</div>
+		`;
+	}
+
+	private renderSwitch() {
+		return html`<fieldset
+			class="mode"
+			role="radiogroup"
+			aria-labelledby="preset-mode-label"
+			@keydown=${this.onModeKey}
+		>
+			<legend id="preset-mode-label" class="visually-hidden">${t("presets.mode.label")}</legend>
+			<div class="seg">
+				${MODES.map(
+					(mode) => html`<label>
+						<input
+							type="radio"
+							name="preset-mode"
+							value=${mode}
+							.checked=${live(this.mode === mode)}
+							@change=${() => this.setMode(mode)}
+						/>
+						<span>${t(mode === "add" ? "presets.mode.add" : "presets.mode.replace")}</span>
+					</label>`,
+				)}
+			</div>
+		</fieldset>`;
 	}
 
 	private renderBody() {
@@ -271,7 +615,7 @@ export class PresetPicker extends LitElement {
 			${this.renderHidden(hidden)}
 			${
 				searching && visible.length === 0
-					? html`<p class="muted no-match">${t("presets.noMatch", { query })}</p>`
+					? html`<p class="muted no-match" role="status">${t("presets.noMatch", { query })}</p>`
 					: html`<div class="list">
 							${districtIds.map(
 								(id) => html`
@@ -287,6 +631,7 @@ export class PresetPicker extends LitElement {
 							)}
 						</div>`
 			}
+			${this.renderPinned(index)}
 		`;
 	}
 
