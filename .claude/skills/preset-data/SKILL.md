@@ -25,7 +25,7 @@ when those tests pass, not when the JSON looks right.
 1. **Ship it like any change.** This repo's `shipping-a-change` skill applies: worktree, then
    commit, push, PR, preview URL. Data has no failing-test-first step of its own — the
    existing preset tests are the test; run them after each edit. Use scope `assets`:
-   `feat(assets): add siam preset`, `fix(assets): drop closed places from ladprao`.
+   `feat(assets): add bangna preset`, `fix(assets): drop closed places from ladprao`.
 2. **Pin down the neighbourhood.** Settle with the user (or decide and say so) the preset id,
    which malls and streets it covers, and its city and district. One preset is roughly what a
    person would walk or take one short ride between — a cluster of malls around one
@@ -134,14 +134,14 @@ would expect, new ones at the end.
 
 ```json
 {
-  "id": "siam",
+  "id": "bangna",
   "city": "bangkok",
-  "district": "pathum-wan",
-  "name": { "en": "Siam", "th": "สยาม" },
+  "district": "bang-na",
+  "name": { "en": "Bangna", "th": "บางนา" },
   "count": 0,
   "updatedAt": "2026-10-17",
-  "places": ["Siam Paragon", "Siam Center", "Siam Square One", "MBK Center"],
-  "areas": ["siam paragon", "siam center", "siam square one", "mbk center"]
+  "places": ["Mega Bangna", "Central Bangna"],
+  "areas": ["mega bangna", "central bangna"]
 }
 ```
 
@@ -166,6 +166,8 @@ would expect, new ones at the end.
   — each branch is its own restaurant with its own id and ` - Place` suffix.
 - **Counts drift** if you edit a file without rerunning `bun run presets:index`; the test
   catches it.
-- **City chips appear at two cities.** Adding the first preset outside Bangkok changes the
-  page (chips show), and search appears above 7 presets. Mention it in the PR so the preview
-  gets checked.
+- **The page changes shape as presets grow.** A new city adds a chip, and the search field
+  appears once there are more than 7 presets. Mention either in the PR so the preview gets
+  checked.
+- **Reuse existing ids.** Check the `cities` and `districts` maps before adding one; a second
+  id for the same district (`pathum-wan` vs `pathumwan`) splits its presets into two groups.
