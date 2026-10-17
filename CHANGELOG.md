@@ -89,6 +89,11 @@ What changed in this project and why, newest first.
   and count follow it ("1 of 3 restaurants"). When nothing matches, a card offers **Clear**.
 - The Restaurants filter is saved under `whattoeat:list-filter`, apart from Home's
   `whattoeat:filter`. Renaming, moving or deleting a value on the Tags page updates both.
+- Home picks 1 to 5 restaurants per press instead of always two; the default stays 2. A
+  − n + stepper sits beside the pick button (in the heading row from 768px, showing
+  "2 per pick"; in the pinned bar on phones, showing the number alone), and Settings has a
+  **Restaurants per pick** row under Language and Theme. Both save the same
+  `whattoeat:pick-count`.
 
 ### Improvements
 
@@ -130,6 +135,8 @@ What changed in this project and why, newest first.
   `upsert-preset.ts` script applies a small draft to a preset file, giving new restaurants ids
   that no other preset uses, setting timestamps and the index entry's `updatedAt`, and keeping
   each restaurant's place and floor as the first line of its notes.
+- Screen readers hear every pick by name as a list ("Picked A, B, and C"), however many a
+  press shows.
 - The Tags link is gone from the Restaurants header, which now shows only search (and Add from
   768px).
 - `restaurant-search` takes its wording from the page through a `labels` property, and the
@@ -215,6 +222,10 @@ What changed in this project and why, newest first.
   **Selected** only the next time the group opens, so a row never jumps away from the pointer.
 - Home's side panel was dropped rather than kept beside the pills, so both pages filter the
   same way and the picks get the full width (two to a row from 768px).
+- The pick count was mocked up four ways: a stepper beside the pick button, an extra pill in
+  the filter row, an inline link in the count line, and a Settings row only. The stepper
+  keeps the count next to the action it changes; the Settings row stays as well, for anyone
+  who sets it once and leaves it.
 
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 
