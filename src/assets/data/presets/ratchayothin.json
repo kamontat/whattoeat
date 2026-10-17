@@ -7,7 +7,7 @@
 			"id": "ZsfxLg53",
 			"name": "Sushiro (ซูชิโร่) - Major Ratchayothin",
 			"link": "",
-			"notes": "Major Ratchayothin, 1F\nRoom 110-112. 10:00-22:00.",
+			"notes": "Major Ratchayothin, 2F\n10:00-22:00. Moved up from 1F.",
 			"kinds": ["food"],
 			"groups": {
 				"cuisine": ["japanese"],
@@ -15,20 +15,7 @@
 			},
 			"tags": ["sushi", "conveyor"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-13T00:00:00.000Z"
-		},
-		{
-			"id": "BSoLvd51",
-			"name": "Ohkajhu (สวนผัก โอ้กะจู๋) - Major Ratchayothin",
-			"link": "",
-			"notes": "Major Ratchayothin, 1F\n10:30-20:30. Opposite Olino.",
-			"kinds": ["food"],
-			"groups": {
-				"area": ["major ratchayothin"]
-			},
-			"tags": ["healthy", "salad"],
-			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-13T00:00:00.000Z"
+			"updatedAt": "2026-10-17T00:00:00.000Z"
 		},
 		{
 			"id": "ItuIAmsg",
@@ -463,6 +450,19 @@
 			"tags": ["bakery", "cake", "unverified 2026"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
 			"updatedAt": "2026-10-13T00:00:00.000Z"
+		},
+		{
+			"id": "9hTjZY1e",
+			"name": "After You (อาฟเตอร์ ยู) - Major Ratchayothin",
+			"link": "",
+			"notes": "Major Ratchayothin, 1F\nKakigori and Shibuya honey toast. Mid price.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"area": ["major ratchayothin"]
+			},
+			"tags": ["cafe", "kakigori", "toast"],
+			"createdAt": "2026-10-17T00:00:00.000Z",
+			"updatedAt": "2026-10-17T00:00:00.000Z"
 		},
 		{
 			"id": "puj37R1V",

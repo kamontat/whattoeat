@@ -57,6 +57,9 @@ What changed in this project and why, newest first.
 
 ### Improvements
 
+- The Ratchayothin preset drops Ohkajhu at Major Ratchayothin (closed), moves Sushiro there
+  to 2F, and adds After You, a dessert cafe on 1F. It shows **Update** for anyone who added
+  it before.
 - On phones the Restaurants title row, and the search field while searching, stay at the top
   of the screen, so search is one tap away in a long list.
 - Editing from the results keeps the search; after a save, focus lands on the saved
