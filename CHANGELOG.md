@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-17: Neighbourhood presets, search by name, restaurant links and a new Tags page
+## 2026-10-17: Neighbourhood presets, a new filter bar, search by name and a new Tags page
 
 ### BREAKING CHANGES
 
@@ -14,6 +14,10 @@ What changed in this project and why, newest first.
   such as "Central Ladprao, 4F" now belongs in Notes.
 - The Tags page moved from `/tags` to `/settings/tags`, and `/tags` is gone (no redirect, as
   the app is not public yet). Reach it from Settings › Organise › Tags; update any bookmark.
+- Home's wide filter side panel and its **Hide** / **Filter** toggle are gone, and
+  `whattoeat:filter-panel` is no longer read. The filter now sits in a row of pills under the
+  title on every width.
+- `cycleTag` is gone from `#lib/filter`; use `setTagState(filter, group, value, state)`.
 
 ### Features
 
@@ -72,10 +76,17 @@ What changed in this project and why, newest first.
   name opens the link in a new tab, and in the Restaurants list an open-link button sits
   beside the row.
 
-- Restaurants has its own filter. A **Filter** button beside search opens a sheet of every
-  group's values plus plain tags; tap once to include, twice to exclude, again to clear.
-  Active values show as chips under the header, and the list, search and count follow it
-  ("1 of 3 restaurants"). When nothing matches, a card offers **Clear**.
+- Home and Restaurants share a new filter bar: one pill per group (Type, Cuisine, Area, custom
+  groups, and plain tags on Restaurants only), each with a badge counting its chosen values,
+  grey when the group only skips. **Clear all** follows the pills.
+- Opening a pill lists the group's values, each with how many restaurants use it and its own
+  **✓ Want** and **✕ Skip** buttons; pressing the lit one again clears it. From 768px it opens
+  as a popover under the pill (Done, Escape or a click outside closes it); on phones as a
+  sheet with a tab per group and a **Show N restaurants** button.
+- A group with more than 10 values gets a search box and lists the values chosen before it
+  opened under **Selected**, then the 8 most used, then **Show all** for the rest, A to Z.
+- Restaurants has its own filter, using the same bar with plain tags added. The list, search
+  and count follow it ("1 of 3 restaurants"). When nothing matches, a card offers **Clear**.
 - The Restaurants filter is saved under `whattoeat:list-filter`, apart from Home's
   `whattoeat:filter`. Renaming, moving or deleting a value on the Tags page updates both.
 
@@ -192,8 +203,18 @@ What changed in this project and why, newest first.
   list to review or edit some places never changes what Home picks from. Plain tags filter
   only there; Home still filters groups alone, so a value moved into plain tags stays in the
   Restaurants filter and drops out of Home's.
-- The Restaurants filter opens in a sheet on every width, rather than in a side panel like
-  Home's, because the wide side panel there already holds the restaurant form.
+- The filter was redesigned because tapping a value once to include it, twice to exclude it
+  and again to clear it could only be learned from hint text. Three directions were mocked
+  up: a Want/Skip mode switch over the old chips, group pills with dropdowns, and a search
+  box that reads the filter back as a sentence. Group pills won: compact, familiar from
+  shopping and map apps, and the same with a mouse or a finger.
+- Within the pills, a value gets two buttons (Want and Skip) rather than a checkbox with a
+  smaller Skip button, or one Any of / None of rule per group. Both actions stay visible and
+  equal, and a group can still want one value and skip another (Tags: cheap, not spicy).
+- In a big group, a value chosen while it is open stays where it is and moves under
+  **Selected** only the next time the group opens, so a row never jumps away from the pointer.
+- Home's side panel was dropped rather than kept beside the pills, so both pages filter the
+  same way and the picks get the full width (two to a row from 768px).
 
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 

@@ -10,8 +10,7 @@ import {
 	formFromRestaurant,
 	type RestaurantForm,
 } from "#components/restaurant/form";
-import "#components/restaurant/filter";
-import type { RestaurantFilter } from "#components/restaurant/filter";
+import "#components/filter-bar";
 import "#components/restaurant/list";
 import type { RestaurantList } from "#components/restaurant/list";
 import "#components/restaurant/search";
@@ -107,16 +106,6 @@ export class RestaurantManager extends LitElement {
 				min-height: var(--tap);
 				padding: 0;
 				border-radius: var(--radius-pill);
-			}
-
-			/* A pill as tall as the magnifier beside it. */
-			.filter-open {
-				gap: 0.375rem;
-				min-height: var(--tap);
-				padding: 0 0.875rem;
-				border-radius: var(--radius-pill);
-				font-size: 0.875rem;
-				font-weight: 500;
 			}
 
 			.status:empty {
@@ -302,30 +291,8 @@ export class RestaurantManager extends LitElement {
 		saveFilter(next, LIST_FILTER);
 	};
 
-	/** How many values the filter includes or excludes, across every group. */
-	private activeValueCount(): number {
-		return Object.values(this.filter).reduce(
-			(count, group) => count + group.include.length + group.exclude.length,
-			0,
-		);
-	}
-
-	/** Whether any restaurant has a value the filter could use. */
-	private hasFilterValues(): boolean {
-		return this.restaurants.some(
-			(item) =>
-				item.kinds.length > 0 ||
-				item.tags.length > 0 ||
-				Object.values(item.groups).some((values) => values.length > 0),
-		);
-	}
-
 	private get search(): RestaurantSearch | null {
 		return this.renderRoot.querySelector("restaurant-search");
-	}
-
-	private get filterPart(): RestaurantFilter | null {
-		return this.renderRoot.querySelector("restaurant-filter");
 	}
 
 	private get list(): RestaurantList | null {
@@ -341,7 +308,7 @@ export class RestaurantManager extends LitElement {
 		let done = await super.getUpdateComplete();
 		for (;;) {
 			const parts = this.renderRoot.querySelectorAll<LitElement>(
-				"restaurant-search, restaurant-filter, restaurant-list, restaurant-form",
+				"restaurant-search, filter-bar, restaurant-list, restaurant-form",
 			);
 			await Promise.all([...parts].map((part) => part.updateComplete));
 			if (!this.isUpdatePending) return done;
@@ -644,7 +611,6 @@ export class RestaurantManager extends LitElement {
 		const searching = this.searching;
 		const query = searching ? this.query : "";
 		const shown = this.shown;
-		const filterCount = this.activeValueCount();
 		const editing = this.restaurants.find((item) => item.id === this.editingId);
 		const formTitle =
 			editing === undefined
@@ -684,19 +650,6 @@ export class RestaurantManager extends LitElement {
 								</button>`
 							: nothing
 					}
-					${
-						this.hasFilterValues()
-							? html`<button
-									type="button"
-									class="filter-open"
-									data-action="open-filter"
-									aria-haspopup="dialog"
-									@click=${() => this.filterPart?.open()}
-								>
-									${icon("funnel", 18)}<span>${filterCount > 0 ? t("filter.openCount", { count: filterCount }) : t("filter.title")}</span>
-								</button>`
-							: nothing
-					}
 					${wide ? add : nothing}
 				</div>
 			</header>
@@ -706,12 +659,13 @@ export class RestaurantManager extends LitElement {
 				@search-cancel=${this.onSearchCancel}
 				@search-pick=${(event: CustomEvent<Restaurant>) => this.startEdit(event.detail)}
 			></restaurant-search>
-			<restaurant-filter
+			<filter-bar
+				tags
 				.restaurants=${this.restaurants}
 				.defs=${this.defs}
 				.filter=${this.filter}
 				@filter-change=${(event: CustomEvent<Filter>) => this.setFilter(event.detail)}
-			></restaurant-filter>
+			></filter-bar>
 			</div>
 			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
