@@ -9,14 +9,15 @@
 		"#styles/*": "./src/styles/*.ts"
 	},
 	"scripts": {
-		"dev": "bun-server dev --statics src/assets/icons:icons --statics src/assets/presets:presets src/routes",
-		"build": "bun-server build --clean --statics src/assets/icons:icons --statics src/assets/presets:presets src/routes",
+		"dev": "bun-server dev --statics src/assets/icons:icons --statics src/assets/data:data src/routes",
+		"build": "bun-server build --clean --statics src/assets/icons:icons --statics src/assets/data:data src/routes",
 		"preview": "bun-server preview",
 		"test": "bun test",
 		"check": "bun run check:type && bun run check:biome",
 		"check:type": "tsc --noEmit",
 		"check:biome": "biome check",
-		"format": "biome check --unsafe --write"
+		"format": "biome check --unsafe --write",
+		"presets:index": "bun scripts/presets-index.ts"
 	},
 	"dependencies": {
 		"@kcstyles/reset.css": "2.0.0",
