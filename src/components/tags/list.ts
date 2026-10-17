@@ -56,6 +56,13 @@ export class TagList extends LitElement {
 				color: var(--color-muted);
 			}
 
+			/* A read-only row (Type's values) reads as read-only on its own, even mixed into a list of clickable rows. */
+			.row.static {
+				color: var(--color-muted);
+				outline: 1px dashed var(--color-border);
+				outline-offset: -4px;
+			}
+
 			@media (forced-colors: active) {
 				.list .row[aria-current="true"] {
 					outline: 2px solid CanvasText;
@@ -126,8 +133,8 @@ export class TagList extends LitElement {
 				<div class="item row static">
 					<span class="grow">
 						<b class="name">${name}</b>
-						<small class="sub">${row.sub}</small>
 					</span>
+					<small class="count">${row.sub}</small>
 				</div>
 			</li>`;
 		return html`<li data-group=${row.group} data-value=${row.value ?? nothing}>

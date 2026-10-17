@@ -332,6 +332,15 @@ export class TagManager extends LitElement {
 	/** Whether the last render was wide, to notice the phone boundary being crossed. */
 	private lastWide: boolean | undefined;
 
+	/**
+	 * The picker variant last rendered, to notice the 64rem boundary being crossed: pills and the
+	 * groups column are different elements, so crossing it swaps one for the other and drops focus.
+	 */
+	private lastPickerVariant: "pills" | "column" | undefined;
+
+	/** Captured in `willUpdate`, before a variant swap removes the old picker, so focus can follow. */
+	private focusWasInPicker = false;
+
 	private unsubscribe: (() => void)[] = [];
 
 	private get search(): RestaurantSearch | null {
@@ -357,6 +366,12 @@ export class TagManager extends LitElement {
 	private stage(): Stage {
 		if (this.wider.matches) return "large";
 		return this.wide.matches ? "small" : "phone";
+	}
+
+	/** The picker variant `stage` renders, or undefined while searching hides the picker entirely. */
+	private pickerVariant(stage: Stage): "pills" | "column" | undefined {
+		if (this.searching) return undefined;
+		return stage === "large" ? "column" : "pills";
 	}
 
 	/** Done once this and every part under it has drawn, including updates they set off here. */
@@ -388,14 +403,39 @@ export class TagManager extends LitElement {
 	}
 
 	/**
+	 * Before this render replaces the DOM, note whether focus is inside the picker right now — the
+	 * only chance to ask, since a variant swap at the 64rem boundary removes the old picker element
+	 * (and whatever it held focus) once `render` runs.
+	 */
+	protected override willUpdate(changed: PropertyValues<this>): void {
+		super.willUpdate(changed);
+		this.focusWasInPicker = this.shadowRoot?.activeElement === this.picker;
+	}
+
+	/**
 	 * Crossing the phone boundary with a form open moves it between the sheet and the panel; the
 	 * draft lives here, so nothing typed is lost. Into the panel, focus follows to its first
 	 * control. Into the sheet, focus the form's opener *now*, before the sheet's own update (a
 	 * microtask away) captures the focused element as the place to return to on close.
+	 *
+	 * Crossing the 64rem boundary swaps the pill picker for the groups column (or back): a
+	 * different element, so a pill or row focused before the swap would otherwise land on `body`.
 	 */
 	protected override updated(changed: PropertyValues<this>): void {
 		super.updated(changed);
-		const wide = this.stage() !== "phone";
+		const stage = this.stage();
+		const variant = this.pickerVariant(stage);
+		const lastVariant = this.lastPickerVariant;
+		this.lastPickerVariant = variant;
+		if (
+			lastVariant !== undefined &&
+			variant !== undefined &&
+			lastVariant !== variant &&
+			this.focusWasInPicker
+		)
+			this.focusAfterRender(() => this.picker?.focusPicked());
+
+		const wide = stage !== "phone";
 		const wasWide = this.lastWide;
 		this.lastWide = wide;
 		const form = this.form;

@@ -1,4 +1,4 @@
-import { css, html, LitElement, nothing } from "lit";
+import { css, html, LitElement, nothing, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 import { LangController, t } from "#lib/i18n";
@@ -78,6 +78,19 @@ export class TagPicker extends LitElement {
 		return [
 			...this.renderRoot.querySelectorAll<HTMLElement>("[data-group]"),
 		].find((el) => el.getAttribute("data-group") === id);
+	}
+
+	private scrollPickedIntoView(): void {
+		const target = this.pillFor(this.picked);
+		if (target !== undefined && typeof target.scrollIntoView === "function")
+			target.scrollIntoView({ block: "nearest", inline: "nearest" });
+	}
+
+	/** Keeps the pressed pill visible not just on click, but whenever it moves (a new pick, or the strip's contents changing). */
+	protected override updated(changed: PropertyValues<this>): void {
+		super.updated(changed);
+		if (changed.has("picked") || changed.has("groups"))
+			this.scrollPickedIntoView();
 	}
 
 	private emit(type: string, detail: unknown): void {

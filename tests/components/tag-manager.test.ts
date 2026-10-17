@@ -792,6 +792,23 @@ test("small to large with a form open keeps its typed name", async () => {
 	expect(inForm<HTMLInputElement>(valueForm(el)!, "#name").value).toBe("x");
 });
 
+test("small to large and back keeps focus on the picker's picked group, not body", async () => {
+	setWidth(900);
+	const el = await mount();
+	pillFor(el, "cuisine").focus();
+	expect(focused(el)).toBe(pillFor(el, "cuisine"));
+
+	setWidth(1024);
+	await settle(el);
+	expect($(el, ".layout")?.getAttribute("data-stage")).toBe("large");
+	expect(focused(el)).toBe(pillFor(el, "cuisine"));
+
+	setWidth(900);
+	await settle(el);
+	expect($(el, ".layout")?.getAttribute("data-stage")).toBe("small");
+	expect(focused(el)).toBe(pillFor(el, "cuisine"));
+});
+
 test("phone to wide and back keeps a group form's typed name", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
 	setWidth(390);

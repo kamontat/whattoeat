@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import "#components/tags/list";
-import type { ListRow, TagList } from "#components/tags/list";
+import type { ListRow } from "#components/tags/list";
+import { TagList } from "#components/tags/list";
 import { setLang } from "#lib/i18n";
 
 beforeEach(() => {
@@ -56,9 +56,15 @@ test("rows are buttons with name, sub line and chevron; readonly rows are not", 
 	expect(
 		$(mixed, 'li[data-group="kind"][data-value="food"] button'),
 	).toBeNull();
-	expect(
-		$(mixed, 'li[data-group="kind"][data-value="food"] div.item.row.static'),
-	).not.toBeNull();
+	const staticRow = $(
+		mixed,
+		'li[data-group="kind"][data-value="food"] div.item.row.static',
+	)!;
+	expect(staticRow).not.toBeNull();
+	// The count shows trailing, on the right, not as a sub line under the name.
+	expect(staticRow.querySelector(".grow .sub")).toBeNull();
+	expect(staticRow.querySelector(".count")?.textContent).toBe("3 restaurants");
+	expect(staticRow.querySelector(".trail")).toBeNull();
 	// Not every row is readonly, so the list itself is not marked readonly.
 	expect($(mixed, "ul")?.classList.contains("readonly")).toBe(false);
 
@@ -106,6 +112,21 @@ test("marks the current row and reports tag-open", async () => {
 	const opens = listen<ListRow>(el, "tag-open");
 	button.click();
 	expect(opens).toEqual([row]);
+});
+
+const css = (): string =>
+	(TagList.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+
+test("a read-only row keeps its muted, dashed look even in a mixed list", () => {
+	const rule = css().match(/\.row\.static\s*\{([^}]*)\}/)?.[1];
+	expect(rule, ".row.static rule").toBeDefined();
+	expect(rule).toContain("color: var(--color-muted)");
+	expect(rule).toMatch(/outline:\s*1px dashed var\(--color-border\)/);
+	expect(rule).toContain("outline-offset: -4px");
 });
 
 test("focusRow finds a value with a quote or backslash", async () => {

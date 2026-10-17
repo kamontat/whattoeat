@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from "bun:test";
+import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
 import "#components/tags/picker";
 import type { TagPicker } from "#components/tags/picker";
 import type { GroupDef } from "#lib/groups";
@@ -114,6 +114,31 @@ test("column variant marks Type as fixed", async () => {
 	expect(text(kindRow.querySelector(".sub"))).toBe("fixed");
 	const cuisineRow = $<HTMLButtonElement>(el, '[data-group="cuisine"]')!;
 	expect(cuisineRow.querySelector(".sub")).toBeNull();
+});
+
+test("scrolls the pressed pill into view on mount and whenever picked changes", async () => {
+	const spy = spyOn(HTMLElement.prototype, "scrollIntoView");
+	try {
+		const el = await mount({ picked: "g1" });
+		const g1Pill = $<HTMLButtonElement>(el, '[data-group="g1"]')!;
+		expect(spy.mock.contexts.at(-1)).toBe(g1Pill);
+		expect(spy).toHaveBeenLastCalledWith({
+			block: "nearest",
+			inline: "nearest",
+		});
+
+		spy.mockClear();
+		el.picked = "area";
+		await el.updateComplete;
+		const areaPill = $<HTMLButtonElement>(el, '[data-group="area"]')!;
+		expect(spy.mock.contexts.at(-1)).toBe(areaPill);
+		expect(spy).toHaveBeenLastCalledWith({
+			block: "nearest",
+			inline: "nearest",
+		});
+	} finally {
+		spy.mockRestore();
+	}
 });
 
 test("renders in Thai", async () => {

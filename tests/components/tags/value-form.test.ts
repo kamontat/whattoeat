@@ -241,6 +241,23 @@ test("focusFirst focuses the name input in edit, or the open prompt's confirm bu
 	);
 });
 
+test("focusFirst in the merge step focuses the confirm-merge button", async () => {
+	const restaurants = [
+		make("a", { cuisine: ["thai"] }),
+		make("b", { cuisine: ["lao"] }),
+	];
+	const el = await mount({ restaurants, group: "cuisine", value: "lao" });
+
+	await typeName(el, "thai");
+	await click(el, "save");
+	expect($(el, '[role="alert"]')).not.toBeNull();
+
+	el.focusFirst();
+	expect(el.shadowRoot!.activeElement).toBe(
+		$(el, '[data-action="confirm-merge"]'),
+	);
+});
+
 test("renders in Thai", async () => {
 	const el = await mount({ group: "cuisine", value: "thai" });
 	setLang("th");
