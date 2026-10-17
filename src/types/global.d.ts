@@ -5,6 +5,7 @@ import type { AppSheet } from "#components/app-sheet";
 import type { AppToast } from "#components/app-toast";
 import type { DataTransferPanel } from "#components/data-transfer";
 import type { HistoryClear } from "#components/history-clear";
+import type { PresetPicker } from "#components/preset-picker";
 import type { RandomPicker } from "#components/random-picker";
 import type { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
@@ -21,6 +22,7 @@ declare global {
 		"data-transfer": DataTransferPanel;
 		"history-clear": HistoryClear;
 		"visit-history": VisitHistory;
+		"preset-picker": PresetPicker;
 		"random-picker": RandomPicker;
 		"restaurant-manager": RestaurantManager;
 		"tag-input": TagInput;
