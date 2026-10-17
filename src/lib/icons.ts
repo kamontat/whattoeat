@@ -25,6 +25,7 @@ const SHAPES = {
 	down: svg`<path d="M12 5v14M6 13l6 6 6-6"/>`,
 	code: svg`<path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/>`,
 	list: svg`<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/>`,
+	search: svg`<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>`,
 } satisfies Record<string, SVGTemplateResult>;
 
 export type IconName = keyof typeof SHAPES;
