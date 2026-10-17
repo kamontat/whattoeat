@@ -1381,3 +1381,84 @@ test("search: the no-match card is translated to Thai", async () => {
 		"ล้างการค้นหา",
 	);
 });
+
+const pressEnter = (el: RestaurantManager) => {
+	const event = new KeyboardEvent("keydown", {
+		key: "Enter",
+		bubbles: true,
+		cancelable: true,
+	});
+	searchInput(el).dispatchEvent(event);
+	return event;
+};
+
+test("phone: the title row and the search row stay stuck to the top while the list scrolls", async () => {
+	seedSearch();
+	const el = await phone();
+	const top = $(el, ".top")!;
+	expect(top.querySelector(".head")).not.toBeNull();
+	expect(top.querySelector(".search-row")).not.toBeNull();
+	const css = (RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(
+		/\.top\s*\{[^}]*position:\s*sticky[^}]*top:\s*0[^}]*background:\s*var\(--color-bg\)/,
+	);
+	// Wide screens keep a sticky side panel, so the top row scrolls normally there.
+	expect(css).toMatch(
+		/@media \(min-width: 48rem\)[\s\S]*\.top\s*\{[^}]*position:\s*static/,
+	);
+	// A focused row never hides under the stuck bar.
+	expect(css).toMatch(/li\[data-id\]\s*\{[^}]*scroll-margin-top:/);
+});
+
+test("search: the Search key with one match opens that restaurant", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "champion");
+	const event = pressEnter(el);
+	await el.updateComplete;
+	expect(event.defaultPrevented).toBe(true);
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Ramen Champion");
+	expect(searchInput(el).value).toBe("champion");
+});
+
+test("phone: the Search key with one match opens its edit sheet", async () => {
+	seedSearch();
+	const el = await phone();
+	await openSearch(el);
+	await typeSearch(el, "jay");
+	pressEnter(el);
+	await el.updateComplete;
+	expect($(el, "app-sheet")?.hasAttribute("open")).toBe(true);
+	expect($(el, "app-sheet")?.getAttribute("heading")).toBe("Edit Jay Fai");
+});
+
+test("search: the Search key with several matches hides the keyboard and keeps the results", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	const event = pressEnter(el);
+	await el.updateComplete;
+	expect(event.defaultPrevented).toBe(true);
+	expect(el.shadowRoot!.activeElement?.id).not.toBe("search");
+	expect(rowNames(el)).toEqual(["Bankara Ramen", "Ramen Champion"]);
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("New restaurant");
+});
+
+test("search: no match drops the count line; screen readers hear the no-match message", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "zaab");
+	expect($(el, ".search-count")).toBeNull();
+	await new Promise((resolve) => setTimeout(resolve, 550));
+	await el.updateComplete;
+	expect($(el, ".search-announce")?.textContent?.trim()).toBe(
+		'No restaurants match "zaab".',
+	);
+});

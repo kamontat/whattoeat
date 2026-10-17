@@ -81,6 +81,26 @@ export class RestaurantManager extends LitElement {
 				margin-bottom: calc(var(--tab-bar-height) - var(--tab-bar-space));
 			}
 
+			/*
+			 * Phone: the title row (and the search row while searching) stays at the top, so search
+			 * is one tap away in a long list and results scroll underneath the field.
+			 */
+			.top {
+				position: sticky;
+				top: 0;
+				z-index: 4;
+				display: grid;
+				gap: 1rem;
+				margin-top: -0.75rem;
+				padding-block: 0.75rem;
+				background: var(--color-bg);
+			}
+
+			/* Room for the stuck bar when a focused row scrolls into view. */
+			li[data-id] {
+				scroll-margin-top: 7rem;
+			}
+
 			.head {
 				display: flex;
 				flex-wrap: wrap;
@@ -279,6 +299,17 @@ export class RestaurantManager extends LitElement {
 				.edit-panel {
 					position: sticky;
 					top: 1rem;
+				}
+
+				/* The side panel is the sticky part on wide screens; the top row scrolls away. */
+				.top {
+					position: static;
+					margin-top: 0;
+					padding-block: 0;
+				}
+
+				li[data-id] {
+					scroll-margin-top: 0;
 				}
 
 				/* The panel is short enough that Save doesn't need to stay pinned. */
@@ -740,10 +771,23 @@ export class RestaurantManager extends LitElement {
 		this.scheduleAnnounce();
 	};
 
+	/**
+	 * Escape ends search. Enter (the keyboard's Search key) opens the only match, or else just
+	 * puts the keyboard away so every result is in view.
+	 */
 	private readonly onSearchKey = (event: KeyboardEvent): void => {
-		if (event.key !== "Escape") return;
+		if (event.key === "Escape") {
+			event.preventDefault();
+			this.cancelSearch();
+			return;
+		}
+		if (event.key !== "Enter") return;
 		event.preventDefault();
-		this.cancelSearch();
+		const results = this.results(this.sortedRestaurants());
+		const only = searchWords(this.query).length > 0 ? results : [];
+		if (only.length === 1 && only[0] !== undefined)
+			this.startEdit(only[0].item);
+		else (event.target as HTMLInputElement).blur();
 	};
 
 	private readonly clearSearch = (): void => {
@@ -771,7 +815,10 @@ export class RestaurantManager extends LitElement {
 		clearTimeout(this.announceTimer);
 		this.announced = "";
 		this.announceTimer = setTimeout(() => {
-			this.announced = this.countText(this.sortedRestaurants());
+			const sorted = this.sortedRestaurants();
+			this.announced = this.noMatch(sorted)
+				? t("search.noMatch", { query: this.query.trim() })
+				: this.countText(sorted);
 		}, 500);
 	}
 
@@ -805,6 +852,15 @@ export class RestaurantManager extends LitElement {
 				</button>
 			</div>
 		</div>`;
+	}
+
+	/** Searching for words that no restaurant name has (the no-match card shows instead). */
+	private noMatch(sorted: readonly Restaurant[]): boolean {
+		return (
+			sorted.length > 0 &&
+			searchWords(this.query).length > 0 &&
+			this.results(sorted).length === 0
+		);
 	}
 
 	private countText(sorted: readonly Restaurant[]): string {
@@ -902,6 +958,7 @@ export class RestaurantManager extends LitElement {
 			${icon("plus", 20)}<span>${t("manager.add")}</span>
 		</button>`;
 		return html`
+			<div class="top">
 			<header class="head">
 				<div class=${this.searching ? "visually-hidden" : ""}>
 					<h1 class="page-title">${t("manager.title")}</h1>
@@ -962,10 +1019,11 @@ export class RestaurantManager extends LitElement {
 				</button>
 			</div>
 			${
-				this.searching
+				this.searching && !this.noMatch(sorted)
 					? html`<p class="search-count page-sub">${count}</p>`
 					: nothing
 			}
+			</div>
 			<p class="visually-hidden search-announce" role="status">${this.announced}</p>
 			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${

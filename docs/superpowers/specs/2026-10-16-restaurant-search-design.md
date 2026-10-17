@@ -35,8 +35,9 @@ Preview (interactive mockup): <https://claude.ai/code/artifact/ab61105b-a125-42d
 3. Focus moves into the field **synchronously inside the click handler**: the input is always
    rendered (hidden until search mode) or rendered and focused before the handler returns, so
    iOS opens the keyboard. A focus set after an `await` does not open the iOS keyboard.
-4. Typing filters the list on every `input` event; there is no submit step. Enter only closes
-   the keyboard (`enterkeyhint="search"`), it does not change results.
+4. Typing filters the list on every `input` event; there is no submit step. Enter (the
+   keyboard's Search key, `enterkeyhint="search"`) opens the restaurant when exactly one
+   matches; otherwise it only puts the keyboard away so every result is in view.
 5. Clear (⊗) empties the field, keeps search mode and keeps focus in the field.
 6. Cancel, or `Escape` while focus is in the field, empties the query, leaves search mode,
    restores the title row and the full list, and focuses the magnifier button.
@@ -74,6 +75,8 @@ export const matchName = (
 
 ### Feedback
 
+- When nothing matches, the count line is dropped (the no-match card says it) and screen
+  readers hear the no-match message instead of "0 of N".
 - While searching with at least one word, the count line reads "{shown} of {total}
   restaurants" ("{shown} จาก {total} ร้าน"); with no words yet it shows the usual total.
 - The count line is a polite live region updated **after typing pauses for 500 ms**, so a
@@ -100,8 +103,9 @@ export const matchName = (
 
 ### Phone layout
 
-- The search row sits where the title row was; it is not sticky (the header is not sticky
-  today).
+- On phones the title row, and the search row while searching, stay stuck to the top of the
+  screen, so search is one tap away in a long list and results scroll under the field. From
+  48rem the side panel is the sticky part and the top row scrolls normally.
 - While the keyboard is up it covers the pinned Add button and the tab bar (normal iOS
   behaviour); the empty-state Add button covers the "search, then add" path.
 
@@ -153,4 +157,4 @@ export const matchName = (
 
 - Searching cuisine, area, tags, location or notes.
 - Search on the Tags page (still in `TODO.md`).
-- Fuzzy or typo-tolerant matching, recent searches, and a sticky header.
+- Fuzzy or typo-tolerant matching and recent searches.
