@@ -34,6 +34,14 @@ What changed in this project and why, newest first.
 - Add on Restaurants is a round plus button, in the header and pinned on phones, labelled
   "Add restaurant" for screen readers and on hover. The empty list card has its own "Add
   restaurant" button.
+- `restaurant-manager` is split into `restaurant-search`, `restaurant-list` and
+  `restaurant-form` under `src/components/restaurant/`. Each has its own shadow root and
+  styles, takes data through properties and reports back with events, so each is tested alone
+  without the store. `restaurant-manager` keeps the store, the sheet and side panel, and the
+  form state. Name matching and the count line (`searchByName`, `noMatch`, `countText`) moved
+  to `#lib/search`.
+- `app-sheet`'s `containsFocus()` now sees focus inside a slotted component's own shadow
+  root, so closing the sheet does not take focus back from where the page put it.
 
 ### Bug fixes
 
@@ -59,6 +67,12 @@ What changed in this project and why, newest first.
   button in the header. Hiding it until Add or a row opens it gives the list the full width
   and works like the phone sheet. Closing it drops anything typed, the same as closing the
   sheet.
+- The restaurant parts are separate custom elements rather than render functions sharing one
+  shadow root, so a test of one never has to mount or mock the others. `restaurant-form` is
+  controlled by the manager rather than keeping its own state, because the side panel and the
+  phone sheet are two form elements, and what is typed must survive crossing between them.
+  `restaurant-search` uses `display: contents` so its row and count stay items of the sticky
+  top bar's grid.
 
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 

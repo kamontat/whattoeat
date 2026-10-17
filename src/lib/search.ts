@@ -1,5 +1,10 @@
+import { t } from "#lib/i18n";
+
 /** A part of a name that matched, as UTF-16 offsets into the original string. */
 export type MatchRange = { start: number; end: number };
+
+/** An item the query keeps, with what to highlight in its name. */
+export type SearchResult<T> = { item: T; ranges: MatchRange[] };
 
 /**
  * Lower-cased text with Latin accents (U+0300–U+036F after NFD) removed, one character at a
@@ -62,4 +67,41 @@ export const matchName = (
 		else merged.push({ ...range });
 	}
 	return merged;
+};
+
+/** The items whose name has every word of `query`, in the given order; no words keeps them all. */
+export const searchByName = <T extends { name: string }>(
+	items: readonly T[],
+	query: string,
+): SearchResult<T>[] => {
+	const words = searchWords(query);
+	return items.flatMap((item) => {
+		const ranges = matchName(item.name, words);
+		return ranges === undefined ? [] : [{ item, ranges }];
+	});
+};
+
+/** Searching for words that no item's name has (the list shows its no-match card instead). */
+export const noMatch = (
+	items: readonly { name: string }[],
+	query: string,
+): boolean =>
+	items.length > 0 &&
+	searchWords(query).length > 0 &&
+	searchByName(items, query).length === 0;
+
+/** How many restaurants there are, or how many of them the query keeps when it has words. */
+export const countText = (
+	items: readonly { name: string }[],
+	query: string,
+): string => {
+	const total = items.length;
+	if (searchWords(query).length > 0)
+		return t("search.count", {
+			shown: searchByName(items, query).length,
+			total,
+		});
+	return total === 1
+		? t("picker.count.one")
+		: t("picker.count.other", { count: total });
 };

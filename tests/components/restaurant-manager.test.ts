@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { AppSheet } from "#components/app-sheet";
 import "#components/restaurant-manager";
+import { RestaurantForm } from "#components/restaurant/form";
 import { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
 import { saveGroups } from "#lib/groups";
@@ -12,7 +13,6 @@ import {
 	saveRestaurants,
 	updateRestaurant,
 } from "#lib/store";
-import { uiStyles } from "#styles/ui";
 
 beforeEach(() => {
 	localStorage.clear();
@@ -41,8 +41,33 @@ const mountForm = async () => {
 	return el;
 };
 
-const $ = <T extends Element>(el: RestaurantManager, selector: string) =>
-	el.shadowRoot!.querySelector<T>(selector);
+/** The page's parts (restaurant-search, -list, -form) each have a shadow root; look inside them too. */
+const isPart = (node: Element): boolean =>
+	node.localName.startsWith("restaurant-");
+
+/** Every match in `el` and its parts, in document order. */
+const $$ = <T extends Element>(el: Element, selector: string): T[] => {
+	const found: T[] = [];
+	const walk = (root: ParentNode): void => {
+		for (const node of root.querySelectorAll("*")) {
+			if (node.matches(selector)) found.push(node as T);
+			if (isPart(node) && node.shadowRoot !== null) walk(node.shadowRoot);
+		}
+	};
+	walk(el.shadowRoot!);
+	return found;
+};
+
+const $ = <T extends Element>(el: Element, selector: string): T | null =>
+	$$<T>(el, selector)[0] ?? null;
+
+/** The focused element, looking through the page's parts but not into a tag-input. */
+const active = (el: Element): Element | null => {
+	let focused = el.shadowRoot!.activeElement;
+	while (focused !== null && isPart(focused) && focused.shadowRoot !== null)
+		focused = focused.shadowRoot.activeElement;
+	return focused;
+};
 
 const type = (el: RestaurantManager, selector: string, value: string): void => {
 	const input = $<HTMLInputElement | HTMLTextAreaElement>(el, selector)!;
@@ -82,9 +107,7 @@ const submit = async (el: RestaurantManager): Promise<void> => {
 };
 
 const rowNames = (el: RestaurantManager) =>
-	[...el.shadowRoot!.querySelectorAll("li[data-id] .name")].map(
-		(n) => n.textContent,
-	);
+	[...$$(el, "li[data-id] .name")].map((n) => n.textContent);
 
 const click = async (
 	el: RestaurantManager,
@@ -276,9 +299,7 @@ test("type boxes are labelled and a second click unticks", async () => {
 	const el = await mountForm();
 	expect($(el, "fieldset.kinds legend")?.textContent?.trim()).toBe("Type");
 	expect(
-		[...el.shadowRoot!.querySelectorAll("fieldset.kinds label")].map((l) =>
-			l.textContent?.trim(),
-		),
+		[...$$(el, "fieldset.kinds label")].map((l) => l.textContent?.trim()),
 	).toEqual(["Food", "Drinks", "Dessert"]);
 	type(el, "#name", "Shop");
 	await toggleKind(el, "food");
@@ -305,9 +326,10 @@ test("each custom group gets its own input, in stored order, before plain tags",
 		{ id: "g1", name: "Price" },
 	]);
 	const el = await mountForm();
-	const groups = [...el.shadowRoot!.querySelectorAll("tag-input")].map(
-		(input) => [input.getAttribute("data-group"), input.label],
-	);
+	const groups = $$<TagInput>(el, "tag-input").map((input) => [
+		input.getAttribute("data-group"),
+		input.label,
+	]);
 	expect(groups).toEqual([
 		["cuisine", "Cuisine"],
 		["area", "Area"],
@@ -509,14 +531,10 @@ test("delete moves focus to the confirm button, cancel moves it back", async () 
 	await click(el, 'button[data-action="edit"]');
 	await click(el, 'button[data-action="delete"]');
 	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
-		"confirm-delete",
-	);
+	expect(active(el)?.getAttribute("data-action")).toBe("confirm-delete");
 	await click(el, 'button[data-action="cancel-delete"]');
 	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
-		"delete",
-	);
+	expect(active(el)?.getAttribute("data-action")).toBe("delete");
 });
 
 test("warns when the browser refuses to save", async () => {
@@ -553,7 +571,7 @@ test("starting an edit drops text left in the tag box", async () => {
 	addRestaurant({ name: "B", tags: ["y"], location: "", notes: "" });
 	const el = await mountForm();
 	await typeTags(el, "spi");
-	const editB = [...el.shadowRoot!.querySelectorAll("li[data-id]")]
+	const editB = [...$$(el, "li[data-id]")]
 		.find((row) => row.querySelector(".name")?.textContent === "B")!
 		.querySelector<HTMLButtonElement>('[data-action="edit"]')!;
 	editB.click();
@@ -568,18 +586,18 @@ test("warns about stored entries that could not be read until a save drops them"
 		JSON.stringify([{ name: "broken" }, null]),
 	);
 	const el = await mount();
-	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
+	expect($(el, ".skipped")?.textContent?.trim()).toBe(
 		"2 saved restaurants could not be read and were skipped. They will be removed the next time the list changes.",
 	);
 	addRestaurant({ name: "Fresh", tags: [], location: "", notes: "" });
 	await el.updateComplete;
-	expect(el.shadowRoot!.querySelector(".skipped")).toBeNull();
+	expect($(el, ".skipped")).toBeNull();
 });
 
 test("uses the singular when one stored entry could not be read", async () => {
 	localStorage.setItem("whattoeat:restaurants", "{not json");
 	const el = await mount();
-	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
+	expect($(el, ".skipped")?.textContent?.trim()).toBe(
 		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
 	);
 });
@@ -587,9 +605,7 @@ test("uses the singular when one stored entry could not be read", async () => {
 test("the form asks for name, type, groups, location, then tags and notes", async () => {
 	const el = await mountForm();
 	const order = [
-		...el.shadowRoot!.querySelectorAll(
-			"#name, fieldset.kinds, tag-input, #location, #notes",
-		),
+		...$$(el, "#name, fieldset.kinds, tag-input, #location, #notes"),
 	].map(
 		(node) =>
 			(node instanceof HTMLElement && node.getAttribute("data-group")) ||
@@ -658,19 +674,6 @@ test("a row with no type line has no aria-describedby", async () => {
 	expect(row.getAttribute("aria-describedby")).toBeNull();
 });
 
-test("the selected row shows an outline in forced-colours", () => {
-	const css = ownStyles();
-	const forced = css.indexOf("@media (forced-colors: active)");
-	expect(forced).toBeGreaterThan(-1);
-	const forcedBlock = css.slice(forced);
-	expect(forcedBlock).toMatch(
-		/\.list \.row\[aria-current="true"\]\s*\{[^}]*outline:\s*2px solid CanvasText/,
-	);
-	expect(forcedBlock).toMatch(
-		/\.list \.row\[aria-current="true"\]\s*\{[^}]*outline-offset:\s*-2px/,
-	);
-});
-
 test("wide: the form sits in a side panel titled for editing, then for adding", async () => {
 	addRestaurant({ ...blank, name: "Jay Fai" });
 	const el = await mount();
@@ -686,7 +689,7 @@ test("wide: the form sits in a side panel titled for editing, then for adding", 
 	expect($(el, "#form-title")?.textContent?.trim()).toBe("New restaurant");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
 	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+	expect(active(el)?.id).toBe("name");
 });
 
 test("Delete is only in the edit form, never in rows or the add form", async () => {
@@ -762,7 +765,7 @@ test("phone: Add is pinned and opens the form in a sheet", async () => {
 	)!;
 	const sheet = $(el, "app-sheet")!;
 	expect(sheet.hasAttribute("open")).toBe(false);
-	expect(sheet.querySelector("form#restaurant-form")).not.toBeNull();
+	expect(sheet.querySelector("restaurant-form")).not.toBeNull();
 	add.click();
 	await el.updateComplete;
 	expect(sheet.hasAttribute("open")).toBe(true);
@@ -810,7 +813,7 @@ test("wide: opening a row focuses the name field in the side panel", async () =>
 	const el = await mount();
 	await click(el, 'li[data-id] button[data-action="edit"]');
 	await settleFocus(el);
-	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+	expect(active(el)?.id).toBe("name");
 });
 
 test("phone: while the closed sheet slides away it still shows what it showed, then drops it", async () => {
@@ -917,27 +920,20 @@ const ownStyles = (): string =>
 		.map((style) => (style as { cssText: string }).cssText)
 		.join("\n");
 
-test("phone: cuisine and area stack in one column and may shrink; side by side only from 48rem", () => {
-	const css = ownStyles();
-	expect(css).toMatch(
-		/\.pair\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/,
-	);
-	expect(css).toMatch(/\.pair\s*>\s*\*\s*\{[^}]*min-width:\s*0/);
-	const wide = css.slice(css.indexOf("@media (min-width: 48rem)"));
-	expect(wide).toMatch(
-		/\.pair\s*\{[^}]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,\s*12rem\),\s*1fr\)\)/,
-	);
-});
-
-test("phone: the sticky Save row covers the sheet's bottom padding, so no form content peeks out below it", () => {
-	const sheetCss = (AppSheet.styles as unknown[])
-		.flat(Number.POSITIVE_INFINITY)
-		.map((style) => (style as { cssText: string }).cssText)
-		.join("\n");
+test("phone: the form's sticky Save row covers the sheet's bottom padding, so no form content peeks out below it", () => {
+	const cssOf = (styles: unknown) =>
+		[styles]
+			.flat(Number.POSITIVE_INFINITY)
+			.map((style) => (style as { cssText: string }).cssText)
+			.join("\n");
 	// The offset below must match the sheet body's bottom padding.
-	expect(sheetCss).toMatch(/\.body\s*\{[^}]*padding:\s*0\.25rem 1\.25rem 1rem/);
+	expect(cssOf(AppSheet.styles)).toMatch(
+		/\.body\s*\{[^}]*padding:\s*0\.25rem 1\.25rem 1rem/,
+	);
 	const row =
-		ownStyles().match(/\.actions\.form-actions\s*\{([^}]*)\}/)?.[1] ?? "";
+		cssOf(RestaurantForm.styles).match(
+			/\.actions\.form-actions\s*\{([^}]*)\}/,
+		)?.[1] ?? "";
 	expect(row).toContain("bottom: -1rem");
 	expect(row).toContain("padding: 0.75rem 0 1.75rem");
 });
@@ -961,34 +957,6 @@ test("phone: the component fills the space above the tab bar so the pinned Add e
 test("the form's Save/Cancel row has the form-actions class", async () => {
 	const el = await mountForm();
 	expect($(el, "form .actions.form-actions")).not.toBeNull();
-});
-
-test("phone: Save stays reachable at the bottom of the scrolling sheet", () => {
-	const css = ownStyles();
-	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*position:\s*sticky/);
-	expect(css).toMatch(/\.actions\.form-actions\s*\{[^}]*bottom:\s*-1rem/);
-	expect(css).toMatch(
-		/\.actions\.form-actions\s*\{[^}]*background:\s*var\(--color-bg\)/,
-	);
-	const wideIndex = css.indexOf("@media (min-width: 48rem)");
-	expect(wideIndex).toBeGreaterThan(-1);
-	const wideBlock = css.slice(wideIndex);
-	expect(wideBlock).toMatch(
-		/\.actions\.form-actions\s*\{[^}]*position:\s*static/,
-	);
-});
-
-test("phone: focused fields scroll clear of the sticky save row", () => {
-	const css = ownStyles();
-	expect(css).toMatch(
-		/form input,\s*form textarea,\s*form tag-input,\s*fieldset\.kinds label\s*\{[^}]*scroll-margin-bottom:\s*5rem/,
-	);
-	const wideIndex = css.indexOf("@media (min-width: 48rem)");
-	expect(wideIndex).toBeGreaterThan(-1);
-	const wideBlock = css.slice(wideIndex);
-	expect(wideBlock).toMatch(
-		/form input,\s*form textarea,\s*form tag-input,\s*fieldset\.kinds label\s*\{[^}]*scroll-margin-bottom:\s*0/,
-	);
 });
 
 test("wide: the side panel starts hidden and the list takes the full width", async () => {
@@ -1031,13 +999,13 @@ test("wide: Add toggles the panel open and closed, dropping what was typed", asy
 	expect(add().getAttribute("aria-expanded")).toBe("true");
 	expect(add().getAttribute("aria-controls")).toBe("edit-panel");
 	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+	expect(active(el)?.id).toBe("name");
 	type(el, "#name", "Half typed");
 	await click(el, ".head button.add");
 	expect($(el, "section.edit-panel")).toBeNull();
 	expect(add().getAttribute("aria-expanded")).toBe("false");
 	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe("add");
+	expect(active(el)?.getAttribute("data-action")).toBe("add");
 	await click(el, ".head button.add");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
 });
@@ -1066,7 +1034,7 @@ test("wide: the panel's close button hides it and drops the edit", async () => {
 	expect($(el, "section.edit-panel")).toBeNull();
 	expect(loadRestaurants()[0]?.name).toBe("Keep");
 	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe("add");
+	expect(active(el)?.getAttribute("data-action")).toBe("add");
 });
 
 test("wide: saving, cancelling and deleting close the panel and return focus to Add", async () => {
@@ -1074,7 +1042,7 @@ test("wide: saving, cancelling and deleting close the panel and return focus to 
 	const el = await mount();
 	const focused = async () => {
 		await el.updateComplete;
-		return el.shadowRoot!.activeElement?.getAttribute("data-action");
+		return active(el)?.getAttribute("data-action");
 	};
 
 	await click(el, ".head button.add");
@@ -1158,7 +1126,7 @@ test("search: opening focuses the field inside the tap, so iOS opens the keyboar
 	const el = await mount();
 	$<HTMLButtonElement>(el, '[data-action="search"]')!.click();
 	// No await: the focus must already have moved when the click handler returns.
-	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+	expect(active(el)?.id).toBe("search");
 	await el.updateComplete;
 	// The title stays in the accessibility tree (visually hidden) while the actions go dark.
 	expect($(el, ".head-actions")?.hasAttribute("hidden")).toBe(true);
@@ -1183,9 +1151,9 @@ test("search: typing narrows the list to matching names, A to Z, with the match 
 	await openSearch(el);
 	await typeSearch(el, "ram");
 	expect(rowNames(el)).toEqual(["Bankara Ramen", "Ramen Champion"]);
-	const marks = [
-		...el.shadowRoot!.querySelectorAll("li[data-id] .name mark"),
-	].map((mark) => mark.textContent);
+	const marks = [...$$(el, "li[data-id] .name mark")].map(
+		(mark) => mark.textContent,
+	);
 	expect(marks).toEqual(["Ram", "Ram"]);
 	expect($(el, "li[data-id] button.row")?.getAttribute("aria-label")).toBe(
 		"Edit Bankara Ramen",
@@ -1223,7 +1191,7 @@ test("search: clear empties the field but stays in search with focus in the fiel
 	expect(searchInput(el).value).toBe("");
 	expect(rowNames(el)).toHaveLength(4);
 	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
-	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+	expect(active(el)?.id).toBe("search");
 });
 
 test("search: a pointerdown on clear does not blur the field first, so the keyboard stays up", async () => {
@@ -1261,9 +1229,7 @@ test("search: Cancel and Escape end search, restore the header and focus the but
 		expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
 		expect(rowNames(el)).toHaveLength(4);
 		expect(searchInput(el).value).toBe("");
-		expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
-			"search",
-		);
+		expect(active(el)?.getAttribute("data-action")).toBe("search");
 	}
 });
 
@@ -1296,40 +1262,6 @@ test("the magnifier and the Tags link are the same height", () => {
 	expect(css).toMatch(/\.search-open\s*\{[^}]*min-height:\s*var\(--tap\)/);
 });
 
-test("search: field, clear and cancel are tap sized; the input text is 16px", () => {
-	const css = (RestaurantManager.styles as unknown[])
-		.slice(1)
-		.flat(Number.POSITIVE_INFINITY)
-		.map((style) => (style as { cssText: string }).cssText)
-		.join("\n");
-	expect(css).toMatch(/\.search-field\s*\{[^}]*min-height:\s*var\(--tap\)/);
-	expect(css).toMatch(/\.search-open\s*\{[^}]*min-height:\s*var\(--tap\)/);
-	expect(css).toMatch(/\.search-row\[hidden\]/);
-	expect(css).toMatch(
-		/\.name mark\s*\{[^}]*background:\s*var\(--color-primary-soft\)/,
-	);
-	// The search input gets its 16px text from the shared ui rule, not iOS's 13px default
-	// zoom-trigger size, and the component's own rule must not override it back down.
-	expect((uiStyles as unknown as { cssText: string }).cssText).toMatch(
-		/input,\s*select,\s*textarea\s*\{[^}]*font-size:\s*1rem/,
-	);
-	expect(css).not.toMatch(/\.search-field input\s*\{[^}]*font-size/);
-});
-
-test("search: the field drops iOS's default search styling", () => {
-	const css = (RestaurantManager.styles as unknown[])
-		.slice(1)
-		.flat(Number.POSITIVE_INFINITY)
-		.map((style) => (style as { cssText: string }).cssText)
-		.join("\n");
-	expect(css).toMatch(
-		/\.search-field input\s*\{[^}]*appearance:\s*none[^}]*-webkit-appearance:\s*none/,
-	);
-	expect(css).toMatch(
-		/\.search-field input::-webkit-search-decoration\s*\{[^}]*display:\s*none/,
-	);
-});
-
 test("search: no match shows one card that offers to add the name or clear", async () => {
 	seedSearch();
 	const el = await mount();
@@ -1345,7 +1277,7 @@ test("search: no match shows one card that offers to add the name or clear", asy
 	).toBe('Add "zaab"');
 	await click(el, '[data-action="clear-search-empty"]');
 	expect(rowNames(el)).toHaveLength(4);
-	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+	expect(active(el)?.id).toBe("search");
 });
 
 test("phone: Add from a search opens the new form with the name filled in", async () => {
@@ -1378,12 +1310,10 @@ test("phone: Add from a search focuses the saved row, now shown among the result
 	await submit(el);
 	await settleFocus(el);
 	expect(rowNames(el)).toEqual(["Zaab"]);
-	const row = [...el.shadowRoot!.querySelectorAll("li[data-id]")].find(
+	const row = [...$$(el, "li[data-id]")].find(
 		(li) => li.querySelector(".name")?.textContent === "Zaab",
 	)!;
-	expect(el.shadowRoot!.activeElement).toBe(
-		row.querySelector('button[data-action="edit"]'),
-	);
+	expect(active(el)).toBe(row.querySelector('button[data-action="edit"]'));
 });
 
 test("search: editing a result keeps the search; a rename out of it drops the row", async () => {
@@ -1402,7 +1332,7 @@ test("search: editing a result keeps the search; a rename out of it drops the ro
 		"Saved Bankara Tonkotsu",
 	);
 	// Renamed out of the query: its row is gone, so focus goes back to the search field.
-	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+	expect(active(el)?.id).toBe("search");
 });
 
 test("search: a restaurant added in another tab shows up if it matches", async () => {
@@ -1462,7 +1392,7 @@ test("wide: / opens search, but not while typing in a field", async () => {
 	slash();
 	await el.updateComplete;
 	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
-	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+	expect(active(el)?.id).toBe("search");
 });
 
 test("phone: / does nothing", async () => {
@@ -1505,7 +1435,7 @@ test("wide: / while already searching moves focus back to the field, from outsid
 	row.dispatchEvent(event);
 	await el.updateComplete;
 	expect(event.defaultPrevented).toBe(true);
-	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+	expect(active(el)?.id).toBe("search");
 });
 
 test("search: the no-match card is translated to Thai", async () => {
@@ -1539,7 +1469,7 @@ test("phone: the title row and the search row stay stuck to the top while the li
 	const el = await phone();
 	const top = $(el, ".top")!;
 	expect(top.querySelector(".head")).not.toBeNull();
-	expect(top.querySelector(".search-row")).not.toBeNull();
+	expect(top.querySelector("restaurant-search")).not.toBeNull();
 	const css = (RestaurantManager.styles as unknown[])
 		.slice(1)
 		.flat(Number.POSITIVE_INFINITY)
@@ -1552,8 +1482,6 @@ test("phone: the title row and the search row stay stuck to the top while the li
 	expect(css).toMatch(
 		/@media \(min-width: 48rem\)[\s\S]*\.top\s*\{[^}]*position:\s*static/,
 	);
-	// A focused row never hides under the stuck bar.
-	expect(css).toMatch(/li\[data-id\]\s*\{[^}]*scroll-margin-top:/);
 });
 
 test("search: the Search key with one match opens that restaurant", async () => {
@@ -1587,7 +1515,7 @@ test("search: the Search key with several matches hides the keyboard and keeps t
 	const event = pressEnter(el);
 	await el.updateComplete;
 	expect(event.defaultPrevented).toBe(true);
-	expect(el.shadowRoot!.activeElement?.id).not.toBe("search");
+	expect(active(el)?.id).not.toBe("search");
 	expect(rowNames(el)).toEqual(["Bankara Ramen", "Ramen Champion"]);
 	expect($(el, "section.edit-panel")).toBeNull();
 });
@@ -1612,7 +1540,7 @@ test("search: closing the panel while searching returns focus to the search fiel
 	await click(el, 'li[data-id] button[data-action="edit"]');
 	await click(el, 'button[data-action="close-panel"]');
 	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+	expect(active(el)?.id).toBe("search");
 });
 
 test("search: no match drops the count line; screen readers hear the no-match message", async () => {
