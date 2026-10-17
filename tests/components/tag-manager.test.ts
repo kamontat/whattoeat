@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/tag-manager";
 import type { AppSheet } from "#components/app-sheet";
 import type { TagManager } from "#components/tag-manager";
-import { FILTER_KEY } from "#lib/filter";
+import { FILTER_KEY, LIST_FILTER_KEY } from "#lib/filter";
 import { forgetGroupsMemory, loadGroups, saveGroups } from "#lib/groups";
 import { setLang } from "#lib/i18n";
 import {
@@ -855,4 +855,80 @@ test("opening a group's options does not drop an open value's draft", async () =
 	expect(detail.querySelector<HTMLInputElement>("input")?.value).toBe(
 		"Thai food",
 	);
+});
+
+test("the intro says plain tags filter only the restaurants page", async () => {
+	const el = await mount();
+	expect($(el, ".page-sub")?.textContent).toBe(
+		"Groups sort your restaurants for the filters. Plain tags filter only the Restaurants page.",
+	);
+	setLang("th");
+	await el.updateComplete;
+	expect($(el, ".page-sub")?.textContent).toBe(
+		"กลุ่มช่วยจัดร้านสำหรับตัวกรอง แท็กทั่วไปใช้กรองได้เฉพาะหน้าร้านอาหาร",
+	);
+});
+
+test("renaming a plain tag changes it in the restaurants page filter too", async () => {
+	addRestaurant({ ...base, name: "A", tags: ["spicey"] });
+	localStorage.setItem(
+		LIST_FILTER_KEY,
+		JSON.stringify({ tags: { include: ["spicey"], exclude: [] } }),
+	);
+	const el = await mount();
+	let detail = await openValue(el, "tags", "spicey");
+	await click(el, detail, "rename-value");
+	detail = $(el, ".value-detail")!;
+	await typeIn(el, detail.querySelector("input")!, "spicy");
+	detail = $(el, ".value-detail")!;
+	await click(el, detail, "save-value");
+	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
+		tags: { include: ["spicy"], exclude: [] },
+	});
+});
+
+test("moving a value into plain tags keeps it in the restaurants page filter only", async () => {
+	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	const filter = JSON.stringify({ area: { include: [], exclude: ["siam"] } });
+	localStorage.setItem(FILTER_KEY, filter);
+	localStorage.setItem(LIST_FILTER_KEY, filter);
+	const el = await mount();
+	let detail = await openValue(el, "area", "siam");
+	await click(el, detail, "move-value");
+	detail = $(el, ".value-detail")!;
+	const select = detail.querySelector<HTMLSelectElement>("select")!;
+	select.value = "tags";
+	select.dispatchEvent(new Event("change"));
+	await el.updateComplete;
+	detail = $(el, ".value-detail")!;
+	await click(el, detail, "confirm-move");
+	expect(JSON.parse(localStorage.getItem(FILTER_KEY)!)).toEqual({});
+	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
+		tags: { include: [], exclude: ["siam"] },
+	});
+});
+
+test("deleting a value or a group drops it from the restaurants page filter too", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	addRestaurant({
+		...base,
+		name: "A",
+		groups: { g1: ["cheap"], area: ["ari"] },
+	});
+	localStorage.setItem(
+		LIST_FILTER_KEY,
+		JSON.stringify({
+			g1: { include: ["cheap"], exclude: [] },
+			area: { include: ["ari"], exclude: [] },
+		}),
+	);
+	const el = await mount();
+	let detail = await openValue(el, "area", "ari");
+	await click(el, detail, "delete-value");
+	detail = $(el, ".value-detail")!;
+	await click(el, detail, "confirm-delete-value");
+	const options = await openGroup(el, "g1");
+	await click(el, options, "delete-group");
+	await click(el, $(el, ".group-options")!, "confirm-delete-group");
+	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({});
 });

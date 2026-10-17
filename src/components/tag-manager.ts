@@ -6,10 +6,9 @@ import "#components/app-sheet";
 import {
 	dropFilterGroup,
 	dropFilterValue,
-	loadFilter,
 	moveFilterValue,
 	renameFilterValue,
-	saveFilter,
+	updateSavedFilters,
 } from "#lib/filter";
 import {
 	addGroup,
@@ -393,7 +392,7 @@ export class TagManager extends LitElement {
 		const result = deleteGroup(this.restaurants, this.defs, id, new Date());
 		this.prompt = undefined;
 		this.optionsFor = undefined;
-		saveFilter(dropFilterGroup(loadFilter(), id));
+		updateSavedFilters((filter) => dropFilterGroup(filter, id));
 		// Restaurants first: if the group list save fails, the next load still turns its values into tags.
 		saveRestaurants(result.restaurants);
 		saveGroups(result.groups);
@@ -515,7 +514,7 @@ export class TagManager extends LitElement {
 	private applyRename(group: string, value: string, to: string): void {
 		this.prompt = undefined;
 		this.selected = { group, value: to };
-		saveFilter(renameFilterValue(loadFilter(), group, value, to));
+		updateSavedFilters((filter) => renameFilterValue(filter, group, value, to));
 		saveRestaurants(
 			renameValue(this.restaurants, group, value, to, new Date()),
 		);
@@ -527,7 +526,9 @@ export class TagManager extends LitElement {
 	private applyMove(group: string, value: string, to: string): void {
 		this.prompt = undefined;
 		this.selected = undefined;
-		saveFilter(moveFilterValue(loadFilter(), group, value, to));
+		updateSavedFilters((filter, scope) =>
+			moveFilterValue(filter, group, value, to, scope),
+		);
 		saveRestaurants(moveValue(this.restaurants, group, value, to, new Date()));
 		// The row moves to another group's card (or into plain tags); land focus on the one
 		// control guaranteed to remain.
@@ -537,7 +538,7 @@ export class TagManager extends LitElement {
 	private applyDelete(group: string, value: string): void {
 		this.prompt = undefined;
 		this.selected = undefined;
-		saveFilter(dropFilterValue(loadFilter(), group, value));
+		updateSavedFilters((filter) => dropFilterValue(filter, group, value));
 		saveRestaurants(deleteValue(this.restaurants, group, value, new Date()));
 		// The row is gone now; land focus on the one control guaranteed to remain.
 		this.focusAfterRender(() => this.renderRoot.querySelector("#new-group"));

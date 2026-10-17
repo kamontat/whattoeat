@@ -7,14 +7,26 @@ import {
 } from "#lib/restaurant";
 
 export type GroupFilter = { include: string[]; exclude: string[] };
-/** Include and exclude lists by group id. Plain tags are never filtered, so `tags` is never a key. */
+/** Include and exclude lists by group id; `tags` is a key only in a scope that filters plain tags. */
 export type Filter = Record<string, GroupFilter>;
 export type TagState = "off" | "include" | "exclude";
+
+/** Where a filter is stored, and whether it filters plain tags too. */
+export type FilterScope = { key: string; tags: boolean };
 
 const EMPTY_GROUP: GroupFilter = { include: [], exclude: [] };
 
 export const EMPTY_FILTER: Filter = {};
 export const FILTER_KEY = "whattoeat:filter";
+export const LIST_FILTER_KEY = "whattoeat:list-filter";
+
+/** Home's filter: groups only. */
+export const HOME_FILTER: FilterScope = { key: FILTER_KEY, tags: false };
+/** The restaurants page's own filter: groups and plain tags. */
+export const LIST_FILTER: FilterScope = { key: LIST_FILTER_KEY, tags: true };
+
+const allows = (scope: FilterScope, group: string): boolean =>
+	scope.tags || group !== "tags";
 
 const groupFilter = (filter: Filter, group: string): GroupFilter =>
 	Object.hasOwn(filter, group) ? (filter[group] ?? EMPTY_GROUP) : EMPTY_GROUP;
@@ -77,15 +89,19 @@ export const cycleTag = (
 	return { ...filter, [group]: next };
 };
 
-/** Keep only groups in `groupIds` (never tags), values some restaurant still uses, and non-empty groups. */
+/**
+ * Keep only groups in `groupIds` (tags only when the scope filters them), values some
+ * restaurant still uses, and non-empty groups.
+ */
 export const pruneFilter = (
 	filter: Filter,
 	list: readonly Restaurant[],
 	groupIds: readonly string[],
+	scope: FilterScope = HOME_FILTER,
 ): Filter =>
 	Object.fromEntries(
 		Object.entries(filter)
-			.filter(([group]) => group !== "tags" && groupIds.includes(group))
+			.filter(([group]) => allows(scope, group) && groupIds.includes(group))
 			.map(([group, value]): [string, GroupFilter] => {
 				const known = valuesByUsage(list, group);
 				const keep = (item: string): boolean => known.includes(item);
@@ -126,12 +142,12 @@ const toGroup = (value: unknown, group: string): GroupFilter => {
 
 /**
  * The saved filter, or the empty filter when nothing valid is stored. A value in both lists
- * stays included. Any group id but `tags`; empty groups are dropped.
+ * stays included. Any group id (`tags` only when the scope filters them); empty groups are dropped.
  */
-export const loadFilter = (): Filter => {
+export const loadFilter = (scope: FilterScope = HOME_FILTER): Filter => {
 	let data: unknown;
 	try {
-		data = JSON.parse(localStorage.getItem(FILTER_KEY) ?? "null");
+		data = JSON.parse(localStorage.getItem(scope.key) ?? "null");
 	} catch {
 		return EMPTY_FILTER;
 	}
@@ -141,18 +157,30 @@ export const loadFilter = (): Filter => {
 	const raw = data as Record<string, unknown>;
 	const entries: [string, GroupFilter][] = [];
 	for (const [group, value] of Object.entries(raw)) {
-		if (group === "tags") continue;
+		if (!allows(scope, group)) continue;
 		const clean = toGroup(value, group);
 		if (!isEmptyGroup(clean)) entries.push([group, clean]);
 	}
 	return Object.fromEntries(entries);
 };
 
-export const saveFilter = (filter: Filter): void => {
+export const saveFilter = (
+	filter: Filter,
+	scope: FilterScope = HOME_FILTER,
+): void => {
 	try {
-		localStorage.setItem(FILTER_KEY, JSON.stringify(filter));
+		localStorage.setItem(scope.key, JSON.stringify(filter));
 	} catch {
 		// Storage blocked: the filter lasts for this page only.
+	}
+};
+
+/** Load, change and save every saved filter (home's and the restaurants page's). */
+export const updateSavedFilters = (
+	change: (filter: Filter, scope: FilterScope) => Filter,
+): void => {
+	for (const scope of [HOME_FILTER, LIST_FILTER]) {
+		saveFilter(change(loadFilter(scope), scope), scope);
 	}
 };
 
@@ -202,16 +230,20 @@ export const dropFilterValue = (
 	});
 };
 
-/** Carry a value's state to another group; plain tags are not filtered, so it is dropped there. */
+/**
+ * Carry a value's state to another group. Moved into plain tags, it is dropped unless the
+ * scope filters them.
+ */
 export const moveFilterValue = (
 	filter: Filter,
 	from: string,
 	value: string,
 	to: string,
+	scope: FilterScope = HOME_FILTER,
 ): Filter => {
 	const state = tagState(filter, from, value);
 	const dropped = dropFilterValue(filter, from, value);
-	if (state === "off" || to === "tags") return dropped;
+	if (state === "off" || !allows(scope, to)) return dropped;
 	const target = groupFilter(dropped, to);
 	return withGroup(dropped, to, {
 		include: state === "include" ? [...target.include, value] : target.include,
@@ -223,9 +255,12 @@ export const dropFilterGroup = (filter: Filter, group: string): Filter =>
 	withGroup(filter, group, EMPTY_GROUP);
 
 /** Call `callback` when another tab saves the filter. Returns an unsubscribe function. */
-export const onFilterChanged = (callback: () => void): (() => void) => {
+export const onFilterChanged = (
+	callback: () => void,
+	scope: FilterScope = HOME_FILTER,
+): (() => void) => {
 	const onStorage = (event: StorageEvent): void => {
-		if (event.key === FILTER_KEY) callback();
+		if (event.key === scope.key) callback();
 	};
 	window.addEventListener("storage", onStorage);
 	return () => window.removeEventListener("storage", onStorage);
