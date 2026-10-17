@@ -44,7 +44,7 @@ const SEED = ["Bankara Ramen", "Café Tartine", "Jay Fai", "Ramen Champion"].map
 
 type Change = { searching: boolean; query: string };
 
-const mount = async (restaurants: Restaurant[] = SEED) => {
+const mount = async (restaurants: readonly { name: string }[] = SEED) => {
 	const el = document.createElement("restaurant-search");
 	el.restaurants = restaurants;
 	document.body.append(el);
@@ -281,6 +281,37 @@ test("is translated to Thai", async () => {
 		"ยกเลิก",
 	);
 	expect($(el, ".search-count")?.textContent?.trim()).toBe("2 จาก 4 ร้าน");
+});
+
+test("custom labels replace the field's name, placeholder, count and no-match text", async () => {
+	const el = await mount([{ name: "thai" }, { name: "lao" }]);
+	el.labels = {
+		open: "Search tags",
+		placeholder: "Search groups and values",
+		count: (query) => `count:${query}`,
+		noMatch: (query) => `none:${query}`,
+	};
+	el.open();
+	await typeSearch(el, "th");
+	expect(field(el).getAttribute("aria-label")).toBe("Search tags");
+	expect(field(el).placeholder).toBe("Search groups and values");
+	expect($(el, ".search-count")?.textContent?.trim()).toBe("count:th");
+	await typeSearch(el, "zz");
+	await pause();
+	await el.updateComplete;
+	expect($(el, ".search-announce")?.textContent?.trim()).toBe("none:zz");
+});
+
+test("close ends search without a cancel event", async () => {
+	const el = await mount();
+	el.open();
+	await typeSearch(el, "ram");
+	const changes = listen<Change>(el, "search-change");
+	const cancels = listen<unknown>(el, "search-cancel");
+	el.close();
+	await el.updateComplete;
+	expect(changes).toEqual([{ searching: false, query: "" }]);
+	expect(cancels).toHaveLength(0);
 });
 
 const css = (): string =>
