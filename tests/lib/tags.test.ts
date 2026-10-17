@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
+import { afterEach, beforeEach, expect, test } from "bun:test";
 import type { Filter } from "#lib/filter";
 import type { GroupDef } from "#lib/groups";
 import { setLang } from "#lib/i18n";
@@ -169,20 +169,23 @@ test("loadPick falls back to cuisine for a missing or unknown group", () => {
 });
 
 test("loadPick and savePick swallow storage errors", () => {
-	const getSpy = spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+	// A spy on Storage.prototype leaves happy-dom's storage refusing later writes (see
+	// store.test.ts), so swap the global for one that throws on every call instead.
+	const real = globalThis.sessionStorage;
+	const blocked = () => {
 		throw new Error("blocked");
+	};
+	Object.defineProperty(globalThis, "sessionStorage", {
+		value: { getItem: blocked, setItem: blocked },
+		configurable: true,
 	});
 	try {
 		expect(loadPick(["cuisine", "g1"])).toBe("cuisine");
-	} finally {
-		getSpy.mockRestore();
-	}
-	const setSpy = spyOn(Storage.prototype, "setItem").mockImplementation(() => {
-		throw new Error("blocked");
-	});
-	try {
 		expect(() => savePick("g1")).not.toThrow();
 	} finally {
-		setSpy.mockRestore();
+		Object.defineProperty(globalThis, "sessionStorage", {
+			value: real,
+			configurable: true,
+		});
 	}
 });

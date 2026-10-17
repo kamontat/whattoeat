@@ -1,4 +1,4 @@
-import { css, html, LitElement, nothing } from "lit";
+import { css, html, LitElement, nothing, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import {
@@ -122,13 +122,25 @@ export class TagGroupForm extends LitElement {
 		);
 	}
 
-	/** Runs `find` after the next render and focuses what it returns — for the move buttons, whose
-	 * disabled state can change once `defs` comes back from the caller with the new order. */
-	private focusAfterRender(find: () => Element | null | undefined): void {
-		void this.updateComplete.then(() => {
-			const target = find();
-			if (target instanceof HTMLElement) target.focus();
-		});
+	/** The arrow just pressed and its partner, kept until the caller passes back the new order. */
+	private pendingMove: { pressed: string; other: string } | undefined;
+
+	/**
+	 * Once `defs` comes back with the new order (whenever the caller renders it), keep focus on the
+	 * pressed arrow, or the other one if the pressed one is now disabled. Checking any earlier
+	 * would read the old order's disabled state.
+	 */
+	protected override updated(changed: PropertyValues<this>): void {
+		super.updated(changed);
+		const move = this.pendingMove;
+		if (move === undefined || !changed.has("defs")) return;
+		this.pendingMove = undefined;
+		const button = this.action(move.pressed);
+		const target =
+			button?.getAttribute("aria-disabled") === "true"
+				? this.action(move.other)
+				: button;
+		target?.focus();
 	}
 
 	private readonly onNameInput = (event: Event): void => {
@@ -157,15 +169,11 @@ export class TagGroupForm extends LitElement {
 		if (atEdge) return;
 		const id = this.groupId;
 		if (id === undefined) return;
+		this.pendingMove =
+			step < 0
+				? { pressed: "move-up", other: "move-down" }
+				: { pressed: "move-down", other: "move-up" };
 		this.emit("group-move", { groups: moveGroup(this.defs, id, step) });
-		const [pressed, other] =
-			step < 0 ? ["move-up", "move-down"] : ["move-down", "move-up"];
-		this.focusAfterRender(() => {
-			const button = this.action(pressed);
-			return button?.getAttribute("aria-disabled") === "true"
-				? this.action(other)
-				: button;
-		});
 	}
 
 	private readonly onDeleteRequest = (): void => {

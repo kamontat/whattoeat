@@ -242,6 +242,29 @@ test("moving keeps focus on the pressed arrow, or the other one at an end", asyn
 	expect(focused(el2)).toBe($(el2, '[data-action="move-up"]'));
 });
 
+test("moving keeps focus right when the new order arrives a render later", async () => {
+	const el = document.createElement("tag-group-form");
+	el.restaurants = [];
+	el.defs = [price, vibe];
+	el.groupId = "g2";
+	el.draft = { name: "Vibe", step: "edit" };
+	// Like tag-manager: the new order comes back through the owner's next render, not at once.
+	el.addEventListener("group-move", (event) => {
+		const { groups } = (event as CustomEvent<{ groups: GroupDef[] }>).detail;
+		setTimeout(() => {
+			el.defs = groups;
+		}, 0);
+	});
+	document.body.append(el);
+	await el.updateComplete;
+
+	await click(el, "move-up");
+	await settle(el);
+	await settle(el);
+	expect(el.defs.map((def) => def.id)).toEqual(["g2", "g1"]);
+	expect(focused(el)).toBe($(el, '[data-action="move-down"]'));
+});
+
 test("editing the name clears the error", async () => {
 	const el = await mount({
 		defs: [price],
