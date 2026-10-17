@@ -1,29 +1,27 @@
 import { css, html, LitElement, nothing, type PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { live } from "lit/directives/live.js";
 import { repeat } from "lit/directives/repeat.js";
 import "#components/app-sheet";
 import type { AppSheet } from "#components/app-sheet";
-import "#components/tag-input";
-import type { TagInput } from "#components/tag-input";
 import {
-	type GroupDef,
-	groupLabel,
-	loadGroups,
-	onGroupsChanged,
-} from "#lib/groups";
-import { getLang, LangController, type MessageKey, t } from "#lib/i18n";
+	EMPTY_FORM,
+	type FormContext,
+	type FormState,
+	type FormView,
+	formFromRestaurant,
+	formStyles,
+	renderForm,
+	withKind,
+	withValues,
+} from "#components/restaurant/form";
+import { listStyles, renderRow, sortByName } from "#components/restaurant/list";
+import { RestaurantSearch, searchStyles } from "#components/restaurant/search";
+import type { TagInput } from "#components/tag-input";
+import { type GroupDef, loadGroups, onGroupsChanged } from "#lib/groups";
+import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
-import {
-	KINDS,
-	type Kind,
-	metaLine,
-	type Restaurant,
-	VALUE_GROUPS,
-	valuesByUsage,
-} from "#lib/restaurant";
-import { type MatchRange, matchName, searchWords } from "#lib/search";
+import type { Kind, Restaurant } from "#lib/restaurant";
 import {
 	addRestaurant,
 	isMemoryOnly,
@@ -34,38 +32,6 @@ import {
 	updateRestaurant,
 } from "#lib/store";
 import { uiStyles } from "#styles/ui";
-
-/** Everything the form draws: what is typed, which restaurant, and any open prompt. */
-type FormView = {
-	form: FormState;
-	editingId: string | undefined;
-	confirmingId: string | undefined;
-	nameError: "manager.nameRequired" | undefined;
-};
-
-type FormState = {
-	name: string;
-	location: string;
-	notes: string;
-	kinds: Kind[];
-	tags: string[];
-	/** Values by group id: cuisine, area and custom groups. */
-	groups: Record<string, string[]>;
-};
-
-const EMPTY_FORM: FormState = {
-	name: "",
-	location: "",
-	notes: "",
-	kinds: [],
-	tags: [],
-	groups: {},
-};
-
-const HINTS: Record<string, MessageKey> = {
-	cuisine: "field.cuisineHint",
-	area: "field.areaHint",
-};
 
 @customElement("restaurant-manager")
 export class RestaurantManager extends LitElement {
@@ -96,11 +62,6 @@ export class RestaurantManager extends LitElement {
 				background: var(--color-bg);
 			}
 
-			/* Room for the stuck bar when a focused row scrolls into view. */
-			li[data-id] {
-				scroll-margin-top: 7rem;
-			}
-
 			.head {
 				display: flex;
 				flex-wrap: wrap;
@@ -114,6 +75,10 @@ export class RestaurantManager extends LitElement {
 				flex-wrap: wrap;
 				align-items: center;
 				gap: 0.5rem;
+			}
+
+			.head-actions[hidden] {
+				display: none;
 			}
 
 			.tags-link {
@@ -140,28 +105,6 @@ export class RestaurantManager extends LitElement {
 			.layout {
 				display: grid;
 				gap: 1rem;
-			}
-
-			.list .row {
-				min-height: 3.5rem;
-			}
-
-			.list .meta {
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-			}
-
-			.list .row[aria-current="true"] {
-				background: var(--color-surface-2);
-				box-shadow: inset 3px 0 0 var(--color-primary);
-			}
-
-			@media (forced-colors: active) {
-				.list .row[aria-current="true"] {
-					outline: 2px solid CanvasText;
-					outline-offset: -2px;
-				}
 			}
 
 			.edit-panel {
@@ -194,101 +137,6 @@ export class RestaurantManager extends LitElement {
 			.edit-panel h2 {
 				font-size: 1.125rem;
 				font-weight: 600;
-			}
-
-			form {
-				display: grid;
-				gap: 1rem;
-			}
-
-			/* Type: each checkbox is a pill that fills in when ticked. */
-			fieldset.kinds {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 0.5rem;
-				margin: 0;
-				padding: 0;
-				border: 0;
-			}
-
-			fieldset.kinds legend {
-				padding: 0;
-				margin-bottom: 0.375rem;
-				font-weight: 600;
-			}
-
-			fieldset.kinds label {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.5rem;
-				min-height: 2.25rem;
-				padding: 0 0.875rem 0 0.625rem;
-				border: 1px solid var(--color-control);
-				border-radius: var(--radius-pill);
-				background: var(--color-surface);
-				font-weight: 500;
-				cursor: pointer;
-			}
-
-			fieldset.kinds label:has(input:checked) {
-				border-color: var(--color-primary);
-				background: var(--color-primary-soft);
-				color: var(--color-link);
-				font-weight: 600;
-			}
-
-			fieldset.kinds label:has(input:focus-visible) {
-				outline: 3px solid var(--color-focus);
-				outline-offset: 2px;
-			}
-
-			fieldset.kinds input {
-				width: 1rem;
-				height: 1rem;
-				margin: 0;
-				padding: 0;
-				accent-color: var(--color-primary);
-			}
-
-			/* Cuisine and area side by side when there is room. */
-			/* Phone: cuisine and area stack; a long chip must not push a box past the screen edge. */
-			.pair {
-				display: grid;
-				grid-template-columns: minmax(0, 1fr);
-				gap: 1rem;
-			}
-
-			.pair > * {
-				min-width: 0;
-			}
-
-			.delete-zone {
-				display: grid;
-				gap: 0.625rem;
-				padding-top: 1rem;
-				border-top: 1px solid var(--color-border);
-			}
-
-			/* Phone: Save (and Cancel) stay in reach at the bottom of the sheet's scrolling body. */
-			/*
-			 * Phone: Save and Cancel stay at the bottom of the sheet. Sticky stops at the scroll body's
-			 * content edge, so pull it over the body's 1rem bottom padding (app-sheet .body) and pad
-			 * that back in, or a strip of the form shows below the row.
-			 */
-			.actions.form-actions {
-				position: sticky;
-				bottom: -1rem;
-				z-index: 1;
-				padding: 0.75rem 0 1.75rem;
-				background: var(--color-bg);
-			}
-
-			/* Phone: keep a field the browser scrolls to from landing underneath the sticky row. */
-			form input,
-			form textarea,
-			form tag-input,
-			fieldset.kinds label {
-				scroll-margin-bottom: 5rem;
 			}
 
 			/* Phone: Add stays at the bottom right, just above the tab bar. */
@@ -332,137 +180,25 @@ export class RestaurantManager extends LitElement {
 					margin-top: 0;
 					padding-block: 0;
 				}
-
-				li[data-id] {
-					scroll-margin-top: 0;
-				}
-
-				/* The panel is short enough that Save doesn't need to stay pinned. */
-				.actions.form-actions {
-					position: static;
-					padding: 0;
-					background: none;
-				}
-
-				/* The side panel has room for cuisine and area side by side. */
-				.pair {
-					grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
-				}
-
-				form input,
-				form textarea,
-				form tag-input,
-				fieldset.kinds label {
-					scroll-margin-bottom: 0;
-				}
-			}
-
-			.head-actions[hidden],
-			.search-row[hidden] {
-				display: none;
-			}
-
-			.search-open {
-				width: var(--tap);
-				min-height: var(--tap);
-				padding: 0;
-				border-radius: var(--radius-pill);
-			}
-
-			.search-row {
-				display: flex;
-				align-items: center;
-				gap: 0.5rem;
-			}
-
-			.search-field {
-				display: flex;
-				flex: 1;
-				align-items: center;
-				gap: 0.5rem;
-				min-height: var(--tap);
-				padding: 0 0 0 0.75rem;
-				border-radius: var(--radius-sm);
-				background: var(--color-surface-2);
-				color: var(--color-muted);
-				font-weight: 400;
-			}
-
-			.search-field:focus-within {
-				outline: 3px solid var(--color-focus);
-				outline-offset: 2px;
-			}
-
-			.search-field input {
-				flex: 1;
-				min-width: 0;
-				min-height: var(--tap);
-				padding: 0;
-				border: 0;
-				background: transparent;
-				color: var(--color-text);
-				appearance: none;
-				-webkit-appearance: none;
-			}
-
-			/* The field's own ring is drawn around the whole field above. */
-			.search-field input:focus-visible {
-				outline: none;
-			}
-
-			.search-field input::-webkit-search-cancel-button,
-			.search-field input::-webkit-search-decoration {
-				display: none;
-			}
-
-			.clear-search {
-				width: var(--tap);
-				padding: 0;
-				border: 0;
-				background: transparent;
-				color: var(--color-muted);
-			}
-
-			.cancel-search {
-				padding: 0 0.25rem;
-				border-color: transparent;
-				background: transparent;
-				color: var(--color-link);
-			}
-
-			.search-count {
-				margin-top: -0.25rem;
-			}
-
-			.name mark {
-				border-radius: 3px;
-				background: var(--color-primary-soft);
-				color: inherit;
-				font-weight: 700;
-			}
-
-			.no-match .actions {
-				justify-content: center;
-			}
-
-			@media (prefers-reduced-motion: no-preference) {
-				.search-row:not([hidden]) {
-					animation: search-in var(--duration) ease-out;
-				}
-
-				@keyframes search-in {
-					from {
-						opacity: 0;
-					}
-				}
 			}
 		`,
+		listStyles,
+		formStyles,
+		searchStyles,
 	];
 
 	protected readonly langController = new LangController(this);
 
 	/** Wide screens show the form in a side panel; phones open it in a sheet. */
 	protected readonly wide = new MediaController(this, WIDE);
+
+	private readonly search = new RestaurantSearch(this, {
+		sorted: () => sortByName(this.restaurants),
+		shortcutEnabled: () => this.wide.matches && this.restaurants.length > 0,
+		onPick: (item) => this.startEdit(item),
+		onAddNamed: (name) => this.startAddNamed(name),
+		focusAfterRender: (find) => this.focusAfterRender(find),
+	});
 
 	/** The width class as of the last render, to catch a wide-to-narrow crossing mid-edit. */
 	private wasWide = this.wide.matches;
@@ -498,20 +234,6 @@ export class RestaurantManager extends LitElement {
 	@state()
 	private skipped = 0;
 
-	/** Whether the header is in search mode. */
-	@state()
-	private searching = false;
-
-	/** What is typed in the search field; never stored. */
-	@state()
-	private query = "";
-
-	/** The result count read out to screen readers once typing pauses. */
-	@state()
-	private announced = "";
-
-	private announceTimer: ReturnType<typeof setTimeout> | undefined;
-
 	/** The form as the open sheet last drew it. */
 	private shownView: FormView | undefined;
 
@@ -537,7 +259,6 @@ export class RestaurantManager extends LitElement {
 
 	override connectedCallback(): void {
 		super.connectedCallback();
-		document.addEventListener("keydown", this.onShortcut);
 		this.restaurants = loadRestaurants();
 		this.skipped = skippedCount();
 		this.defs = loadGroups();
@@ -545,12 +266,8 @@ export class RestaurantManager extends LitElement {
 			this.restaurants = loadRestaurants();
 			this.skipped = skippedCount();
 			// Nothing left to search: end search outright rather than leave a dead "0 of 0" view.
-			if (this.searching && this.restaurants.length === 0) {
-				clearTimeout(this.announceTimer);
-				this.searching = false;
-				this.query = "";
-				this.announced = "";
-			}
+			if (this.search.searching && this.restaurants.length === 0)
+				this.search.end();
 			if (this.editingId === undefined) return;
 			const editing = this.restaurants.find(
 				(item) => item.id === this.editingId,
@@ -572,13 +289,11 @@ export class RestaurantManager extends LitElement {
 
 	override disconnectedCallback(): void {
 		super.disconnectedCallback();
-		document.removeEventListener("keydown", this.onShortcut);
 		this.unsubscribe?.();
 		this.unsubscribe = undefined;
 		this.unsubscribeGroups?.();
 		this.unsubscribeGroups = undefined;
 		clearTimeout(this.leaveTimer);
-		clearTimeout(this.announceTimer);
 	}
 
 	/**
@@ -650,22 +365,8 @@ export class RestaurantManager extends LitElement {
 
 	private readonly onKindChange = (event: Event): void => {
 		const box = event.target as HTMLInputElement;
-		const kind = box.value as Kind;
-		const kinds = this.form.kinds.filter((item) => item !== kind);
-		this.form = {
-			...this.form,
-			kinds: box.checked
-				? KINDS.filter((item) => item === kind || kinds.includes(item))
-				: kinds,
-		};
+		this.form = withKind(this.form, box.value as Kind, box.checked);
 	};
-
-	private onValuesChange(group: string, values: string[]): void {
-		this.form =
-			group === "tags"
-				? { ...this.form, tags: values }
-				: { ...this.form, groups: { ...this.form.groups, [group]: values } };
-	}
 
 	private readonly submit = (event: Event): void => {
 		event.preventDefault();
@@ -698,7 +399,7 @@ export class RestaurantManager extends LitElement {
 		};
 		const editingId = this.editingId;
 		const name = input.name.trim();
-		const wasSearching = this.searching;
+		const wasSearching = this.search.searching;
 		// Reset before saving so the store's change callback already sees a clean form.
 		this.resetForm();
 		this.sheetOpen = false;
@@ -721,14 +422,7 @@ export class RestaurantManager extends LitElement {
 		this.editingId = item.id;
 		this.editingUpdatedAt = item.updatedAt;
 		this.nameError = undefined;
-		this.form = {
-			name: item.name,
-			location: item.location,
-			notes: item.notes,
-			kinds: item.kinds,
-			tags: item.tags,
-			groups: { ...item.groups },
-		};
+		this.form = formFromRestaurant(item);
 	}
 
 	private startEdit(item: Restaurant): void {
@@ -773,151 +467,6 @@ export class RestaurantManager extends LitElement {
 		this.form = { ...this.form, name };
 	}
 
-	/**
-	 * `/` opens search on wide screens, unless typing somewhere or a sheet is open. Already
-	 * searching but focus has drifted elsewhere (e.g. a result row): bring it back to the field
-	 * instead of doing nothing.
-	 */
-	private readonly onShortcut = (event: KeyboardEvent): void => {
-		if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey)
-			return;
-		if (!this.wide.matches || this.restaurants.length === 0) return;
-		if (document.documentElement.classList.contains("sheet-open")) return;
-		const target = event.composedPath()[0];
-		if (
-			target instanceof HTMLElement &&
-			(target.isContentEditable ||
-				["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
-		)
-			return;
-		event.preventDefault();
-		if (this.searching) {
-			this.renderRoot.querySelector<HTMLInputElement>("#search")?.focus();
-			return;
-		}
-		this.openSearch();
-	};
-
-	/**
-	 * iOS only opens the keyboard for a focus made during the tap, so the search row is always
-	 * rendered and is shown and focused here, before any re-render.
-	 */
-	private readonly openSearch = (): void => {
-		const row = this.renderRoot.querySelector<HTMLElement>(".search-row");
-		if (row !== null) row.hidden = false;
-		this.renderRoot.querySelector<HTMLInputElement>("#search")?.focus();
-		this.searching = true;
-	};
-
-	private readonly onSearchInput = (event: Event): void => {
-		this.query = (event.target as HTMLInputElement).value;
-		this.scheduleAnnounce();
-	};
-
-	/**
-	 * Escape ends search. Enter (the keyboard's Search key) opens the only match, or else just
-	 * puts the keyboard away so every result is in view.
-	 */
-	private readonly onSearchKey = (event: KeyboardEvent): void => {
-		if (event.key === "Escape") {
-			event.preventDefault();
-			this.cancelSearch();
-			return;
-		}
-		if (event.key !== "Enter") return;
-		event.preventDefault();
-		const results = this.results(this.sortedRestaurants());
-		const only = searchWords(this.query).length > 0 ? results : [];
-		if (only.length === 1 && only[0] !== undefined)
-			this.startEdit(only[0].item);
-		else (event.target as HTMLInputElement).blur();
-	};
-
-	private readonly clearSearch = (): void => {
-		this.query = "";
-		this.scheduleAnnounce();
-		const input = this.renderRoot.querySelector<HTMLInputElement>("#search");
-		if (input !== null) {
-			input.value = "";
-			input.focus();
-		}
-	};
-
-	private readonly cancelSearch = (): void => {
-		clearTimeout(this.announceTimer);
-		this.searching = false;
-		this.query = "";
-		this.announced = "";
-		this.focusAfterRender(() =>
-			this.renderRoot.querySelector('[data-action="search"]'),
-		);
-	};
-
-	/** Say the count once typing pauses, not on every key. */
-	private scheduleAnnounce(): void {
-		clearTimeout(this.announceTimer);
-		this.announced = "";
-		this.announceTimer = setTimeout(() => {
-			const sorted = this.sortedRestaurants();
-			this.announced = this.noMatch(sorted)
-				? t("search.noMatch", { query: this.query.trim() })
-				: this.countText(sorted);
-		}, 500);
-	}
-
-	private sortedRestaurants(): Restaurant[] {
-		return [...this.restaurants].sort((a, b) =>
-			a.name.localeCompare(b.name, getLang()),
-		);
-	}
-
-	/** The restaurants the query keeps, in list order, with what to highlight in each name. */
-	private results(
-		sorted: readonly Restaurant[],
-	): { item: Restaurant; ranges: MatchRange[] }[] {
-		const words = this.searching ? searchWords(this.query) : [];
-		return sorted.flatMap((item) => {
-			const ranges = matchName(item.name, words);
-			return ranges === undefined ? [] : [{ item, ranges }];
-		});
-	}
-
-	private renderNoMatch() {
-		const query = this.query.trim();
-		return html`<div class="card empty no-match">
-			<p>${t("search.noMatch", { query })}</p>
-			<div class="actions">
-				<button type="button" class="primary" data-action="add-named" @click=${() => this.startAddNamed(query)}>
-					${icon("plus", 20)}<span>${t("search.add", { query })}</span>
-				</button>
-				<button type="button" data-action="clear-search-empty" @click=${this.clearSearch}>
-					${t("search.clear")}
-				</button>
-			</div>
-		</div>`;
-	}
-
-	/** Searching for words that no restaurant name has (the no-match card shows instead). */
-	private noMatch(sorted: readonly Restaurant[]): boolean {
-		return (
-			sorted.length > 0 &&
-			searchWords(this.query).length > 0 &&
-			this.results(sorted).length === 0
-		);
-	}
-
-	private countText(sorted: readonly Restaurant[]): string {
-		const total = sorted.length;
-		if (this.searching && searchWords(this.query).length > 0)
-			return t("search.count", {
-				shown: this.results(sorted).length,
-				total,
-			});
-		return total === 1
-			? t("picker.count.one")
-			: t("picker.count.other", { count: total });
-	}
-
 	/** The sheet closed by ✕, Esc or the backdrop: drop whatever was typed. */
 	private readonly onSheetClose = (): void => {
 		this.sheetOpen = false;
@@ -947,7 +496,7 @@ export class RestaurantManager extends LitElement {
 		this.panelOpen = false;
 		this.focusAfterRender(() =>
 			this.renderRoot.querySelector(
-				this.searching ? "#search" : ".head button.add",
+				this.search.searching ? "#search" : ".head button.add",
 			),
 		);
 	}
@@ -968,9 +517,9 @@ export class RestaurantManager extends LitElement {
 	 */
 	private focusAfterSave(id: string): void {
 		this.focusAfterRender(() => {
-			const inResults = this.results(this.sortedRestaurants()).some(
-				({ item }) => item.id === id,
-			);
+			const inResults = this.search
+				.results(sortByName(this.restaurants))
+				.some(({ item }) => item.id === id);
 			return inResults
 				? this.renderRoot.querySelector(`li[data-id="${id}"] button`)
 				: this.renderRoot.querySelector("#search");
@@ -1006,16 +555,35 @@ export class RestaurantManager extends LitElement {
 		});
 	}
 
+	private formContext(): FormContext {
+		return {
+			restaurants: this.restaurants,
+			defs: this.defs,
+			onSubmit: this.submit,
+			onInput: this.onInput,
+			onKindChange: this.onKindChange,
+			onValuesChange: (group, values) => {
+				this.form = withValues(this.form, group, values);
+			},
+			onCancelEdit: this.cancelEdit,
+			onAskDelete: (id) => this.askDelete(id),
+			onConfirmDelete: (id) => this.confirmDelete(id),
+			onCancelDelete: () => this.cancelDelete(),
+		};
+	}
+
 	override render() {
-		const sorted = this.sortedRestaurants();
+		const sorted = sortByName(this.restaurants);
 		const wide = this.wide.matches;
+		const searching = this.search.searching;
 		const editing = this.restaurants.find((item) => item.id === this.editingId);
 		const formTitle =
 			editing === undefined
 				? t("manager.addTitle")
 				: t("manager.editTitle", { name: editing.name });
-		const count = this.countText(sorted);
-		const results = this.results(sorted);
+		const count = this.search.countText(sorted);
+		const results = this.search.results(sorted);
+		const formContext = this.formContext();
 		const addLabel = t("manager.addLabel");
 		const add = html`<button
 			type="button"
@@ -1032,71 +600,19 @@ export class RestaurantManager extends LitElement {
 		return html`
 			<div class="top">
 			<header class="head">
-				<div class=${this.searching ? "visually-hidden" : ""}>
+				<div class=${searching ? "visually-hidden" : ""}>
 					<h1 class="page-title">${t("manager.title")}</h1>
-					<p class="count page-sub" aria-hidden=${this.searching ? "true" : nothing}>${count}</p>
+					<p class="count page-sub" aria-hidden=${searching ? "true" : nothing}>${count}</p>
 				</div>
-				<div class="head-actions" ?hidden=${this.searching}>
-					${
-						sorted.length > 0
-							? html`<button
-									type="button"
-									class="search-open"
-									data-action="search"
-									aria-label=${t("search.open")}
-									@click=${this.openSearch}
-								>
-									${icon("search", 20)}
-								</button>`
-							: nothing
-					}
+				<div class="head-actions" ?hidden=${searching}>
+					${sorted.length > 0 ? this.search.renderOpen() : nothing}
 					<a class="tags-link" href="./tags">${icon("tag", 18)}<span>${t("nav.tags")}</span></a>
 					${wide ? add : nothing}
 				</div>
 			</header>
-			<div class="search-row" ?hidden=${!this.searching}>
-				<label class="search-field">
-					${icon("search", 20)}
-					<input
-						id="search"
-						type="search"
-						aria-label=${t("search.open")}
-						placeholder=${t("search.placeholder")}
-						autocomplete="off"
-						autocorrect="off"
-						autocapitalize="off"
-						spellcheck="false"
-						enterkeyhint="search"
-						.value=${live(this.query)}
-						@input=${this.onSearchInput}
-						@keydown=${this.onSearchKey}
-					/>
-					${
-						this.query !== ""
-							? html`<button
-									type="button"
-									class="clear-search"
-									data-action="clear-search"
-									aria-label=${t("search.clear")}
-									@pointerdown=${(event: PointerEvent) => event.preventDefault()}
-									@click=${this.clearSearch}
-								>
-									${icon("x", 18)}
-								</button>`
-							: nothing
-					}
-				</label>
-				<button type="button" class="cancel-search" data-action="cancel-search" @click=${this.cancelSearch}>
-					${t("search.cancel")}
-				</button>
+			${this.search.renderRow(sorted, count)}
 			</div>
-			${
-				this.searching && !this.noMatch(sorted)
-					? html`<p class="search-count page-sub">${count}</p>`
-					: nothing
-			}
-			</div>
-			<p class="visually-hidden search-announce" role="status">${this.announced}</p>
+			${this.search.renderAnnounce()}
 			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
 				this.skipped > 0
@@ -1115,11 +631,17 @@ export class RestaurantManager extends LitElement {
 									<button type="button" class="primary" data-action="add" @click=${this.startAdd}>${addLabel}</button>
 								</div>`
 							: results.length === 0
-								? this.renderNoMatch()
+								? this.search.renderNoMatch()
 								: html`<ul class="group list">${repeat(
 										results,
 										({ item }) => item.id,
-										({ item, ranges }) => this.renderRow(item, ranges),
+										({ item, ranges }) =>
+											renderRow(
+												item,
+												ranges,
+												this.editingId === item.id,
+												(row) => this.startEdit(row),
+											),
 									)}</ul>`
 					}
 				</div>
@@ -1138,7 +660,7 @@ export class RestaurantManager extends LitElement {
 										${icon("x", 20)}
 									</button>
 								</div>
-								${this.renderForm(this.currentView())}
+								${renderForm(this.currentView(), formContext)}
 							</section>`
 						: nothing
 				}
@@ -1148,7 +670,7 @@ export class RestaurantManager extends LitElement {
 					? nothing
 					: html`<div class="pinned">${add}</div>
 							<app-sheet heading=${formTitle} ?open=${this.sheetOpen} @sheet-close=${this.onSheetClose}>
-								${this.renderForm(this.sheetView())}
+								${renderForm(this.sheetView(), formContext)}
 							</app-sheet>`
 			}
 		`;
@@ -1161,159 +683,5 @@ export class RestaurantManager extends LitElement {
 		const view = this.currentView();
 		if (this.sheetOpen) this.shownView = view;
 		return view;
-	}
-
-	private renderForm(view: FormView) {
-		const { form, nameError } = view;
-		const editing = view.editingId !== undefined;
-		return html`
-			<form id="restaurant-form" novalidate @submit=${this.submit}>
-				<label>
-					${t("field.name")}
-					<input
-						id="name"
-						name="name"
-						autocomplete="off"
-						required
-						aria-invalid=${nameError ? "true" : "false"}
-						aria-describedby=${nameError ? "name-error" : nothing}
-						.value=${live(form.name)}
-						@input=${this.onInput}
-					/>
-				</label>
-				${nameError ? html`<p id="name-error" class="error" role="alert">${t(nameError)}</p>` : nothing}
-				<fieldset class="kinds">
-					<legend>${t("group.kind")}</legend>
-					${KINDS.map(
-						(kind) => html`<label>
-							<input
-								type="checkbox"
-								name="kinds"
-								value=${kind}
-								.checked=${live(form.kinds.includes(kind))}
-								@change=${this.onKindChange}
-							/>
-							${t(`kind.${kind}`)}
-						</label>`,
-					)}
-				</fieldset>
-				<div class="pair">
-					${repeat(
-						[...VALUE_GROUPS, ...this.defs.map((def) => def.id)],
-						(group) => group,
-						(group) => this.renderGroupInput(group, form),
-					)}
-				</div>
-				<label>
-					${t("field.location")}
-					<input id="location" name="location" autocomplete="off" .value=${live(form.location)} @input=${this.onInput} />
-				</label>
-				${this.renderGroupInput("tags", form)}
-				<label>
-					${t("field.notes")}
-					<textarea id="notes" name="notes" rows="2" .value=${live(form.notes)} @input=${this.onInput}></textarea>
-				</label>
-				<div class="actions form-actions">
-					<button type="submit" class="primary">${editing ? t("manager.save") : t("manager.add")}</button>
-					${
-						editing
-							? html`<button type="button" data-action="cancel-edit" @click=${this.cancelEdit}>
-									${t("manager.cancel")}
-								</button>`
-							: nothing
-					}
-				</div>
-				${editing ? this.renderDelete(view) : nothing}
-			</form>
-		`;
-	}
-
-	/** Delete lives at the end of the edit form, behind an inline confirmation. */
-	private renderDelete(view: FormView) {
-		const id = view.editingId;
-		if (id === undefined) return nothing;
-		const name = this.restaurants.find((item) => item.id === id)?.name ?? "";
-		return html`<div class="delete-zone">
-			${
-				view.confirmingId === id
-					? html`<p class="delete-prompt" role="alert">${t("manager.deletePrompt", { name })}</p>
-							<div class="actions">
-								<button type="button" class="danger" data-action="confirm-delete" @click=${() => this.confirmDelete(id)}>
-									${t("manager.confirmDelete")}
-								</button>
-								<button type="button" data-action="cancel-delete" @click=${() => this.cancelDelete()}>
-									${t("manager.cancel")}
-								</button>
-							</div>`
-					: html`<div class="actions">
-							<button type="button" class="danger" data-action="delete" @click=${() => this.askDelete(id)}>
-								${icon("trash", 18)}<span>${t("manager.delete")}</span>
-							</button>
-						</div>`
-			}
-		</div>`;
-	}
-
-	/** A chip input for one group, suggesting the values other restaurants already use. */
-	private renderGroupInput(group: string, form: FormState) {
-		const hint =
-			group === "tags"
-				? t("field.tagsHint")
-				: t(
-						Object.hasOwn(HINTS, group)
-							? (HINTS[group] ?? "field.groupHint")
-							: "field.groupHint",
-					);
-		const groups = form.groups;
-		const value =
-			group === "tags"
-				? form.tags
-				: Object.hasOwn(groups, group)
-					? (groups[group] ?? [])
-					: [];
-		return html`<tag-input
-			data-group=${group}
-			.label=${groupLabel(group, this.defs)}
-			.hint=${hint}
-			.value=${value}
-			.suggestions=${valuesByUsage(this.restaurants, group)}
-			@change=${(event: CustomEvent<string[]>) => this.onValuesChange(group, event.detail)}
-		></tag-input>`;
-	}
-
-	private renderRow(item: Restaurant, ranges: readonly MatchRange[] = []) {
-		const meta = metaLine(item);
-		const metaId = `meta-${item.id}`;
-		return html`<li data-id=${item.id}>
-			<button
-				type="button"
-				class="item row"
-				data-action="edit"
-				aria-current=${this.editingId === item.id ? "true" : nothing}
-				aria-label=${t("manager.editTitle", { name: item.name })}
-				aria-describedby=${meta ? metaId : nothing}
-				@click=${() => this.startEdit(item)}
-			>
-				<span class="grow">
-					<b class="name">${this.renderName(item.name, ranges)}</b>
-					${meta ? html`<small class="meta" id=${metaId}>${meta}</small>` : nothing}
-				</span>
-				<span class="trail">${icon("chevron", 20)}</span>
-			</button>
-		</li>`;
-	}
-
-	/** The name with the parts the search matched wrapped in `<mark>`. */
-	private renderName(name: string, ranges: readonly MatchRange[]) {
-		if (ranges.length === 0) return name;
-		const parts: unknown[] = [];
-		let at = 0;
-		for (const { start, end } of ranges) {
-			if (start > at) parts.push(name.slice(at, start));
-			parts.push(html`<mark>${name.slice(start, end)}</mark>`);
-			at = end;
-		}
-		if (at < name.length) parts.push(name.slice(at));
-		return parts;
 	}
 }
