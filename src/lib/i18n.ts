@@ -114,6 +114,8 @@ export const en = {
 	"tags.title": "Tags",
 	"tags.intro":
 		"Groups sort your restaurants for the home filter. Plain tags are shown but not filtered.",
+	"tags.pickerLabel": "Groups",
+	"tags.fixed": "fixed",
 	"tags.count.one": "1 restaurant",
 	"tags.count.other": "{count} restaurants",
 	"tags.noValues": "No values yet.",
@@ -360,6 +362,8 @@ export const th: Record<MessageKey, string> = {
 	"search.add": "เพิ่ม “{query}”",
 	"tags.title": "แท็ก",
 	"tags.intro": "กลุ่มช่วยจัดร้านสำหรับตัวกรองหน้าแรก แท็กทั่วไปจะแสดงแต่ไม่ใช้กรอง",
+	"tags.pickerLabel": "กลุ่ม",
+	"tags.fixed": "คงที่",
 	"tags.count.one": "1 ร้าน",
 	"tags.count.other": "{count} ร้าน",
 	"tags.noValues": "ยังไม่มีค่า",
