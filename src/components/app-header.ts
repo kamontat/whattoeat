@@ -1,6 +1,6 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { pullUrl, readBuildInfo } from "#lib/build-info";
+import { readBuildInfo } from "#lib/build-info";
 import { LangController, type MessageKey, t } from "#lib/i18n";
 import { type IconName, icon, logo } from "#lib/icons";
 import { uiStyles } from "#styles/ui";
@@ -71,10 +71,12 @@ export class AppHeader extends LitElement {
 			/*
 			 * A tab on every page and width, so a preview is never mistaken for production. Phones
 			 * seat it on the bottom tab bar, between its middle tabs; the top bar layout hangs it
-			 * from the top edge instead.
+			 * from the top edge instead. Taps pass through it, so a near miss still reaches a tab or
+			 * the pinned pick button; the pull request is linked from Settings > About.
 			 */
 			.preview {
 				position: fixed;
+				pointer-events: none;
 				z-index: 25;
 				bottom: var(--tab-bar-height);
 				left: 50%;
@@ -249,7 +251,7 @@ export class AppHeader extends LitElement {
 			${
 				this.pr === undefined
 					? nothing
-					: html`<a class="preview" href=${pullUrl(this.pr)} target="_blank" rel="noopener">${t("nav.preview")} #${this.pr}</a>`
+					: html`<span class="preview">${t("nav.preview")} #${this.pr}</span>`
 			}
 			<header>
 				<a class="brand" href=${this.base}>${logo()}<span>${t("app.title")}</span></a>

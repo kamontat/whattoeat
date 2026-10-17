@@ -99,17 +99,16 @@ test("translates labels and the tab title", async () => {
 	expect(document.title).toBe("ร้านอาหาร · กินอะไรดี");
 });
 
-const preview = (el: HTMLElement) =>
-	el.shadowRoot!.querySelector<HTMLAnchorElement>("a.preview");
+const preview = (el: HTMLElement) => el.shadowRoot!.querySelector(".preview");
 
-test("flags a preview build and links its pull request", async () => {
+test("flags a preview build with a label that is not a link", async () => {
 	const el = document.createElement("app-header");
 	el.pr = 34;
 	document.body.append(el);
 	await el.updateComplete;
-	expect(preview(el)?.getAttribute("href")).toBe(
-		"https://github.com/kamontat/whattoeat/pull/34",
-	);
+	// Next to the tab bar, a link would catch taps meant for the tabs.
+	expect(preview(el)?.tagName).toBe("SPAN");
+	expect(preview(el)?.hasAttribute("href")).toBe(false);
 	expect(preview(el)?.textContent?.replace(/\s+/g, " ").trim()).toBe(
 		"Preview #34",
 	);
