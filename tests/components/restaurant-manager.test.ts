@@ -32,6 +32,14 @@ const mount = async () => {
 	return el;
 };
 
+/** Mount (wide) and open the add form in the side panel. */
+const mountForm = async () => {
+	const el = await mount();
+	el.shadowRoot!.querySelector<HTMLButtonElement>(".head button.add")!.click();
+	await el.updateComplete;
+	return el;
+};
+
 const $ = <T extends Element>(el: RestaurantManager, selector: string) =>
 	el.shadowRoot!.querySelector<T>(selector);
 
@@ -100,14 +108,14 @@ test("the heading links to the tags page", async () => {
 
 test("shows the empty message with no restaurants", async () => {
 	const el = await mount();
-	expect($(el, ".empty")?.textContent?.trim()).toBe(
+	expect($(el, ".empty p")?.textContent?.trim()).toBe(
 		"No restaurants yet. Add your first one.",
 	);
 	expect($(el, ".empty")?.classList.contains("card")).toBe(true);
 });
 
 test("a blank name shows an error and saves nothing", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "   ");
 	await submit(el);
 	expect($(el, "#name-error")?.textContent?.trim()).toBe("Name is required.");
@@ -117,7 +125,7 @@ test("a blank name shows an error and saves nothing", async () => {
 
 test("a name already in the list saves another restaurant", async () => {
 	addRestaurant({ name: "Jay Fai", tags: [], location: "", notes: "" });
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Jay Fai");
 	await submit(el);
 	expect($(el, "#name-error")).toBeNull();
@@ -139,7 +147,7 @@ test("editing can take another restaurant's name", async () => {
 });
 
 test("typing in the name clears the error", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	await submit(el);
 	type(el, "#name", "x");
 	await el.updateComplete;
@@ -147,7 +155,7 @@ test("typing in the name clears the error", async () => {
 });
 
 test("adds a restaurant with cleaned tags and resets the form", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", " Jay Fai ");
 	await typeTags(el, " Thai, ,noodle ,thai,");
 	type(el, "#location", "Bangkok");
@@ -162,13 +170,14 @@ test("adds a restaurant with cleaned tags and resets the form", async () => {
 		},
 	]);
 	expect(rowNames(el)).toEqual(["Jay Fai"]);
+	await click(el, ".head button.add");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
 	await tagInput(el).updateComplete;
 	expect(tagChips(el)).toEqual([]);
 });
 
 test("a tag typed but not confirmed is saved on submit", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Jay Fai");
 	await typeTags(el, "Spicy");
 	await submit(el);
@@ -176,7 +185,7 @@ test("a tag typed but not confirmed is saved on submit", async () => {
 });
 
 test("a blank name keeps a typed tag as a chip instead of losing it", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	await typeTags(el, "spicy");
 	await submit(el);
 	expect(loadRestaurants()).toEqual([]);
@@ -192,7 +201,7 @@ test("suggests existing tags, most used first", async () => {
 		notes: "",
 	});
 	addRestaurant({ name: "B", tags: ["noodle"], location: "", notes: "" });
-	const el = await mount();
+	const el = await mountForm();
 	expect(tagInput(el).suggestions).toEqual(["noodle", "thai"]);
 	expect(tagInput(el).label).toBe("Tags");
 	expect(tagInput(el).hint).toBe(
@@ -247,6 +256,7 @@ test("edit fills the form and save updates the restaurant", async () => {
 		{ name: "New", tags: ["a", "b"], location: "Here", notes: "n" },
 	]);
 	expect(loadRestaurants()).toHaveLength(1);
+	await click(el, ".head button.add");
 	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("Add");
 });
 
@@ -262,7 +272,7 @@ const toggleKind = async (
 };
 
 test("type boxes are labelled and a second click unticks", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	expect($(el, "fieldset.kinds legend")?.textContent?.trim()).toBe("Type");
 	expect(
 		[...el.shadowRoot!.querySelectorAll("fieldset.kinds label")].map((l) =>
@@ -277,7 +287,7 @@ test("type boxes are labelled and a second click unticks", async () => {
 });
 
 test("adds a restaurant with several cuisines and areas, committing text left in each box", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Cafe");
 	await typeInto(el, "cuisine", "Thai, Japanese");
 	await typeInto(el, "area", "Siam");
@@ -293,7 +303,7 @@ test("each custom group gets its own input, in stored order, before plain tags",
 		{ id: "g2", name: "Vibe" },
 		{ id: "g1", name: "Price" },
 	]);
-	const el = await mount();
+	const el = await mountForm();
 	const groups = [...el.shadowRoot!.querySelectorAll("tag-input")].map(
 		(input) => [input.getAttribute("data-group"), input.label],
 	);
@@ -308,7 +318,7 @@ test("each custom group gets its own input, in stored order, before plain tags",
 
 test("saves custom group values", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Cafe");
 	await typeInto(el, "g1", "cheap");
 	await typeTags(el, "spicy");
@@ -330,7 +340,7 @@ test("suggests each group's values, most used first", async () => {
 		name: "B",
 		groups: { cuisine: ["thai", "lao"], area: ["ari"] },
 	});
-	const el = await mount();
+	const el = await mountForm();
 	expect(groupInput(el, "cuisine").suggestions).toEqual(["thai", "lao"]);
 	expect(groupInput(el, "area").suggestions).toEqual(["ari", "siam"]);
 });
@@ -351,7 +361,7 @@ test("edit fills type and every group", async () => {
 });
 
 test("a group added in another tab shows up in the open form", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	saveGroups([{ id: "g1", name: "Price" }]);
 	await el.updateComplete;
 	expect(groupInput(el, "g1")).not.toBeNull();
@@ -359,7 +369,7 @@ test("a group added in another tab shows up in the open form", async () => {
 
 test("a group renamed in another tab relabels its input and keeps the values typed so far", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	const el = await mount();
+	const el = await mountForm();
 	await typeInto(el, "g1", "cheap,");
 	saveGroups([{ id: "g1", name: "Cost" }]);
 	await el.updateComplete;
@@ -369,7 +379,7 @@ test("a group renamed in another tab relabels its input and keeps the values typ
 
 test("a custom group deleted in another tab before submit moves its typed values into tags", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Cafe");
 	await typeInto(el, "g1", "cheap,");
 	// Another tab deletes the group while this form is still open.
@@ -386,7 +396,7 @@ test("text typed in a group's box stays with that group when another tab reorder
 		{ id: "g1", name: "Price" },
 		{ id: "g2", name: "Vibe" },
 	]);
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Cafe");
 	await typeInto(el, "g1", "cheap");
 	saveGroups([
@@ -402,7 +412,7 @@ test("text typed in a group's box stays with that group when another tab reorder
 
 test("a group whose id names an Object member gets the plain hint and no values", async () => {
 	saveGroups([{ id: "constructor", name: "Odd" }]);
-	const el = await mount();
+	const el = await mountForm();
 	expect(groupInput(el, "constructor").hint).toBe(
 		"Press Enter or comma to add",
 	);
@@ -410,7 +420,7 @@ test("a group whose id names an Object member gets the plain hint and no values"
 });
 
 test("type and group labels render in Thai", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	setLang("th");
 	await el.updateComplete;
 	expect($(el, "fieldset.kinds legend")?.textContent?.trim()).toBe("ประเภท");
@@ -425,6 +435,7 @@ test("cancel edit resets the form without saving", async () => {
 	type(el, "#name", "Changed");
 	await typeTags(el, "half");
 	await click(el, 'button[data-action="cancel-edit"]');
+	await click(el, ".head button.add");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
 	await tagInput(el).updateComplete;
 	expect(
@@ -476,6 +487,7 @@ test("deleting the restaurant being edited resets the form", async () => {
 	await click(el, 'button[data-action="edit"]');
 	await click(el, 'button[data-action="delete"]');
 	await click(el, 'button[data-action="confirm-delete"]');
+	await click(el, ".head button.add");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
 	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("Add");
 	type(el, "#name", "Fresh");
@@ -484,7 +496,7 @@ test("deleting the restaurant being edited resets the form", async () => {
 });
 
 test("re-renders labels in Thai", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	setLang("th");
 	await el.updateComplete;
 	expect($(el, 'button[type="submit"]')?.textContent?.trim()).toBe("เพิ่ม");
@@ -504,16 +516,6 @@ test("delete moves focus to the confirm button, cancel moves it back", async () 
 	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
 		"delete",
 	);
-});
-
-test("a confirmed delete moves focus to the name field", async () => {
-	addRestaurant({ name: "Bye", tags: [], location: "", notes: "" });
-	const el = await mount();
-	await click(el, 'button[data-action="edit"]');
-	await click(el, 'button[data-action="delete"]');
-	await click(el, 'button[data-action="confirm-delete"]');
-	await el.updateComplete;
-	expect(el.shadowRoot!.activeElement?.id).toBe("name");
 });
 
 test("warns when the browser refuses to save", async () => {
@@ -548,7 +550,7 @@ test("warns when the browser refuses to save", async () => {
 test("starting an edit drops text left in the tag box", async () => {
 	addRestaurant({ name: "A", tags: ["x"], location: "", notes: "" });
 	addRestaurant({ name: "B", tags: ["y"], location: "", notes: "" });
-	const el = await mount();
+	const el = await mountForm();
 	await typeTags(el, "spi");
 	const editB = [...el.shadowRoot!.querySelectorAll("li[data-id]")]
 		.find((row) => row.querySelector(".name")?.textContent === "B")!
@@ -582,7 +584,7 @@ test("uses the singular when one stored entry could not be read", async () => {
 });
 
 test("the form asks for name, type, groups, location, then tags and notes", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	const order = [
 		...el.shadowRoot!.querySelectorAll(
 			"#name, fieldset.kinds, tag-input, #location, #notes",
@@ -668,14 +670,11 @@ test("the selected row shows an outline in forced-colours", () => {
 	);
 });
 
-test("wide: the form sits in a side panel titled for adding, then for editing", async () => {
+test("wide: the form sits in a side panel titled for editing, then for adding", async () => {
 	addRestaurant({ ...blank, name: "Jay Fai" });
 	const el = await mount();
 	expect($(el, "app-sheet")).toBeNull();
 	expect($(el, ".pinned")).toBeNull();
-	expect($(el, "section.edit-panel #form-title")?.textContent?.trim()).toBe(
-		"New restaurant",
-	);
 	expect($(el, ".head button.add")).not.toBeNull();
 	await click(el, 'button[data-action="edit"]');
 	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Jay Fai");
@@ -710,7 +709,7 @@ test("the delete prompt names the restaurant", async () => {
 });
 
 test("saving and deleting are confirmed in the status line", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Fresh");
 	await submit(el);
 	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
@@ -725,7 +724,7 @@ test("saving and deleting are confirmed in the status line", async () => {
 });
 
 test("saving the same name twice re-announces the status instead of leaving it unchanged", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Fresh");
 	await submit(el);
 	const status = () => $(el, 'p.status[role="status"]')?.textContent?.trim();
@@ -743,7 +742,7 @@ test("saving the same name twice re-announces the status instead of leaving it u
 
 test("starting an edit clears an old status", async () => {
 	addRestaurant({ ...blank, name: "Other" });
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "Fresh");
 	await submit(el);
 	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
@@ -760,7 +759,6 @@ test("phone: Add is pinned and opens the form in a sheet", async () => {
 		el,
 		'.pinned button.add[data-action="add"]',
 	)!;
-	expect(add.textContent?.trim()).toBe("Add");
 	const sheet = $(el, "app-sheet")!;
 	expect(sheet.hasAttribute("open")).toBe(false);
 	expect(sheet.querySelector("form#restaurant-form")).not.toBeNull();
@@ -891,7 +889,7 @@ test("narrowing the window mid-edit moves the edit into the sheet instead of dro
 });
 
 test("narrowing the window with a blank add form still open opens the sheet for it", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	type(el, "#name", "New place");
 	setWidth(390);
 	await el.updateComplete;
@@ -960,7 +958,7 @@ test("phone: the component fills the space above the tab bar so the pinned Add e
 });
 
 test("the form's Save/Cancel row has the form-actions class", async () => {
-	const el = await mount();
+	const el = await mountForm();
 	expect($(el, "form .actions.form-actions")).not.toBeNull();
 });
 
@@ -989,5 +987,137 @@ test("phone: focused fields scroll clear of the sticky save row", () => {
 	const wideBlock = css.slice(wideIndex);
 	expect(wideBlock).toMatch(
 		/form input,\s*form textarea,\s*form tag-input,\s*fieldset\.kinds label\s*\{[^}]*scroll-margin-bottom:\s*0/,
+	);
+});
+
+test("wide: the side panel starts hidden and the list takes the full width", async () => {
+	addRestaurant({ ...blank, name: "A" });
+	const el = await mount();
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect($(el, "form#restaurant-form")).toBeNull();
+	expect($(el, ".layout")?.classList.contains("wide")).toBe(false);
+});
+
+test("Add is an icon button labelled for screen readers", async () => {
+	const el = await mount();
+	const add = $<HTMLButtonElement>(el, '.head button.add[data-action="add"]')!;
+	expect(add.textContent?.trim()).toBe("");
+	expect(add.getAttribute("aria-label")).toBe("Add restaurant");
+	expect(add.getAttribute("title")).toBe("Add restaurant");
+	expect(add.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+	setLang("th");
+	await el.updateComplete;
+	expect(add.getAttribute("aria-label")).toBe("เพิ่มร้าน");
+});
+
+test("phone: the pinned Add is an icon button labelled for screen readers", async () => {
+	const el = await phone();
+	const add = $<HTMLButtonElement>(el, ".pinned button.add")!;
+	expect(add.textContent?.trim()).toBe("");
+	expect(add.getAttribute("aria-label")).toBe("Add restaurant");
+});
+
+test("wide: Add toggles the panel open and closed, dropping what was typed", async () => {
+	addRestaurant({ ...blank, name: "A" });
+	const el = await mount();
+	const add = () => $<HTMLButtonElement>(el, ".head button.add")!;
+	expect(add().getAttribute("aria-expanded")).toBe("false");
+	await click(el, ".head button.add");
+	expect($(el, "section.edit-panel #form-title")?.textContent?.trim()).toBe(
+		"New restaurant",
+	);
+	expect($(el, ".layout")?.classList.contains("wide")).toBe(true);
+	expect(add().getAttribute("aria-expanded")).toBe("true");
+	expect(add().getAttribute("aria-controls")).toBe("edit-panel");
+	await el.updateComplete;
+	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+	type(el, "#name", "Half typed");
+	await click(el, ".head button.add");
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect(add().getAttribute("aria-expanded")).toBe("false");
+	await el.updateComplete;
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe("add");
+	await click(el, ".head button.add");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
+});
+
+test("wide: Add while editing switches the panel to a new restaurant instead of closing it", async () => {
+	addRestaurant({ ...blank, name: "Jay Fai" });
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Jay Fai");
+	await click(el, ".head button.add");
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
+});
+
+test("wide: the panel's close button hides it and drops the edit", async () => {
+	addRestaurant({ ...blank, name: "Keep" });
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	type(el, "#name", "Changed");
+	const close = $<HTMLButtonElement>(
+		el,
+		'section.edit-panel button[data-action="close-panel"]',
+	)!;
+	expect(close.getAttribute("aria-label")).toBe("Close");
+	await click(el, 'button[data-action="close-panel"]');
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect(loadRestaurants()[0]?.name).toBe("Keep");
+	await el.updateComplete;
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe("add");
+});
+
+test("wide: saving, cancelling and deleting close the panel and return focus to Add", async () => {
+	addRestaurant({ ...blank, name: "A" });
+	const el = await mount();
+	const focused = async () => {
+		await el.updateComplete;
+		return el.shadowRoot!.activeElement?.getAttribute("data-action");
+	};
+
+	await click(el, ".head button.add");
+	type(el, "#name", "B");
+	await submit(el);
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect(await focused()).toBe("add");
+
+	await click(el, 'button[data-action="edit"]');
+	await click(el, 'button[data-action="cancel-edit"]');
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect(await focused()).toBe("add");
+
+	await click(el, 'button[data-action="edit"]');
+	await click(el, 'button[data-action="delete"]');
+	await click(el, 'button[data-action="confirm-delete"]');
+	expect($(el, "section.edit-panel")).toBeNull();
+	expect(await focused()).toBe("add");
+});
+
+test("wide: a blank name keeps the panel open with its error", async () => {
+	const el = await mount();
+	await click(el, ".head button.add");
+	await submit(el);
+	expect($(el, "section.edit-panel")).not.toBeNull();
+	expect($(el, "#name-error")).not.toBeNull();
+});
+
+test("wide: another tab deleting the restaurant being edited closes the panel", async () => {
+	const [item] = addRestaurant({ ...blank, name: "Gone" });
+	const el = await mount();
+	await click(el, 'button[data-action="edit"]');
+	removeRestaurant(item!.id);
+	await el.updateComplete;
+	expect($(el, "section.edit-panel")).toBeNull();
+});
+
+test("the empty list has its own Add button that opens the form", async () => {
+	const el = await mount();
+	const add = $<HTMLButtonElement>(el, '.empty button[data-action="add"]')!;
+	expect(add.textContent?.trim()).toBe("Add restaurant");
+	add.click();
+	await el.updateComplete;
+	expect($(el, "section.edit-panel #form-title")?.textContent?.trim()).toBe(
+		"New restaurant",
 	);
 });

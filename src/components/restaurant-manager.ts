@@ -145,6 +145,29 @@ export class RestaurantManager extends LitElement {
 				gap: 1rem;
 			}
 
+			.panel-head {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 0.75rem;
+			}
+
+			.panel-head .close {
+				flex: none;
+				width: var(--tap);
+				padding: 0;
+				border: 0;
+				border-radius: 50%;
+				background: var(--color-surface-2);
+			}
+
+			/* Icon only: the plus says Add, the aria-label says what for. */
+			button.add {
+				width: var(--tap);
+				padding: 0;
+				border-radius: 50%;
+			}
+
 			.edit-panel h2 {
 				font-size: 1.125rem;
 				font-weight: 600;
@@ -258,8 +281,8 @@ export class RestaurantManager extends LitElement {
 			}
 
 			.pinned .add {
-				min-height: 3rem;
-				padding: 0 1.25rem;
+				width: 3.5rem;
+				min-height: 3.5rem;
 				box-shadow: 0 4px 14px rgb(0 0 0 / 0.12);
 			}
 
@@ -313,6 +336,10 @@ export class RestaurantManager extends LitElement {
 	/** Whether the phone form sheet is open. */
 	@state()
 	private sheetOpen = false;
+
+	/** Whether the wide side panel is open; it starts hidden so the list gets the full width. */
+	@state()
+	private panelOpen = false;
 
 	/** The last save or delete, read out and shown under the title. */
 	@state()
@@ -375,6 +402,7 @@ export class RestaurantManager extends LitElement {
 			if (editing === undefined) {
 				this.resetForm();
 				this.sheetOpen = false;
+				this.panelOpen = false;
 			}
 			// Saved elsewhere (another tab): show the newer version rather than overwrite it.
 			else if (editing.updatedAt !== this.editingUpdatedAt)
@@ -401,8 +429,8 @@ export class RestaurantManager extends LitElement {
 	 * not reopen by itself if the screen narrows again. If focus was inside it, send focus to the
 	 * panel's heading rather than losing it.
 	 *
-	 * Crossing back to narrow while an edit (or an unsaved add) is in progress would otherwise
-	 * hide it behind a closed sheet: open the sheet instead, with the same form state.
+	 * Crossing back to narrow with the panel open would otherwise hide its form behind a closed
+	 * sheet: open the sheet instead, with the same form state.
 	 */
 	protected override willUpdate(changed: PropertyValues): void {
 		if (changed.has("sheetOpen"))
@@ -412,15 +440,13 @@ export class RestaurantManager extends LitElement {
 			const focusWasInSheet =
 				this.renderRoot.querySelector("app-sheet")?.containsFocus() ?? false;
 			this.sheetOpen = false;
+			this.panelOpen = true;
 			if (focusWasInSheet)
 				this.focusAfterRender(() =>
 					this.renderRoot.querySelector("#form-title"),
 				);
-		} else if (
-			this.wasWide &&
-			!wide &&
-			(this.editingId !== undefined || this.form.name !== "")
-		) {
+		} else if (this.wasWide && !wide && this.panelOpen) {
+			this.panelOpen = false;
 			this.sheetOpen = true;
 		}
 		this.wasWide = wide;
@@ -517,6 +543,7 @@ export class RestaurantManager extends LitElement {
 		// Reset before saving so the store's change callback already sees a clean form.
 		this.resetForm();
 		this.sheetOpen = false;
+		this.closePanel();
 		if (editingId === undefined) addRestaurant(input);
 		else updateRestaurant(editingId, input);
 		// Clear first, then set the real text once that clear has rendered: saving the same name
@@ -548,6 +575,7 @@ export class RestaurantManager extends LitElement {
 		for (const input of this.tagInputs) input.clearText();
 		this.fillForm(item);
 		this.sheetOpen = !this.wide.matches;
+		this.panelOpen = this.wide.matches;
 		// A sheet puts focus on its own title; the side panel starts at the name.
 		if (!this.sheetOpen)
 			this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
@@ -556,8 +584,15 @@ export class RestaurantManager extends LitElement {
 	private readonly startAdd = (): void => {
 		this.confirmingId = undefined;
 		this.status = "";
+		// Add again on an open add panel hides it; on an edit it switches to a new restaurant.
+		const closing = this.panelOpen && this.editingId === undefined;
 		this.resetForm();
+		if (closing) {
+			this.closePanel();
+			return;
+		}
 		this.sheetOpen = !this.wide.matches;
+		this.panelOpen = this.wide.matches;
 		// A sheet puts focus on its own title; the side panel starts at the name.
 		if (!this.sheetOpen)
 			this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
@@ -575,8 +610,25 @@ export class RestaurantManager extends LitElement {
 		this.status = "";
 		this.resetForm();
 		this.sheetOpen = false;
-		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
+		this.closePanel();
 	};
+
+	/** The panel's close button: drop whatever was typed. */
+	private readonly onPanelClose = (): void => {
+		this.confirmingId = undefined;
+		this.status = "";
+		this.resetForm();
+		this.closePanel();
+	};
+
+	/** Hide the side panel; its button goes away, so focus returns to Add. */
+	private closePanel(): void {
+		if (!this.panelOpen) return;
+		this.panelOpen = false;
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector(".head button.add"),
+		);
+	}
 
 	/** Swapping the row's buttons removes the focused one, so move focus to its replacement. */
 	private focusAfterRender(find: () => Element | null | undefined): void {
@@ -604,6 +656,7 @@ export class RestaurantManager extends LitElement {
 		const name = this.restaurants.find((item) => item.id === id)?.name ?? "";
 		this.confirmingId = undefined;
 		this.sheetOpen = false;
+		this.closePanel();
 		removeRestaurant(id);
 		this.resetForm();
 		// Clear first, then set the real text once that clear has rendered: deleting the same name
@@ -612,7 +665,6 @@ export class RestaurantManager extends LitElement {
 		void this.updateComplete.then(() => {
 			this.status = t("manager.deleted", { name });
 		});
-		this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	}
 
 	override render() {
@@ -629,8 +681,18 @@ export class RestaurantManager extends LitElement {
 			sorted.length === 1
 				? t("picker.count.one")
 				: t("picker.count.other", { count: sorted.length });
-		const add = html`<button type="button" class="primary add" data-action="add" @click=${this.startAdd}>
-			${icon("plus", 20)}<span>${t("manager.add")}</span>
+		const addLabel = t("manager.addLabel");
+		const add = html`<button
+			type="button"
+			class="primary add"
+			data-action="add"
+			aria-label=${addLabel}
+			title=${addLabel}
+			aria-expanded=${wide ? String(this.panelOpen) : nothing}
+			aria-controls=${wide ? "edit-panel" : nothing}
+			@click=${this.startAdd}
+		>
+			${icon("plus", 24)}
 		</button>`;
 		return html`
 			<header class="head">
@@ -652,18 +714,32 @@ export class RestaurantManager extends LitElement {
 					: nothing
 			}
 			<p class="status success" role="status">${this.status}</p>
-			<div class="layout ${wide ? "wide" : ""}">
+			<div class="layout ${wide && this.panelOpen ? "wide" : ""}">
 				<div class="list-col">
 					${
 						sorted.length === 0
-							? html`<div class="card empty"><p>${t("manager.empty")}</p></div>`
+							? html`<div class="card empty">
+									<p>${t("manager.empty")}</p>
+									<button type="button" class="primary" data-action="add" @click=${this.startAdd}>${addLabel}</button>
+								</div>`
 							: html`<ul class="group list">${sorted.map((item) => this.renderRow(item))}</ul>`
 					}
 				</div>
 				${
-					wide
-						? html`<section class="card edit-panel" aria-labelledby="form-title">
-								<h2 id="form-title" tabindex="-1">${formTitle}</h2>
+					wide && this.panelOpen
+						? html`<section id="edit-panel" class="card edit-panel" aria-labelledby="form-title">
+								<div class="panel-head">
+									<h2 id="form-title" tabindex="-1">${formTitle}</h2>
+									<button
+										type="button"
+										class="close"
+										data-action="close-panel"
+										aria-label=${t("sheet.close")}
+										@click=${this.onPanelClose}
+									>
+										${icon("x", 20)}
+									</button>
+								</div>
 								${this.renderForm(this.currentView())}
 							</section>`
 						: nothing
