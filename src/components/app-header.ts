@@ -1,5 +1,6 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { pullUrl, readBuildInfo } from "#lib/build-info";
 import { LangController, type MessageKey, t } from "#lib/i18n";
 import { type IconName, icon, logo } from "#lib/icons";
 import { uiStyles } from "#styles/ui";
@@ -57,6 +58,24 @@ export class AppHeader extends LitElement {
 
 			.skip:focus {
 				transform: none;
+			}
+
+			/* A tab hanging from the top edge, on every page and width, so a preview is never mistaken for production. */
+			.preview {
+				position: fixed;
+				z-index: 25;
+				top: 0;
+				left: 50%;
+				transform: translateX(-50%);
+				padding: calc(env(safe-area-inset-top, 0px) + 0.125rem) 0.625rem 0.1875rem;
+				border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+				background: var(--color-text);
+				color: var(--color-bg);
+				font-size: 0.75rem;
+				font-weight: 600;
+				line-height: 1.2;
+				text-decoration: none;
+				white-space: nowrap;
 			}
 
 			/* Phones: no top bar (pages show their own titles); the nav sits along the bottom edge. */
@@ -187,6 +206,10 @@ export class AppHeader extends LitElement {
 	@property()
 	current: Page = "home";
 
+	/** Pull request number of a preview build; unset in production and development. */
+	@property({ attribute: false })
+	pr: number | undefined = readBuildInfo().pr;
+
 	protected readonly langController = new LangController(this);
 
 	/** Keep the browser tab title in the current language. */
@@ -200,6 +223,11 @@ export class AppHeader extends LitElement {
 		const tab = tabOf(this.current);
 		return html`
 			<a class="skip" href="#main">${t("nav.skip")}</a>
+			${
+				this.pr === undefined
+					? nothing
+					: html`<a class="preview" href=${pullUrl(this.pr)} target="_blank" rel="noopener">${t("nav.preview")} #${this.pr}</a>`
+			}
 			<header>
 				<a class="brand" href="./">${logo()}<span>${t("app.title")}</span></a>
 				<nav aria-label=${t("nav.label")}>

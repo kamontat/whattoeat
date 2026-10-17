@@ -99,6 +99,32 @@ test("translates labels and the tab title", async () => {
 	expect(document.title).toBe("ร้านอาหาร · กินอะไรดี");
 });
 
+const preview = (el: HTMLElement) =>
+	el.shadowRoot!.querySelector<HTMLAnchorElement>("a.preview");
+
+test("flags a preview build and links its pull request", async () => {
+	const el = document.createElement("app-header");
+	el.pr = 34;
+	document.body.append(el);
+	await el.updateComplete;
+	expect(preview(el)?.getAttribute("href")).toBe(
+		"https://github.com/kamontat/whattoeat/pull/34",
+	);
+	expect(preview(el)?.textContent?.replace(/\s+/g, " ").trim()).toBe(
+		"Preview #34",
+	);
+	setLang("th");
+	await el.updateComplete;
+	expect(preview(el)?.textContent?.replace(/\s+/g, " ").trim()).toBe(
+		"พรีวิว #34",
+	);
+});
+
+test("shows no preview flag on production", async () => {
+	const el = await mount();
+	expect(preview(el)).toBeNull();
+});
+
 test("the home page title is the app name", async () => {
 	await mount("home");
 	expect(document.title).toBe("What to Eat");
