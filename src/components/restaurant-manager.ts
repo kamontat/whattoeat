@@ -1034,7 +1034,7 @@ export class RestaurantManager extends LitElement {
 			<header class="head">
 				<div class=${this.searching ? "visually-hidden" : ""}>
 					<h1 class="page-title">${t("manager.title")}</h1>
-					<p class="count page-sub">${count}</p>
+					<p class="count page-sub" aria-hidden=${this.searching ? "true" : nothing}>${count}</p>
 				</div>
 				<div class="head-actions" ?hidden=${this.searching}>
 					${

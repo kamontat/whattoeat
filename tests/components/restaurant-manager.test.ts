@@ -1627,3 +1627,18 @@ test("search: no match drops the count line; screen readers hear the no-match me
 		'No restaurants match "zaab".',
 	);
 });
+
+test("search: screen readers hear the count once, from the line under the field", async () => {
+	seedSearch();
+	const el = await mount();
+	const headerCount = $(el, ".head .count")!;
+	expect(headerCount.hasAttribute("aria-hidden")).toBe(false);
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	// The title stays for screen readers while searching, but its count would repeat the
+	// visible "2 of 4 restaurants" line, so it is hidden from them.
+	expect(headerCount.getAttribute("aria-hidden")).toBe("true");
+	expect($(el, ".search-count")?.hasAttribute("aria-hidden")).toBe(false);
+	await click(el, '[data-action="cancel-search"]');
+	expect(headerCount.hasAttribute("aria-hidden")).toBe(false);
+});

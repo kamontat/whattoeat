@@ -35,6 +35,11 @@ What changed in this project and why, newest first.
   "Add restaurant" for screen readers and on hover. The empty list card has its own "Add
   restaurant" button.
 
+### Bug fixes
+
+- While searching, screen readers read the result count once instead of twice: the title kept
+  for them had its own copy of "N of M restaurants".
+
 ### Decisions
 
 - Search matches names only, because it is for finding a place you already know in order to
