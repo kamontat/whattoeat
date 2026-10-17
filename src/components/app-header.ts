@@ -68,30 +68,6 @@ export class AppHeader extends LitElement {
 				transform: none;
 			}
 
-			/*
-			 * A tab on every page and width, so a preview is never mistaken for production. Phones
-			 * seat it on the bottom tab bar, between its middle tabs; the top bar layout hangs it
-			 * from the top edge instead. Taps pass through it, so a near miss still reaches a tab or
-			 * the pinned pick button; the pull request is linked from Settings > About.
-			 */
-			.preview {
-				position: fixed;
-				pointer-events: none;
-				z-index: 25;
-				bottom: var(--tab-bar-height);
-				left: 50%;
-				transform: translateX(-50%);
-				padding: 0.1875rem 0.625rem 0.125rem;
-				border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-				background: var(--color-text);
-				color: var(--color-bg);
-				font-size: 0.75rem;
-				font-weight: 600;
-				line-height: 1.2;
-				text-decoration: none;
-				white-space: nowrap;
-			}
-
 			/* Phones: no top bar (pages show their own titles); the nav sits along the bottom edge. */
 			.brand {
 				display: none;
@@ -110,6 +86,16 @@ export class AppHeader extends LitElement {
 				padding: 0.25rem 0.25rem env(safe-area-inset-bottom, 0px);
 				border-top: 1px solid var(--color-border);
 				background: var(--color-surface);
+			}
+
+			/*
+			 * A preview build draws an amber line where the page meets the nav, so it is never
+			 * mistaken for production. The shadow sits outside the 1px border, leaving the current
+			 * tab's marker where it was; the pull request is named in Settings > About.
+			 */
+			header.preview nav {
+				border-top-color: var(--color-preview);
+				box-shadow: 0 -3px 0 var(--color-preview);
 			}
 
 			nav a {
@@ -151,13 +137,6 @@ export class AppHeader extends LitElement {
 
 			/* From 48rem: one top bar, brand on the left, the links beside it. */
 			@media (min-width: 48rem) {
-				.preview {
-					top: 0;
-					bottom: auto;
-					padding: calc(env(safe-area-inset-top, 0px) + 0.125rem) 0.625rem 0.1875rem;
-					border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-				}
-
 				header {
 					display: flex;
 					flex-wrap: wrap;
@@ -167,6 +146,12 @@ export class AppHeader extends LitElement {
 					padding: 0.375rem 2rem;
 					background: var(--color-surface);
 					border-bottom: 1px solid var(--color-border);
+				}
+
+				/* The top bar is the nav here, so the line moves to its bottom edge. */
+				header.preview {
+					border-bottom-color: var(--color-preview);
+					box-shadow: 0 3px 0 var(--color-preview);
 				}
 
 				.brand {
@@ -195,6 +180,10 @@ export class AppHeader extends LitElement {
 					padding: 0;
 					border: 0;
 					background: none;
+				}
+
+				header.preview nav {
+					box-shadow: none;
 				}
 
 				nav a {
@@ -237,23 +226,20 @@ export class AppHeader extends LitElement {
 
 	protected readonly langController = new LangController(this);
 
-	/** Keep the browser tab title in the current language. */
+	/** Keep the browser tab title in the current language; a preview build says so first. */
 	override updated(): void {
 		const page = TITLES[this.current];
-		document.title =
+		const title =
 			page === undefined ? t("app.title") : `${t(page)} · ${t("app.title")}`;
+		document.title =
+			this.pr === undefined ? title : `[${t("nav.preview")}] ${title}`;
 	}
 
 	override render() {
 		const tab = tabOf(this.current);
 		return html`
 			<a class="skip" href="#main">${t("nav.skip")}</a>
-			${
-				this.pr === undefined
-					? nothing
-					: html`<span class="preview">${t("nav.preview")} #${this.pr}</span>`
-			}
-			<header>
+			<header class=${this.pr === undefined ? "" : "preview"}>
 				<a class="brand" href=${this.base}>${logo()}<span>${t("app.title")}</span></a>
 				<nav aria-label=${t("nav.label")}>
 					${TABS.map(

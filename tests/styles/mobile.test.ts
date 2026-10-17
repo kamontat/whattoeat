@@ -54,6 +54,18 @@ test("the wide top bar nav sizes to its links, not the 0px phone tab bar height"
 	expect(block(wide, "nav {")).toContain("height: auto");
 });
 
+test("a preview draws its line between the page and the nav at both widths", () => {
+	const header = flatten(AppHeader.styles);
+	const at = header.indexOf("@media (min-width: 48rem)");
+	const phone = block(header.slice(0, at), "header.preview nav {");
+	expect(phone).toContain("box-shadow: 0 -3px 0 var(--color-preview)");
+	const wide = header.slice(at);
+	expect(block(wide, "header.preview {")).toContain(
+		"box-shadow: 0 3px 0 var(--color-preview)",
+	);
+	expect(block(wide, "header.preview nav {")).toContain("box-shadow: none");
+});
+
 test("the pinned pick button sits right on the tab bar", () => {
 	// Only the component's own styles: the shared uiStyles come first and have their own :host.
 	const picker = flatten((RandomPicker.styles as unknown[]).slice(1));

@@ -79,6 +79,8 @@
 	--color-border: #e6e3dc;
 	--color-danger: #b42c1b;
 	--color-success: #2b6e35;
+	/* The line a preview build draws between the page and the nav. */
+	--color-preview: #e0a100;
 	--color-focus: #1d1b18;
 	--shadow: 0 1px 2px rgb(29 27 24 / 0.06);
 	--shadow-lg: 0 -8px 30px rgb(29 27 24 / 0.16);
@@ -143,6 +145,7 @@
 		--color-border: #34312c;
 		--color-danger: #ff8a77;
 		--color-success: #6fd08a;
+		--color-preview: #f2b82e;
 		--color-focus: #f1efea;
 		--shadow: 0 1px 2px rgb(0 0 0 / 0.3);
 		--shadow-lg: 0 -8px 30px rgb(0 0 0 / 0.5);
@@ -167,6 +170,7 @@
 	--color-border: #34312c;
 	--color-danger: #ff8a77;
 	--color-success: #6fd08a;
+	--color-preview: #f2b82e;
 	--color-focus: #f1efea;
 	--shadow: 0 1px 2px rgb(0 0 0 / 0.3);
 	--shadow-lg: 0 -8px 30px rgb(0 0 0 / 0.5);
