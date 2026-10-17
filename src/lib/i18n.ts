@@ -263,7 +263,6 @@ export const en = {
 		"{count} saved restaurants could not be read and were skipped. They will be removed the next time the list changes.",
 	"footer.source": "Source on GitHub",
 	"footer.changelog": "Changelog",
-	"footer.dev": "Development build",
 	"footer.built": "Built",
 	"footer.env": "Environment",
 } as const;
@@ -522,7 +521,6 @@ export const th: Record<MessageKey, string> = {
 		"อ่านร้านอาหารที่บันทึกไว้ {count} ร้านไม่ได้จึงข้ามไป ร้านเหล่านี้จะถูกลบเมื่อรายการเปลี่ยนครั้งถัดไป",
 	"footer.source": "ซอร์สโค้ดบน GitHub",
 	"footer.changelog": "บันทึกการเปลี่ยนแปลง",
-	"footer.dev": "รุ่นพัฒนา",
 	"footer.built": "สร้างเมื่อ",
 	"footer.env": "สภาพแวดล้อม",
 };

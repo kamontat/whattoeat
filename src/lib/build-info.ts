@@ -16,7 +16,14 @@ export const parseBuildDate = (value: string | undefined): Date | undefined => {
 	return Number.isNaN(date.getTime()) ? undefined : date;
 };
 
+/**
+ * Where a page came from: `production` is `main` deployed, `preview` a pull request deployed,
+ * `local` a `bun run build` on a workstation and `development` the `bun run dev` server.
+ */
+export type Environment = "production" | "preview" | "local" | "development";
+
 export interface BuildInfo {
+	environment: Environment;
 	sha: string | undefined;
 	date: Date | undefined;
 	/** Set only by the preview workflow, like `pr`, so production shows neither. */
@@ -24,28 +31,38 @@ export interface BuildInfo {
 	pr: number | undefined;
 }
 
+/** Runs one variable read, which throws where the build left it as a read of `process`. */
+const readEnv = (read: () => string | undefined): string | undefined => {
+	try {
+		return read();
+	} catch {
+		return undefined;
+	}
+};
+
 /**
- * The commit, build time, branch and pull request baked in by `bun-server build`, which inlines
- * `BUN_PUBLIC_*` variables written as property access; the deploy workflows set them. The dev
- * server inlines nothing and has no `process`, so the read throws there and all stay unset.
+ * The environment, commit, build time, branch and pull request baked in by `bun-server build`,
+ * which inlines `BUN_PUBLIC_*` variables written as property access. The `build` script stamps
+ * the build time and the deploy workflows set the rest. Only set variables are inlined, and the
+ * browser has no `process`, so each unset one throws on its own: production sets no branch or
+ * pull request, a local build sets only the build time, and the dev server inlines nothing.
  */
 export const readBuildInfo = (): BuildInfo => {
-	try {
-		const sha = process.env.BUN_PUBLIC_COMMIT_SHA;
-		const branch = process.env.BUN_PUBLIC_BRANCH?.trim();
-		const pr = process.env.BUN_PUBLIC_PR_NUMBER;
-		return {
-			sha: sha !== undefined && SHA.test(sha) ? sha : undefined,
-			date: parseBuildDate(process.env.BUN_PUBLIC_BUILD_DATE),
-			branch: branch ? branch : undefined,
-			pr: pr !== undefined && PR.test(pr) ? Number(pr) : undefined,
-		};
-	} catch {
-		return {
-			sha: undefined,
-			date: undefined,
-			branch: undefined,
-			pr: undefined,
-		};
-	}
+	const sha = readEnv(() => process.env.BUN_PUBLIC_COMMIT_SHA);
+	const branch = readEnv(() => process.env.BUN_PUBLIC_BRANCH)?.trim();
+	const pr = readEnv(() => process.env.BUN_PUBLIC_PR_NUMBER);
+	const deployed = readEnv(() => process.env.BUN_PUBLIC_ENVIRONMENT);
+	const date = parseBuildDate(readEnv(() => process.env.BUN_PUBLIC_BUILD_DATE));
+	return {
+		environment:
+			deployed === "production" || deployed === "preview"
+				? deployed
+				: date === undefined
+					? "development"
+					: "local",
+		sha: sha !== undefined && SHA.test(sha) ? sha : undefined,
+		date,
+		branch: branch ? branch : undefined,
+		pr: pr !== undefined && PR.test(pr) ? Number(pr) : undefined,
+	};
 };
