@@ -453,6 +453,19 @@ export class DataTransferPanel extends LitElement {
 				<h2 id="appearance-title" class="group-label">${t("settings.appearance")}</h2>
 				<app-preferences></app-preferences>
 			</section>
+			<section class="organise" aria-labelledby="organise-title">
+				<h2 id="organise-title" class="group-label">${t("settings.organiseTitle")}</h2>
+				<div class="group">
+					<a class="item" href="./settings/tags" data-action="tags">
+						<span class="lead">${icon("tag", 22)}</span>
+						<span class="grow">
+							<b>${t("nav.tags")}</b>
+							<small>${t("settings.tagsSub")}</small>
+						</span>
+						<span class="trail">${icon("chevron", 20)}</span>
+					</a>
+				</div>
+			</section>
 			<section class="export" aria-labelledby="export-title">
 				<h2 id="export-title" class="group-label">${t("settings.exportTitle")}</h2>
 				<div class="group">

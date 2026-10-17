@@ -60,11 +60,11 @@ test("marks the current page", async () => {
 	expect(current[0]?.getAttribute("href")).toBe("./history");
 });
 
-test("the tags page marks the Restaurants tab and keeps its own title", async () => {
+test("the tags page marks the Settings tab and keeps its own title", async () => {
 	const el = await mount("tags");
 	const current = el.shadowRoot!.querySelectorAll('nav a[aria-current="page"]');
 	expect(current).toHaveLength(1);
-	expect(current[0]?.getAttribute("href")).toBe("./restaurants");
+	expect(current[0]?.getAttribute("href")).toBe("./settings");
 	expect(document.title).toBe("Tags · What to Eat");
 });
 

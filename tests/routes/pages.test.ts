@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { Glob } from "bun";
 
 const pages = Array.from(new Glob("**/*.html").scanSync({ cwd: "src/routes" }));
-const WIDE_PAGES = ["index.html", "restaurants.html", "tags.html"];
+const WIDE_PAGES = ["index.html", "restaurants.html", "settings/tags.html"];
 const PINNED_PAGES = [
 	"index.html",
 	"restaurants.html",
@@ -141,14 +141,24 @@ test.each(pages)(
 	},
 );
 
-test("settings/presets links its assets one folder deeper", async () => {
-	const html = await Bun.file("src/routes/settings/presets.html").text();
-	const links = Array.from(html.matchAll(/(?:src|href)="([^"]+)"/g)).map(
-		(match) => match[1]!,
-	);
-	expect(links.length).toBeGreaterThan(0);
-	for (const link of links) {
-		if (link === "#main") continue;
-		expect(link.startsWith("../../")).toBe(true);
-	}
+test.each(["settings/presets.html", "settings/tags.html"])(
+	"%s links its assets one folder deeper",
+	async (page) => {
+		const html = await Bun.file(`src/routes/${page}`).text();
+		const links = Array.from(html.matchAll(/(?:src|href)="([^"]+)"/g)).map(
+			(match) => match[1]!,
+		);
+		expect(links.length).toBeGreaterThan(0);
+		for (const link of links) {
+			if (link === "#main") continue;
+			expect(link.startsWith("../../")).toBe(true);
+		}
+	},
+);
+
+test("the tags page lives under settings and points its links one folder up", async () => {
+	expect(await Bun.file("src/routes/tags.html").exists()).toBe(false);
+	const html = await Bun.file("src/routes/settings/tags.html").text();
+	expect(html).toContain('<app-header current="tags" base="../"></app-header>');
+	expect(html).toContain('<tag-manager base="../"></tag-manager>');
 });

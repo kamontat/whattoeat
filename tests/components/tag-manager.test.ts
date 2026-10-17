@@ -529,12 +529,22 @@ const setWidth = (width: number) => {
 };
 afterEach(() => setWidth(1024));
 
-test("the page has a back link to Restaurants and a large title", async () => {
+test("the page has a back link to Settings and a large title", async () => {
 	const el = await mount();
 	const back = $<HTMLAnchorElement>(el, "a.back")!;
-	expect(back.getAttribute("href")).toBe("./restaurants");
-	expect(back.textContent?.trim()).toBe("Restaurants");
+	expect(back.getAttribute("href")).toBe("./settings");
+	expect(back.textContent?.trim()).toBe("Settings");
 	expect($(el, "h1.page-title")?.textContent?.trim()).toBe("Tags");
+});
+
+test("base prefixes the back link and the restaurants link", async () => {
+	const el = await mount();
+	el.base = "../";
+	await el.updateComplete;
+	expect($(el, "a.back")?.getAttribute("href")).toBe("../settings");
+	expect($(el, ".empty a.button-link")?.getAttribute("href")).toBe(
+		"../restaurants",
+	);
 });
 
 test("value rows are buttons with the value and count; Type rows are plain", async () => {

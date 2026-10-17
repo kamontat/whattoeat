@@ -1,5 +1,5 @@
 import { css, html, LitElement, nothing, type PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import { repeat } from "lit/directives/repeat.js";
 import "#components/app-sheet";
@@ -193,6 +193,9 @@ export class TagManager extends LitElement {
 	protected readonly langController = new LangController(this);
 
 	protected readonly wide = new MediaController(this, WIDE);
+
+	/** Relative prefix for the back and restaurants links, for pages nested under Settings. */
+	@property() base = "./";
 
 	@state() private restaurants: Restaurant[] = [];
 	@state() private defs: GroupDef[] = [];
@@ -573,7 +576,7 @@ export class TagManager extends LitElement {
 				? ""
 				: groupLabel(this.optionsFor, this.defs);
 		return html`
-			<a class="back" href="./restaurants">${icon("back", 20)}<span>${t("nav.restaurants")}</span></a>
+			<a class="back" href=${`${this.base}settings`}>${icon("back", 20)}<span>${t("nav.settings")}</span></a>
 			<div>
 				<h1 class="page-title">${t("tags.title")}</h1>
 				<p class="page-sub">${t("tags.intro")}</p>
@@ -590,7 +593,7 @@ export class TagManager extends LitElement {
 				this.restaurants.length === 0
 					? html`<div class="card empty">
 							<p>${t("tags.empty")}</p>
-							<a class="button-link" href="./restaurants">${t("tags.emptyLink")}</a>
+							<a class="button-link" href=${`${this.base}restaurants`}>${t("tags.emptyLink")}</a>
 						</div>`
 					: nothing
 			}

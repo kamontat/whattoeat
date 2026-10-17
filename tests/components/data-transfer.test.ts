@@ -727,13 +727,14 @@ test("replace with a version 3 file keeps the current groups", async () => {
 	expect(loadGroups()).toEqual([{ id: "g1", name: "Price" }]);
 });
 
-test("settings is grouped under Appearance, Export, Import, Reset and About", async () => {
+test("settings is grouped under Appearance, Organise, Export, Import, Reset and About", async () => {
 	const el = await mount();
 	const headings = [
 		...el.shadowRoot!.querySelectorAll("section > h2.group-label"),
 	].map((h) => h.textContent?.trim());
 	expect(headings).toEqual([
 		"Appearance",
+		"Organise",
 		"Export",
 		"Import",
 		"Reset",
@@ -882,4 +883,26 @@ test("with the index failing, the row shows no subtitle and still links", async 
 	} finally {
 		restore();
 	}
+});
+
+test("an Organise section links to the tags page", async () => {
+	const el = await mount();
+	const sections = [...el.shadowRoot!.querySelectorAll("section")].map(
+		(section) => section.className,
+	);
+	// Right after appearance, before export.
+	expect(sections.indexOf("organise")).toBe(sections.indexOf("appearance") + 1);
+	expect($(el, "section.organise h2")?.textContent?.trim()).toBe("Organise");
+	const row = $(el, 'section.organise a.item[data-action="tags"]');
+	expect(row?.getAttribute("href")).toBe("./settings/tags");
+	expect(row?.querySelector("b")?.textContent?.trim()).toBe("Tags");
+	expect(row?.querySelector("small")?.textContent?.trim()).toBe(
+		"Groups and their values",
+	);
+	setLang("th");
+	await el.updateComplete;
+	expect($(el, "section.organise h2")?.textContent?.trim()).toBe("จัดระเบียบ");
+	expect($(el, 'a.item[data-action="tags"] b')?.textContent?.trim()).toBe(
+		"แท็ก",
+	);
 });

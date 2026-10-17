@@ -44,15 +44,6 @@ grows.
   saving already gives the real number. Subtract the preset's recorded ids that are still
   saved.
 
-## Settings
-
-- **Tags under settings.** Move the tag page from `/tags` to `/settings/tags`. Needs a nested
-  route under `src/routes/`, the header to mark Settings (not Restaurants) as the current tab
-  for it, and a redirect or 404 decision for the old `/tags` path. `/settings/presets` already
-  shows the pattern: `<app-header base="../">` and asset paths one `../` deeper.
-- **Tag link in settings.** Take the tags link off the restaurant list page and put it on the
-  settings page instead. Needs a place for it in the settings layout that fits on a phone.
-
 ## Look and feel
 
 - **Work offline.** The installed app opens without a connection. Needs a service worker
