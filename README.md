@@ -117,7 +117,7 @@ Planned future work lives in [TODO.md](TODO.md).
 ```text
 .
 ├── src/                 # application code
-│   ├── routes/          # HTML pages: index, restaurants, history, settings, tags
+│   ├── routes/          # HTML pages: index, restaurants, history, settings, settings/presets, tags
 │   ├── assets/          # files pages link to: favicon.svg, fonts, manifest.webmanifest
 │   │   ├── icons/       # app icons, copied to dist/icons/ by --statics
 │   │   └── data/        # neighbourhood restaurant lists and index, copied to dist/data/ by --statics
@@ -128,7 +128,7 @@ Planned future work lives in [TODO.md](TODO.md).
 │   └── types/           # global type declarations (HTMLElementTagNameMap, Bun.Env)
 ├── tests/               # tests, mirroring src/ (src/lib/gtm.ts -> tests/lib/gtm.test.ts)
 │   └── setup-happydom.ts  # registers happy-dom globals for bun test
-├── scripts/             # standalone programs run by package scripts (none yet)
+├── scripts/             # standalone programs run by package scripts: presets-index.ts rewrites the preset counts in index.json (bun run presets:index)
 ├── .claude/skills/      # Claude Code skills for working in this repo
 ├── .github/workflows/   # CI, preview, and production deploy pipelines
 ├── CHANGELOG.md         # what changed and why, newest first
