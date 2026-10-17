@@ -1,5 +1,42 @@
 import { expect, test } from "bun:test";
-import { matchName, searchWords } from "#lib/search";
+import { setLang } from "#lib/i18n";
+import {
+	countText,
+	matchName,
+	noMatch,
+	searchByName,
+	searchWords,
+} from "#lib/search";
+
+const named = (...names: string[]) => names.map((name) => ({ name }));
+
+test("searchByName keeps every item, unhighlighted, when the query has no words", () => {
+	expect(searchByName(named("Pho", "Bun"), "  ")).toEqual([
+		{ item: { name: "Pho" }, ranges: [] },
+		{ item: { name: "Bun" }, ranges: [] },
+	]);
+});
+
+test("searchByName keeps matching items in order with what to highlight", () => {
+	expect(searchByName(named("Ramen Bar", "Pho", "Bar Bun"), "bar")).toEqual([
+		{ item: { name: "Ramen Bar" }, ranges: [{ start: 6, end: 9 }] },
+		{ item: { name: "Bar Bun" }, ranges: [{ start: 0, end: 3 }] },
+	]);
+});
+
+test("noMatch is true only when the query has words and no item has them all", () => {
+	expect(noMatch(named("Pho"), "sushi")).toBe(true);
+	expect(noMatch(named("Pho"), "ph")).toBe(false);
+	expect(noMatch(named("Pho"), "  ")).toBe(false);
+	expect(noMatch([], "sushi")).toBe(false);
+});
+
+test("countText says the total, or shown of total while the query has words", () => {
+	setLang("en");
+	expect(countText(named("Pho"), "")).toBe("1 restaurant");
+	expect(countText(named("Pho", "Bun"), " ")).toBe("2 restaurants");
+	expect(countText(named("Pho", "Bun"), "ph")).toBe("1 of 2 restaurants");
+});
 
 test("splits the query into folded words, dropping empty ones", () => {
 	expect(searchWords("  Ramen   NAGI ")).toEqual(["ramen", "nagi"]);

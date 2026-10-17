@@ -5,22 +5,28 @@ import { LangController, type MessageKey, t } from "#lib/i18n";
 import { type IconName, icon, logo } from "#lib/icons";
 import { uiStyles } from "#styles/ui";
 
-export type Page = "home" | "restaurants" | "tags" | "history" | "settings";
+export type Page =
+	| "home"
+	| "restaurants"
+	| "tags"
+	| "history"
+	| "settings"
+	| "presets";
 
-type Tab = { page: Page; href: string; label: MessageKey; icon: IconName };
+type Tab = { page: Page; path: string; label: MessageKey; icon: IconName };
 
 const TABS: readonly Tab[] = [
-	{ page: "home", href: "./", label: "nav.home", icon: "dice" },
+	{ page: "home", path: "", label: "nav.home", icon: "dice" },
 	{
 		page: "restaurants",
-		href: "./restaurants",
+		path: "restaurants",
 		label: "nav.restaurants",
 		icon: "bowl",
 	},
-	{ page: "history", href: "./history", label: "nav.history", icon: "clock" },
+	{ page: "history", path: "history", label: "nav.history", icon: "clock" },
 	{
 		page: "settings",
-		href: "./settings",
+		path: "settings",
 		label: "nav.settings",
 		icon: "sliders",
 	},
@@ -33,10 +39,12 @@ const TITLES: Record<Page, MessageKey | undefined> = {
 	tags: "nav.tags",
 	history: "nav.history",
 	settings: "nav.settings",
+	presets: "presets.title",
 };
 
-/** Tags has no tab of its own: it is part of Restaurants. */
-const tabOf = (page: Page): Page => (page === "tags" ? "restaurants" : page);
+/** Tags has no tab of its own: it is part of Restaurants; presets lives under Settings. */
+const tabOf = (page: Page): Page =>
+	page === "tags" ? "restaurants" : page === "presets" ? "settings" : page;
 
 @customElement("app-header")
 export class AppHeader extends LitElement {
@@ -206,6 +214,10 @@ export class AppHeader extends LitElement {
 	@property()
 	current: Page = "home";
 
+	/** Relative prefix for every link, for pages nested one or more folders deep. */
+	@property()
+	base = "./";
+
 	/** Pull request number of a preview build; unset in production and development. */
 	@property({ attribute: false })
 	pr: number | undefined = readBuildInfo().pr;
@@ -229,11 +241,11 @@ export class AppHeader extends LitElement {
 					: html`<a class="preview" href=${pullUrl(this.pr)} target="_blank" rel="noopener">${t("nav.preview")} #${this.pr}</a>`
 			}
 			<header>
-				<a class="brand" href="./">${logo()}<span>${t("app.title")}</span></a>
+				<a class="brand" href=${this.base}>${logo()}<span>${t("app.title")}</span></a>
 				<nav aria-label=${t("nav.label")}>
 					${TABS.map(
 						(link) =>
-							html`<a href=${link.href} aria-current=${tab === link.page ? "page" : nothing}>
+							html`<a href=${this.base + link.path} aria-current=${tab === link.page ? "page" : nothing}>
 								${icon(link.icon, 22)}<span>${t(link.label)}</span>
 							</a>`,
 					)}

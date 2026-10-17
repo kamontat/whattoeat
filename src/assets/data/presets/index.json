@@ -1,0 +1,55 @@
+{
+	"version": 1,
+	"cities": {
+		"bangkok": {
+			"en": "Bangkok",
+			"th": "กรุงเทพฯ"
+		}
+	},
+	"districts": {
+		"chatuchak": {
+			"en": "Chatuchak",
+			"th": "จตุจักร"
+		}
+	},
+	"presets": [
+		{
+			"id": "ladprao",
+			"city": "bangkok",
+			"district": "chatuchak",
+			"name": {
+				"en": "Ladprao",
+				"th": "ลาดพร้าว"
+			},
+			"count": 144,
+			"updatedAt": "2026-10-16",
+			"places": [
+				"Central Ladprao",
+				"Union Mall",
+				"Lotus Ladprao",
+				"Ha Yaek Lat Phrao",
+				"Lat Phrao Soi 15"
+			],
+			"areas": [
+				"central ladprao",
+				"union mall",
+				"lotus ladprao",
+				"ha yaek lat phrao",
+				"lat phrao"
+			]
+		},
+		{
+			"id": "ratchayothin",
+			"city": "bangkok",
+			"district": "chatuchak",
+			"name": {
+				"en": "Ratchayothin",
+				"th": "รัชโยธิน"
+			},
+			"count": 55,
+			"updatedAt": "2026-10-16",
+			"places": ["Major Ratchayothin", "Avenue Ratchayothin", "SCB Park"],
+			"areas": ["major ratchayothin", "avenue ratchayothin", "ratchada"]
+		}
+	]
+}

@@ -137,6 +137,12 @@ export const uiStyles = css`
 		text-decoration: none;
 	}
 
+	/* A quieter fill for a link next to a primary one, same shape and tap size as button-link. */
+	a.button-link.secondary {
+		background: var(--color-surface-2);
+		color: var(--color-text);
+	}
+
 	.card > * {
 		min-width: 0;
 	}

@@ -2,9 +2,24 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-17: Search restaurants by name
+## 2026-10-17: Neighbourhood presets and search restaurants by name
 
 ### Features
+
+- A Neighbourhoods page at `/settings/presets` fills the list from ready-made restaurant lists
+  bundled with the site: Ladprao (144 restaurants) and Ratchayothin (55). Tick one or more,
+  grouped by district, and press **Add to my list** to merge them in, or switch to **Replace
+  my list** to swap the whole list after an inline confirm. Both offer Undo for 6 seconds.
+  Presets you have added show **Added**; one whose list changed since shows **Update**.
+- A search field (name, district or mall) and city chips appear on the Neighbourhoods page
+  once there are more than 7 presets or 2 or more cities.
+- Settings › Import starts with a **Neighbourhood presets** row showing how many you have
+  added, and the empty Home card leads with **Start with a neighbourhood**, with **Add some
+  restaurants** beneath it as the secondary choice.
+- Preset lists live in `src/assets/data/presets/` and are served from `/data/presets/`, with
+  an `index.json` holding each preset's names in English and Thai, district, malls and count.
+  `bun run presets:index` refreshes the counts, and tests fail when the index and the files
+  disagree.
 
 - Restaurants has a search button beside Tags. It turns the title row into a search field
   with a clear button and Cancel, and the list narrows to names that contain every word you
@@ -34,6 +49,19 @@ What changed in this project and why, newest first.
 - Add on Restaurants is a round plus button, in the header and pinned on phones, labelled
   "Add restaurant" for screen readers and on hover. The empty list card has its own "Add
   restaurant" button.
+- `restaurant-manager` is split into `restaurant-search`, `restaurant-list` and
+  `restaurant-form` under `src/components/restaurant/`. Each has its own shadow root and
+  styles, takes data through properties and reports back with events, so each is tested alone
+  without the store. `restaurant-manager` keeps the store, the sheet and side panel, and the
+  form state. Name matching and the count line (`searchByName`, `noMatch`, `countText`) moved
+  to `#lib/search`.
+- `app-sheet`'s `containsFocus()` now sees focus inside a slotted component's own shadow
+  root, so closing the sheet does not take focus back from where the page put it.
+- `app-header` takes a `base` attribute (default `./`) that prefixes every tab link, so a
+  page one folder deep, like `/settings/presets`, passes `base="../"`. A new `<app-toast>`
+  shows a short message with an optional action button.
+- A page whose pinned bar is taller than Home's sets `--pinned-space` from its measured
+  height, so the Undo message and keyboard scrolling clear the whole bar.
 
 ### Bug fixes
 
@@ -59,6 +87,26 @@ What changed in this project and why, newest first.
   button in the header. Hiding it until Add or a row opens it gives the list the full width
   and works like the phone sheet. Closing it drops anything typed, the same as closing the
   sheet.
+- The restaurant parts are separate custom elements rather than render functions sharing one
+  shadow root, so a test of one never has to mount or mock the others. `restaurant-form` is
+  controlled by the manager rather than keeping its own state, because the side panel and the
+  phone sheet are two form elements, and what is typed must survive crossing between them.
+  `restaurant-search` uses `display: contents` so its row and count stay items of the sticky
+  top bar's grid.
+- Presets get their own page rather than a row per preset in Settings or a popup, so the list
+  stays usable with dozens of neighbourhoods across several cities. Home is unchanged apart
+  from the empty card.
+- Add never changes a restaurant already in your list, so your edits survive adding a preset
+  that contains it. Replace changes only restaurants: history and custom groups stay. The mode
+  goes back to Add each time the page opens, so Replace is never left on by accident.
+- Which presets you have added is kept in `whattoeat:presets` with the restaurant ids each one
+  brought in. A preset counts as added only while at least one of those restaurants is still
+  saved, so emptying the list by hand never leaves every preset locked. The record is written
+  only after the list itself saved. It is not part of the export file, so another device shows
+  the presets as not added, and adding them again changes nothing.
+- The preset index is committed and edited by hand rather than generated during the build,
+  which stays a single `bun-server` command; a test keeps it honest.
+- Three follow-ups that only matter once there are more presets are in `TODO.md`.
 
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 

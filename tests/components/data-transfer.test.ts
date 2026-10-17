@@ -14,6 +14,7 @@ import {
 	saveHistory,
 } from "#lib/history";
 import { getLang, setLang } from "#lib/i18n";
+import { type PresetIndex, saveAddedPresets } from "#lib/presets";
 import type { Restaurant } from "#lib/restaurant";
 import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
 import { toExportFile } from "#lib/transfer";
@@ -789,4 +790,96 @@ test("paste json is a list row button with its label and icon", async () => {
 test("the page title is a large title", async () => {
 	const el = await mount();
 	expect($(el, "h1.page-title")?.textContent?.trim()).toBe("Settings");
+});
+
+/** Answer every fetch of the preset index with `respond`, ignoring the requested URL. */
+const stubFetch = (respond: () => Promise<Response>) => {
+	const spy = spyOn(globalThis, "fetch").mockImplementation(((
+		_input: RequestInfo | URL,
+	) => respond()) as typeof fetch);
+	return () => spy.mockRestore();
+};
+
+const jsonResponse = (data: unknown): Promise<Response> =>
+	Promise.resolve(new Response(JSON.stringify(data)));
+
+/** 1 city, 2 presets: enough to exercise an "added" count. */
+const INDEX2: PresetIndex = {
+	version: 1,
+	cities: { bangkok: { en: "Bangkok", th: "กรุงเทพฯ" } },
+	districts: { chatuchak: { en: "Chatuchak", th: "จตุจักร" } },
+	presets: [
+		{
+			id: "ladprao",
+			city: "bangkok",
+			district: "chatuchak",
+			name: { en: "Ladprao", th: "ลาดพร้าว" },
+			count: 12,
+			updatedAt: "2026-10-16",
+			places: ["Central Ladprao"],
+			areas: [],
+		},
+		{
+			id: "ratchayothin",
+			city: "bangkok",
+			district: "chatuchak",
+			name: { en: "Ratchayothin", th: "รัชโยธิน" },
+			count: 15,
+			updatedAt: "2026-10-16",
+			places: ["Major Ratchayothin"],
+			areas: [],
+		},
+	],
+};
+
+test("Import starts with a Neighbourhood presets link row to ./settings/presets", async () => {
+	const restore = stubFetch(() => Promise.reject(new Error("offline")));
+	try {
+		const el = await mount();
+		await flush(el);
+		const groups = [
+			...el.shadowRoot!.querySelectorAll<HTMLElement>("section.import .group"),
+		];
+		const row = groups[0]?.querySelector<HTMLAnchorElement>(
+			'a.item[data-action="presets"]',
+		);
+		expect(row?.getAttribute("href")).toBe("./settings/presets");
+		expect(row?.querySelector("b")?.textContent?.trim()).toBe(
+			"Neighbourhood presets",
+		);
+		// The row lives in its own group, above the file/paste group.
+		expect(groups[1]?.querySelector("input[type='file']")).not.toBeNull();
+	} finally {
+		restore();
+	}
+});
+
+test('its subtitle reads "1 of 2 added" once the index loads', async () => {
+	saveRestaurants([make("ladprao-1", "X")]);
+	saveAddedPresets([
+		{ id: "ladprao", updatedAt: "2026-10-16", ids: ["ladprao-1"] },
+	]);
+	const restore = stubFetch(() => jsonResponse(INDEX2));
+	try {
+		const el = await mount();
+		await flush(el);
+		expect(
+			$(el, 'a.item[data-action="presets"] small')?.textContent?.trim(),
+		).toBe("1 of 2 added");
+	} finally {
+		restore();
+	}
+});
+
+test("with the index failing, the row shows no subtitle and still links", async () => {
+	const restore = stubFetch(() => Promise.reject(new Error("offline")));
+	try {
+		const el = await mount();
+		await flush(el);
+		const row = $(el, 'a.item[data-action="presets"]');
+		expect(row?.getAttribute("href")).toBe("./settings/presets");
+		expect(row?.querySelector("small")).toBeNull();
+	} finally {
+		restore();
+	}
 });

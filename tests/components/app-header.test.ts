@@ -129,3 +129,41 @@ test("the home page title is the app name", async () => {
 	await mount("home");
 	expect(document.title).toBe("What to Eat");
 });
+
+test("base prefixes every tab and the brand link", async () => {
+	const el = await mount();
+	el.base = "../";
+	await el.updateComplete;
+	const nav = el.shadowRoot!.querySelector("nav")!;
+	const links = [...nav.querySelectorAll("a")];
+	expect(links.map((a) => a.getAttribute("href"))).toEqual([
+		"../",
+		"../restaurants",
+		"../history",
+		"../settings",
+	]);
+	const brand = el.shadowRoot!.querySelector<HTMLAnchorElement>("a.brand")!;
+	expect(brand.getAttribute("href")).toBe("../");
+});
+
+test("the default base keeps today's links", async () => {
+	const el = await mount();
+	const nav = el.shadowRoot!.querySelector("nav")!;
+	const links = [...nav.querySelectorAll("a")];
+	expect(links.map((a) => a.getAttribute("href"))).toEqual([
+		"./",
+		"./restaurants",
+		"./history",
+		"./settings",
+	]);
+	const brand = el.shadowRoot!.querySelector<HTMLAnchorElement>("a.brand")!;
+	expect(brand.getAttribute("href")).toBe("./");
+});
+
+test("presets highlights the Settings tab and titles the browser tab", async () => {
+	const el = await mount("presets");
+	const current = el.shadowRoot!.querySelectorAll('nav a[aria-current="page"]');
+	expect(current).toHaveLength(1);
+	expect(current[0]?.getAttribute("href")).toBe("./settings");
+	expect(document.title).toBe("Neighbourhoods · What to Eat");
+});
