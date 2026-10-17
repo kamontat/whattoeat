@@ -166,12 +166,12 @@ const rows = (el: HTMLElement) =>
 
 test("shows source, environment and build date for a local build", async () => {
 	const el = await mount({ environment: "local" });
-	expect(rows(el)).toEqual(["source", "env", "built"]);
+	expect(rows(el)).toEqual(["env", "built", "source"]);
 });
 
 test("shows only source and environment on the development server", async () => {
 	const el = await mount({ environment: "development" });
-	expect(rows(el)).toEqual(["source", "env"]);
+	expect(rows(el)).toEqual(["env", "source"]);
 	expect(el.shadowRoot!.querySelector("time")).toBeNull();
 });
 
@@ -188,7 +188,7 @@ test("follows the language", async () => {
 test("lays the links out as list rows", async () => {
 	for (const environment of ["production", "preview"] as const) {
 		const el = await mount({ environment });
-		expect(rows(el)).toEqual(["source", "changelog", "commit", "env", "built"]);
+		expect(rows(el)).toEqual(["env", "commit", "built", "source", "changelog"]);
 		el.remove();
 	}
 });

@@ -85,37 +85,37 @@ export class AppFooter extends LitElement {
 		</a>`;
 	}
 
-	/** The changelog and commit only mean something for a page deployed from a known commit. */
-	private renderDeployed() {
-		return html`<a class="item" data-link="changelog" href=${CHANGELOG_URL} target="_blank" rel="noopener">
-				<span class="lead">${icon("list", 22)}</span>
-				<span class="grow"><b>${t("footer.changelog")}</b></span>
-				<span class="trail">${icon("chevron", 20)}</span>
-			</a>
-			${
-				this.sha === undefined
-					? nothing
-					: html`<a class="item" data-link="commit" href=${commitUrl(this.sha)} target="_blank" rel="noopener">
-							<span class="lead">${icon("tag", 22)}</span>
-							<span class="grow"><code>${shortSha(this.sha)}</code></span>
-							<span class="trail">${icon("chevron", 20)}</span>
-						</a>`
-			}`;
-	}
-
 	override render() {
+		// The changelog and commit only mean something for a page deployed from a known commit.
 		const deployed =
 			this.environment === "production" || this.environment === "preview";
 		return html`
 			<footer class="group">
-				${this.renderSource()}
-				${deployed ? this.renderDeployed() : nothing}
 				<div class="item" data-row="env">
 					<span class="lead">${icon("cloud", 22)}</span>
 					<span class="grow"><b>${t("footer.env")}</b></span>
 					<small class="trail"><code>${this.environment}</code></small>
 				</div>
+				${
+					deployed && this.sha !== undefined
+						? html`<a class="item" data-link="commit" href=${commitUrl(this.sha)} target="_blank" rel="noopener">
+								<span class="lead">${icon("tag", 22)}</span>
+								<span class="grow"><code>${shortSha(this.sha)}</code></span>
+								<span class="trail">${icon("chevron", 20)}</span>
+							</a>`
+						: nothing
+				}
 				${this.environment === "development" || this.built === undefined ? nothing : this.renderBuilt(this.built)}
+				${this.renderSource()}
+				${
+					deployed
+						? html`<a class="item" data-link="changelog" href=${CHANGELOG_URL} target="_blank" rel="noopener">
+								<span class="lead">${icon("list", 22)}</span>
+								<span class="grow"><b>${t("footer.changelog")}</b></span>
+								<span class="trail">${icon("chevron", 20)}</span>
+							</a>`
+						: nothing
+				}
 			</footer>
 		`;
 	}
