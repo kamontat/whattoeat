@@ -32,6 +32,14 @@ What changed in this project and why, newest first.
   keyboard away so every result is in view. On wide screens `/` opens search and `Esc`
   closes it.
 
+- A pull request preview marks itself on every page: an amber line where the page meets the
+  nav (on top of the phone tab bar, under the wide top bar), and a browser tab title starting
+  with `[Preview]`. Production shows neither.
+- Settings › About names a preview's pull request: **Source on GitHub** shows `#34 -
+  branch-name` beneath and opens the pull request. A new **Environment** row reads
+  `production` or `preview`. The preview workflow passes the number and branch to the build
+  as `BUN_PUBLIC_PR_NUMBER` and `BUN_PUBLIC_BRANCH`.
+
 ### Improvements
 
 - On phones the Restaurants title row, and the search field while searching, stay at the top
@@ -62,6 +70,10 @@ What changed in this project and why, newest first.
   shows a short message with an optional action button.
 - A page whose pinned bar is taller than Home's sets `--pinned-space` from its measured
   height, so the Undo message and keyboard scrolling clear the whole bar.
+- The **Built** row in Settings › About puts its title on the left and the date on the right,
+  like **Environment**.
+- The wide top bar is shorter: 64px on touch screens and 52px with a mouse, down from 76px and
+  60px.
 
 ### Bug fixes
 
@@ -107,6 +119,12 @@ What changed in this project and why, newest first.
 - The preset index is committed and edited by hand rather than generated during the build,
   which stays a single `bun-server` command; a test keeps it honest.
 - Three follow-ups that only matter once there are more presets are in `TODO.md`.
+- The preview marker started as a "Preview #34" label, first at the top of the screen and
+  then on the phone tab bar. It covered page titles in one spot and caught taps meant for the
+  tabs in the other, so it became a line with no text or tap target. The pull request details
+  moved to Settings › About, where they are one tap from the source link.
+- Environment is worked out from whether a pull request number was passed in, rather than
+  from a separate variable that could disagree with it.
 
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 

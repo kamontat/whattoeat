@@ -79,6 +79,8 @@
 	--color-border: #e6e3dc;
 	--color-danger: #b42c1b;
 	--color-success: #2b6e35;
+	/* The line a preview build draws between the page and the nav. */
+	--color-preview: #e0a100;
 	--color-focus: #1d1b18;
 	--shadow: 0 1px 2px rgb(29 27 24 / 0.06);
 	--shadow-lg: 0 -8px 30px rgb(29 27 24 / 0.16);
@@ -94,7 +96,7 @@
 	--title-size: 1.75rem;
 	--row-text: 1rem;
 	--seg-min: 3.25rem;
-	--bar-height: 4.75rem;
+	--bar-height: 4rem;
 	--brand-size: 1.25rem;
 	--duration: 180ms;
 	/* The phone tab bar's exact height, and the room pages leave for it (a little more). */
@@ -143,6 +145,7 @@
 		--color-border: #34312c;
 		--color-danger: #ff8a77;
 		--color-success: #6fd08a;
+		--color-preview: #f2b82e;
 		--color-focus: #f1efea;
 		--shadow: 0 1px 2px rgb(0 0 0 / 0.3);
 		--shadow-lg: 0 -8px 30px rgb(0 0 0 / 0.5);
@@ -167,6 +170,7 @@
 	--color-border: #34312c;
 	--color-danger: #ff8a77;
 	--color-success: #6fd08a;
+	--color-preview: #f2b82e;
 	--color-focus: #f1efea;
 	--shadow: 0 1px 2px rgb(0 0 0 / 0.3);
 	--shadow-lg: 0 -8px 30px rgb(0 0 0 / 0.5);
@@ -193,7 +197,7 @@
 		--title-size: 1.5rem;
 		--row-text: 0.9375rem;
 		--seg-min: 2.75rem;
-		--bar-height: 3.75rem;
+		--bar-height: 3.25rem;
 		--brand-size: 1.0625rem;
 	}
 }

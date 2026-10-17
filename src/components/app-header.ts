@@ -1,5 +1,6 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { readBuildInfo } from "#lib/build-info";
 import { LangController, type MessageKey, t } from "#lib/i18n";
 import { type IconName, icon, logo } from "#lib/icons";
 import { uiStyles } from "#styles/ui";
@@ -87,6 +88,16 @@ export class AppHeader extends LitElement {
 				background: var(--color-surface);
 			}
 
+			/*
+			 * A preview build draws an amber line where the page meets the nav, so it is never
+			 * mistaken for production. The shadow sits outside the 1px border, leaving the current
+			 * tab's marker where it was; the pull request is named in Settings > About.
+			 */
+			header.preview nav {
+				border-top-color: var(--color-preview);
+				box-shadow: 0 -5px 0 var(--color-preview);
+			}
+
 			nav a {
 				position: relative;
 				display: flex;
@@ -137,6 +148,12 @@ export class AppHeader extends LitElement {
 					border-bottom: 1px solid var(--color-border);
 				}
 
+				/* The top bar is the nav here, so the line moves to its bottom edge. */
+				header.preview {
+					border-bottom-color: var(--color-preview);
+					box-shadow: 0 5px 0 var(--color-preview);
+				}
+
 				.brand {
 					display: flex;
 					align-items: center;
@@ -163,6 +180,10 @@ export class AppHeader extends LitElement {
 					padding: 0;
 					border: 0;
 					background: none;
+				}
+
+				header.preview nav {
+					box-shadow: none;
 				}
 
 				nav a {
@@ -199,20 +220,26 @@ export class AppHeader extends LitElement {
 	@property()
 	base = "./";
 
+	/** Pull request number of a preview build; unset in production and development. */
+	@property({ attribute: false })
+	pr: number | undefined = readBuildInfo().pr;
+
 	protected readonly langController = new LangController(this);
 
-	/** Keep the browser tab title in the current language. */
+	/** Keep the browser tab title in the current language; a preview build says so first. */
 	override updated(): void {
 		const page = TITLES[this.current];
-		document.title =
+		const title =
 			page === undefined ? t("app.title") : `${t(page)} · ${t("app.title")}`;
+		document.title =
+			this.pr === undefined ? title : `[${t("nav.preview")}] ${title}`;
 	}
 
 	override render() {
 		const tab = tabOf(this.current);
 		return html`
 			<a class="skip" href="#main">${t("nav.skip")}</a>
-			<header>
+			<header class=${this.pr === undefined ? "" : "preview"}>
 				<a class="brand" href=${this.base}>${logo()}<span>${t("app.title")}</span></a>
 				<nav aria-label=${t("nav.label")}>
 					${TABS.map(

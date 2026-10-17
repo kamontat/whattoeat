@@ -23,6 +23,7 @@ const SHAPES = {
 	dots: svg`<circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/>`,
 	up: svg`<path d="M12 19V5M6 11l6-6 6 6"/>`,
 	down: svg`<path d="M12 5v14M6 13l6 6 6-6"/>`,
+	cloud: svg`<path d="M7 18.5h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.1 10 4.25 4.25 0 0 0 7 18.5z"/>`,
 	code: svg`<path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/>`,
 	list: svg`<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/>`,
 	search: svg`<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>`,

@@ -99,6 +99,43 @@ test("translates labels and the tab title", async () => {
 	expect(document.title).toBe("ร้านอาหาร · กินอะไรดี");
 });
 
+const mountPreview = async (current: Page) => {
+	const el = document.createElement("app-header");
+	el.current = current;
+	el.pr = 34;
+	document.body.append(el);
+	await el.updateComplete;
+	return el;
+};
+
+test("marks the header of a preview build for its edge line, with no text", async () => {
+	const el = await mountPreview("home");
+	const header = el.shadowRoot!.querySelector("header");
+	expect(header?.classList.contains("preview")).toBe(true);
+	expect(header?.textContent).not.toContain("Preview");
+});
+
+test("prefixes the tab title of a preview build", async () => {
+	const el = await mountPreview("settings");
+	expect(document.title).toBe("[Preview] Settings · What to Eat");
+	setLang("th");
+	await el.updateComplete;
+	expect(document.title).toBe("[พรีวิว] ตั้งค่า · กินอะไรดี");
+});
+
+test("prefixes the home page tab title of a preview build", async () => {
+	await mountPreview("home");
+	expect(document.title).toBe("[Preview] What to Eat");
+});
+
+test("leaves production unmarked", async () => {
+	const el = await mount("settings");
+	expect(
+		el.shadowRoot!.querySelector("header")?.classList.contains("preview"),
+	).toBe(false);
+	expect(document.title).toBe("Settings · What to Eat");
+});
+
 test("the home page title is the app name", async () => {
 	await mount("home");
 	expect(document.title).toBe("What to Eat");
