@@ -92,6 +92,11 @@ What changed in this project and why, newest first.
   like **Environment**.
 - The wide top bar is shorter: 64px on touch screens and 52px with a mouse, down from 76px and
   60px.
+- A new `preset-data` agent skill covers creating and updating neighbourhood presets, from web
+  research or a pasted list, with the field conventions of the existing files. Its
+  `upsert-preset.ts` script applies a small draft to a preset file, giving new restaurants ids
+  that no other preset uses, setting timestamps and the index entry's `updatedAt`, and keeping
+  each restaurant's place and floor as the first line of its notes.
 
 ### Bug fixes
 
