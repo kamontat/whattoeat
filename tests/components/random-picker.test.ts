@@ -5,6 +5,7 @@ import { FILTER_KEY } from "#lib/filter";
 import { saveGroups } from "#lib/groups";
 import { loadHistory, saveHistory } from "#lib/history";
 import { getLang, setLang } from "#lib/i18n";
+import { loadPickCount, savePickCount } from "#lib/random";
 import {
 	addRestaurant,
 	loadRestaurants,
@@ -959,4 +960,93 @@ test("Clear all is a quiet button", async () => {
 	)!;
 	expect(clear.textContent?.trim()).toBe("Clear all");
 	expect(clear.classList.contains("quiet")).toBe(true);
+});
+
+const stepper = (el: HTMLElement) =>
+	root(el).querySelector<HTMLElement>(".stepper")!;
+const stepButton = (el: HTMLElement, step: "fewer" | "more") =>
+	stepper(el).querySelector<HTMLButtonElement>(`button[data-step="${step}"]`)!;
+const stepperValue = (el: HTMLElement) =>
+	stepper(el).querySelector(".stepper-value")?.textContent?.trim();
+
+test("the pick count stepper is a labelled group that starts at 2", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const el = await mount();
+	expect(stepper(el).getAttribute("role")).toBe("group");
+	expect(stepper(el).getAttribute("aria-label")).toBe("Restaurants per pick");
+	expect(stepButton(el, "fewer").getAttribute("aria-label")).toBe(
+		"Fewer restaurants",
+	);
+	expect(stepButton(el, "more").getAttribute("aria-label")).toBe(
+		"More restaurants",
+	);
+	expect(stepperValue(el)).toBe("2 per pick");
+});
+
+test("the stepper sits beside the pick button: in the heading when wide, in the pinned bar on phones", async () => {
+	addRestaurant({ ...base, name: "A" });
+	const wide = await mount();
+	expect(root(wide).querySelector(".head-actions .stepper")).not.toBeNull();
+	document.body.innerHTML = "";
+	const narrow = await phone();
+	expect(root(narrow).querySelector(".pinned .stepper")).not.toBeNull();
+	expect(root(narrow).querySelector(".head-actions")).toBeNull();
+});
+
+test("More and Fewer change the count, save it, and the next press shows that many", async () => {
+	for (const name of ["A", "B", "C", "D", "E", "F"])
+		addRestaurant({ ...base, name });
+	const el = await mount();
+	stepButton(el, "more").click();
+	await settle(el);
+	stepButton(el, "more").click();
+	await settle(el);
+	expect(stepperValue(el)).toBe("4 per pick");
+	expect(loadPickCount()).toBe(4);
+	await pickOnce(el);
+	expect(new Set(pickedNames(el)).size).toBe(4);
+	stepButton(el, "fewer").click();
+	await settle(el);
+	expect(loadPickCount()).toBe(3);
+});
+
+test("the stepper stops at 1 and at 5", async () => {
+	addRestaurant({ ...base, name: "A" });
+	savePickCount(1);
+	const low = await mount();
+	expect(stepButton(low, "fewer").disabled).toBe(true);
+	expect(stepButton(low, "more").disabled).toBe(false);
+	document.body.innerHTML = "";
+	savePickCount(5);
+	const high = await mount();
+	expect(stepperValue(high)).toBe("5 per pick");
+	expect(stepButton(high, "more").disabled).toBe(true);
+	expect(stepButton(high, "fewer").disabled).toBe(false);
+});
+
+test("a press shows two restaurants by default", async () => {
+	for (const name of ["A", "B", "C", "D"]) addRestaurant({ ...base, name });
+	const el = await mount();
+	await pickOnce(el);
+	expect(new Set(pickedNames(el)).size).toBe(2);
+});
+
+test("a press shows as many restaurants as the stored pick count", async () => {
+	for (const name of ["A", "B", "C", "D", "E", "F"])
+		addRestaurant({ ...base, name });
+	savePickCount(4);
+	const el = await mount();
+	await pickOnce(el);
+	expect(new Set(pickedNames(el)).size).toBe(4);
+});
+
+test("three picks are announced as a list", async () => {
+	for (const name of ["A", "B", "C"]) addRestaurant({ ...base, name });
+	savePickCount(3);
+	const el = await mount();
+	await pickOnce(el);
+	const [a, b, c] = pickedNames(el);
+	expect(
+		root(el).querySelector('p.announce[role="status"]')?.textContent?.trim(),
+	).toBe(`Picked ${a}, ${b}, and ${c}`);
 });

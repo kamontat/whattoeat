@@ -22,7 +22,13 @@ import { addVisit, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
-import { pickOptions } from "#lib/random";
+import {
+	loadPickCount,
+	PICK_COUNTS,
+	type PickCount,
+	pickOptions,
+	savePickCount,
+} from "#lib/random";
 import { isLink, metaLine, type Restaurant } from "#lib/restaurant";
 import {
 	loadRestaurants,
@@ -69,6 +75,31 @@ export class RandomPicker extends LitElement {
 				flex-wrap: wrap;
 				align-items: center;
 				gap: 0.5rem;
+			}
+
+			.stepper {
+				display: inline-flex;
+				flex: none;
+				align-items: stretch;
+				border: 1px solid var(--color-control);
+				border-radius: var(--radius-sm);
+				background: var(--color-surface);
+			}
+
+			.stepper button {
+				min-width: var(--tap);
+				padding: 0;
+				border: 0;
+				background: none;
+			}
+
+			.stepper-value {
+				display: grid;
+				place-items: center;
+				min-width: 1.75rem;
+				font-weight: 600;
+				font-variant-numeric: tabular-nums;
+				white-space: nowrap;
 			}
 
 			.no-match {
@@ -171,9 +202,22 @@ export class RandomPicker extends LitElement {
 				margin-top: auto;
 				padding: 0.75rem 0 0.5rem;
 				background: linear-gradient(to bottom, transparent, var(--color-bg) 35%);
+				display: flex;
+				gap: 0.5rem;
+			}
+
+			.pinned .pick {
+				flex: 1;
+				min-width: 0;
 			}
 
 			@media (min-width: 48rem) {
+				.stepper-value {
+					min-width: 5.5rem;
+					padding: 0 0.25rem;
+					font-size: 0.875rem;
+				}
+
 				:host {
 					min-height: 0;
 					margin-bottom: 0;
@@ -231,12 +275,17 @@ export class RandomPicker extends LitElement {
 	@state()
 	private filter: Filter = EMPTY_FILTER;
 
+	/** How many restaurants a press shows; also set in Settings. */
+	@state()
+	private count: PickCount = loadPickCount();
+
 	override connectedCallback(): void {
 		super.connectedCallback();
 		this.restaurants = loadRestaurants();
 		this.skipped = skippedCount();
 		this.defs = loadGroups();
 		this.filter = loadFilter();
+		this.count = loadPickCount();
 		this.pruneFilter();
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.restaurants = loadRestaurants();
@@ -307,7 +356,7 @@ export class RandomPicker extends LitElement {
 		this.visited = undefined;
 		this.picked = pickOptions(
 			this.pool,
-			2,
+			this.count,
 			this.picked.map((item) => item.id),
 		);
 		// Clear first, then set the real text once that clear has rendered: picking the same
@@ -343,6 +392,7 @@ export class RandomPicker extends LitElement {
 		}
 		const empty = this.pool.length === 0;
 		const wide = this.wide.matches;
+		const stepper = this.renderStepper(wide);
 		const pick = html`<button type="button" class="primary pick" ?disabled=${empty} @click=${this.pick}>
 			${icon("dice", 22)}<span>${this.picked.length > 0 ? t("picker.again") : t("picker.button")}</span>
 		</button>`;
@@ -351,7 +401,7 @@ export class RandomPicker extends LitElement {
 			<div class="main-col">
 				<header class="head">
 					<div>${title}<p class="count page-sub">${this.countText()}</p></div>
-					${wide ? html`<div class="head-actions">${pick}</div>` : nothing}
+					${wide ? html`<div class="head-actions">${stepper}${pick}</div>` : nothing}
 				</header>
 				<filter-bar
 					.restaurants=${this.restaurants}
@@ -363,17 +413,50 @@ export class RandomPicker extends LitElement {
 				<p class="announce visually-hidden" role="status">${this.announced}</p>
 				<div class="results">${this.picked.map((item) => this.renderResult(item))}</div>
 			</div>
-			${wide ? nothing : html`<div class="pinned">${pick}</div>`}
+			${wide ? nothing : html`<div class="pinned">${stepper}${pick}</div>`}
 		`;
 	}
 
-	/** Screen readers hear the new picks by name rather than both whole tiles. */
+	/** How many restaurants the next press shows, beside the pick button. Phones show the number alone. */
+	private renderStepper(wide: boolean) {
+		return html`<div class="stepper" role="group" aria-label=${t("picker.pickCount")}>
+			<button
+				type="button"
+				data-step="fewer"
+				aria-label=${t("picker.fewer")}
+				?disabled=${!this.canStep(-1)}
+				@click=${() => this.step(-1)}
+			>${icon("minus", 18)}</button>
+			<span class="stepper-value">${wide ? t("picker.perPick", { count: this.count }) : this.count}</span>
+			<button
+				type="button"
+				data-step="more"
+				aria-label=${t("picker.more")}
+				?disabled=${!this.canStep(1)}
+				@click=${() => this.step(1)}
+			>${icon("plus", 18)}</button>
+		</div>`;
+	}
+
+	private canStep(by: number): boolean {
+		return (PICK_COUNTS as readonly number[]).includes(this.count + by);
+	}
+
+	private step(by: number): void {
+		if (!this.canStep(by)) return;
+		this.count = (this.count + by) as PickCount;
+		savePickCount(this.count);
+	}
+
+	/** Screen readers hear the new picks by name rather than every whole tile. */
 	private pickAnnouncement(): string {
-		const [a, b] = this.picked.map((item) => item.name);
-		if (a === undefined) return "";
-		return b === undefined
-			? t("picker.announce.one", { a })
-			: t("picker.announce.two", { a, b });
+		const names = this.picked.map((item) => item.name);
+		if (names.length === 0) return "";
+		return t("picker.announce", {
+			names: new Intl.ListFormat(getLang(), { type: "conjunction" }).format(
+				names,
+			),
+		});
 	}
 
 	private countText(): string {
