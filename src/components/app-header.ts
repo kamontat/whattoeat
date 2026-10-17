@@ -68,15 +68,19 @@ export class AppHeader extends LitElement {
 				transform: none;
 			}
 
-			/* A tab hanging from the top edge, on every page and width, so a preview is never mistaken for production. */
+			/*
+			 * A tab on every page and width, so a preview is never mistaken for production. Phones
+			 * seat it on the bottom tab bar, between its middle tabs; the top bar layout hangs it
+			 * from the top edge instead.
+			 */
 			.preview {
 				position: fixed;
 				z-index: 25;
-				top: 0;
+				bottom: var(--tab-bar-height);
 				left: 50%;
 				transform: translateX(-50%);
-				padding: calc(env(safe-area-inset-top, 0px) + 0.125rem) 0.625rem 0.1875rem;
-				border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+				padding: 0.1875rem 0.625rem 0.125rem;
+				border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 				background: var(--color-text);
 				color: var(--color-bg);
 				font-size: 0.75rem;
@@ -145,6 +149,13 @@ export class AppHeader extends LitElement {
 
 			/* From 48rem: one top bar, brand on the left, the links beside it. */
 			@media (min-width: 48rem) {
+				.preview {
+					top: 0;
+					bottom: auto;
+					padding: calc(env(safe-area-inset-top, 0px) + 0.125rem) 0.625rem 0.1875rem;
+					border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+				}
+
 				header {
 					display: flex;
 					flex-wrap: wrap;
