@@ -66,19 +66,19 @@ const choose = async (el: HistoryClear, range: string) => {
 	await settle(el);
 };
 
-test("one Clear history row opens a sheet; the ranges are not listed on the page", async () => {
+test("one Delete history row opens a sheet; the ranges are not listed on the page", async () => {
 	const el = await mount();
 	const button = open(el)!;
 	expect(button.classList.contains("item")).toBe(true);
 	expect(button.closest("ul.group, div.group")).not.toBeNull();
-	expect(text(button.querySelector("b"))).toBe("Clear history");
+	expect(text(button.querySelector("b"))).toBe("Delete history");
 	expect(button.getAttribute("aria-haspopup")).toBe("dialog");
 	expect(sheet(el).hasAttribute("open")).toBe(false);
 	expect(row(el, "week")?.closest("app-sheet")).toBe(sheet(el));
 	button.click();
 	await settle(el);
 	expect(sheet(el).hasAttribute("open")).toBe(true);
-	expect(sheet(el).getAttribute("heading")).toBe("Clear history");
+	expect(sheet(el).getAttribute("heading")).toBe("Delete history");
 });
 
 test("with no history the row is greyed out and cannot open the sheet", async () => {
@@ -192,7 +192,7 @@ test("is translated to Thai", async () => {
 	const el = await mount();
 	setLang("th");
 	await el.updateComplete;
-	expect(text(open(el)?.querySelector("b"))).toBe("ล้างประวัติ");
+	expect(text(open(el)?.querySelector("b"))).toBe("ลบประวัติ");
 	open(el)!.click();
 	await settle(el);
 	expect(text(row(el, "week")?.querySelector("b"))).toBe("เก่ากว่า 1 สัปดาห์");

@@ -15,7 +15,7 @@ import { icon } from "#lib/icons";
 import { uiStyles } from "#styles/ui";
 
 /**
- * A Settings row, "Clear history", that opens a sheet to choose how far back to delete,
+ * A Settings row, "Delete history", that opens a sheet to choose how far back to delete,
  * then asks before deleting. Greyed out while there is no history.
  */
 @customElement("history-clear")

@@ -481,18 +481,6 @@ test("uses the singular when one stored entry could not be read", async () => {
 	);
 });
 
-test("the Reset section holds clearing history above deleting all data", async () => {
-	const el = await mount();
-	const reset = $(el, "section.reset")!;
-	const clear = reset.querySelector("history-clear");
-	const all = reset.querySelector('button[data-action="reset"]');
-	expect(clear).not.toBeNull();
-	expect(all).not.toBeNull();
-	expect(
-		clear!.compareDocumentPosition(all!) & Node.DOCUMENT_POSITION_FOLLOWING,
-	).toBeTruthy();
-});
-
 test("the reset prompt is padded on every side inside its card, not a squeezed list row", async () => {
 	const el = await mount();
 	await click(el, 'button[data-action="reset"]');
@@ -911,21 +899,22 @@ test("an Organise section links to the tags page", async () => {
 	);
 });
 
-test("the Reset section holds deleting restaurants between clearing history and deleting all data", async () => {
+test("the Reset section orders delete restaurants, delete history, then delete all data", async () => {
 	const el = await mount();
 	const reset = $(el, "section.reset")!;
-	const clear = reset.querySelector("history-clear")!;
 	const restaurants = reset.querySelector(
 		'button[data-action="clear-restaurants"]',
 	)!;
+	const history = reset.querySelector("history-clear")!;
 	const all = reset.querySelector('button[data-action="reset"]')!;
 	expect(restaurants.textContent?.trim()).toBe("Delete restaurants");
+	expect(all.textContent?.trim()).toBe("Delete all data");
 	expect(
-		clear.compareDocumentPosition(restaurants) &
+		restaurants.compareDocumentPosition(history) &
 			Node.DOCUMENT_POSITION_FOLLOWING,
 	).toBeTruthy();
 	expect(
-		restaurants.compareDocumentPosition(all) & Node.DOCUMENT_POSITION_FOLLOWING,
+		history.compareDocumentPosition(all) & Node.DOCUMENT_POSITION_FOLLOWING,
 	).toBeTruthy();
 });
 
