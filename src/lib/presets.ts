@@ -1,26 +1,6 @@
-import { getLang, type MessageKey } from "#lib/i18n";
+import { getLang } from "#lib/i18n";
 import type { Restaurant } from "#lib/restaurant";
 import { parseImport } from "#lib/transfer";
-
-// --- PR #28 legacy: the Settings preset rows that fetch a preset and run it through the
-// file-import Replace/Merge prompt. Removed in Task 8, once the presets page (Task 6) replaces
-// this flow. `src/components/data-transfer.ts` still imports these two names.
-
-/**
- * A restaurant list bundled with the site under `presets/`, one per neighbourhood. `count` is
- * shown before the file is fetched; a test keeps it equal to the file's length.
- */
-export type Preset = { id: string; name: MessageKey; count: number };
-
-export const PRESETS: readonly Preset[] = [
-	{ id: "ladprao", name: "preset.ladprao", count: 144 },
-	{ id: "ratchayothin", name: "preset.ratchayothin", count: 55 },
-];
-
-/** Relative to the page, like every other link on the site. */
-export const presetUrl = (id: string): string => `presets/${id}.json`;
-
-// --- end PR #28 legacy ---
 
 /** A display name in both languages. */
 export type Localized = { en: string; th: string };

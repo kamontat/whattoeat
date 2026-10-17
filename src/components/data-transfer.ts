@@ -21,7 +21,12 @@ import {
 } from "#lib/history";
 import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
-import { PRESETS, type Preset, presetUrl } from "#lib/presets";
+import {
+	fetchIndex,
+	loadAddedPresets,
+	type PresetIndex,
+	presetState,
+} from "#lib/presets";
 import type { Restaurant } from "#lib/restaurant";
 import {
 	isMemoryOnly,
@@ -113,6 +118,11 @@ export class DataTransferPanel extends LitElement {
 	@state()
 	private error: ImportError | undefined;
 
+	/** The bundled neighbourhood index, for the presets row's subtitle; `undefined` until it
+	 * loads or if it fails to. */
+	@state()
+	private presetIndex: PresetIndex | undefined;
+
 	@state()
 	private imported: number | undefined;
 
@@ -144,6 +154,7 @@ export class DataTransferPanel extends LitElement {
 		});
 		// A group list the browser refused to store turns the storage warning on.
 		this.unsubscribeGroups = onGroupsChanged(() => this.requestUpdate());
+		void this.loadPresetIndex();
 	}
 
 	override disconnectedCallback(): void {
@@ -165,26 +176,34 @@ export class DataTransferPanel extends LitElement {
 	/**
 	 * Validate an export file's text and hold it until the user picks Replace or Merge. With
 	 * nothing saved yet there is nothing to lose, so it is saved at once without asking.
-	 * `restaurantsOnly` (a preset) leaves the saved history and group list as they are.
 	 */
-	readImport(text: string, { restaurantsOnly = false } = {}): void {
+	readImport(text: string): void {
 		const result = parseImport(text);
 		this.imported = undefined;
 		if (result.ok) {
 			this.pending = {
 				restaurants: result.restaurants,
-				history: restaurantsOnly ? undefined : result.history,
-				groups: restaurantsOnly ? undefined : result.groups,
+				history: result.history,
+				groups: result.groups,
 			};
 			this.error = undefined;
 			const empty =
 				loadRestaurants().length === 0 &&
-				(restaurantsOnly ||
-					(loadHistory().length === 0 && loadGroups().length === 0));
+				loadHistory().length === 0 &&
+				loadGroups().length === 0;
 			if (empty) this.apply("replace");
 		} else {
 			this.pending = undefined;
 			this.error = result.error;
+		}
+	}
+
+	/** Fetch the bundled neighbourhood index for the presets row's subtitle; silent on failure. */
+	private async loadPresetIndex(): Promise<void> {
+		try {
+			this.presetIndex = await fetchIndex("./");
+		} catch {
+			this.presetIndex = undefined;
 		}
 	}
 
@@ -205,21 +224,6 @@ export class DataTransferPanel extends LitElement {
 		}
 		this.readImport(text);
 	};
-
-	private async loadPreset(preset: Preset): Promise<void> {
-		let text: string;
-		try {
-			const response = await fetch(presetUrl(preset.id));
-			if (!response.ok) throw new Error(`status ${response.status}`);
-			text = await response.text();
-		} catch {
-			this.pending = undefined;
-			this.imported = undefined;
-			this.error = "import.error.fetch";
-			return;
-		}
-		this.readImport(text, { restaurantsOnly: true });
-	}
 
 	private readonly exportData = (): void => {
 		const now = new Date();
@@ -380,6 +384,20 @@ export class DataTransferPanel extends LitElement {
 		`;
 	}
 
+	/** "{added} of {total} added", once the index has loaded; `nothing` until then or on failure. */
+	private presetsSubtitle() {
+		if (this.presetIndex === undefined) return nothing;
+		const savedIds = new Set(loadRestaurants().map((item) => item.id));
+		const added = loadAddedPresets();
+		const addedCount = this.presetIndex.presets.filter(
+			(entry) => presetState(entry, added, savedIds) !== "new",
+		).length;
+		return html`<small>${t("settings.presetsAdded", {
+			added: addedCount,
+			total: this.presetIndex.presets.length,
+		})}</small>`;
+	}
+
 	private renderCopied() {
 		if (this.copied === undefined) return nothing;
 		if ("count" in this.copied)
@@ -455,6 +473,16 @@ export class DataTransferPanel extends LitElement {
 			<section class="import" aria-labelledby="import-title">
 				<h2 id="import-title" class="group-label">${t("settings.importTitle")}</h2>
 				<div class="group">
+					<a class="item" href="./settings/presets" data-action="presets">
+						<span class="lead">${icon("pin", 22)}</span>
+						<span class="grow">
+							<b>${t("settings.presets")}</b>
+							${this.presetsSubtitle()}
+						</span>
+						<span class="trail">${icon("chevron", 20)}</span>
+					</a>
+				</div>
+				<div class="group">
 					<label class="item file">
 						<span class="lead">${icon("upload", 22)}</span>
 						<span class="grow"><b>${t("settings.importFile")}</b></span>
@@ -466,24 +494,6 @@ export class DataTransferPanel extends LitElement {
 						<span class="grow"><b>${t("settings.pasteLabel")}</b></span>
 					</button>
 					${this.pasteByHand ? this.renderPasteBox() : nothing}
-				</div>
-				<div class="group presets">
-					${PRESETS.map(
-						(preset) => html`
-							<button
-								type="button"
-								class="item"
-								data-preset=${preset.id}
-								@click=${() => this.loadPreset(preset)}
-							>
-								<span class="lead">${icon("pin", 22)}</span>
-								<span class="grow">
-									<b>${t(preset.name)}</b>
-									<small>${t("settings.presetCount", { count: preset.count })}</small>
-								</span>
-							</button>
-						`,
-					)}
 				</div>
 				${this.error ? html`<p class="error" role="alert">${t(this.error)}</p>` : nothing}
 				${

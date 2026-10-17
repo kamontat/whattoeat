@@ -518,6 +518,7 @@ export class RandomPicker extends LitElement {
 				${warnings}
 				<div class="card empty">
 					<p>${t("picker.empty")}</p>
+					<a class="button-link primary" href="./settings/presets">${t("picker.presetsLink")}</a>
 					<a class="button-link" href="./restaurants">${t("picker.addLink")}</a>
 				</div>
 			`;

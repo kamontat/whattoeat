@@ -137,6 +137,12 @@ export const uiStyles = css`
 		text-decoration: none;
 	}
 
+	/* Same strong fill as button.primary, for a link styled as the primary action. */
+	a.button-link.primary {
+		background: var(--color-primary);
+		color: var(--color-primary-text);
+	}
+
 	.card > * {
 		min-width: 0;
 	}
