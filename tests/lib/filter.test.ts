@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
 import {
 	applyFilter,
-	cycleTag,
 	dropFilterGroup,
 	dropFilterValue,
 	EMPTY_FILTER,
@@ -16,6 +15,7 @@ import {
 	pruneFilter,
 	renameFilterValue,
 	saveFilter,
+	setTagState,
 	tagState,
 } from "#lib/filter";
 import type { Restaurant } from "#lib/restaurant";
@@ -99,8 +99,8 @@ test("a custom group filters like a built-in one", () => {
 	).toEqual(["B", "C"]);
 });
 
-test("cycleTag works on a group missing from the filter", () => {
-	expect(cycleTag({}, "g1", "cheap")).toEqual({
+test("setTagState works on a group missing from the filter", () => {
+	expect(setTagState({}, "g1", "cheap", "include")).toEqual({
 		g1: { include: ["cheap"], exclude: [] },
 	});
 	expect(tagState({}, "g1", "cheap")).toBe("off");
@@ -137,35 +137,45 @@ test("values in one group match any, groups must all match", () => {
 });
 
 test("a restaurant with no value in an included group does not match it", () => {
-	const filter = cycleTag(EMPTY_FILTER, "cuisine", "thai");
+	const filter = setTagState(EMPTY_FILTER, "cuisine", "thai", "include");
 	expect(names(applyFilter(places, filter))).toEqual(["Noodle"]);
 });
 
 test("isFilterActive is true only when some group has a value", () => {
 	expect(isFilterActive(EMPTY_FILTER)).toBe(false);
 	expect(isFilterActive(kinds([], ["food"]))).toBe(true);
-	expect(isFilterActive(cycleTag(EMPTY_FILTER, "area", "siam"))).toBe(true);
+	expect(
+		isFilterActive(setTagState(EMPTY_FILTER, "area", "siam", "include")),
+	).toBe(true);
 });
 
-test("cycleTag goes off, include, exclude, off", () => {
-	const included = cycleTag(EMPTY_FILTER, "kind", "food");
+test("setTagState moves a value straight to the asked state", () => {
+	const included = setTagState(EMPTY_FILTER, "kind", "food", "include");
 	expect(included).toEqual(kinds(["food"]));
-	expect(tagState(included, "kind", "food")).toBe("include");
-	const excluded = cycleTag(included, "kind", "food");
+	const excluded = setTagState(included, "kind", "food", "exclude");
 	expect(excluded).toEqual(kinds([], ["food"]));
-	expect(tagState(excluded, "kind", "food")).toBe("exclude");
-	const off = cycleTag(excluded, "kind", "food");
-	// cycleTag always sets the group's key, even back to empty; it stays functionally
-	// equivalent to EMPTY_FILTER (isFilterActive, matchesGroup, tagState all treat an empty
-	// group the same as an absent one), but is not deep-equal to it.
-	expect(off).toEqual(kinds([]));
-	expect(tagState(off, "kind", "food")).toBe("off");
+	expect(setTagState(excluded, "kind", "food", "include")).toEqual(
+		kinds(["food"]),
+	);
 });
 
-test("cycleTag leaves other values and groups alone", () => {
-	const start = cycleTag(kinds(["food"], ["drinks"]), "area", "thai");
-	expect(cycleTag(start, "kind", "dessert")).toEqual({
-		...EMPTY_FILTER,
+test("setTagState off removes the value and drops a group left empty", () => {
+	expect(setTagState(kinds(["food"]), "kind", "food", "off")).toEqual(
+		EMPTY_FILTER,
+	);
+	expect(
+		setTagState(kinds(["food"], ["drinks"]), "kind", "food", "off"),
+	).toEqual(kinds([], ["drinks"]));
+});
+
+test("setTagState leaves other values and groups alone", () => {
+	const start = setTagState(
+		kinds(["food"], ["drinks"]),
+		"area",
+		"thai",
+		"include",
+	);
+	expect(setTagState(start, "kind", "dessert", "include")).toEqual({
 		kind: { include: ["food", "dessert"], exclude: ["drinks"] },
 		area: { include: ["thai"], exclude: [] },
 	});
@@ -252,7 +262,12 @@ test("loadFilter normalizes values, drops non-strings, blanks, unknown kinds and
 });
 
 test("saveFilter round-trips through loadFilter", () => {
-	const filter = cycleTag(kinds(["food"], ["drinks"]), "area", "siam");
+	const filter = setTagState(
+		kinds(["food"], ["drinks"]),
+		"area",
+		"siam",
+		"include",
+	);
 	saveFilter(filter);
 	expect(loadFilter()).toEqual(filter);
 });

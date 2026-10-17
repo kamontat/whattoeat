@@ -67,28 +67,6 @@ export const tagState = (
 	return "off";
 };
 
-/** Move one value to its next state: off, include, exclude, then off again. */
-export const cycleTag = (
-	filter: Filter,
-	group: string,
-	value: string,
-): Filter => {
-	const current = groupFilter(filter, group);
-	const include = current.include.filter((item) => item !== value);
-	const exclude = current.exclude.filter((item) => item !== value);
-	const next = ((): GroupFilter => {
-		switch (tagState(filter, group, value)) {
-			case "off":
-				return { include: [...include, value], exclude };
-			case "include":
-				return { include, exclude: [...exclude, value] };
-			case "exclude":
-				return { include, exclude };
-		}
-	})();
-	return { ...filter, [group]: next };
-};
-
 /**
  * Keep only groups in `groupIds` (tags only when the scope filters them), values some
  * restaurant still uses, and non-empty groups.
@@ -200,6 +178,22 @@ const withGroup = (
 	return include.length + exclude.length > 0
 		? { ...rest, [group]: { include, exclude } }
 		: rest;
+};
+
+/** Put one value in the given state; a group left empty is removed. */
+export const setTagState = (
+	filter: Filter,
+	group: string,
+	value: string,
+	state: TagState,
+): Filter => {
+	const current = groupFilter(filter, group);
+	const include = current.include.filter((item) => item !== value);
+	const exclude = current.exclude.filter((item) => item !== value);
+	return withGroup(filter, group, {
+		include: state === "include" ? [...include, value] : include,
+		exclude: state === "exclude" ? [...exclude, value] : exclude,
+	});
 };
 
 export const renameFilterValue = (
