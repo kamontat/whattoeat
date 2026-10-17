@@ -59,9 +59,10 @@ export class AppFooter extends LitElement {
 			timeStyle: "short",
 		}).format(built);
 		const date = zone === undefined ? time : `${time} ${zone}`;
-		return html`<div class="item">
+		return html`<div class="item" data-row="built">
 			<span class="lead">${icon("clock", 22)}</span>
-			<span class="grow"><span>${t("footer.built")} <time datetime=${built.toISOString()}>${date}</time></span></span>
+			<span class="grow"><b>${t("footer.built")}</b></span>
+			<small class="trail"><time datetime=${built.toISOString()}>${date}</time></small>
 		</div>`;
 	}
 

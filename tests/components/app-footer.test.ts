@@ -107,6 +107,13 @@ test("shows the build date in a time element", async () => {
 	expect(el.shadowRoot!.textContent).toContain("Built");
 });
 
+test("lays the build date out like the environment, title left and value right", async () => {
+	const el = await mount(SHA, new Date("2026-10-13T08:30:00Z"));
+	const row = el.shadowRoot!.querySelector('[data-row="built"]');
+	expect(row?.querySelector(".grow b")?.textContent).toBe("Built");
+	expect(row?.querySelector(".trail time")).not.toBeNull();
+});
+
 test("shows the time zone of the build time", async () => {
 	const saved = process.env.TZ;
 	process.env.TZ = "Asia/Bangkok";
@@ -153,5 +160,5 @@ test("lays the links out as list rows", async () => {
 				row.getAttribute("data-row") ??
 				row.tagName,
 		),
-	).toEqual(["source", "changelog", "commit", "env", "DIV"]);
+	).toEqual(["source", "changelog", "commit", "env", "built"]);
 });
