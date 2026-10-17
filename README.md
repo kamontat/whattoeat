@@ -11,7 +11,7 @@ app (see [Install on a phone](#install-on-a-phone)).
 | Page           | What it does                                   |
 | -------------- | ---------------------------------------------- |
 | `/`            | Two random options; press Eat here to save a visit to History |
-| `/restaurants` | Add, edit and delete restaurants               |
+| `/restaurants` | Add, edit and delete restaurants; search them by name |
 | `/history`     | Visits grouped by day, stats per restaurant, delete a visit |
 | `/settings`    | Language and theme; export or import JSON as a file or by copy and paste, with replace or merge; clear history by age; delete all data; about |
 | `/tags`        | Groups and their values: counts, add, rename, reorder and delete groups; rename, merge, move and delete values |

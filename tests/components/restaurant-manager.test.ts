@@ -12,6 +12,7 @@ import {
 	saveRestaurants,
 	updateRestaurant,
 } from "#lib/store";
+import { uiStyles } from "#styles/ui";
 
 beforeEach(() => {
 	localStorage.clear();
@@ -1119,5 +1120,510 @@ test("the empty list has its own Add button that opens the form", async () => {
 	await el.updateComplete;
 	expect($(el, "section.edit-panel #form-title")?.textContent?.trim()).toBe(
 		"New restaurant",
+	);
+});
+
+const searchInput = (el: RestaurantManager) =>
+	$<HTMLInputElement>(el, "#search")!;
+const openSearch = async (el: RestaurantManager) => {
+	$<HTMLButtonElement>(el, '[data-action="search"]')!.click();
+	await el.updateComplete;
+};
+const typeSearch = async (el: RestaurantManager, text: string) => {
+	type(el, "#search", text);
+	await el.updateComplete;
+};
+const seedSearch = () => {
+	for (const name of [
+		"Bankara Ramen",
+		"Café Tartine",
+		"Jay Fai",
+		"Ramen Champion",
+	])
+		addRestaurant({ ...blank, name });
+};
+
+test("search: the header button shows only once there is a restaurant", async () => {
+	const el = await mount();
+	expect($(el, '[data-action="search"]')).toBeNull();
+	addRestaurant({ ...blank, name: "Jay Fai" });
+	await el.updateComplete;
+	const button = $(el, '.head-actions [data-action="search"]')!;
+	expect(button.getAttribute("aria-label")).toBe("Search restaurants");
+	expect(button.nextElementSibling?.classList.contains("tags-link")).toBe(true);
+});
+
+test("search: opening focuses the field inside the tap, so iOS opens the keyboard", async () => {
+	seedSearch();
+	const el = await mount();
+	$<HTMLButtonElement>(el, '[data-action="search"]')!.click();
+	// No await: the focus must already have moved when the click handler returns.
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+	await el.updateComplete;
+	// The title stays in the accessibility tree (visually hidden) while the actions go dark.
+	expect($(el, ".head-actions")?.hasAttribute("hidden")).toBe(true);
+	expect($(el, ".head > div")?.classList.contains("visually-hidden")).toBe(
+		true,
+	);
+	expect($(el, ".head h1.page-title")?.textContent?.trim()).toBe("Restaurants");
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	const input = searchInput(el);
+	expect(input.type).toBe("search");
+	expect(input.getAttribute("aria-label")).toBe("Search restaurants");
+	expect(input.placeholder).toBe("Search by name");
+	expect(input.getAttribute("autocomplete")).toBe("off");
+	expect(input.getAttribute("autocapitalize")).toBe("off");
+	expect(input.getAttribute("spellcheck")).toBe("false");
+	expect(input.getAttribute("enterkeyhint")).toBe("search");
+});
+
+test("search: typing narrows the list to matching names, A to Z, with the match in a mark", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	expect(rowNames(el)).toEqual(["Bankara Ramen", "Ramen Champion"]);
+	const marks = [
+		...el.shadowRoot!.querySelectorAll("li[data-id] .name mark"),
+	].map((mark) => mark.textContent);
+	expect(marks).toEqual(["Ram", "Ram"]);
+	expect($(el, "li[data-id] button.row")?.getAttribute("aria-label")).toBe(
+		"Edit Bankara Ramen",
+	);
+	await typeSearch(el, "cafe");
+	expect(rowNames(el)).toEqual(["Café Tartine"]);
+	expect($(el, "li[data-id] .name mark")?.textContent).toBe("Café");
+	await typeSearch(el, "champion ramen");
+	expect(rowNames(el)).toEqual(["Ramen Champion"]);
+});
+
+test("search: the count shows at once; screen readers hear it after typing pauses", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	expect($(el, ".search-count")?.textContent?.trim()).toBe("4 restaurants");
+	await typeSearch(el, "ram");
+	expect($(el, ".search-count")?.textContent?.trim()).toBe(
+		"2 of 4 restaurants",
+	);
+	const live = $(el, '.search-announce[role="status"]')!;
+	expect(live.textContent?.trim()).toBe("");
+	await new Promise((resolve) => setTimeout(resolve, 550));
+	await el.updateComplete;
+	expect(live.textContent?.trim()).toBe("2 of 4 restaurants");
+});
+
+test("search: clear empties the field but stays in search with focus in the field", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	expect($(el, '[data-action="clear-search"]')).toBeNull();
+	await typeSearch(el, "ram");
+	await click(el, '[data-action="clear-search"]');
+	expect(searchInput(el).value).toBe("");
+	expect(rowNames(el)).toHaveLength(4);
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+});
+
+test("search: a pointerdown on clear does not blur the field first, so the keyboard stays up", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	const clear = $<HTMLButtonElement>(el, '[data-action="clear-search"]')!;
+	const event = new PointerEvent("pointerdown", {
+		bubbles: true,
+		cancelable: true,
+	});
+	clear.dispatchEvent(event);
+	expect(event.defaultPrevented).toBe(true);
+});
+
+test("search: Cancel and Escape end search, restore the header and focus the button", async () => {
+	seedSearch();
+	const el = await mount();
+	for (const end of ["cancel", "escape"]) {
+		await openSearch(el);
+		await typeSearch(el, "ram");
+		if (end === "cancel") await click(el, '[data-action="cancel-search"]');
+		else {
+			searchInput(el).dispatchEvent(
+				new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+			);
+			await el.updateComplete;
+		}
+		await el.updateComplete;
+		expect($(el, ".head-actions")?.hasAttribute("hidden")).toBe(false);
+		expect($(el, ".head > div")?.classList.contains("visually-hidden")).toBe(
+			false,
+		);
+		expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+		expect(rowNames(el)).toHaveLength(4);
+		expect(searchInput(el).value).toBe("");
+		expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+			"search",
+		);
+	}
+});
+
+test("search: is translated to Thai", async () => {
+	seedSearch();
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	expect($(el, '[data-action="search"]')?.getAttribute("aria-label")).toBe(
+		"ค้นหาร้านอาหาร",
+	);
+	await openSearch(el);
+	expect(searchInput(el).placeholder).toBe("ค้นหาด้วยชื่อ");
+	expect($(el, '[data-action="cancel-search"]')?.textContent?.trim()).toBe(
+		"ยกเลิก",
+	);
+	await typeSearch(el, "ram");
+	expect($(el, ".search-count")?.textContent?.trim()).toBe("2 จาก 4 ร้าน");
+});
+
+test("the magnifier and the Tags link are the same height", () => {
+	const css = (RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(/\.tags-link\s*\{[^}]*min-height:\s*var\(--tap\)/);
+	// A link's min-height leaves out its border unless it is border-box, like the button.
+	expect(css).toMatch(/\.tags-link\s*\{[^}]*box-sizing:\s*border-box/);
+	expect(css).toMatch(/\.search-open\s*\{[^}]*min-height:\s*var\(--tap\)/);
+});
+
+test("search: field, clear and cancel are tap sized; the input text is 16px", () => {
+	const css = (RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(/\.search-field\s*\{[^}]*min-height:\s*var\(--tap\)/);
+	expect(css).toMatch(/\.search-open\s*\{[^}]*min-height:\s*var\(--tap\)/);
+	expect(css).toMatch(/\.search-row\[hidden\]/);
+	expect(css).toMatch(
+		/\.name mark\s*\{[^}]*background:\s*var\(--color-primary-soft\)/,
+	);
+	// The search input gets its 16px text from the shared ui rule, not iOS's 13px default
+	// zoom-trigger size, and the component's own rule must not override it back down.
+	expect((uiStyles as unknown as { cssText: string }).cssText).toMatch(
+		/input,\s*select,\s*textarea\s*\{[^}]*font-size:\s*1rem/,
+	);
+	expect(css).not.toMatch(/\.search-field input\s*\{[^}]*font-size/);
+});
+
+test("search: the field drops iOS's default search styling", () => {
+	const css = (RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(
+		/\.search-field input\s*\{[^}]*appearance:\s*none[^}]*-webkit-appearance:\s*none/,
+	);
+	expect(css).toMatch(
+		/\.search-field input::-webkit-search-decoration\s*\{[^}]*display:\s*none/,
+	);
+});
+
+test("search: no match shows one card that offers to add the name or clear", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "  zaab ");
+	expect($(el, "ul.list")).toBeNull();
+	const card = $(el, ".card.empty.no-match")!;
+	expect(card.querySelector("p")?.textContent?.trim()).toBe(
+		'No restaurants match "zaab".',
+	);
+	expect(
+		card.querySelector('[data-action="add-named"]')?.textContent?.trim(),
+	).toBe('Add "zaab"');
+	await click(el, '[data-action="clear-search-empty"]');
+	expect(rowNames(el)).toHaveLength(4);
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+});
+
+test("phone: Add from a search opens the new form with the name filled in", async () => {
+	seedSearch();
+	const el = await phone();
+	await openSearch(el);
+	await typeSearch(el, "Zaab Ari");
+	await click(el, '[data-action="add-named"]');
+	expect($(el, "app-sheet")?.hasAttribute("open")).toBe(true);
+	expect($(el, "app-sheet")?.getAttribute("heading")).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Zaab Ari");
+});
+
+test("wide: Add from a search fills the side panel's name", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "Zaab Ari");
+	await click(el, '[data-action="add-named"]');
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("New restaurant");
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Zaab Ari");
+});
+
+test("phone: Add from a search focuses the saved row, now shown among the results", async () => {
+	seedSearch();
+	const el = await phone();
+	await openSearch(el);
+	await typeSearch(el, "Zaab");
+	await click(el, '[data-action="add-named"]');
+	await submit(el);
+	await settleFocus(el);
+	expect(rowNames(el)).toEqual(["Zaab"]);
+	const row = [...el.shadowRoot!.querySelectorAll("li[data-id]")].find(
+		(li) => li.querySelector(".name")?.textContent === "Zaab",
+	)!;
+	expect(el.shadowRoot!.activeElement).toBe(
+		row.querySelector('button[data-action="edit"]'),
+	);
+});
+
+test("search: editing a result keeps the search; a rename out of it drops the row", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	type(el, "#name", "Bankara Tonkotsu");
+	await submit(el);
+	await el.updateComplete;
+	expect(searchInput(el).value).toBe("ram");
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	expect(rowNames(el)).toEqual(["Ramen Champion"]);
+	expect($(el, 'p.status[role="status"]')?.textContent?.trim()).toBe(
+		"Saved Bankara Tonkotsu",
+	);
+	// Renamed out of the query: its row is gone, so focus goes back to the search field.
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+});
+
+test("search: a restaurant added in another tab shows up if it matches", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	addRestaurant({ ...blank, name: "Ramen Nagi" });
+	await el.updateComplete;
+	expect(rowNames(el)).toEqual([
+		"Bankara Ramen",
+		"Ramen Champion",
+		"Ramen Nagi",
+	]);
+});
+
+test("search: deleting every restaurant mid-search shows the empty list card", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	saveRestaurants([]);
+	await el.updateComplete;
+	expect($(el, ".card.empty:not(.no-match)")).not.toBeNull();
+	expect($(el, ".no-match")).toBeNull();
+	// An empty list ends the search outright instead of leaving a dead "0 of 0" view behind.
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+	expect($(el, ".head-actions")?.hasAttribute("hidden")).toBe(false);
+	expect($(el, ".head > div")?.classList.contains("visually-hidden")).toBe(
+		false,
+	);
+	expect($(el, ".search-count")).toBeNull();
+	expect(searchInput(el).value).toBe("");
+	await new Promise((resolve) => setTimeout(resolve, 550));
+	await el.updateComplete;
+	expect($(el, '.search-announce[role="status"]')?.textContent?.trim()).toBe(
+		"",
+	);
+});
+
+const slash = (target: EventTarget = document.body) =>
+	target.dispatchEvent(
+		new KeyboardEvent("keydown", {
+			key: "/",
+			bubbles: true,
+			composed: true,
+			cancelable: true,
+		}),
+	);
+
+test("wide: / opens search, but not while typing in a field", async () => {
+	seedSearch();
+	const el = await mountForm();
+	slash($<HTMLInputElement>(el, "#name")!);
+	await el.updateComplete;
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+	slash();
+	await el.updateComplete;
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+});
+
+test("phone: / does nothing", async () => {
+	seedSearch();
+	const el = await phone();
+	slash();
+	await el.updateComplete;
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+});
+
+test("wide: / does nothing while a sheet is open", async () => {
+	seedSearch();
+	const el = await mount();
+	document.documentElement.classList.add("sheet-open");
+	try {
+		slash();
+		await el.updateComplete;
+		expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+	} finally {
+		document.documentElement.classList.remove("sheet-open");
+	}
+});
+
+test("wide: / while already searching moves focus back to the field, from outside a typing control", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	const row = $<HTMLButtonElement>(
+		el,
+		'li[data-id] button[data-action="edit"]',
+	)!;
+	row.focus();
+	const event = new KeyboardEvent("keydown", {
+		key: "/",
+		bubbles: true,
+		composed: true,
+		cancelable: true,
+	});
+	row.dispatchEvent(event);
+	await el.updateComplete;
+	expect(event.defaultPrevented).toBe(true);
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+});
+
+test("search: the no-match card is translated to Thai", async () => {
+	seedSearch();
+	const el = await mount();
+	setLang("th");
+	await el.updateComplete;
+	await openSearch(el);
+	await typeSearch(el, "zaab");
+	expect($(el, ".no-match p")?.textContent?.trim()).toBe("ไม่มีร้านที่ตรงกับ “zaab”");
+	expect($(el, '[data-action="add-named"]')?.textContent?.trim()).toBe(
+		"เพิ่ม “zaab”",
+	);
+	expect($(el, '[data-action="clear-search-empty"]')?.textContent?.trim()).toBe(
+		"ล้างการค้นหา",
+	);
+});
+
+const pressEnter = (el: RestaurantManager) => {
+	const event = new KeyboardEvent("keydown", {
+		key: "Enter",
+		bubbles: true,
+		cancelable: true,
+	});
+	searchInput(el).dispatchEvent(event);
+	return event;
+};
+
+test("phone: the title row and the search row stay stuck to the top while the list scrolls", async () => {
+	seedSearch();
+	const el = await phone();
+	const top = $(el, ".top")!;
+	expect(top.querySelector(".head")).not.toBeNull();
+	expect(top.querySelector(".search-row")).not.toBeNull();
+	const css = (RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	expect(css).toMatch(
+		/\.top\s*\{[^}]*position:\s*sticky[^}]*top:\s*0[^}]*background:\s*var\(--color-bg\)/,
+	);
+	// Wide screens keep a sticky side panel, so the top row scrolls normally there.
+	expect(css).toMatch(
+		/@media \(min-width: 48rem\)[\s\S]*\.top\s*\{[^}]*position:\s*static/,
+	);
+	// A focused row never hides under the stuck bar.
+	expect(css).toMatch(/li\[data-id\]\s*\{[^}]*scroll-margin-top:/);
+});
+
+test("search: the Search key with one match opens that restaurant", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "champion");
+	const event = pressEnter(el);
+	await el.updateComplete;
+	expect(event.defaultPrevented).toBe(true);
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Ramen Champion");
+	expect(searchInput(el).value).toBe("champion");
+});
+
+test("phone: the Search key with one match opens its edit sheet", async () => {
+	seedSearch();
+	const el = await phone();
+	await openSearch(el);
+	await typeSearch(el, "jay");
+	pressEnter(el);
+	await el.updateComplete;
+	expect($(el, "app-sheet")?.hasAttribute("open")).toBe(true);
+	expect($(el, "app-sheet")?.getAttribute("heading")).toBe("Edit Jay Fai");
+});
+
+test("search: the Search key with several matches hides the keyboard and keeps the results", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	const event = pressEnter(el);
+	await el.updateComplete;
+	expect(event.defaultPrevented).toBe(true);
+	expect(el.shadowRoot!.activeElement?.id).not.toBe("search");
+	expect(rowNames(el)).toEqual(["Bankara Ramen", "Ramen Champion"]);
+	expect($(el, "section.edit-panel")).toBeNull();
+});
+
+test("search: the no-match Add keeps an already open add panel open, with the name filled in", async () => {
+	seedSearch();
+	const el = await mountForm();
+	await openSearch(el);
+	await typeSearch(el, "zaab");
+	await click(el, '[data-action="add-named"]');
+	expect($(el, "section.edit-panel #form-title")?.textContent?.trim()).toBe(
+		"New restaurant",
+	);
+	expect($<HTMLInputElement>(el, "#name")?.value).toBe("zaab");
+});
+
+test("search: closing the panel while searching returns focus to the search field", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ram");
+	await click(el, 'li[data-id] button[data-action="edit"]');
+	await click(el, 'button[data-action="close-panel"]');
+	await el.updateComplete;
+	expect(el.shadowRoot!.activeElement?.id).toBe("search");
+});
+
+test("search: no match drops the count line; screen readers hear the no-match message", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "zaab");
+	expect($(el, ".search-count")).toBeNull();
+	await new Promise((resolve) => setTimeout(resolve, 550));
+	await el.updateComplete;
+	expect($(el, ".search-announce")?.textContent?.trim()).toBe(
+		'No restaurants match "zaab".',
 	);
 });

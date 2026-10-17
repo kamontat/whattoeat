@@ -23,6 +23,7 @@ import {
 	VALUE_GROUPS,
 	valuesByUsage,
 } from "#lib/restaurant";
+import { type MatchRange, matchName, searchWords } from "#lib/search";
 import {
 	addRestaurant,
 	isMemoryOnly,
@@ -80,6 +81,26 @@ export class RestaurantManager extends LitElement {
 				margin-bottom: calc(var(--tab-bar-height) - var(--tab-bar-space));
 			}
 
+			/*
+			 * Phone: the title row (and the search row while searching) stays at the top, so search
+			 * is one tap away in a long list and results scroll underneath the field.
+			 */
+			.top {
+				position: sticky;
+				top: 0;
+				z-index: 4;
+				display: grid;
+				gap: 1rem;
+				margin-top: -0.75rem;
+				padding-block: 0.75rem;
+				background: var(--color-bg);
+			}
+
+			/* Room for the stuck bar when a focused row scrolls into view. */
+			li[data-id] {
+				scroll-margin-top: 7rem;
+			}
+
 			.head {
 				display: flex;
 				flex-wrap: wrap;
@@ -99,7 +120,9 @@ export class RestaurantManager extends LitElement {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.375rem;
-				min-height: 2.25rem;
+				/* Same height as the magnifier beside it, borders included. */
+				box-sizing: border-box;
+				min-height: var(--tap);
 				padding: 0 0.875rem;
 				border: 1px solid var(--color-control);
 				border-radius: var(--radius-pill);
@@ -303,6 +326,17 @@ export class RestaurantManager extends LitElement {
 					top: 1rem;
 				}
 
+				/* The side panel is the sticky part on wide screens; the top row scrolls away. */
+				.top {
+					position: static;
+					margin-top: 0;
+					padding-block: 0;
+				}
+
+				li[data-id] {
+					scroll-margin-top: 0;
+				}
+
 				/* The panel is short enough that Save doesn't need to stay pinned. */
 				.actions.form-actions {
 					position: static;
@@ -320,6 +354,106 @@ export class RestaurantManager extends LitElement {
 				form tag-input,
 				fieldset.kinds label {
 					scroll-margin-bottom: 0;
+				}
+			}
+
+			.head-actions[hidden],
+			.search-row[hidden] {
+				display: none;
+			}
+
+			.search-open {
+				width: var(--tap);
+				min-height: var(--tap);
+				padding: 0;
+				border-radius: var(--radius-pill);
+			}
+
+			.search-row {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.search-field {
+				display: flex;
+				flex: 1;
+				align-items: center;
+				gap: 0.5rem;
+				min-height: var(--tap);
+				padding: 0 0 0 0.75rem;
+				border-radius: var(--radius-sm);
+				background: var(--color-surface-2);
+				color: var(--color-muted);
+				font-weight: 400;
+			}
+
+			.search-field:focus-within {
+				outline: 3px solid var(--color-focus);
+				outline-offset: 2px;
+			}
+
+			.search-field input {
+				flex: 1;
+				min-width: 0;
+				min-height: var(--tap);
+				padding: 0;
+				border: 0;
+				background: transparent;
+				color: var(--color-text);
+				appearance: none;
+				-webkit-appearance: none;
+			}
+
+			/* The field's own ring is drawn around the whole field above. */
+			.search-field input:focus-visible {
+				outline: none;
+			}
+
+			.search-field input::-webkit-search-cancel-button,
+			.search-field input::-webkit-search-decoration {
+				display: none;
+			}
+
+			.clear-search {
+				width: var(--tap);
+				padding: 0;
+				border: 0;
+				background: transparent;
+				color: var(--color-muted);
+			}
+
+			.cancel-search {
+				padding: 0 0.25rem;
+				border-color: transparent;
+				background: transparent;
+				color: var(--color-link);
+			}
+
+			.search-count {
+				margin-top: -0.25rem;
+			}
+
+			.name mark {
+				border-radius: 3px;
+				background: var(--color-primary-soft);
+				color: inherit;
+				font-weight: 700;
+			}
+
+			.no-match .actions {
+				justify-content: center;
+			}
+
+			@media (prefers-reduced-motion: no-preference) {
+				.search-row:not([hidden]) {
+					animation: search-in var(--duration) ease-out;
+				}
+
+				@keyframes search-in {
+					from {
+						opacity: 0;
+					}
 				}
 			}
 		`,
@@ -364,6 +498,20 @@ export class RestaurantManager extends LitElement {
 	@state()
 	private skipped = 0;
 
+	/** Whether the header is in search mode. */
+	@state()
+	private searching = false;
+
+	/** What is typed in the search field; never stored. */
+	@state()
+	private query = "";
+
+	/** The result count read out to screen readers once typing pauses. */
+	@state()
+	private announced = "";
+
+	private announceTimer: ReturnType<typeof setTimeout> | undefined;
+
 	/** The form as the open sheet last drew it. */
 	private shownView: FormView | undefined;
 
@@ -389,12 +537,20 @@ export class RestaurantManager extends LitElement {
 
 	override connectedCallback(): void {
 		super.connectedCallback();
+		document.addEventListener("keydown", this.onShortcut);
 		this.restaurants = loadRestaurants();
 		this.skipped = skippedCount();
 		this.defs = loadGroups();
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.restaurants = loadRestaurants();
 			this.skipped = skippedCount();
+			// Nothing left to search: end search outright rather than leave a dead "0 of 0" view.
+			if (this.searching && this.restaurants.length === 0) {
+				clearTimeout(this.announceTimer);
+				this.searching = false;
+				this.query = "";
+				this.announced = "";
+			}
 			if (this.editingId === undefined) return;
 			const editing = this.restaurants.find(
 				(item) => item.id === this.editingId,
@@ -416,11 +572,13 @@ export class RestaurantManager extends LitElement {
 
 	override disconnectedCallback(): void {
 		super.disconnectedCallback();
+		document.removeEventListener("keydown", this.onShortcut);
 		this.unsubscribe?.();
 		this.unsubscribe = undefined;
 		this.unsubscribeGroups?.();
 		this.unsubscribeGroups = undefined;
 		clearTimeout(this.leaveTimer);
+		clearTimeout(this.announceTimer);
 	}
 
 	/**
@@ -540,12 +698,17 @@ export class RestaurantManager extends LitElement {
 		};
 		const editingId = this.editingId;
 		const name = input.name.trim();
+		const wasSearching = this.searching;
 		// Reset before saving so the store's change callback already sees a clean form.
 		this.resetForm();
 		this.sheetOpen = false;
 		this.closePanel();
-		if (editingId === undefined) addRestaurant(input);
-		else updateRestaurant(editingId, input);
+		const list =
+			editingId === undefined
+				? addRestaurant(input)
+				: updateRestaurant(editingId, input);
+		const savedId = editingId ?? list.at(-1)?.id;
+		if (wasSearching && savedId !== undefined) this.focusAfterSave(savedId);
 		// Clear first, then set the real text once that clear has rendered: saving the same name
 		// again still changes the live region's text, so it is announced again.
 		this.status = "";
@@ -581,22 +744,179 @@ export class RestaurantManager extends LitElement {
 			this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
 	}
 
+	/** Add again on an open add panel hides it; on an edit it switches to a new restaurant. */
 	private readonly startAdd = (): void => {
-		this.confirmingId = undefined;
-		this.status = "";
-		// Add again on an open add panel hides it; on an edit it switches to a new restaurant.
-		const closing = this.panelOpen && this.editingId === undefined;
-		this.resetForm();
-		if (closing) {
+		if (this.panelOpen && this.editingId === undefined) {
+			this.confirmingId = undefined;
+			this.status = "";
+			this.resetForm();
 			this.closePanel();
 			return;
 		}
+		this.openAdd();
+	};
+
+	private openAdd(): void {
+		this.confirmingId = undefined;
+		this.status = "";
+		this.resetForm();
 		this.sheetOpen = !this.wide.matches;
 		this.panelOpen = this.wide.matches;
 		// A sheet puts focus on its own title; the side panel starts at the name.
 		if (!this.sheetOpen)
 			this.focusAfterRender(() => this.renderRoot.querySelector("#name"));
+	}
+
+	/** The no-match card's Add: a new restaurant already named what was searched for. */
+	private startAddNamed(name: string): void {
+		this.openAdd();
+		this.form = { ...this.form, name };
+	}
+
+	/**
+	 * `/` opens search on wide screens, unless typing somewhere or a sheet is open. Already
+	 * searching but focus has drifted elsewhere (e.g. a result row): bring it back to the field
+	 * instead of doing nothing.
+	 */
+	private readonly onShortcut = (event: KeyboardEvent): void => {
+		if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey)
+			return;
+		if (!this.wide.matches || this.restaurants.length === 0) return;
+		if (document.documentElement.classList.contains("sheet-open")) return;
+		const target = event.composedPath()[0];
+		if (
+			target instanceof HTMLElement &&
+			(target.isContentEditable ||
+				["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+		)
+			return;
+		event.preventDefault();
+		if (this.searching) {
+			this.renderRoot.querySelector<HTMLInputElement>("#search")?.focus();
+			return;
+		}
+		this.openSearch();
 	};
+
+	/**
+	 * iOS only opens the keyboard for a focus made during the tap, so the search row is always
+	 * rendered and is shown and focused here, before any re-render.
+	 */
+	private readonly openSearch = (): void => {
+		const row = this.renderRoot.querySelector<HTMLElement>(".search-row");
+		if (row !== null) row.hidden = false;
+		this.renderRoot.querySelector<HTMLInputElement>("#search")?.focus();
+		this.searching = true;
+	};
+
+	private readonly onSearchInput = (event: Event): void => {
+		this.query = (event.target as HTMLInputElement).value;
+		this.scheduleAnnounce();
+	};
+
+	/**
+	 * Escape ends search. Enter (the keyboard's Search key) opens the only match, or else just
+	 * puts the keyboard away so every result is in view.
+	 */
+	private readonly onSearchKey = (event: KeyboardEvent): void => {
+		if (event.key === "Escape") {
+			event.preventDefault();
+			this.cancelSearch();
+			return;
+		}
+		if (event.key !== "Enter") return;
+		event.preventDefault();
+		const results = this.results(this.sortedRestaurants());
+		const only = searchWords(this.query).length > 0 ? results : [];
+		if (only.length === 1 && only[0] !== undefined)
+			this.startEdit(only[0].item);
+		else (event.target as HTMLInputElement).blur();
+	};
+
+	private readonly clearSearch = (): void => {
+		this.query = "";
+		this.scheduleAnnounce();
+		const input = this.renderRoot.querySelector<HTMLInputElement>("#search");
+		if (input !== null) {
+			input.value = "";
+			input.focus();
+		}
+	};
+
+	private readonly cancelSearch = (): void => {
+		clearTimeout(this.announceTimer);
+		this.searching = false;
+		this.query = "";
+		this.announced = "";
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector('[data-action="search"]'),
+		);
+	};
+
+	/** Say the count once typing pauses, not on every key. */
+	private scheduleAnnounce(): void {
+		clearTimeout(this.announceTimer);
+		this.announced = "";
+		this.announceTimer = setTimeout(() => {
+			const sorted = this.sortedRestaurants();
+			this.announced = this.noMatch(sorted)
+				? t("search.noMatch", { query: this.query.trim() })
+				: this.countText(sorted);
+		}, 500);
+	}
+
+	private sortedRestaurants(): Restaurant[] {
+		return [...this.restaurants].sort((a, b) =>
+			a.name.localeCompare(b.name, getLang()),
+		);
+	}
+
+	/** The restaurants the query keeps, in list order, with what to highlight in each name. */
+	private results(
+		sorted: readonly Restaurant[],
+	): { item: Restaurant; ranges: MatchRange[] }[] {
+		const words = this.searching ? searchWords(this.query) : [];
+		return sorted.flatMap((item) => {
+			const ranges = matchName(item.name, words);
+			return ranges === undefined ? [] : [{ item, ranges }];
+		});
+	}
+
+	private renderNoMatch() {
+		const query = this.query.trim();
+		return html`<div class="card empty no-match">
+			<p>${t("search.noMatch", { query })}</p>
+			<div class="actions">
+				<button type="button" class="primary" data-action="add-named" @click=${() => this.startAddNamed(query)}>
+					${icon("plus", 20)}<span>${t("search.add", { query })}</span>
+				</button>
+				<button type="button" data-action="clear-search-empty" @click=${this.clearSearch}>
+					${t("search.clear")}
+				</button>
+			</div>
+		</div>`;
+	}
+
+	/** Searching for words that no restaurant name has (the no-match card shows instead). */
+	private noMatch(sorted: readonly Restaurant[]): boolean {
+		return (
+			sorted.length > 0 &&
+			searchWords(this.query).length > 0 &&
+			this.results(sorted).length === 0
+		);
+	}
+
+	private countText(sorted: readonly Restaurant[]): string {
+		const total = sorted.length;
+		if (this.searching && searchWords(this.query).length > 0)
+			return t("search.count", {
+				shown: this.results(sorted).length,
+				total,
+			});
+		return total === 1
+			? t("picker.count.one")
+			: t("picker.count.other", { count: total });
+	}
 
 	/** The sheet closed by ✕, Esc or the backdrop: drop whatever was typed. */
 	private readonly onSheetClose = (): void => {
@@ -621,12 +941,14 @@ export class RestaurantManager extends LitElement {
 		this.closePanel();
 	};
 
-	/** Hide the side panel; its button goes away, so focus returns to Add. */
+	/** Hide the side panel; its button goes away, so focus returns to Add (hidden while searching). */
 	private closePanel(): void {
 		if (!this.panelOpen) return;
 		this.panelOpen = false;
 		this.focusAfterRender(() =>
-			this.renderRoot.querySelector(".head button.add"),
+			this.renderRoot.querySelector(
+				this.searching ? "#search" : ".head button.add",
+			),
 		);
 	}
 
@@ -635,6 +957,23 @@ export class RestaurantManager extends LitElement {
 		void this.updateComplete.then(() => {
 			const target = find();
 			if (target instanceof HTMLElement) target.focus();
+		});
+	}
+
+	/**
+	 * After saving while searching: the saved restaurant's row still has whatever matched it in
+	 * view, so land there; a save that took it out of the query (or the sheet closing stole focus)
+	 * instead goes back to the field. app-sheet only reclaims focus for its opener when focus is on
+	 * `body` or still inside the sheet, so setting it here deliberately wins either way.
+	 */
+	private focusAfterSave(id: string): void {
+		this.focusAfterRender(() => {
+			const inResults = this.results(this.sortedRestaurants()).some(
+				({ item }) => item.id === id,
+			);
+			return inResults
+				? this.renderRoot.querySelector(`li[data-id="${id}"] button`)
+				: this.renderRoot.querySelector("#search");
 		});
 	}
 
@@ -668,19 +1007,15 @@ export class RestaurantManager extends LitElement {
 	}
 
 	override render() {
-		const sorted = [...this.restaurants].sort((a, b) =>
-			a.name.localeCompare(b.name, getLang()),
-		);
+		const sorted = this.sortedRestaurants();
 		const wide = this.wide.matches;
 		const editing = this.restaurants.find((item) => item.id === this.editingId);
 		const formTitle =
 			editing === undefined
 				? t("manager.addTitle")
 				: t("manager.editTitle", { name: editing.name });
-		const count =
-			sorted.length === 1
-				? t("picker.count.one")
-				: t("picker.count.other", { count: sorted.length });
+		const count = this.countText(sorted);
+		const results = this.results(sorted);
 		const addLabel = t("manager.addLabel");
 		const add = html`<button
 			type="button"
@@ -695,16 +1030,73 @@ export class RestaurantManager extends LitElement {
 			${icon("plus", 24)}
 		</button>`;
 		return html`
+			<div class="top">
 			<header class="head">
-				<div>
+				<div class=${this.searching ? "visually-hidden" : ""}>
 					<h1 class="page-title">${t("manager.title")}</h1>
 					<p class="count page-sub">${count}</p>
 				</div>
-				<div class="head-actions">
+				<div class="head-actions" ?hidden=${this.searching}>
+					${
+						sorted.length > 0
+							? html`<button
+									type="button"
+									class="search-open"
+									data-action="search"
+									aria-label=${t("search.open")}
+									@click=${this.openSearch}
+								>
+									${icon("search", 20)}
+								</button>`
+							: nothing
+					}
 					<a class="tags-link" href="./tags">${icon("tag", 18)}<span>${t("nav.tags")}</span></a>
 					${wide ? add : nothing}
 				</div>
 			</header>
+			<div class="search-row" ?hidden=${!this.searching}>
+				<label class="search-field">
+					${icon("search", 20)}
+					<input
+						id="search"
+						type="search"
+						aria-label=${t("search.open")}
+						placeholder=${t("search.placeholder")}
+						autocomplete="off"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						enterkeyhint="search"
+						.value=${live(this.query)}
+						@input=${this.onSearchInput}
+						@keydown=${this.onSearchKey}
+					/>
+					${
+						this.query !== ""
+							? html`<button
+									type="button"
+									class="clear-search"
+									data-action="clear-search"
+									aria-label=${t("search.clear")}
+									@pointerdown=${(event: PointerEvent) => event.preventDefault()}
+									@click=${this.clearSearch}
+								>
+									${icon("x", 18)}
+								</button>`
+							: nothing
+					}
+				</label>
+				<button type="button" class="cancel-search" data-action="cancel-search" @click=${this.cancelSearch}>
+					${t("search.cancel")}
+				</button>
+			</div>
+			${
+				this.searching && !this.noMatch(sorted)
+					? html`<p class="search-count page-sub">${count}</p>`
+					: nothing
+			}
+			</div>
+			<p class="visually-hidden search-announce" role="status">${this.announced}</p>
 			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
 				this.skipped > 0
@@ -722,7 +1114,13 @@ export class RestaurantManager extends LitElement {
 									<p>${t("manager.empty")}</p>
 									<button type="button" class="primary" data-action="add" @click=${this.startAdd}>${addLabel}</button>
 								</div>`
-							: html`<ul class="group list">${sorted.map((item) => this.renderRow(item))}</ul>`
+							: results.length === 0
+								? this.renderNoMatch()
+								: html`<ul class="group list">${repeat(
+										results,
+										({ item }) => item.id,
+										({ item, ranges }) => this.renderRow(item, ranges),
+									)}</ul>`
 					}
 				</div>
 				${
@@ -883,7 +1281,7 @@ export class RestaurantManager extends LitElement {
 		></tag-input>`;
 	}
 
-	private renderRow(item: Restaurant) {
+	private renderRow(item: Restaurant, ranges: readonly MatchRange[] = []) {
 		const meta = metaLine(item);
 		const metaId = `meta-${item.id}`;
 		return html`<li data-id=${item.id}>
@@ -897,11 +1295,25 @@ export class RestaurantManager extends LitElement {
 				@click=${() => this.startEdit(item)}
 			>
 				<span class="grow">
-					<b class="name">${item.name}</b>
+					<b class="name">${this.renderName(item.name, ranges)}</b>
 					${meta ? html`<small class="meta" id=${metaId}>${meta}</small>` : nothing}
 				</span>
 				<span class="trail">${icon("chevron", 20)}</span>
 			</button>
 		</li>`;
+	}
+
+	/** The name with the parts the search matched wrapped in `<mark>`. */
+	private renderName(name: string, ranges: readonly MatchRange[]) {
+		if (ranges.length === 0) return name;
+		const parts: unknown[] = [];
+		let at = 0;
+		for (const { start, end } of ranges) {
+			if (start > at) parts.push(name.slice(at, start));
+			parts.push(html`<mark>${name.slice(start, end)}</mark>`);
+			at = end;
+		}
+		if (at < name.length) parts.push(name.slice(at));
+		return parts;
 	}
 }
