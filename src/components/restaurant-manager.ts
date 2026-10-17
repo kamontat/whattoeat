@@ -10,16 +10,34 @@ import {
 	formFromRestaurant,
 	type RestaurantForm,
 } from "#components/restaurant/form";
+import "#components/restaurant/filter";
+import type { RestaurantFilter } from "#components/restaurant/filter";
 import "#components/restaurant/list";
 import type { RestaurantList } from "#components/restaurant/list";
 import "#components/restaurant/search";
 import type { RestaurantSearch } from "#components/restaurant/search";
-import { type GroupDef, loadGroups, onGroupsChanged } from "#lib/groups";
+import {
+	applyFilter,
+	EMPTY_FILTER,
+	type Filter,
+	isFilterActive,
+	LIST_FILTER,
+	loadFilter,
+	onFilterChanged,
+	pruneFilter,
+	saveFilter,
+} from "#lib/filter";
+import {
+	allGroupIds,
+	type GroupDef,
+	loadGroups,
+	onGroupsChanged,
+} from "#lib/groups";
 import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
 import { isLink, type Restaurant } from "#lib/restaurant";
-import { countText } from "#lib/search";
+import { countText, searchByName, searchWords } from "#lib/search";
 import {
 	addRestaurant,
 	isMemoryOnly,
@@ -106,6 +124,16 @@ export class RestaurantManager extends LitElement {
 				font-size: 0.875rem;
 				font-weight: 500;
 				text-decoration: none;
+			}
+
+			/* Same pill as the Tags link beside it. */
+			.filter-open {
+				gap: 0.375rem;
+				min-height: var(--tap);
+				padding: 0 0.875rem;
+				border-radius: var(--radius-pill);
+				font-size: 0.875rem;
+				font-weight: 500;
 			}
 
 			.status:empty {
@@ -260,11 +288,61 @@ export class RestaurantManager extends LitElement {
 	/** `updatedAt` of the restaurant when it was loaded into the form. */
 	private editingUpdatedAt: string | undefined;
 
+	/** This page's own filter, apart from Home's; it filters plain tags too. */
+	@state()
+	private filter: Filter = EMPTY_FILTER;
+
 	private unsubscribe: (() => void) | undefined;
 	private unsubscribeGroups: (() => void) | undefined;
+	private unsubscribeFilter: (() => void) | undefined;
+
+	/** The restaurants the filter keeps. */
+	private get shown(): Restaurant[] {
+		return applyFilter(this.restaurants, this.filter);
+	}
+
+	/** Drop filter values no restaurant uses any more; save only when that changed something. */
+	private pruneFilter(): void {
+		const pruned = pruneFilter(
+			this.filter,
+			this.restaurants,
+			[...allGroupIds(this.defs), "tags"],
+			LIST_FILTER,
+		);
+		if (JSON.stringify(pruned) !== JSON.stringify(this.filter))
+			saveFilter(pruned, LIST_FILTER);
+		this.filter = pruned;
+	}
+
+	private readonly setFilter = (next: Filter): void => {
+		this.filter = next;
+		saveFilter(next, LIST_FILTER);
+	};
+
+	/** How many values the filter includes or excludes, across every group. */
+	private activeValueCount(): number {
+		return Object.values(this.filter).reduce(
+			(count, group) => count + group.include.length + group.exclude.length,
+			0,
+		);
+	}
+
+	/** Whether any restaurant has a value the filter could use. */
+	private hasFilterValues(): boolean {
+		return this.restaurants.some(
+			(item) =>
+				item.kinds.length > 0 ||
+				item.tags.length > 0 ||
+				Object.values(item.groups).some((values) => values.length > 0),
+		);
+	}
 
 	private get search(): RestaurantSearch | null {
 		return this.renderRoot.querySelector("restaurant-search");
+	}
+
+	private get filterPart(): RestaurantFilter | null {
+		return this.renderRoot.querySelector("restaurant-filter");
 	}
 
 	private get list(): RestaurantList | null {
@@ -280,7 +358,7 @@ export class RestaurantManager extends LitElement {
 		let done = await super.getUpdateComplete();
 		for (;;) {
 			const parts = this.renderRoot.querySelectorAll<LitElement>(
-				"restaurant-search, restaurant-list, restaurant-form",
+				"restaurant-search, restaurant-filter, restaurant-list, restaurant-form",
 			);
 			await Promise.all([...parts].map((part) => part.updateComplete));
 			if (!this.isUpdatePending) return done;
@@ -293,9 +371,12 @@ export class RestaurantManager extends LitElement {
 		this.restaurants = loadRestaurants();
 		this.skipped = skippedCount();
 		this.defs = loadGroups();
+		this.filter = loadFilter(LIST_FILTER);
+		this.pruneFilter();
 		this.unsubscribe = onRestaurantsChanged(() => {
 			this.restaurants = loadRestaurants();
 			this.skipped = skippedCount();
+			this.pruneFilter();
 			if (this.editingId === undefined) return;
 			const editing = this.restaurants.find(
 				(item) => item.id === this.editingId,
@@ -312,7 +393,13 @@ export class RestaurantManager extends LitElement {
 		this.unsubscribeGroups = onGroupsChanged(() => {
 			this.defs = loadGroups();
 			this.restaurants = loadRestaurants();
+			this.pruneFilter();
 		});
+		// Another tab saved the filter (for example after renaming a value): take it as it is.
+		// Pruning waits for the restaurant change that tab saves next.
+		this.unsubscribeFilter = onFilterChanged(() => {
+			this.filter = loadFilter(LIST_FILTER);
+		}, LIST_FILTER);
 	}
 
 	override disconnectedCallback(): void {
@@ -321,6 +408,8 @@ export class RestaurantManager extends LitElement {
 		this.unsubscribe = undefined;
 		this.unsubscribeGroups?.();
 		this.unsubscribeGroups = undefined;
+		this.unsubscribeFilter?.();
+		this.unsubscribeFilter = undefined;
 		clearTimeout(this.leaveTimer);
 	}
 
@@ -571,6 +660,8 @@ export class RestaurantManager extends LitElement {
 		const wide = this.wide.matches;
 		const searching = this.searching;
 		const query = searching ? this.query : "";
+		const shown = this.shown;
+		const filterCount = this.activeValueCount();
 		const editing = this.restaurants.find((item) => item.id === this.editingId);
 		const formTitle =
 			editing === undefined
@@ -594,7 +685,7 @@ export class RestaurantManager extends LitElement {
 			<header class="head">
 				<div class=${searching ? "visually-hidden" : ""}>
 					<h1 class="page-title">${t("manager.title")}</h1>
-					<p class="count page-sub" aria-hidden=${searching ? "true" : nothing}>${countText(this.restaurants, query)}</p>
+					<p class="count page-sub" aria-hidden=${searching ? "true" : nothing}>${this.countLine(shown, query)}</p>
 				</div>
 				<div class="head-actions" ?hidden=${searching}>
 					${
@@ -610,16 +701,35 @@ export class RestaurantManager extends LitElement {
 								</button>`
 							: nothing
 					}
+					${
+						this.hasFilterValues()
+							? html`<button
+									type="button"
+									class="filter-open"
+									data-action="open-filter"
+									aria-haspopup="dialog"
+									@click=${() => this.filterPart?.open()}
+								>
+									${icon("funnel", 18)}<span>${filterCount > 0 ? t("filter.openCount", { count: filterCount }) : t("filter.title")}</span>
+								</button>`
+							: nothing
+					}
 					<a class="tags-link" href="./tags">${icon("tag", 18)}<span>${t("nav.tags")}</span></a>
 					${wide ? add : nothing}
 				</div>
 			</header>
 			<restaurant-search
-				.restaurants=${this.restaurants}
+				.restaurants=${shown}
 				@search-change=${this.onSearchChange}
 				@search-cancel=${this.onSearchCancel}
 				@search-pick=${(event: CustomEvent<Restaurant>) => this.startEdit(event.detail)}
 			></restaurant-search>
+			<restaurant-filter
+				.restaurants=${this.restaurants}
+				.defs=${this.defs}
+				.filter=${this.filter}
+				@filter-change=${(event: CustomEvent<Filter>) => this.setFilter(event.detail)}
+			></restaurant-filter>
 			</div>
 			${isMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
@@ -631,15 +741,24 @@ export class RestaurantManager extends LitElement {
 			}
 			<p class="status success" role="status">${this.status}</p>
 			<div class="layout ${wide && this.panelOpen ? "wide" : ""}">
-				<restaurant-list
-					class="list-col"
-					.restaurants=${this.restaurants}
-					.query=${query}
-					.currentId=${this.editingId}
-					@restaurant-edit=${(event: CustomEvent<Restaurant>) => this.startEdit(event.detail)}
-					@restaurant-add=${this.onListAdd}
-					@search-clear=${() => this.search?.clear()}
-				></restaurant-list>
+				${
+					shown.length === 0 && this.restaurants.length > 0
+						? html`<div class="list-col card empty filter-no-match">
+								<p>${t("filter.noMatch")}</p>
+								<button type="button" data-action="clear-list-filter" @click=${() => this.setFilter(EMPTY_FILTER)}>
+									${t("filter.clear")}
+								</button>
+							</div>`
+						: html`<restaurant-list
+								class="list-col"
+								.restaurants=${shown}
+								.query=${query}
+								.currentId=${this.editingId}
+								@restaurant-edit=${(event: CustomEvent<Restaurant>) => this.startEdit(event.detail)}
+								@restaurant-add=${this.onListAdd}
+								@search-clear=${() => this.search?.clear()}
+							></restaurant-list>`
+				}
 				${
 					wide && this.panelOpen
 						? html`<section id="edit-panel" class="card edit-panel" aria-labelledby="form-title">
@@ -664,11 +783,21 @@ export class RestaurantManager extends LitElement {
 				wide
 					? nothing
 					: html`<div class="pinned">${add}</div>
-							<app-sheet heading=${formTitle} ?open=${this.sheetOpen} @sheet-close=${this.onSheetClose}>
+							<app-sheet class="form-sheet" heading=${formTitle} ?open=${this.sheetOpen} @sheet-close=${this.onSheetClose}>
 								${this.renderForm(this.sheetView())}
 							</app-sheet>`
 			}
 		`;
+	}
+
+	/** The title's count: how many the filter and search keep of all of them, when either narrows. */
+	private countLine(shown: readonly Restaurant[], query: string): string {
+		if (!isFilterActive(this.filter)) return countText(this.restaurants, query);
+		const kept =
+			searchWords(query).length > 0
+				? searchByName(shown, query).length
+				: shown.length;
+		return t("search.count", { shown: kept, total: this.restaurants.length });
 	}
 
 	private renderForm(view: FormView) {

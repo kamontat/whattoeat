@@ -4,6 +4,7 @@ import "#components/restaurant-manager";
 import { RestaurantForm } from "#components/restaurant/form";
 import { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
+import { FILTER_KEY, LIST_FILTER_KEY } from "#lib/filter";
 import { saveGroups } from "#lib/groups";
 import { setLang } from "#lib/i18n";
 import {
@@ -694,7 +695,7 @@ test("a row with no type line has no aria-describedby", async () => {
 test("wide: the form sits in a side panel titled for editing, then for adding", async () => {
 	addRestaurant({ ...blank, name: "Jay Fai" });
 	const el = await mount();
-	expect($(el, "app-sheet")).toBeNull();
+	expect($(el, "app-sheet.form-sheet")).toBeNull();
 	expect($(el, ".pinned")).toBeNull();
 	expect($(el, ".head button.add")).not.toBeNull();
 	await click(el, 'button[data-action="edit"]');
@@ -780,7 +781,7 @@ test("phone: Add is pinned and opens the form in a sheet", async () => {
 		el,
 		'.pinned button.add[data-action="add"]',
 	)!;
-	const sheet = $(el, "app-sheet")!;
+	const sheet = $(el, "app-sheet.form-sheet")!;
 	expect(sheet.hasAttribute("open")).toBe(false);
 	expect(sheet.querySelector("restaurant-form")).not.toBeNull();
 	add.click();
@@ -793,7 +794,7 @@ test("phone: tapping a row opens its edit sheet; saving closes it", async () => 
 	addRestaurant({ ...blank, name: "Old" });
 	const el = await phone();
 	await click(el, 'li[data-id] button[data-action="edit"]');
-	const sheet = $(el, "app-sheet")!;
+	const sheet = $(el, "app-sheet.form-sheet")!;
 	expect(sheet.hasAttribute("open")).toBe(true);
 	expect(sheet.getAttribute("heading")).toBe("Edit Old");
 	type(el, "#name", "New");
@@ -814,7 +815,7 @@ const settleFocus = async (el: RestaurantManager) => {
 test("phone: opening Add or a row focuses the sheet's heading, not the name field", async () => {
 	addRestaurant({ ...blank, name: "Old" });
 	const el = await phone();
-	const sheet = $<AppSheet>(el, "app-sheet")!;
+	const sheet = $<AppSheet>(el, "app-sheet.form-sheet")!;
 	await click(el, '.pinned button[data-action="add"]');
 	await settleFocus(el);
 	expect(sheet.shadowRoot!.activeElement?.id).toBe("sheet-title");
@@ -836,7 +837,7 @@ test("wide: opening a row focuses the name field in the side panel", async () =>
 test("phone: while the closed sheet slides away it still shows what it showed, then drops it", async () => {
 	addRestaurant({ ...blank, name: "Old" });
 	const el = await phone();
-	const sheet = $<AppSheet>(el, "app-sheet")!;
+	const sheet = $<AppSheet>(el, "app-sheet.form-sheet")!;
 	sheet.style.setProperty("--duration", "30ms");
 	await click(el, 'li[data-id] button[data-action="edit"]');
 	sheet.open = false;
@@ -855,7 +856,7 @@ test("phone: closing the sheet discards the edit", async () => {
 	const el = await phone();
 	await click(el, 'li[data-id] button[data-action="edit"]');
 	type(el, "#name", "Changed");
-	const sheet = $(el, "app-sheet")!;
+	const sheet = $(el, "app-sheet.form-sheet")!;
 	sheet.shadowRoot!.querySelector("dialog")!.close();
 	await new Promise((resolve) => setTimeout(resolve, 0));
 	await el.updateComplete;
@@ -871,7 +872,7 @@ test("phone: deleting from the sheet closes it", async () => {
 	await click(el, 'button[data-action="delete"]');
 	await click(el, 'button[data-action="confirm-delete"]');
 	expect(loadRestaurants()).toEqual([]);
-	expect($(el, "app-sheet")!.hasAttribute("open")).toBe(false);
+	expect($(el, "app-sheet.form-sheet")!.hasAttribute("open")).toBe(false);
 });
 
 test("phone: another tab deleting the restaurant being edited closes the sheet", async () => {
@@ -880,7 +881,7 @@ test("phone: another tab deleting the restaurant being edited closes the sheet",
 	await click(el, 'li[data-id] button[data-action="edit"]');
 	removeRestaurant(item!.id);
 	await el.updateComplete;
-	expect($(el, "app-sheet")!.hasAttribute("open")).toBe(false);
+	expect($(el, "app-sheet.form-sheet")!.hasAttribute("open")).toBe(false);
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("");
 });
 
@@ -891,7 +892,7 @@ test("rotating to wide keeps the edit in the panel", async () => {
 	type(el, "#name", "Mine 2");
 	setWidth(1024);
 	await el.updateComplete;
-	expect($(el, "app-sheet")).toBeNull();
+	expect($(el, "app-sheet.form-sheet")).toBeNull();
 	expect($(el, "#form-title")?.textContent?.trim()).toBe("Edit Mine");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Mine 2");
 });
@@ -903,7 +904,7 @@ test("narrowing the window mid-edit moves the edit into the sheet instead of dro
 	type(el, "#name", "Mine 2");
 	setWidth(390);
 	await el.updateComplete;
-	const sheet = $(el, "app-sheet")!;
+	const sheet = $(el, "app-sheet.form-sheet")!;
 	expect(sheet.hasAttribute("open")).toBe(true);
 	expect(sheet.getAttribute("heading")).toBe("Edit Mine");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Mine 2");
@@ -914,7 +915,7 @@ test("narrowing the window with a blank add form still open opens the sheet for 
 	type(el, "#name", "New place");
 	setWidth(390);
 	await el.updateComplete;
-	const sheet = $(el, "app-sheet")!;
+	const sheet = $(el, "app-sheet.form-sheet")!;
 	expect(sheet.hasAttribute("open")).toBe(true);
 	expect(sheet.getAttribute("heading")).toBe("New restaurant");
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("New place");
@@ -925,7 +926,7 @@ test("narrowing the window with no edit in progress leaves the sheet closed", as
 	const el = await mount();
 	setWidth(390);
 	await el.updateComplete;
-	expect($(el, "app-sheet")!.hasAttribute("open")).toBe(false);
+	expect($(el, "app-sheet.form-sheet")!.hasAttribute("open")).toBe(false);
 });
 
 // The shared uiStyles entry has its own unrelated `:host` rule; skip it so the regexes below
@@ -1303,8 +1304,10 @@ test("phone: Add from a search opens the new form with the name filled in", asyn
 	await openSearch(el);
 	await typeSearch(el, "Zaab Ari");
 	await click(el, '[data-action="add-named"]');
-	expect($(el, "app-sheet")?.hasAttribute("open")).toBe(true);
-	expect($(el, "app-sheet")?.getAttribute("heading")).toBe("New restaurant");
+	expect($(el, "app-sheet.form-sheet")?.hasAttribute("open")).toBe(true);
+	expect($(el, "app-sheet.form-sheet")?.getAttribute("heading")).toBe(
+		"New restaurant",
+	);
 	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Zaab Ari");
 });
 
@@ -1520,8 +1523,10 @@ test("phone: the Search key with one match opens its edit sheet", async () => {
 	await typeSearch(el, "jay");
 	pressEnter(el);
 	await el.updateComplete;
-	expect($(el, "app-sheet")?.hasAttribute("open")).toBe(true);
-	expect($(el, "app-sheet")?.getAttribute("heading")).toBe("Edit Jay Fai");
+	expect($(el, "app-sheet.form-sheet")?.hasAttribute("open")).toBe(true);
+	expect($(el, "app-sheet.form-sheet")?.getAttribute("heading")).toBe(
+		"Edit Jay Fai",
+	);
 });
 
 test("search: the Search key with several matches hides the keyboard and keeps the results", async () => {
@@ -1586,4 +1591,89 @@ test("search: screen readers hear the count once, from the line under the field"
 	expect($(el, ".search-count")?.hasAttribute("aria-hidden")).toBe(false);
 	await click(el, '[data-action="cancel-search"]');
 	expect(headerCount.hasAttribute("aria-hidden")).toBe(false);
+});
+
+const seedTags = () => {
+	addRestaurant({ ...blank, name: "Jay Fai", tags: ["spicy"] });
+	addRestaurant({ ...blank, name: "Ramen Champion", tags: ["spicy", "late"] });
+	addRestaurant({ ...blank, name: "Café Tartine" });
+};
+
+test("filter: no Filter button when no restaurant has a tag or group value", async () => {
+	addRestaurant({ ...blank, name: "A" });
+	const el = await mount();
+	expect($(el, '[data-action="open-filter"]')).toBeNull();
+});
+
+test("filter: the Filter button opens the sheet of values, plain tags included", async () => {
+	seedTags();
+	const el = await mount();
+	await click(el, '[data-action="open-filter"]');
+	expect($<AppSheet>(el, "restaurant-filter app-sheet")?.open).toBe(true);
+	expect(
+		$$(el, '.chip[data-group="tags"]').map((chip) =>
+			chip.getAttribute("data-tag"),
+		),
+	).toEqual(["spicy", "late"]);
+});
+
+test("filter: tapping a tag narrows the list and the count, and is saved apart from Home's", async () => {
+	seedTags();
+	const el = await mount();
+	await click(el, '.chip[data-group="tags"][data-tag="late"]');
+	expect(rowNames(el)).toEqual(["Ramen Champion"]);
+	expect($(el, ".head .count")?.textContent?.trim()).toBe("1 of 3 restaurants");
+	expect($(el, '[data-action="open-filter"]')?.textContent?.trim()).toBe(
+		"Filter · 1 on",
+	);
+	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
+		tags: { include: ["late"], exclude: [] },
+	});
+	expect(localStorage.getItem(FILTER_KEY)).toBeNull();
+});
+
+test("filter: excluding a tag drops restaurants that have it", async () => {
+	seedTags();
+	const el = await mount();
+	await click(el, '.chip[data-group="tags"][data-tag="spicy"]');
+	await click(el, '.chip[data-group="tags"][data-tag="spicy"]');
+	expect(rowNames(el)).toEqual(["Café Tartine"]);
+});
+
+test("filter: remembered across visits, and Home's filter is ignored", async () => {
+	seedTags();
+	localStorage.setItem(
+		LIST_FILTER_KEY,
+		JSON.stringify({ tags: { include: ["spicy"], exclude: [] } }),
+	);
+	localStorage.setItem(
+		FILTER_KEY,
+		JSON.stringify({ kind: { include: ["drinks"], exclude: [] } }),
+	);
+	const el = await mount();
+	expect(rowNames(el)).toEqual(["Jay Fai", "Ramen Champion"]);
+});
+
+test("filter: search looks only within the filtered restaurants", async () => {
+	seedTags();
+	const el = await mount();
+	await click(el, '.chip[data-group="tags"][data-tag="late"]');
+	await openSearch(el);
+	await typeSearch(el, "a");
+	expect(rowNames(el)).toEqual(["Ramen Champion"]);
+});
+
+test("filter: matching nothing says so and offers Clear", async () => {
+	addRestaurant({ ...blank, name: "Jay Fai", tags: ["spicy"] });
+	localStorage.setItem(
+		LIST_FILTER_KEY,
+		JSON.stringify({ tags: { include: [], exclude: ["spicy"] } }),
+	);
+	const el = await mount();
+	expect($(el, ".filter-no-match")?.textContent).toContain(
+		"No restaurant matches this filter.",
+	);
+	await click(el, '.filter-no-match [data-action="clear-list-filter"]');
+	expect(rowNames(el)).toEqual(["Jay Fai"]);
+	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({});
 });
