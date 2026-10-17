@@ -2,9 +2,22 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-18: About names its environment
+## 2026-10-18: Delete only restaurants, and About names its environment
+
+### Features
+
+- Settings › Reset has a Delete restaurants row that empties the restaurant list and forgets
+  which presets were added, keeping history, groups, theme and language. It asks first, is
+  greyed out while there are no restaurants, and says how many it deleted.
 
 ### Improvements
+
+- Settings › Reset reads Delete restaurants, Delete history, Delete all data: "Clear history"
+  is now "Delete history" (Thai ลบประวัติ). Delete restaurants and Delete history share one
+  card, Delete all data keeps its own, prompts open in place inside the card, and each result
+  shows under its card.
+- `<history-clear>` no longer draws its own card or result line; it fires `history-cleared`
+  with the number of visits deleted, and the settings panel shows the message.
 
 - About always names where the page came from — `production`, `preview`, `local` (a
   `bun run build` on a workstation) or `development` (`bun run dev`) — and lists its rows as
@@ -25,6 +38,8 @@ What changed in this project and why, newest first.
 
 - A build with no named environment counts as `local`, and one with no build date at all as
   `development`, so `bun run dev` needs no variable of its own.
+- Delete restaurants also clears the added-preset records: with the restaurants gone they
+  would only leave presets marked as added with nothing behind them.
 
 ## 2026-10-17: Neighbourhood presets, a new filter bar, search by name and a new Tags page
 
