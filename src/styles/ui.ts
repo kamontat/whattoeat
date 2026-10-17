@@ -137,10 +137,10 @@ export const uiStyles = css`
 		text-decoration: none;
 	}
 
-	/* Same strong fill as button.primary, for a link styled as the primary action. */
-	a.button-link.primary {
-		background: var(--color-primary);
-		color: var(--color-primary-text);
+	/* A quieter fill for a link next to a primary one, same shape and tap size as button-link. */
+	a.button-link.secondary {
+		background: var(--color-surface-2);
+		color: var(--color-text);
 	}
 
 	.card > * {
