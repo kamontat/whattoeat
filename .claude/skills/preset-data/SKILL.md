@@ -8,7 +8,7 @@ description: Create a new neighbourhood preset (a bundled restaurant list under 
 A neighbourhood preset is a ready-made restaurant list that people tick on `/settings/presets`
 to fill their own list. Each one is two things that must agree:
 
-- `src/assets/data/presets/<id>.json` — a normal version 4 export file (`app`, `version`,
+- `src/assets/data/presets/<id>.json` — a normal version 5 export file (`app`, `version`,
   `exportedAt`, `restaurants`, `history: []`, `groups: []`), so the app's own `parseImport`
   validates it.
 - An entry in `src/assets/data/presets/index.json` — names in English and Thai, city,
@@ -100,7 +100,7 @@ Put the draft in the scratchpad or `/tmp`, not in the repo. Shape:
       "area": "major ratchayothin",
       "tags": ["sushi", "conveyor"]
     },
-    { "id": "BSoLvd51", "notes": "10:30-21:00. Opposite Olino." },
+    { "id": "BSoLvd51", "notes": "Major Ratchayothin, 2F\n10:30-21:00. Opposite Olino." },
     { "id": "ItuIAmsg", "remove": true }
   ]
 }
@@ -109,19 +109,24 @@ Put the draft in the scratchpad or `/tmp`, not in the repo. Shape:
 - An item without `id` whose name matches an existing restaurant (case-insensitive) updates
   it; otherwise it is new. An item with an `id` already in the file updates only the fields
   it lists; a full item with an unused `id` is added under that id.
+- `location` exists only in the draft: on a new item the script makes it the first line of
+  `notes`, the way the app stores a place and floor. To change an existing restaurant's place
+  or floor, give its whole new `notes` (first line included); the script refuses `location`
+  on an update rather than guess which line to replace.
 - For a brand-new preset the file is created; for an existing one only the listed changes
   apply, so a draft of five fixes doesn't need the other 140 restaurants.
 
 ### Field conventions
 
-Match what is already in `ladprao.json` and `ratchayothin.json`, since they are what people
-see side by side:
+Match what is already in the existing preset files, since they are what people see side by
+side:
 
 | Field | Convention |
 | --- | --- |
 | `name` | `Brand (Thai name) - Place`, e.g. `Kuay Teow Ruea Suea Na Yok (ก๋วยเตี๋ยวเรือเสือหน้าหยก) - Central Ladprao`. Thai name in brackets only when the brand has one. The ` - Place` suffix tells branches apart when two presets are added together. |
-| `location` | `Place, Floor` (`Central Ladprao, G`, `Union Mall, 3F`, `Major Ratchayothin, B`). A street shop: the soi or road. Plain text, not a Maps URL. |
-| `notes` | Short sentences: what to order or what it is, price hint (`Budget.`, `Mid price.`, `From ฿799.`), opening hours `10:00-22:00.`, a landmark if the floor is big. Empty is fine. |
+| `location` (draft only) | `Place, Floor` (`Central Ladprao, G`, `Union Mall, 3F`, `Major Ratchayothin, B`). A street shop: the soi or road. Becomes the first line of `notes`. |
+| `notes` | After the place line, short sentences: what to order or what it is, price hint (`Budget.`, `Mid price.`, `From ฿799.`), opening hours `10:00-22:00.`, a landmark if the floor is big. |
+| `link` | Optional `https://` URL: the place's Google Maps page, website or social page. The app opens it from the restaurant's name. Leave it out rather than guess; never put a place or floor here. |
 | `kinds` | Any of `food`, `drinks`, `dessert`. A café with cakes is `["drinks", "dessert"]`. |
 | `cuisine` | One lowercase value, two if truly mixed. Reuse what exists: `thai`, `japanese`, `korean`, `chinese`, `western`, `italian`, `international`, `isan`, `northern thai`, `taiwanese`, `vietnamese`… Leave out for drinks-only places and chains with no clear cuisine. |
 | `area` | Exactly one, lowercase, the mall or street — and listed in the index entry's `areas`. |

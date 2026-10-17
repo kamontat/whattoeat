@@ -4,10 +4,13 @@
  *   bun .claude/skills/preset-data/scripts/upsert-preset.ts <preset-id> <draft.json>
  *
  * The draft is `{ "restaurants": [...] }`. Each item is one of:
- *   - new:    { id?, name, location, kinds, area, notes?, cuisine?, tags? }  (an unused id is kept)
- *   - update: { id, ...fields to change }  (or no id, matched by name, case-insensitive)
+ *   - new:    { id?, name, location, kinds, area, notes?, link?, cuisine?, tags? }
+ *             (an unused id is kept; `location` becomes the first line of `notes`)
+ *   - update: { id, ...fields to change }  (or no id, matched by name, case-insensitive);
+ *             `location` is not accepted here, give the whole new `notes` instead
  *   - remove: { id, remove: true }
  *
+ * `link` must be an http(s) URL or empty.
  * New restaurants get 8-character ids unique across every preset file and today's timestamps.
  * Changed ones get a new `updatedAt`. Tags and group values are cleaned the way the app does.
  * When the preset already has an index entry, its `updatedAt` is set to today if anything
@@ -22,7 +25,7 @@ const ID_ALPHABET =
 type Restaurant = {
 	id: string;
 	name: string;
-	location: string;
+	link: string;
 	notes: string;
 	kinds: string[];
 	groups: Record<string, string[]>;
@@ -37,6 +40,7 @@ type Draft = {
 	name?: string;
 	location?: string;
 	notes?: string;
+	link?: string;
 	kinds?: string[];
 	cuisine?: string | string[];
 	area?: string;
@@ -112,6 +116,13 @@ const findIndex = (item: Draft): number => {
 	return list.findIndex((r) => r.name.trim().toLocaleLowerCase() === key);
 };
 
+const checkLink = (link: string | undefined, label: string): string => {
+	const value = link?.trim() ?? "";
+	if (value !== "" && !/^https?:\/\//.test(value))
+		fail(`${label}: link must start with https:// or http:// (put places and floors in notes)`);
+	return value;
+};
+
 const checkKinds = (kinds: string[], label: string): string[] => {
 	const bad = kinds.filter((kind) => !(KINDS as readonly string[]).includes(kind));
 	if (bad.length > 0)
@@ -150,8 +161,10 @@ for (const item of draft.restaurants as Draft[]) {
 		list.push({
 			id,
 			name: (item.name as string).trim(),
-			location: (item.location as string).trim(),
-			notes: item.notes?.trim() ?? "",
+			link: checkLink(item.link, label),
+			notes: [(item.location as string).trim(), item.notes?.trim() ?? ""]
+				.filter((line) => line !== "")
+				.join("\n"),
 			kinds,
 			groups,
 			tags: cleanList(item.tags ?? []),
@@ -165,7 +178,9 @@ for (const item of draft.restaurants as Draft[]) {
 	const before = list[at] as Restaurant;
 	const next: Restaurant = structuredClone(before);
 	if (item.name !== undefined) next.name = item.name.trim();
-	if (item.location !== undefined) next.location = item.location.trim();
+	if (item.location !== undefined)
+		fail(`${label}: location only applies to new restaurants; give the whole new notes instead`);
+	if (item.link !== undefined) next.link = checkLink(item.link, label);
 	if (item.notes !== undefined) next.notes = item.notes.trim();
 	if (item.kinds !== undefined) next.kinds = checkKinds(item.kinds, label);
 	if (item.tags !== undefined) next.tags = cleanList(item.tags);
@@ -194,7 +209,7 @@ await Bun.write(
 	`${JSON.stringify(
 		{
 			app: "whattoeat",
-			version: 4,
+			version: 5,
 			exportedAt: now,
 			restaurants: list,
 			history: [],
