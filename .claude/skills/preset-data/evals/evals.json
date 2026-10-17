@@ -1,0 +1,26 @@
+{
+	"skill_name": "preset-data",
+	"evals": [
+		{
+			"id": 1,
+			"name": "new-preset-web",
+			"prompt": "can you add a neighbourhood preset for Siam? I mostly eat at Siam Paragon, Siam Center and Siam Square One. around 25-30 places is enough, food + some cafes/dessert",
+			"expected_output": "New siam.json preset researched from the web, an index entry with Pathum Wan district in en/th, counts refreshed, preset tests pass.",
+			"files": []
+		},
+		{
+			"id": 2,
+			"name": "user-list-new-city",
+			"prompt": "make a preset from these, they're all at The Mall Ngamwongwan (Nonthaburi):\nMK Restaurants - 3F\nFuji Japanese - 3F\nBar B Q Plaza 3F\nSwensen's 2F\nStarbucks G floor\nOhkajhu 4F\nYayoi 3F\nAfter You 2F\nKFC G\nSizzler 3F\nShabushi 4F\nTim Ho Wan 1F",
+			"expected_output": "New preset file with all 12 restaurants, area 'the mall ngamwongwan', a new nonthaburi city and district with Thai names, preset tests pass.",
+			"files": []
+		},
+		{
+			"id": 3,
+			"name": "update-existing",
+			"prompt": "update ratchayothin preset: Ohkajhu at Major Ratchayothin closed, Sushiro there moved up to 2F, and add After You (dessert cafe) at Major Ratchayothin 1F",
+			"expected_output": "Ohkajhu removed, Sushiro location changed with id kept, After You added with a new unique id, index updatedAt bumped and count unchanged at 55, tests pass.",
+			"files": []
+		}
+	]
+}
