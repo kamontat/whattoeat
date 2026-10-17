@@ -13,6 +13,7 @@ const SHAPES = {
 	chevron: svg`<path d="M9 6l6 6-6 6"/>`,
 	back: svg`<path d="M15 6l-6 6 6 6"/>`,
 	plus: svg`<path d="M12 5v14M5 12h14"/>`,
+	minus: svg`<path d="M5 12h14"/>`,
 	edit: svg`<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>`,
 	download: svg`<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>`,
 	copy: svg`<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>`,

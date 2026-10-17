@@ -47,9 +47,13 @@ the build.
 inlined as a string at build time. The dev server inlines nothing and ships no `process`
 shim, so wrap such a read in a `try` and give it a fallback. Declare each variable on
 `Bun.Env` in `src/types/global.d.ts`, or `noPropertyAccessFromIndexSignature` forces the
-subscript form, which the build does not inline. One exists today: `BUN_PUBLIC_GTM_ID`,
-read by `src/lib/gtm.ts` (see "Google Tag Manager" below). A variable that is unset at build
-time is left as `process.env.…` in the bundle, so the `try` is what keeps it harmless.
+subscript form, which the build does not inline. `BUN_PUBLIC_GTM_ID` is read by
+`src/lib/gtm.ts` (see "Google Tag Manager" below); `src/lib/build-info.ts` reads the rest for
+the About section — `BUN_PUBLIC_ENVIRONMENT`, `BUN_PUBLIC_COMMIT_SHA`, `BUN_PUBLIC_BRANCH` and
+`BUN_PUBLIC_PR_NUMBER` from the deploy workflows, and `BUN_PUBLIC_BUILD_DATE`, which the
+`build` script stamps itself. A variable that is unset at build time is left as
+`process.env.…` in the bundle and throws in the browser, so give each read its own `try`:
+one shared `try` lets an unset variable blank every other one.
 
 `dist/` is what Cloudflare serves — `wrangler.jsonc` names it as `assets.directory` — so
 its shape is part of the deployment contract, not a local convenience.

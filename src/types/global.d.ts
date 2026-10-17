@@ -50,9 +50,11 @@ declare module "bun" {
 	interface Env {
 		/** Google Tag Manager container id, inlined by `bun-server build`; see `#lib/gtm`. */
 		BUN_PUBLIC_GTM_ID?: string;
+		/** `production` or `preview`, set by the deploy workflows; see `#lib/build-info`. */
+		BUN_PUBLIC_ENVIRONMENT?: string;
 		/** Full commit sha the build came from, inlined by `bun-server build`; see `#lib/build-info`. */
 		BUN_PUBLIC_COMMIT_SHA?: string;
-		/** ISO 8601 time of the build, inlined by `bun-server build`; see `#lib/build-info`. */
+		/** ISO 8601 time of the build, stamped by the `build` script; see `#lib/build-info`. */
 		BUN_PUBLIC_BUILD_DATE?: string;
 		/** Pull request branch of a preview build, inlined by `bun-server build`; see `#lib/build-info`. */
 		BUN_PUBLIC_BRANCH?: string;

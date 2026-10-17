@@ -1,5 +1,5 @@
 import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, state } from "lit/decorators.js";
 import {
 	getLang,
 	LANGS,
@@ -9,6 +9,12 @@ import {
 	setLang,
 	t,
 } from "#lib/i18n";
+import {
+	loadPickCount,
+	PICK_COUNTS,
+	type PickCount,
+	savePickCount,
+} from "#lib/random";
 import {
 	getTheme,
 	setTheme,
@@ -31,8 +37,8 @@ const THEME_LABELS: Record<Theme, MessageKey> = {
 };
 
 /**
- * Language and theme as native radio groups styled as segmented controls, laid out as two rows
- * of a grouped list in Settings.
+ * Language, theme and how many restaurants a pick shows, as native radio groups styled as
+ * segmented controls, laid out as rows of a grouped list in Settings.
  */
 @customElement("app-preferences")
 export class AppPreferences extends LitElement {
@@ -70,11 +76,24 @@ export class AppPreferences extends LitElement {
 			.seg input + span {
 				min-width: var(--seg-min);
 			}
+
+			/* Five one-digit choices: narrower segments, and the control drops below its label when the row is too narrow. */
+			.row.pick-count {
+				flex-wrap: wrap;
+			}
+
+			.pick-count .seg input + span {
+				min-width: var(--tap);
+				padding: 0;
+			}
 		`,
 	];
 
 	protected readonly langController = new LangController(this);
 	protected readonly themeController = new ThemeController(this);
+
+	@state()
+	private pickCount: PickCount = loadPickCount();
 
 	private renderLang() {
 		const lang = getLang();
@@ -124,6 +143,31 @@ export class AppPreferences extends LitElement {
 		</fieldset>`;
 	}
 
+	private renderPickCount() {
+		return html`<fieldset class="count">
+			<legend class="visually-hidden">${t("picker.pickCount")}</legend>
+			<div class="seg">
+				${PICK_COUNTS.map(
+					(count) => html`<label>
+						<input
+							type="radio"
+							name="pick-count"
+							value=${count}
+							.checked=${count === this.pickCount}
+							@change=${() => this.setPickCount(count)}
+						/>
+						<span>${count}</span>
+					</label>`,
+				)}
+			</div>
+		</fieldset>`;
+	}
+
+	private setPickCount(count: PickCount): void {
+		this.pickCount = count;
+		savePickCount(count);
+	}
+
 	override render() {
 		return html`<div class="group">
 			<div class="row">
@@ -133,6 +177,10 @@ export class AppPreferences extends LitElement {
 			<div class="row">
 				<span class="row-label" aria-hidden="true">${t("theme.label")}</span>
 				${this.renderTheme()}
+			</div>
+			<div class="row pick-count">
+				<span class="row-label" aria-hidden="true">${t("picker.pickCount")}</span>
+				${this.renderPickCount()}
 			</div>
 		</div>`;
 	}
