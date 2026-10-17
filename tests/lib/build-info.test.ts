@@ -1,9 +1,9 @@
 import { afterEach, expect, test } from "bun:test";
 import {
-	branchUrl,
 	CHANGELOG_URL,
 	commitUrl,
 	parseBuildDate,
+	pullUrl,
 	REPO_URL,
 	readBuildInfo,
 	shortSha,
@@ -15,6 +15,7 @@ afterEach(() => {
 	delete process.env.BUN_PUBLIC_COMMIT_SHA;
 	delete process.env.BUN_PUBLIC_BUILD_DATE;
 	delete process.env.BUN_PUBLIC_BRANCH;
+	delete process.env.BUN_PUBLIC_PR_NUMBER;
 });
 
 test("points at the GitHub repository and its changelog", () => {
@@ -30,13 +31,8 @@ test("links a commit by its full sha", () => {
 	);
 });
 
-test("links a branch by its name, keeping slashes", () => {
-	expect(branchUrl("worktree-foo")).toBe(
-		"https://github.com/kamontat/whattoeat/tree/worktree-foo",
-	);
-	expect(branchUrl("feat/a#b")).toBe(
-		"https://github.com/kamontat/whattoeat/tree/feat/a%23b",
-	);
+test("links a pull request by its number", () => {
+	expect(pullUrl(34)).toBe("https://github.com/kamontat/whattoeat/pull/34");
 });
 
 test("shortens a sha to seven characters", () => {
@@ -57,6 +53,7 @@ test("reads nothing when the build inlined no values", () => {
 		sha: undefined,
 		date: undefined,
 		branch: undefined,
+		pr: undefined,
 	});
 });
 
@@ -76,6 +73,18 @@ test("ignores a malformed sha", () => {
 test("reads the branch a preview was built from", () => {
 	process.env.BUN_PUBLIC_BRANCH = "worktree-foo";
 	expect(readBuildInfo().branch).toBe("worktree-foo");
+});
+
+test("reads the pull request number of a preview", () => {
+	process.env.BUN_PUBLIC_PR_NUMBER = "34";
+	expect(readBuildInfo().pr).toBe(34);
+});
+
+test("ignores a malformed pull request number", () => {
+	for (const value of ["", "abc", "0", "-1", "3.5"]) {
+		process.env.BUN_PUBLIC_PR_NUMBER = value;
+		expect(readBuildInfo().pr).toBeUndefined();
+	}
 });
 
 test("ignores an empty branch", () => {

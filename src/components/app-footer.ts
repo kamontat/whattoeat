@@ -1,9 +1,9 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import {
-	branchUrl,
 	CHANGELOG_URL,
 	commitUrl,
+	pullUrl,
 	REPO_URL,
 	readBuildInfo,
 	shortSha,
@@ -37,6 +37,10 @@ export class AppFooter extends LitElement {
 	@property({ attribute: false })
 	built: Date | undefined = build.date;
 
+	/** Pull request number of a preview build; unset in production and development. */
+	@property({ attribute: false })
+	pr: number | undefined = build.pr;
+
 	/** Pull request branch of a preview build; unset in production and development. */
 	@property({ attribute: false })
 	branch: string | undefined = build.branch;
@@ -61,6 +65,22 @@ export class AppFooter extends LitElement {
 		</div>`;
 	}
 
+	/** A preview links its pull request as `#n - branch (sha)`; production links the commit. */
+	private renderVersion(sha: string) {
+		if (this.pr === undefined)
+			return html`<a class="item" data-link="commit" href=${commitUrl(sha)} target="_blank" rel="noopener">
+				<span class="lead">${icon("tag", 22)}</span>
+				<span class="grow"><code>${shortSha(sha)}</code></span>
+				<span class="trail">${icon("chevron", 20)}</span>
+			</a>`;
+		const branch = this.branch === undefined ? "" : ` - ${this.branch}`;
+		return html`<a class="item" data-link="pull" href=${pullUrl(this.pr)} target="_blank" rel="noopener">
+			<span class="lead">${icon("branch", 22)}</span>
+			<span class="grow"><code>#${this.pr}${branch} (${shortSha(sha)})</code></span>
+			<span class="trail">${icon("chevron", 20)}</span>
+		</a>`;
+	}
+
 	override render() {
 		return html`
 			<footer class="group">
@@ -75,22 +95,9 @@ export class AppFooter extends LitElement {
 					<span class="trail">${icon("chevron", 20)}</span>
 				</a>
 				${
-					this.branch === undefined
-						? nothing
-						: html`<a class="item" data-link="branch" href=${branchUrl(this.branch)} target="_blank" rel="noopener">
-								<span class="lead">${icon("branch", 22)}</span>
-								<span class="grow"><code>${this.branch}</code></span>
-								<span class="trail">${icon("chevron", 20)}</span>
-							</a>`
-				}
-				${
 					this.sha === undefined
 						? html`<div class="item"><span class="lead">${icon("tag", 22)}</span><span class="grow">${t("footer.dev")}</span></div>`
-						: html`<a class="item" data-link="commit" href=${commitUrl(this.sha)} target="_blank" rel="noopener">
-								<span class="lead">${icon("tag", 22)}</span>
-								<span class="grow"><code>${shortSha(this.sha)}</code></span>
-								<span class="trail">${icon("chevron", 20)}</span>
-							</a>`
+						: this.renderVersion(this.sha)
 				}
 				${this.built === undefined ? nothing : this.renderBuilt(this.built)}
 			</footer>

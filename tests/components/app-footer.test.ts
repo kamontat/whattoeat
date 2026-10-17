@@ -14,11 +14,16 @@ afterEach(() => {
 	localStorage.clear();
 });
 
-const mount = async (sha?: string, built?: Date, branch?: string) => {
+const mount = async (
+	sha?: string,
+	built?: Date,
+	pr?: { number: number; branch?: string },
+) => {
 	const el = document.createElement("app-footer");
 	el.sha = sha;
 	el.built = built;
-	el.branch = branch;
+	el.pr = pr?.number;
+	el.branch = pr?.branch;
 	document.body.append(el);
 	await el.updateComplete;
 	return el;
@@ -48,19 +53,31 @@ test("links the commit by its short sha", async () => {
 	expect(commit?.textContent?.trim()).toBe("0123456");
 });
 
-test("links the branch when the build came from one", async () => {
-	const el = await mount(SHA, undefined, "worktree-foo");
-	const branch = link(el, "branch");
-	expect(branch?.getAttribute("href")).toBe(
-		"https://github.com/kamontat/whattoeat/tree/worktree-foo",
+test("links a preview build to its pull request, naming branch and sha", async () => {
+	const el = await mount(SHA, undefined, {
+		number: 34,
+		branch: "worktree-foo",
+	});
+	const pull = link(el, "pull");
+	expect(pull?.getAttribute("href")).toBe(
+		"https://github.com/kamontat/whattoeat/pull/34",
 	);
-	expect(branch?.textContent?.trim()).toBe("worktree-foo");
-	expect(link(el, "commit")?.textContent?.trim()).toBe("0123456");
+	expect(pull?.textContent?.replace(/\s+/g, " ").trim()).toBe(
+		"#34 - worktree-foo (0123456)",
+	);
+	expect(link(el, "commit")).toBeNull();
 });
 
-test("shows no branch for a production build", async () => {
+test("leaves the branch out of a pull request row without one", async () => {
+	const el = await mount(SHA, undefined, { number: 34 });
+	expect(link(el, "pull")?.textContent?.replace(/\s+/g, " ").trim()).toBe(
+		"#34 (0123456)",
+	);
+});
+
+test("shows no pull request for a production build", async () => {
 	const el = await mount(SHA);
-	expect(link(el, "branch")).toBeNull();
+	expect(link(el, "pull")).toBeNull();
 });
 
 test("shows the build date in a time element", async () => {
@@ -114,10 +131,13 @@ test("lays the links out as list rows", async () => {
 	).toEqual(["source", "changelog", "commit", "DIV"]);
 });
 
-test("puts the branch before the commit", async () => {
-	const el = await mount(SHA, new Date("2026-10-15T08:00:00Z"), "worktree-foo");
+test("puts the pull request where the commit goes", async () => {
+	const el = await mount(SHA, new Date("2026-10-15T08:00:00Z"), {
+		number: 34,
+		branch: "worktree-foo",
+	});
 	const rows = [...el.shadowRoot!.querySelectorAll(".group > .item")];
 	expect(
 		rows.map((row) => row.getAttribute("data-link") ?? row.tagName),
-	).toEqual(["source", "changelog", "branch", "commit", "DIV"]);
+	).toEqual(["source", "changelog", "pull", "DIV"]);
 });
