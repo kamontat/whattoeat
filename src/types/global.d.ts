@@ -15,6 +15,7 @@ import type { TagInput } from "#components/tag-input";
 import type { TagManager } from "#components/tag-manager";
 import type { TagList } from "#components/tags/list";
 import type { TagPicker } from "#components/tags/picker";
+import type { TagValueForm } from "#components/tags/value-form";
 import type { VisitHistory } from "#components/visit-history";
 
 declare global {
@@ -37,6 +38,7 @@ declare global {
 		"tag-list": TagList;
 		"tag-manager": TagManager;
 		"tag-picker": TagPicker;
+		"tag-value-form": TagValueForm;
 	}
 }
 
