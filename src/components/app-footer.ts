@@ -1,6 +1,7 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import {
+	branchUrl,
 	CHANGELOG_URL,
 	commitUrl,
 	REPO_URL,
@@ -36,6 +37,10 @@ export class AppFooter extends LitElement {
 	@property({ attribute: false })
 	built: Date | undefined = build.date;
 
+	/** Pull request branch of a preview build; unset in production and development. */
+	@property({ attribute: false })
+	branch: string | undefined = build.branch;
+
 	protected readonly langController = new LangController(this);
 
 	private renderBuilt(built: Date) {
@@ -69,6 +74,15 @@ export class AppFooter extends LitElement {
 					<span class="grow"><b>${t("footer.changelog")}</b></span>
 					<span class="trail">${icon("chevron", 20)}</span>
 				</a>
+				${
+					this.branch === undefined
+						? nothing
+						: html`<a class="item" data-link="branch" href=${branchUrl(this.branch)} target="_blank" rel="noopener">
+								<span class="lead">${icon("branch", 22)}</span>
+								<span class="grow"><code>${this.branch}</code></span>
+								<span class="trail">${icon("chevron", 20)}</span>
+							</a>`
+				}
 				${
 					this.sha === undefined
 						? html`<div class="item"><span class="lead">${icon("tag", 22)}</span><span class="grow">${t("footer.dev")}</span></div>`

@@ -14,10 +14,11 @@ afterEach(() => {
 	localStorage.clear();
 });
 
-const mount = async (sha?: string, built?: Date) => {
+const mount = async (sha?: string, built?: Date, branch?: string) => {
 	const el = document.createElement("app-footer");
 	el.sha = sha;
 	el.built = built;
+	el.branch = branch;
 	document.body.append(el);
 	await el.updateComplete;
 	return el;
@@ -45,6 +46,21 @@ test("links the commit by its short sha", async () => {
 		`https://github.com/kamontat/whattoeat/commit/${SHA}`,
 	);
 	expect(commit?.textContent?.trim()).toBe("0123456");
+});
+
+test("links the branch when the build came from one", async () => {
+	const el = await mount(SHA, undefined, "worktree-foo");
+	const branch = link(el, "branch");
+	expect(branch?.getAttribute("href")).toBe(
+		"https://github.com/kamontat/whattoeat/tree/worktree-foo",
+	);
+	expect(branch?.textContent?.trim()).toBe("worktree-foo");
+	expect(link(el, "commit")?.textContent?.trim()).toBe("0123456");
+});
+
+test("shows no branch for a production build", async () => {
+	const el = await mount(SHA);
+	expect(link(el, "branch")).toBeNull();
 });
 
 test("shows the build date in a time element", async () => {
@@ -96,4 +112,12 @@ test("lays the links out as list rows", async () => {
 	expect(
 		rows.map((row) => row.getAttribute("data-link") ?? row.tagName),
 	).toEqual(["source", "changelog", "commit", "DIV"]);
+});
+
+test("puts the branch before the commit", async () => {
+	const el = await mount(SHA, new Date("2026-10-15T08:00:00Z"), "worktree-foo");
+	const rows = [...el.shadowRoot!.querySelectorAll(".group > .item")];
+	expect(
+		rows.map((row) => row.getAttribute("data-link") ?? row.tagName),
+	).toEqual(["source", "changelog", "branch", "commit", "DIV"]);
 });
