@@ -1,6 +1,7 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
+import { highlight } from "#lib/highlight";
 import { icon } from "#lib/icons";
 import type { MatchRange } from "#lib/search";
 import { uiStyles } from "#styles/ui";
@@ -107,7 +108,7 @@ export class TagList extends LitElement {
 	override render() {
 		const allReadonly =
 			this.rows.length > 0 && this.rows.every((row) => row.readonly);
-		return html`<ul class="group list ${allReadonly ? "readonly" : ""}">
+		return html`<ul class="group list${allReadonly ? " readonly" : ""}">
 			${repeat(
 				this.rows,
 				(row) => `${row.group}:${row.value ?? ""}`,
@@ -119,7 +120,7 @@ export class TagList extends LitElement {
 	private renderRow(row: ListRow) {
 		const current =
 			row.group === this.currentGroup && row.value === this.currentValue;
-		const name = renderName(row.name, row.ranges ?? []);
+		const name = highlight(row.name, row.ranges ?? []);
 		if (row.readonly)
 			return html`<li data-group=${row.group} data-value=${row.value ?? nothing}>
 				<div class="item row static">
@@ -145,18 +146,4 @@ export class TagList extends LitElement {
 			</button>
 		</li>`;
 	}
-}
-
-/** The name with the parts that matched the search wrapped in `<mark>`. */
-function renderName(name: string, ranges: readonly MatchRange[]) {
-	if (ranges.length === 0) return name;
-	const parts: unknown[] = [];
-	let at = 0;
-	for (const { start, end } of ranges) {
-		if (start > at) parts.push(name.slice(at, start));
-		parts.push(html`<mark>${name.slice(start, end)}</mark>`);
-		at = end;
-	}
-	if (at < name.length) parts.push(name.slice(at));
-	return parts;
 }
