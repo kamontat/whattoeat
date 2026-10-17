@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/app-preferences";
 import type { AppPreferences } from "#components/app-preferences";
 import { LANG_EVENT, setLang } from "#lib/i18n";
+import { loadPickCount } from "#lib/random";
 import { setTheme } from "#lib/theme";
 
 beforeEach(() => {
@@ -40,7 +41,7 @@ test("groups each choice in a fieldset with a legend", async () => {
 	const legends = [...el.shadowRoot!.querySelectorAll("fieldset legend")].map(
 		(legend) => legend.textContent?.trim(),
 	);
-	expect(legends).toEqual(["Language", "Theme"]);
+	expect(legends).toEqual(["Language", "Theme", "Restaurants per pick"]);
 });
 
 test("checks the current language and theme", async () => {
@@ -102,4 +103,24 @@ test("two instances stay in step", async () => {
 	await header.updateComplete;
 	expect(radio(header, "theme", "light").checked).toBe(true);
 	expect(radio(header, "theme", "auto").checked).toBe(false);
+});
+
+test("restaurants per pick offers 1 to 5 and starts at 2", async () => {
+	const el = await mount();
+	const values = [
+		...el.shadowRoot!.querySelectorAll<HTMLInputElement>(
+			'input[name="pick-count"]',
+		),
+	].map((input) => input.value);
+	expect(values).toEqual(["1", "2", "3", "4", "5"]);
+	expect(radio(el, "pick-count", "2").checked).toBe(true);
+});
+
+test("choosing a pick count saves it and keeps it on the next visit", async () => {
+	const el = await mount();
+	await choose(el, "pick-count", "4");
+	expect(loadPickCount()).toBe(4);
+	document.body.innerHTML = "";
+	const again = await mount();
+	expect(radio(again, "pick-count", "4").checked).toBe(true);
 });

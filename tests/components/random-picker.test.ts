@@ -5,6 +5,7 @@ import { FILTER_KEY } from "#lib/filter";
 import { saveGroups } from "#lib/groups";
 import { loadHistory, saveHistory } from "#lib/history";
 import { getLang, setLang } from "#lib/i18n";
+import { savePickCount } from "#lib/random";
 import {
 	addRestaurant,
 	loadRestaurants,
@@ -961,61 +962,32 @@ test("Clear all is a quiet button", async () => {
 	expect(clear.classList.contains("quiet")).toBe(true);
 });
 
-const countInputs = (el: HTMLElement) => [
-	...root(el).querySelectorAll<HTMLInputElement>(
-		'.pick-count input[type="radio"]',
-	),
-];
-const checkedCount = (el: HTMLElement) =>
-	countInputs(el).find((input) => input.checked)?.value;
-const chooseCount = async (el: Lit, count: number) => {
-	const input = countInputs(el).find((item) => item.value === String(count))!;
-	input.checked = true;
-	input.dispatchEvent(new Event("change", { bubbles: true }));
-	await settle(el);
-};
-
-test("the pick count offers 1 to 5 under a label and starts at 2", async () => {
+test("the random page has no pick count control of its own", async () => {
 	addRestaurant({ ...base, name: "A" });
 	const el = await mount();
-	expect(countInputs(el).map((input) => input.value)).toEqual([
-		"1",
-		"2",
-		"3",
-		"4",
-		"5",
-	]);
-	expect(checkedCount(el)).toBe("2");
-	expect(
-		root(el).querySelector(".pick-count legend")?.textContent?.trim(),
-	).toBe("How many");
+	expect(root(el).querySelector('input[name="pick-count"]')).toBeNull();
 });
 
-test("the chosen pick count sets how many restaurants a press shows", async () => {
+test("a press shows two restaurants by default", async () => {
+	for (const name of ["A", "B", "C", "D"]) addRestaurant({ ...base, name });
+	const el = await mount();
+	await pickOnce(el);
+	expect(new Set(pickedNames(el)).size).toBe(2);
+});
+
+test("a press shows as many restaurants as the stored pick count", async () => {
 	for (const name of ["A", "B", "C", "D", "E", "F"])
 		addRestaurant({ ...base, name });
+	savePickCount(4);
 	const el = await mount();
-	await chooseCount(el, 4);
 	await pickOnce(el);
 	expect(new Set(pickedNames(el)).size).toBe(4);
-	await chooseCount(el, 1);
-	await pickOnce(el);
-	expect(pickedNames(el)).toHaveLength(1);
-});
-
-test("the pick count is remembered across visits", async () => {
-	addRestaurant({ ...base, name: "A" });
-	const el = await mount();
-	await chooseCount(el, 5);
-	document.body.innerHTML = "";
-	const again = await mount();
-	expect(checkedCount(again)).toBe("5");
 });
 
 test("three picks are announced as a list", async () => {
 	for (const name of ["A", "B", "C"]) addRestaurant({ ...base, name });
+	savePickCount(3);
 	const el = await mount();
-	await chooseCount(el, 3);
 	await pickOnce(el);
 	const [a, b, c] = pickedNames(el);
 	expect(

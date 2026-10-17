@@ -22,13 +22,7 @@ import { addVisit, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
-import {
-	loadPickCount,
-	PICK_COUNTS,
-	type PickCount,
-	pickOptions,
-	savePickCount,
-} from "#lib/random";
+import { loadPickCount, pickOptions } from "#lib/random";
 import { isLink, metaLine, type Restaurant } from "#lib/restaurant";
 import {
 	loadRestaurants,
@@ -75,31 +69,6 @@ export class RandomPicker extends LitElement {
 				flex-wrap: wrap;
 				align-items: center;
 				gap: 0.5rem;
-			}
-
-			.pick-count {
-				display: flex;
-				flex-wrap: wrap;
-				align-items: center;
-				gap: 0.5rem 0.75rem;
-			}
-
-			.pick-count-label {
-				color: var(--color-muted);
-				font-size: 0.875rem;
-				font-weight: 500;
-			}
-
-			.pick-count fieldset {
-				margin: 0;
-				padding: 0;
-				border: 0;
-				min-width: 0;
-			}
-
-			.pick-count .seg input + span {
-				min-width: 2.75rem;
-				padding: 0 0.5rem;
 			}
 
 			.no-match {
@@ -262,10 +231,6 @@ export class RandomPicker extends LitElement {
 	@state()
 	private filter: Filter = EMPTY_FILTER;
 
-	/** How many restaurants the next press shows. */
-	@state()
-	private count: PickCount = loadPickCount();
-
 	override connectedCallback(): void {
 		super.connectedCallback();
 		this.restaurants = loadRestaurants();
@@ -342,7 +307,8 @@ export class RandomPicker extends LitElement {
 		this.visited = undefined;
 		this.picked = pickOptions(
 			this.pool,
-			this.count,
+			// Read at each press: the count is chosen in Settings, maybe in another tab.
+			loadPickCount(),
 			this.picked.map((item) => item.id),
 		);
 		// Clear first, then set the real text once that clear has rendered: picking the same
@@ -394,42 +360,12 @@ export class RandomPicker extends LitElement {
 					.filter=${this.filter}
 					@filter-change=${(event: CustomEvent<Filter>) => this.setFilter(event.detail)}
 				></filter-bar>
-				${this.renderPickCount()}
 				${empty ? html`<p class="no-match" role="status">${t("filter.noMatch")}</p>` : nothing}
 				<p class="announce visually-hidden" role="status">${this.announced}</p>
 				<div class="results">${this.picked.map((item) => this.renderResult(item))}</div>
 			</div>
 			${wide ? nothing : html`<div class="pinned">${pick}</div>`}
 		`;
-	}
-
-	/** How many restaurants a press shows; the choice only applies from the next press. */
-	private renderPickCount() {
-		return html`<div class="pick-count">
-			<span class="pick-count-label" aria-hidden="true">${t("picker.pickCount")}</span>
-			<fieldset>
-				<legend class="visually-hidden">${t("picker.pickCount")}</legend>
-				<div class="seg">
-					${PICK_COUNTS.map(
-						(count) => html`<label>
-							<input
-								type="radio"
-								name="pick-count"
-								value=${count}
-								.checked=${count === this.count}
-								@change=${() => this.setCount(count)}
-							/>
-							<span>${count}</span>
-						</label>`,
-					)}
-				</div>
-			</fieldset>
-		</div>`;
-	}
-
-	private setCount(count: PickCount): void {
-		this.count = count;
-		savePickCount(count);
 	}
 
 	/** Screen readers hear the new picks by name rather than every whole tile. */
