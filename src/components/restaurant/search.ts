@@ -4,14 +4,25 @@ import { live } from "lit/directives/live.js";
 import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
-import type { Restaurant } from "#lib/restaurant";
 import { countText, noMatch, searchByName, searchWords } from "#lib/search";
 import { uiStyles } from "#styles/ui";
 
 /**
+ * Strings `restaurant-search` shows in place of its own restaurant-flavoured defaults, so a
+ * page searching something else (e.g. tags) can supply its own wording. `count` and `noMatch`
+ * take the current query and return the text to show for it.
+ */
+export type SearchLabels = {
+	open: string;
+	placeholder: string;
+	count: (query: string) => string;
+	noMatch: (query: string) => string;
+};
+
+/**
  * The search field for the restaurant list. It owns what is typed (never stored) and the `/`
  * shortcut, and reports `search-change` (detail: `{ searching, query }`) on every change,
- * `search-cancel` when the user ends search, and `search-pick` (detail: the restaurant) when
+ * `search-cancel` when the user ends search, and `search-pick` (detail: the matched item) when
  * the Search key is pressed with exactly one match.
  */
 @customElement("restaurant-search")
@@ -112,9 +123,13 @@ export class RestaurantSearch extends LitElement {
 	/** `/` opens search on wide screens only. */
 	protected readonly wide = new MediaController(this, WIDE);
 
-	/** The restaurants to count and pick from. */
+	/** The items to count and pick from. */
 	@property({ attribute: false })
-	restaurants: readonly Restaurant[] = [];
+	restaurants: readonly { name: string }[] = [];
+
+	/** Restaurant-flavoured defaults when `undefined`; a page's own wording otherwise. */
+	@property({ attribute: false })
+	labels: SearchLabels | undefined;
 
 	/** Whether search is open; read it, open it with `open()`. */
 	@state()
@@ -204,6 +219,11 @@ export class RestaurantSearch extends LitElement {
 		this.emitChange();
 	}
 
+	/** End search without telling the page it was cancelled, e.g. after a successful pick. */
+	close(): void {
+		this.end();
+	}
+
 	private readonly cancel = (): void => {
 		this.end();
 		this.emit("search-cancel");
@@ -264,8 +284,10 @@ export class RestaurantSearch extends LitElement {
 		this.announced = "";
 		this.announceTimer = setTimeout(() => {
 			this.announced = noMatch(this.restaurants, this.query)
-				? t("search.noMatch", { query: this.query.trim() })
-				: countText(this.restaurants, this.query);
+				? (this.labels?.noMatch(this.query.trim()) ??
+					t("search.noMatch", { query: this.query.trim() }))
+				: (this.labels?.count(this.query) ??
+					countText(this.restaurants, this.query));
 		}, 500);
 	}
 
@@ -276,8 +298,8 @@ export class RestaurantSearch extends LitElement {
 					<input
 						id="search"
 						type="search"
-						aria-label=${t("search.open")}
-						placeholder=${t("search.placeholder")}
+						aria-label=${this.labels?.open ?? t("search.open")}
+						placeholder=${this.labels?.placeholder ?? t("search.placeholder")}
 						autocomplete="off"
 						autocorrect="off"
 						autocapitalize="off"
@@ -308,7 +330,7 @@ export class RestaurantSearch extends LitElement {
 			</div>
 			${
 				this.searching && !noMatch(this.restaurants, this.query)
-					? html`<p class="search-count page-sub">${countText(this.restaurants, this.query)}</p>`
+					? html`<p class="search-count page-sub">${this.labels?.count(this.query) ?? countText(this.restaurants, this.query)}</p>`
 					: nothing
 			}
 			<p class="visually-hidden search-announce" role="status">${this.announced}</p>`;

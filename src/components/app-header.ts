@@ -42,9 +42,9 @@ const TITLES: Record<Page, MessageKey | undefined> = {
 	presets: "presets.title",
 };
 
-/** Tags has no tab of its own: it is part of Restaurants; presets lives under Settings. */
+/** Tags and presets have no tab of their own: both live under Settings. */
 const tabOf = (page: Page): Page =>
-	page === "tags" ? "restaurants" : page === "presets" ? "settings" : page;
+	page === "tags" || page === "presets" ? "settings" : page;
 
 @customElement("app-header")
 export class AppHeader extends LitElement {

@@ -3,6 +3,9 @@ import type { ReactiveController, ReactiveControllerHost } from "lit";
 /** The width from which pages use their wide layout; keep in step with the CSS `48rem` breakpoint. */
 export const WIDE = "(min-width: 48rem)";
 
+/** The width from which pages use their widest layout; keep in step with the CSS `64rem` breakpoint. */
+export const WIDER = "(min-width: 64rem)";
+
 /**
  * Whether a media query matches, re-rendering the host when the answer changes. Listens to the
  * query's `change` event and to window `resize` (happy-dom only updates `matches` on resize).

@@ -1,45 +1,47 @@
 import { css, html, LitElement, nothing, type PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
-import { live } from "lit/directives/live.js";
-import { repeat } from "lit/directives/repeat.js";
+import { customElement, property, state } from "lit/decorators.js";
 import "#components/app-sheet";
+import "#components/restaurant/search";
+import type {
+	RestaurantSearch,
+	SearchLabels,
+} from "#components/restaurant/search";
+import "#components/tags/group-form";
+import type { GroupDraft, TagGroupForm } from "#components/tags/group-form";
+import "#components/tags/list";
+import type { ListRow, TagList } from "#components/tags/list";
+import "#components/tags/picker";
+import type { TagPicker } from "#components/tags/picker";
+import "#components/tags/value-form";
+import {
+	type TagValueForm,
+	type ValueDraft,
+	valueDraft,
+} from "#components/tags/value-form";
 import {
 	dropFilterGroup,
 	dropFilterValue,
 	loadFilter,
-	moveFilterValue,
-	renameFilterValue,
 	saveFilter,
 } from "#lib/filter";
 import {
-	addGroup,
-	checkValue,
 	deleteGroup,
 	deleteValue,
 	type GroupDef,
 	groupLabel,
 	isGroupsMemoryOnly,
 	loadGroups,
-	moveGroup,
-	moveValue,
-	type NameError,
 	onGroupsChanged,
-	renameGroup,
-	renameValue,
 	saveGroups,
 	usingGroup,
-	type ValueError,
 	valueCounts,
 	valueLabel,
 } from "#lib/groups";
 import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
-import { MediaController, WIDE } from "#lib/media";
-import {
-	BUILT_IN_GROUPS,
-	type Restaurant,
-	VALUE_GROUPS,
-} from "#lib/restaurant";
+import { MediaController, WIDE, WIDER } from "#lib/media";
+import { BUILT_IN_GROUPS, type Restaurant } from "#lib/restaurant";
+import { noMatch, searchByName, searchWords } from "#lib/search";
 import {
 	isMemoryOnly,
 	loadRestaurants,
@@ -47,36 +49,71 @@ import {
 	saveRestaurants,
 	skippedCount,
 } from "#lib/store";
+import {
+	editValue,
+	loadPick,
+	savePick,
+	type TagEntry,
+	type TagGroup,
+	tagEntries,
+	tagGroups,
+} from "#lib/tags";
 import { uiStyles } from "#styles/ui";
 
-/** What the page is asking about right now; only one prompt is open at a time. */
-type Prompt =
-	| { kind: "rename-group"; id: string; text: string; error?: NameError }
-	| { kind: "delete-group"; id: string }
-	| {
-			kind: "rename-value";
-			group: string;
-			value: string;
-			text: string;
-			error?: ValueError;
-	  }
-	| { kind: "merge"; group: string; value: string; to: string }
-	| { kind: "move-value"; group: string; value: string; to: string }
-	| { kind: "delete-value"; group: string; value: string };
+/** The one form open at a time: a value's, a custom group's, or a new group's. */
+type Form =
+	| { kind: "value"; group: string; value: string }
+	| { kind: "new-group" }
+	| { kind: "group"; id: string };
 
+/** Phone below 48rem, small desktop up to 64rem, large desktop from there. */
+type Stage = "phone" | "small" | "large";
+
+type Move = { group: string; value: string };
+
+const restaurantsText = (count: number): string =>
+	count === 1 ? t("tags.count.one") : t("tags.count.other", { count });
+
+const valuesText = (count: number): string =>
+	count === 1 ? t("tags.values.one") : t("tags.values.other", { count });
+
+/** The subtitle for the picked group: its values, and how many restaurants use it (plain tags
+ * say they are not filtered instead). */
+const groupSummary = (group: TagGroup): string =>
+	group.kind === "tags"
+		? t("tags.summaryTags", { values: valuesText(group.values) })
+		: t("tags.summary", {
+				values: valuesText(group.values),
+				count: restaurantsText(group.restaurants),
+			});
+
+const isValueDraft = (draft: ValueDraft | GroupDraft): draft is ValueDraft =>
+	"target" in draft;
+
+/**
+ * The tags page: a header with a count line and search, the group picker (pills, or a column
+ * on large screens), the picked group's values (or search results) and one form, in a side panel
+ * on wide screens or a sheet on phones. It owns the stores, the pick, the open form and its draft;
+ * the parts under it only draw what they are given and report what was done.
+ */
 @customElement("tag-manager")
 export class TagManager extends LitElement {
 	static override styles = [
 		uiStyles,
 		css`
+			/* Phone: fill the space above the tab bar so the pinned Add ends the column even with little content. */
 			:host {
-				display: grid;
+				display: flex;
+				flex-direction: column;
 				gap: 1rem;
+				min-height: calc(100dvh - 1.25rem - var(--tab-bar-height));
+				margin-bottom: calc(var(--tab-bar-height) - var(--tab-bar-space));
 			}
 
 			.back {
 				display: inline-flex;
 				align-items: center;
+				align-self: flex-start;
 				gap: 0.25rem;
 				min-height: var(--tap);
 				margin: -0.5rem 0 -0.5rem -0.5rem;
@@ -85,104 +122,159 @@ export class TagManager extends LitElement {
 				text-decoration: none;
 			}
 
-			.layout {
+			/*
+			 * Phone: the title row, search, pills and the group line stay at the top together, so
+			 * switching groups never needs scrolling back up while the values scroll underneath.
+			 */
+			.top {
+				position: sticky;
+				top: 0;
+				z-index: 4;
 				display: grid;
-				gap: 1rem;
+				/* minmax(0, …): the pill strip scrolls inside the column instead of widening it. */
+				grid-template-columns: minmax(0, 1fr);
+				gap: 0.75rem;
+				margin-top: -0.75rem;
+				padding-block: 0.75rem;
+				background: var(--color-bg);
 			}
 
-			.groups-col {
-				display: grid;
-				gap: 1rem;
-				align-content: start;
-			}
-
-			.group-head {
+			.head {
 				display: flex;
-				align-items: center;
+				flex-wrap: wrap;
+				align-items: flex-end;
 				justify-content: space-between;
-				gap: 0.5rem;
-			}
-
-			.group-head h2 {
-				font-size: 1rem;
-				font-weight: 600;
-			}
-
-			.options {
-				width: var(--tap);
-				padding: 0;
-			}
-
-			.values .item .count {
-				white-space: nowrap;
-			}
-
-			.value-row[aria-current="true"] {
-				background: var(--color-surface-2);
-				box-shadow: inset 3px 0 0 var(--color-primary);
-			}
-
-			.item[aria-disabled="true"] {
-				opacity: 1;
-				color: var(--color-muted);
-				cursor: not-allowed;
-			}
-
-			.reason {
-				color: var(--color-muted);
-			}
-
-			.value-panel {
 				gap: 0.75rem;
 			}
 
-			.value-panel h2 {
-				font-size: 1.125rem;
-				font-weight: 600;
-			}
-
-			/* An open prompt sits on one wrapping row. */
-			.prompt {
+			.head-actions {
 				display: flex;
 				flex-wrap: wrap;
 				align-items: center;
 				gap: 0.5rem;
 			}
 
-			.prompt label {
+			.head-actions[hidden] {
+				display: none;
+			}
+
+			.search-open,
+			.edit-group {
+				width: var(--tap);
+				min-height: var(--tap);
+				padding: 0;
+				border-radius: var(--radius-pill);
+			}
+
+			/* Icon only: the plus says Add, the aria-label says what for. */
+			button.add {
+				width: var(--tap);
+				padding: 0;
+				border-radius: 50%;
+			}
+
+			.status:empty {
+				display: none;
+			}
+
+			.layout {
+				display: grid;
+				gap: 1rem;
+			}
+
+			.values-col {
+				display: grid;
+				gap: 0.75rem;
+				align-content: start;
+				min-width: 0;
+			}
+
+			.edit-panel {
+				gap: 1rem;
+			}
+
+			.panel-head {
 				display: flex;
-				align-items: center;
-				font-weight: 400;
+				align-items: flex-start;
+				justify-content: space-between;
+				gap: 0.75rem;
 			}
 
-			.prompt select {
-				font: inherit;
-				padding: 0.5rem 0.75rem;
-				border: 1px solid var(--color-border);
-				border-radius: var(--radius);
-				background: var(--color-surface);
-				color: inherit;
+			.panel-head h2 {
+				font-size: 1.125rem;
+				font-weight: 600;
 			}
 
-			.prompt .error {
-				flex-basis: 100%;
+			.panel-sub {
+				font-size: 0.875rem;
 			}
 
-			@media (forced-colors: active) {
-				.value-row[aria-current="true"] {
-					outline: 2px solid CanvasText;
-					outline-offset: -2px;
-				}
+			.panel-head .close {
+				flex: none;
+				width: var(--tap);
+				padding: 0;
+				border: 0;
+				border-radius: 50%;
+				background: var(--color-surface-2);
+			}
+
+			/* Phone: Add stays at the bottom right, just above the tab bar. */
+			.pinned {
+				position: sticky;
+				z-index: 5;
+				bottom: var(--tab-bar-height);
+				display: flex;
+				justify-content: flex-end;
+				margin-top: auto;
+				padding: 0.75rem 0 0.5rem;
+				background: linear-gradient(to bottom, transparent, var(--color-bg) 35%);
+			}
+
+			.pinned .add {
+				width: 3.5rem;
+				min-height: 3.5rem;
+				box-shadow: 0 4px 14px rgb(0 0 0 / 0.12);
+			}
+
+			/* Small desktop: values and the open form side by side. */
+			.layout[data-stage="small"].with-panel {
+				grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+				align-items: start;
+				gap: 1.5rem;
+			}
+
+			/* Large desktop: groups, values and the open form in three columns. */
+			.layout[data-stage="large"] {
+				align-items: start;
+				gap: 1.5rem;
+			}
+
+			.layout[data-stage="large"].with-picker {
+				grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+			}
+
+			.layout[data-stage="large"].with-panel {
+				grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+			}
+
+			.layout[data-stage="large"].with-picker.with-panel {
+				grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr) minmax(0, 1fr);
 			}
 
 			@media (min-width: 48rem) {
-				.layout.wide {
-					grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-					align-items: start;
-					gap: 1.5rem;
+				:host {
+					min-height: 0;
+					margin-bottom: 0;
 				}
 
-				.value-panel {
+				/* The side panel is the sticky part on wide screens; the top scrolls away. */
+				.top {
+					position: static;
+					margin-top: 0;
+					padding-block: 0;
+				}
+
+				.edit-panel {
 					position: sticky;
 					top: 1rem;
 				}
@@ -192,30 +284,96 @@ export class TagManager extends LitElement {
 
 	protected readonly langController = new LangController(this);
 
+	/** From 48rem the form opens in a side panel and Add moves into the header. */
 	protected readonly wide = new MediaController(this, WIDE);
+
+	/** From 64rem the picker becomes a groups column. */
+	protected readonly wider = new MediaController(this, WIDER);
+
+	/** Relative prefix for the back and restaurants links, for pages nested under Settings. */
+	@property() base = "./";
 
 	@state() private restaurants: Restaurant[] = [];
 	@state() private defs: GroupDef[] = [];
-	@state() private prompt: Prompt | undefined;
-	@state() private newName = "";
-	@state() private addError: NameError | undefined;
 	/** Stored restaurants the last load could not read. */
 	@state() private skipped = 0;
 
-	/** The value whose actions are open (sheet on phones, side panel when wide). */
-	@state() private selected: { group: string; value: string } | undefined;
+	/** The group whose values show. */
+	@state() private picked = "";
 
-	/** The custom group whose options sheet is open. */
-	@state() private optionsFor: string | undefined;
+	/** The open form; opening another replaces it. */
+	@state() private form: Form | undefined;
 
-	/** What each sheet last showed, kept in it while it slides away after closing. */
-	private lastSelected: { group: string; value: string } | undefined;
-	private lastOptionsFor: string | undefined;
+	/** What the open form has typed, kept here so it survives the form moving between sheet and panel. */
+	@state() private draft: ValueDraft | GroupDraft = { name: "", step: "edit" };
+
+	/** Whether `restaurant-search` is open, and what is typed, as it last reported. */
+	@state() private searching = false;
+	@state() private query = "";
+
+	/** The last save or delete, read out and shown under the title. */
+	@state() private status = "";
+
+	/** What the sheet last showed, kept in it while it slides away after closing. */
+	private sheetForm: { form: Form; draft: ValueDraft | GroupDraft } | undefined;
+
+	/** Whether the last render was wide, to notice the phone boundary being crossed. */
+	private lastWide: boolean | undefined;
+
+	/**
+	 * The picker variant last rendered, to notice the 64rem boundary being crossed: pills and the
+	 * groups column are different elements, so crossing it swaps one for the other and drops focus.
+	 */
+	private lastPickerVariant: "pills" | "column" | undefined;
+
+	/** Captured in `willUpdate`, before a variant swap removes the old picker, so focus can follow. */
+	private focusWasInPicker = false;
 
 	private unsubscribe: (() => void)[] = [];
 
-	/** The layout as of the last render, to notice the narrow/wide boundary being crossed. */
-	private lastWide: boolean | undefined;
+	private get search(): RestaurantSearch | null {
+		return this.renderRoot.querySelector("restaurant-search");
+	}
+
+	private get picker(): TagPicker | null {
+		return this.renderRoot.querySelector("tag-picker");
+	}
+
+	private get list(): TagList | null {
+		return this.renderRoot.querySelector("tag-list");
+	}
+
+	/** The form the user can reach right now: the side panel's, or the phone sheet's. */
+	private liveForm(): TagValueForm | TagGroupForm | null {
+		const host =
+			this.renderRoot.querySelector("#edit-panel") ??
+			this.renderRoot.querySelector("app-sheet.form-sheet");
+		return host?.querySelector("tag-value-form, tag-group-form") ?? null;
+	}
+
+	private stage(): Stage {
+		if (this.wider.matches) return "large";
+		return this.wide.matches ? "small" : "phone";
+	}
+
+	/** The picker variant `stage` renders, or undefined while searching hides the picker entirely. */
+	private pickerVariant(stage: Stage): "pills" | "column" | undefined {
+		if (this.searching) return undefined;
+		return stage === "large" ? "column" : "pills";
+	}
+
+	/** Done once this and every part under it has drawn, including updates they set off here. */
+	protected override async getUpdateComplete(): Promise<boolean> {
+		let done = await super.getUpdateComplete();
+		for (;;) {
+			const parts = this.renderRoot.querySelectorAll<LitElement>(
+				"restaurant-search, tag-picker, tag-list, tag-value-form, tag-group-form, app-sheet",
+			);
+			await Promise.all([...parts].map((part) => part.updateComplete));
+			if (!this.isUpdatePending) return done;
+			done = await super.getUpdateComplete();
+		}
+	}
 
 	override connectedCallback(): void {
 		super.connectedCallback();
@@ -232,351 +390,313 @@ export class TagManager extends LitElement {
 		this.unsubscribe = [];
 	}
 
+	/**
+	 * Before this render replaces the DOM, note whether focus is inside the picker right now — the
+	 * only chance to ask, since a variant swap at the 64rem boundary removes the old picker element
+	 * (and whatever it held focus) once `render` runs.
+	 */
+	protected override willUpdate(changed: PropertyValues<this>): void {
+		super.willUpdate(changed);
+		this.focusWasInPicker = this.shadowRoot?.activeElement === this.picker;
+	}
+
+	/**
+	 * Crossing the phone boundary with a form open moves it between the sheet and the panel; the
+	 * draft lives here, so nothing typed is lost. Into the panel, focus follows to its first
+	 * control. Into the sheet, focus the form's opener *now*, before the sheet's own update (a
+	 * microtask away) captures the focused element as the place to return to on close.
+	 *
+	 * Crossing the 64rem boundary swaps the pill picker for the groups column (or back): a
+	 * different element, so a pill or row focused before the swap would otherwise land on `body`.
+	 */
 	protected override updated(changed: PropertyValues<this>): void {
 		super.updated(changed);
-		const nowWide = this.wide.matches;
+		const stage = this.stage();
+		const variant = this.pickerVariant(stage);
+		const lastVariant = this.lastPickerVariant;
+		this.lastPickerVariant = variant;
+		if (
+			lastVariant !== undefined &&
+			variant !== undefined &&
+			lastVariant !== variant &&
+			this.focusWasInPicker
+		)
+			this.focusAfterRender(() => this.picker?.focusPicked());
+
+		const wide = stage !== "phone";
 		const wasWide = this.lastWide;
-		this.lastWide = nowWide;
-		if (wasWide === undefined || wasWide === nowWide) return;
-		const selected = this.selected;
-		if (selected === undefined) return;
-		if (nowWide) {
-			// The sheet is gone and the side panel has taken its place; land focus on whatever
-			// of it is live right now, same as opening a value fresh.
-			this.focusAfterRender(() => this.panelCurrentControl());
-		} else {
-			// The panel is gone and a sheet is about to open in its place. Focus the value's own
-			// row *now*, before AppSheet's own update (a microtask away) captures the opener via
-			// the currently focused element — otherwise it would capture whatever (if anything)
-			// happened to be focused before this resize, and return focus there once the sheet
-			// closes instead of to this row.
-			const row = this.valueRowButton(selected.group, selected.value);
-			if (row instanceof HTMLElement) row.focus();
-		}
-	}
-
-	/** The open value's row button in the groups column, found by walking rows so a value's
-	 * text cannot break a selector. */
-	private valueRowButton(group: string, value: string): Element | undefined {
-		const section = [...this.renderRoot.querySelectorAll(".tag-group")].find(
-			(el) => el.getAttribute("data-group") === group,
-		);
-		const row = section
-			? [...section.querySelectorAll("li.value")].find(
-					(li) => li.getAttribute("data-value") === value,
-				)
-			: undefined;
-		return row?.querySelector('[data-action="open-value"]') ?? undefined;
-	}
-
-	/** The wide panel's live control right now: an open prompt's input or select, else Rename. */
-	private panelCurrentControl(): Element | undefined {
-		const detail = this.valueDetail();
-		return (
-			detail?.querySelector("input, select") ??
-			detail?.querySelector('[data-action="rename-value"]') ??
-			undefined
-		);
+		this.lastWide = wide;
+		const form = this.form;
+		if (wasWide === undefined || wasWide === wide || form === undefined) return;
+		if (wide) this.focusAfterRender(() => this.liveForm()?.focusFirst());
+		else this.focusOpener(form);
 	}
 
 	private reload(): void {
 		this.defs = loadGroups();
 		this.restaurants = loadRestaurants();
 		this.skipped = skippedCount();
-		const selected = this.selected;
+		const ids = [...BUILT_IN_GROUPS, ...this.defs.map((def) => def.id), "tags"];
+		if (!ids.includes(this.picked)) this.picked = loadPick(ids);
+		const form = this.form;
 		if (
-			selected !== undefined &&
-			!valueCounts(this.restaurants, selected.group).some(
-				(item) => item.value === selected.value,
+			form?.kind === "value" &&
+			!valueCounts(this.restaurants, form.group).some(
+				(item) => item.value === form.value,
 			)
-		) {
-			this.selected = undefined;
-			if (this.prompt !== undefined && "value" in this.prompt)
-				this.prompt = undefined;
-		}
-		if (
-			this.optionsFor !== undefined &&
-			!this.defs.some((def) => def.id === this.optionsFor)
-		) {
-			this.optionsFor = undefined;
-			// Only a group prompt is stale here (e.g. its own rename form); a value's open
-			// rename, move or delete prompt belongs to the wide panel, not this group's sheet,
-			// and must survive it closing.
-			if (
-				this.prompt?.kind === "rename-group" ||
-				this.prompt?.kind === "delete-group"
-			)
-				this.prompt = undefined;
-		}
+		)
+			this.form = undefined;
+		if (form?.kind === "group" && !this.defs.some((def) => def.id === form.id))
+			this.form = undefined;
 	}
 
-	/** Runs `find` after the next render and focuses what it returns, for actions that remove the focused button. */
-	private focusAfterRender(find: () => Element | null | undefined): void {
+	/** Runs `focus` once this and its parts have drawn what was just changed. */
+	private focusAfterRender(focus: () => void): void {
+		void this.updateComplete.then(focus);
+	}
+
+	/** Clear first, then set the text once that clear has rendered, so the same text is read out again. */
+	private announce(text: string): void {
+		this.status = "";
 		void this.updateComplete.then(() => {
-			const target = find();
-			if (target instanceof HTMLElement) target.focus();
+			this.status = text;
 		});
 	}
 
-	/** The open value's actions container (only one exists at a time). */
-	private valueDetail(): Element | undefined {
-		return this.renderRoot.querySelector(".value-detail") ?? undefined;
+	/** The picked group's pill or row; while searching, the search field in its place. */
+	private focusPicked(): void {
+		if (this.searching) this.search?.focusField();
+		else this.picker?.focusPicked();
 	}
 
-	private groupAction(group: string, action: string): Element | undefined {
-		const options = this.renderRoot.querySelector(".group-options");
-		if (options?.getAttribute("data-group") !== group) return undefined;
-		return options.querySelector(`[data-action="${action}"]`) ?? undefined;
+	/** Back to what opened `form` (its row, Edit group or Add), or the picked group once that is gone. */
+	private focusOpener(form: Form): void {
+		if (form.kind === "value" && this.list?.focusRow(form.group, form.value))
+			return;
+		const opener =
+			form.kind === "group"
+				? this.renderRoot.querySelector<HTMLElement>(
+						'.head-actions [data-action="edit-group"]',
+					)
+				: form.kind === "new-group" && !this.searching
+					? this.renderRoot.querySelector<HTMLElement>("button.add")
+					: null;
+		if (opener !== null) opener.focus();
+		else this.focusPicked();
 	}
 
-	private readonly addNewGroup = (event: Event): void => {
-		event.preventDefault();
-		const result = addGroup(this.defs, this.newName);
-		if (!result.ok) {
-			this.addError = result.error;
+	private pickGroup(id: string): void {
+		this.picked = id;
+		savePick(id);
+	}
+
+	/** Opens `form` in the one slot, dropping whatever another form had typed. */
+	private openForm(form: Form, draft: ValueDraft | GroupDraft): void {
+		this.form = form;
+		this.draft = draft;
+		this.status = "";
+		// A sheet puts focus on its own title; the side panel starts at the first control.
+		if (this.stage() !== "phone")
+			this.focusAfterRender(() => this.liveForm()?.focusFirst());
+	}
+
+	/** A row or a search pick: a group ends search and picks it; a value opens its form. */
+	private openRow(group: string, value: string | undefined): void {
+		if (value === undefined) {
+			this.search?.close();
+			this.pickGroup(group);
+			this.focusAfterRender(() => this.picker?.focusPicked());
 			return;
 		}
-		this.addError = undefined;
-		this.newName = "";
-		saveGroups(result.value);
+		// Type's values are fixed and have no form.
+		if (group === "kind") return;
+		this.openForm({ kind: "value", group, value }, valueDraft(group, value));
+	}
+
+	private readonly onGroupPick = (event: CustomEvent<string>): void => {
+		this.pickGroup(event.detail);
 	};
 
-	private saveGroupName(id: string, text: string): void {
-		const result = renameGroup(this.defs, id, text);
-		if (!result.ok) {
-			this.prompt = { kind: "rename-group", id, text, error: result.error };
-			return;
-		}
-		this.prompt = undefined;
-		saveGroups(result.value);
-		this.focusAfterRender(() => this.groupAction(id, "rename-group"));
-	}
+	private readonly onTagOpen = (event: CustomEvent<ListRow>): void => {
+		this.openRow(event.detail.group, event.detail.value);
+	};
 
-	private startRename(id: string, label: string): void {
-		this.prompt = { kind: "rename-group", id, text: label };
+	private readonly onSearchPick = (event: CustomEvent<TagEntry>): void => {
+		const entry = event.detail;
+		this.openRow(entry.group, entry.type === "value" ? entry.value : undefined);
+	};
+
+	private readonly onSearchChange = (
+		event: CustomEvent<{ searching: boolean; query: string }>,
+	): void => {
+		this.searching = event.detail.searching;
+		this.query = event.detail.query;
+	};
+
+	/** Search ended by the user: the magnifier comes back, so focus goes to it. */
+	private readonly onSearchCancel = (): void => {
 		this.focusAfterRender(() =>
-			this.renderRoot.querySelector(".group-options input"),
+			this.renderRoot
+				.querySelector<HTMLElement>('[data-action="search"]')
+				?.focus(),
+		);
+	};
+
+	private readonly startAdd = (): void => {
+		this.openForm({ kind: "new-group" }, { name: "", step: "edit" });
+	};
+
+	private openGroupForm(id: string): void {
+		this.openForm(
+			{ kind: "group", id },
+			{ name: groupLabel(id, this.defs), step: "edit" },
 		);
 	}
 
-	private cancelRename(id: string): void {
-		this.prompt = undefined;
-		this.focusAfterRender(() => this.groupAction(id, "rename-group"));
-	}
+	private readonly onDraftChange = (
+		event: CustomEvent<ValueDraft | GroupDraft>,
+	): void => {
+		this.draft = event.detail;
+	};
 
-	/** Moves a custom group and keeps focus on the button that moved it, or the other arrow once it is disabled. */
-	private moveGroupBy(id: string, step: -1 | 1, atEdge: boolean): void {
-		if (atEdge) return;
-		saveGroups(moveGroup(this.defs, id, step));
-		const [action, other] =
-			step < 0 ? ["move-up", "move-down"] : ["move-down", "move-up"];
+	/** Cancel or the panel's close: drop the form and go back to what opened it. */
+	private readonly onFormCancel = (): void => {
+		const form = this.form;
+		this.form = undefined;
+		if (form !== undefined) this.focusAfterRender(() => this.focusOpener(form));
+	};
+
+	/** The sheet closed by ✕, Esc or the backdrop; it returns focus to its opener itself. */
+	private readonly onSheetClose = (): void => {
+		this.form = undefined;
+	};
+
+	private readonly onValueSave = (
+		event: CustomEvent<{ from: Move; to: Move }>,
+	): void => {
+		const { from, to } = event.detail;
+		const result = editValue(
+			this.restaurants,
+			loadFilter(),
+			from,
+			to,
+			new Date(),
+		);
+		this.form = undefined;
+		saveFilter(result.filter);
+		saveRestaurants(result.restaurants);
+		this.announce(t("tags.saved", { name: valueLabel(to.group, to.value) }));
 		this.focusAfterRender(() => {
-			const button = this.groupAction(id, action);
-			return button instanceof HTMLButtonElement &&
-				button.getAttribute("aria-disabled") === "true"
-				? this.groupAction(id, other)
-				: button;
+			if (!this.list?.focusRow(to.group, to.value)) this.focusPicked();
 		});
-	}
+	};
 
-	private askDeleteGroup(id: string): void {
-		this.prompt = { kind: "delete-group", id };
-		this.focusAfterRender(() => this.groupAction(id, "confirm-delete-group"));
-	}
+	private readonly onValueDelete = (event: CustomEvent<Move>): void => {
+		const { group, value } = event.detail;
+		this.form = undefined;
+		saveFilter(dropFilterValue(loadFilter(), group, value));
+		saveRestaurants(deleteValue(this.restaurants, group, value, new Date()));
+		this.announce(t("tags.removed", { value: valueLabel(group, value) }));
+		this.focusAfterRender(() => this.focusPicked());
+	};
 
-	private cancelDeleteGroup(id: string): void {
-		this.prompt = undefined;
-		this.focusAfterRender(() => this.groupAction(id, "delete-group"));
-	}
+	private readonly onGroupSave = (
+		event: CustomEvent<{ groups: GroupDef[]; id: string }>,
+	): void => {
+		const { groups, id } = event.detail;
+		const added = this.form?.kind === "new-group";
+		this.form = undefined;
+		if (added) this.pickGroup(id);
+		saveGroups(groups);
+		const name = groupLabel(id, groups);
+		this.announce(
+			added ? t("tags.added", { group: name }) : t("tags.saved", { name }),
+		);
+		this.focusAfterRender(() => this.focusPicked());
+	};
 
-	private confirmDeleteGroup(id: string): void {
+	/** Reorders at once and keeps the form open; the form's focus relies on `defs` updating now. */
+	private readonly onGroupMove = (
+		event: CustomEvent<{ groups: GroupDef[] }>,
+	): void => {
+		saveGroups(event.detail.groups);
+		this.defs = event.detail.groups;
+	};
+
+	private readonly onGroupDelete = (
+		event: CustomEvent<{ id: string }>,
+	): void => {
+		const { id } = event.detail;
+		const name = groupLabel(id, this.defs);
 		const result = deleteGroup(this.restaurants, this.defs, id, new Date());
-		this.prompt = undefined;
-		this.optionsFor = undefined;
+		this.form = undefined;
+		this.pickGroup("cuisine");
 		saveFilter(dropFilterGroup(loadFilter(), id));
 		// Restaurants first: if the group list save fails, the next load still turns its values into tags.
 		saveRestaurants(result.restaurants);
 		saveGroups(result.groups);
-		// The whole card is gone now; land focus on the one control guaranteed to remain.
-		this.focusAfterRender(() => this.renderRoot.querySelector("#new-group"));
-	}
-
-	private openValue(group: string, value: string): void {
-		this.prompt = undefined;
-		this.selected = { group, value };
-		// On a phone the sheet puts focus on its own title.
-		if (!this.wide.matches) return;
-		this.focusAfterRender(() =>
-			this.valueDetail()?.querySelector('[data-action="rename-value"]'),
-		);
-	}
-
-	private readonly closeValue = (): void => {
-		this.selected = undefined;
-		if (this.prompt !== undefined && "value" in this.prompt)
-			this.prompt = undefined;
+		this.announce(t("tags.removed", { value: name }));
+		this.focusAfterRender(() => this.focusPicked());
 	};
-
-	private openGroupOptions(group: string): void {
-		// The value panel is not modal on wide screens, so a value's open rename, move or
-		// delete prompt must survive opening a group's options; only a stale group prompt
-		// (e.g. another group's rename form) is cleared here.
-		if (
-			this.prompt?.kind === "rename-group" ||
-			this.prompt?.kind === "delete-group"
-		)
-			this.prompt = undefined;
-		// The sheet puts focus on its own title.
-		this.optionsFor = group;
-	}
-
-	private readonly closeGroupOptions = (): void => {
-		this.optionsFor = undefined;
-		if (
-			this.prompt?.kind === "rename-group" ||
-			this.prompt?.kind === "delete-group"
-		)
-			this.prompt = undefined;
-	};
-
-	private startRenameValue(group: string, value: string): void {
-		this.prompt = { kind: "rename-value", group, value, text: value };
-		this.focusAfterRender(() => this.valueDetail()?.querySelector("input"));
-	}
-
-	private cancelRenameValue(_group: string, _value: string): void {
-		this.prompt = undefined;
-		this.focusAfterRender(() =>
-			this.valueDetail()?.querySelector('[data-action="rename-value"]'),
-		);
-	}
-
-	private cancelMerge(_group: string, _value: string): void {
-		this.prompt = undefined;
-		this.focusAfterRender(() =>
-			this.valueDetail()?.querySelector('[data-action="rename-value"]'),
-		);
-	}
-
-	private startMoveValue(group: string, value: string): void {
-		this.prompt = {
-			kind: "move-value",
-			group,
-			value,
-			to: this.moveTargets(group)[0] ?? "tags",
-		};
-		this.focusAfterRender(() => this.valueDetail()?.querySelector("select"));
-	}
-
-	private cancelMoveValue(_group: string, _value: string): void {
-		this.prompt = undefined;
-		this.focusAfterRender(() =>
-			this.valueDetail()?.querySelector('[data-action="move-value"]'),
-		);
-	}
-
-	private askDeleteValue(group: string, value: string): void {
-		this.prompt = { kind: "delete-value", group, value };
-		this.focusAfterRender(() =>
-			this.valueDetail()?.querySelector('[data-action="confirm-delete-value"]'),
-		);
-	}
-
-	private cancelDeleteValue(_group: string, _value: string): void {
-		this.prompt = undefined;
-		this.focusAfterRender(() =>
-			this.valueDetail()?.querySelector('[data-action="delete-value"]'),
-		);
-	}
-
-	private saveValueName(group: string, value: string, text: string): void {
-		const checked = checkValue(text);
-		if (!checked.ok) {
-			this.prompt = {
-				kind: "rename-value",
-				group,
-				value,
-				text,
-				error: checked.error,
-			};
-			return;
-		}
-		const to = checked.value;
-		if (
-			to !== value &&
-			valueCounts(this.restaurants, group).some((item) => item.value === to)
-		) {
-			this.prompt = { kind: "merge", group, value, to };
-			return;
-		}
-		this.applyRename(group, value, to);
-	}
-
-	private applyRename(group: string, value: string, to: string): void {
-		this.prompt = undefined;
-		this.selected = { group, value: to };
-		saveFilter(renameFilterValue(loadFilter(), group, value, to));
-		saveRestaurants(
-			renameValue(this.restaurants, group, value, to, new Date()),
-		);
-		this.focusAfterRender(() =>
-			this.valueDetail()?.querySelector('[data-action="rename-value"]'),
-		);
-	}
-
-	private applyMove(group: string, value: string, to: string): void {
-		this.prompt = undefined;
-		this.selected = undefined;
-		saveFilter(moveFilterValue(loadFilter(), group, value, to));
-		saveRestaurants(moveValue(this.restaurants, group, value, to, new Date()));
-		// The row moves to another group's card (or into plain tags); land focus on the one
-		// control guaranteed to remain.
-		this.focusAfterRender(() => this.renderRoot.querySelector("#new-group"));
-	}
-
-	private applyDelete(group: string, value: string): void {
-		this.prompt = undefined;
-		this.selected = undefined;
-		saveFilter(dropFilterValue(loadFilter(), group, value));
-		saveRestaurants(deleteValue(this.restaurants, group, value, new Date()));
-		// The row is gone now; land focus on the one control guaranteed to remain.
-		this.focusAfterRender(() => this.renderRoot.querySelector("#new-group"));
-	}
-
-	/** Groups a value can move to: every group but Type and its own, then plain tags. */
-	private moveTargets(group: string): string[] {
-		return [...VALUE_GROUPS, ...this.defs.map((def) => def.id), "tags"].filter(
-			(id) => id !== group,
-		);
-	}
 
 	override render() {
-		const groups = [
-			...BUILT_IN_GROUPS,
-			...this.defs.map((def) => def.id),
-			"tags",
-		];
-		const wide = this.wide.matches;
-		const selected = this.selected;
-		if (selected !== undefined) this.lastSelected = selected;
-		if (this.optionsFor !== undefined) this.lastOptionsFor = this.optionsFor;
-		const sheetValue = this.lastSelected;
-		const sheetGroup = this.lastOptionsFor;
-		const detailTitle =
-			selected === undefined ? "" : valueLabel(selected.group, selected.value);
-		const detailSub =
-			selected === undefined
-				? ""
-				: this.valueSubtitle(selected.group, selected.value);
-		const optionsLabel =
-			this.optionsFor === undefined
-				? ""
-				: groupLabel(this.optionsFor, this.defs);
+		const stage = this.stage();
+		const wide = stage !== "phone";
+		const searching = this.searching;
+		const groups = tagGroups(this.restaurants, this.defs);
+		const entries = tagEntries(this.restaurants, this.defs);
+		const picked =
+			groups.find((group) => group.id === this.picked) ?? groups[1];
+		const form = this.form;
+		if (form !== undefined) this.sheetForm = { form, draft: this.draft };
+		const showPicker = !searching && picked !== undefined;
+		const summary = picked === undefined ? "" : groupSummary(picked);
+		const newGroup = t("tags.newGroup");
+		const add = html`<button
+			type="button"
+			class="primary add"
+			data-action="add"
+			aria-label=${newGroup}
+			title=${newGroup}
+			@click=${this.startAdd}
+		>
+			${icon("plus", 24)}
+		</button>`;
+		const head = form === undefined ? undefined : this.formHead(form);
 		return html`
-			<a class="back" href="./restaurants">${icon("back", 20)}<span>${t("nav.restaurants")}</span></a>
-			<div>
-				<h1 class="page-title">${t("tags.title")}</h1>
-				<p class="page-sub">${t("tags.intro")}</p>
+			<a class="back" href=${`${this.base}settings`}>${icon("back", 20)}<span>${t("nav.settings")}</span></a>
+			<div class="top">
+				<header class="head">
+					<div class=${searching ? "visually-hidden" : ""}>
+						<h1 class="page-title">${t("tags.title")}</h1>
+						<p class="count page-sub" aria-hidden=${searching ? "true" : nothing}>${summary}</p>
+					</div>
+					<div class="head-actions" ?hidden=${searching}>
+						<button
+							type="button"
+							class="search-open"
+							data-action="search"
+							aria-label=${t("tags.searchOpen")}
+							@click=${() => this.search?.open()}
+						>
+							${icon("search", 20)}
+						</button>
+						${showPicker && picked.kind === "custom" ? this.renderEditGroup(picked, wide) : nothing}
+						${wide ? add : nothing}
+					</div>
+				</header>
+				<restaurant-search
+					.restaurants=${entries}
+					.labels=${this.searchLabels(entries, summary)}
+					@search-change=${this.onSearchChange}
+					@search-cancel=${this.onSearchCancel}
+					@search-pick=${this.onSearchPick}
+				></restaurant-search>
+				${
+					showPicker && stage !== "large"
+						? this.renderPicker(groups, "pills", stage === "small")
+						: nothing
+				}
 			</div>
 			${isMemoryOnly() || isGroupsMemoryOnly() ? html`<p class="warning" role="alert">${t("storage.warning")}</p>` : nothing}
 			${
@@ -590,431 +710,220 @@ export class TagManager extends LitElement {
 				this.restaurants.length === 0
 					? html`<div class="card empty">
 							<p>${t("tags.empty")}</p>
-							<a class="button-link" href="./restaurants">${t("tags.emptyLink")}</a>
+							<a class="button-link" href=${`${this.base}restaurants`}>${t("tags.emptyLink")}</a>
 						</div>`
 					: nothing
 			}
-			<div class="layout ${wide ? "wide" : ""}">
-				<div class="groups-col">
-					${repeat(
-						groups,
-						(group) => group,
-						(group) => this.renderGroup(group),
-					)}
-					${this.renderAddGroup()}
+			<p class="status success" role="status">${this.status}</p>
+			<div
+				class="layout ${showPicker && stage === "large" ? "with-picker" : ""} ${wide && form !== undefined ? "with-panel" : ""}"
+				data-stage=${stage}
+			>
+				${showPicker && stage === "large" ? this.renderPicker(groups, "column", false) : nothing}
+				<div class="values-col">
+					${searching ? this.renderResults(entries, groups) : picked === undefined ? nothing : this.renderValues(picked)}
 				</div>
 				${
-					wide
-						? html`<section
-								class="card value-panel"
-								aria-labelledby=${selected === undefined ? "value-hint" : "value-title"}
-							>
-								${
-									selected === undefined
-										? html`<p class="muted pick-hint" id="value-hint">${t("tags.pickHint")}</p>`
-										: html`<div>
-												<h2 id="value-title">${detailTitle}</h2>
-												<p class="muted">${detailSub}</p>
-											</div>
-											${this.renderValueDetail(selected.group, selected.value)}`
-								}
+					wide && form !== undefined && head !== undefined
+						? html`<section id="edit-panel" class="card edit-panel" aria-labelledby="form-title">
+								<div class="panel-head">
+									<div>
+										<h2 id="form-title" tabindex="-1">${head.heading}</h2>
+										${head.sub === "" ? nothing : html`<p class="muted panel-sub">${head.sub}</p>`}
+									</div>
+									<button
+										type="button"
+										class="close"
+										data-action="close-panel"
+										aria-label=${t("sheet.close")}
+										@click=${this.onFormCancel}
+									>
+										${icon("x", 20)}
+									</button>
+								</div>
+								${this.renderForm(form, this.draft)}
 							</section>`
-						: html`<app-sheet
-								class="value-sheet"
-								heading=${detailTitle}
-								subheading=${detailSub}
-								?open=${selected !== undefined}
-								@sheet-close=${this.closeValue}
-							>
-								${sheetValue === undefined ? nothing : this.renderValueDetail(sheetValue.group, sheetValue.value)}
-							</app-sheet>`
+						: nothing
 				}
 			</div>
-			<app-sheet
-				class="group-sheet"
-				heading=${optionsLabel}
-				?open=${this.optionsFor !== undefined}
-				@sheet-close=${this.closeGroupOptions}
-			>
-				${sheetGroup === undefined ? nothing : this.renderGroupOptions(sheetGroup)}
-			</app-sheet>
+			${wide ? nothing : html`<div class="pinned">${add}</div>${this.renderSheet()}`}
 		`;
 	}
 
-	/** How many restaurants currently use this value, or 0 once it is gone. */
-	private countFor(group: string, value: string): number {
-		return (
-			valueCounts(this.restaurants, group).find((item) => item.value === value)
-				?.count ?? 0
+	/** The tags wording for the search field; no words typed yet shows the count line. */
+	private searchLabels(
+		entries: readonly TagEntry[],
+		summary: string,
+	): SearchLabels {
+		return {
+			open: t("tags.searchOpen"),
+			placeholder: t("tags.searchPlaceholder"),
+			count: (query) =>
+				searchWords(query).length > 0
+					? t("tags.searchCount", {
+							shown: searchByName(entries, query).length,
+							total: entries.length,
+						})
+					: summary,
+			noMatch: (query) => t("tags.noMatch", { query }),
+		};
+	}
+
+	/** Heading and sub line for the panel or sheet holding `form`. */
+	private formHead(form: Form): { heading: string; sub: string } {
+		if (form.kind === "new-group")
+			return { heading: t("tags.newGroup"), sub: "" };
+		if (form.kind === "group")
+			return {
+				heading: groupLabel(form.id, this.defs),
+				sub: t("tags.groupSub", {
+					values: valuesText(valueCounts(this.restaurants, form.id).length),
+					count: restaurantsText(usingGroup(this.restaurants, form.id)),
+				}),
+			};
+		const count =
+			valueCounts(this.restaurants, form.group).find(
+				(item) => item.value === form.value,
+			)?.count ?? 0;
+		return {
+			heading: valueLabel(form.group, form.value),
+			sub: t("tags.valueSub", {
+				group: groupLabel(form.group, this.defs),
+				count: restaurantsText(count),
+			}),
+		};
+	}
+
+	/** One sheet for every form; a closed one keeps what it last showed while it slides away. */
+	private renderSheet() {
+		const shown = this.sheetForm;
+		const head = shown === undefined ? undefined : this.formHead(shown.form);
+		return html`<app-sheet
+			class="form-sheet"
+			heading=${head?.heading ?? ""}
+			subheading=${head?.sub ?? ""}
+			?open=${this.form !== undefined}
+			@sheet-close=${this.onSheetClose}
+		>
+			${shown === undefined ? nothing : this.renderForm(shown.form, shown.draft)}
+		</app-sheet>`;
+	}
+
+	private renderForm(form: Form, draft: ValueDraft | GroupDraft) {
+		if (form.kind === "value")
+			return html`<tag-value-form
+				.restaurants=${this.restaurants}
+				.defs=${this.defs}
+				.group=${form.group}
+				.value=${form.value}
+				.draft=${isValueDraft(draft) ? draft : valueDraft(form.group, form.value)}
+				@draft-change=${this.onDraftChange}
+				@value-save=${this.onValueSave}
+				@value-delete=${this.onValueDelete}
+				@form-cancel=${this.onFormCancel}
+			></tag-value-form>`;
+		return html`<tag-group-form
+			.restaurants=${this.restaurants}
+			.defs=${this.defs}
+			.groupId=${form.kind === "group" ? form.id : undefined}
+			.draft=${isValueDraft(draft) ? { name: "", step: "edit" } : draft}
+			@draft-change=${this.onDraftChange}
+			@group-save=${this.onGroupSave}
+			@group-move=${this.onGroupMove}
+			@group-delete=${this.onGroupDelete}
+			@form-cancel=${this.onFormCancel}
+		></tag-group-form>`;
+	}
+
+	private renderPicker(
+		groups: TagGroup[],
+		variant: "pills" | "column",
+		wrap: boolean,
+	) {
+		return html`<tag-picker
+			.groups=${groups}
+			.picked=${this.picked}
+			variant=${variant}
+			?wrap=${wrap}
+			@group-pick=${this.onGroupPick}
+		></tag-picker>`;
+	}
+
+	/** Icon only, next to search: the pencil says Edit, the label says which group. */
+	private renderEditGroup(group: TagGroup, wide: boolean) {
+		const label = t("tags.editGroup", { group: group.label });
+		return html`<button
+			type="button"
+			class="edit-group"
+			data-action="edit-group"
+			aria-label=${label}
+			title=${label}
+			aria-haspopup=${wide ? nothing : "dialog"}
+			@click=${() => this.openGroupForm(group.id)}
+		>
+			${icon("edit", 20)}
+		</button>`;
+	}
+
+	private renderValues(group: TagGroup) {
+		const values = valueCounts(this.restaurants, group.id);
+		if (values.length === 0)
+			return html`<p class="muted no-values">${t("tags.noValues")}</p>`;
+		return this.renderList(
+			values.map(({ value, count }) => ({
+				group: group.id,
+				value,
+				name: valueLabel(group.id, value),
+				sub: restaurantsText(count),
+				readonly: group.id === "kind",
+			})),
 		);
 	}
 
-	private valueSubtitle(group: string, value: string): string {
-		const count = this.countFor(group, value);
-		return t("tags.valueSub", {
-			group: groupLabel(group, this.defs),
-			count:
-				count === 1 ? t("tags.count.one") : t("tags.count.other", { count }),
-		});
-	}
-
-	private renderGroup(group: string) {
-		const custom = this.defs.some((def) => def.id === group);
-		const label = groupLabel(group, this.defs);
-		const values = valueCounts(this.restaurants, group);
-		return html`
-			<section class="card tag-group" data-group=${group} aria-label=${label}>
-				<div class="group-head">
-					<h2>${label}</h2>
-					${
-						custom
-							? html`<button
-									type="button"
-									class="quiet options"
-									data-action="group-options"
-									aria-haspopup="dialog"
-									aria-label=${t("tags.groupOptions", { group: label })}
-									@click=${() => this.openGroupOptions(group)}
-								>
-									${icon("dots", 20)}
-								</button>`
-							: nothing
-					}
-				</div>
-				${
-					values.length === 0
-						? html`<p class="muted">${t("tags.noValues")}</p>`
-						: html`<ul class="group values">
-								${repeat(
-									values,
-									({ value }) => value,
-									({ value, count }) => this.renderValue(group, value, count),
-								)}
-							</ul>`
-				}
-			</section>
-		`;
-	}
-
-	private renderValue(group: string, value: string, count: number) {
-		const countText =
-			count === 1 ? t("tags.count.one") : t("tags.count.other", { count });
-		const label = valueLabel(group, value);
-		const current =
-			this.selected?.group === group && this.selected.value === value;
-		return html`<li class="value" data-value=${value}>
-			${
-				group === "kind"
-					? html`<div class="item static">
-							<span class="grow"><b class="name">${label}</b></span>
-							<span class="count muted">${countText}</span>
-						</div>`
-					: html`<button
-							type="button"
-							class="item value-row"
-							data-action="open-value"
-							aria-haspopup=${this.wide.matches ? nothing : "dialog"}
-							aria-current=${current ? "true" : nothing}
-							@click=${() => this.openValue(group, value)}
-						>
-							<span class="grow"><b class="name">${label}</b></span>
-							<span class="count muted">${countText}</span>
-							<span class="trail">${icon("chevron", 18)}</span>
-						</button>`
-			}
-		</li>`;
-	}
-
-	private renderValueDetail(group: string, value: string) {
-		const count = this.countFor(group, value);
-		const prompt = this.prompt;
-		const mine =
-			prompt !== undefined &&
-			prompt.kind !== "rename-group" &&
-			prompt.kind !== "delete-group" &&
-			prompt.group === group &&
-			prompt.value === value
-				? prompt
-				: undefined;
-		return html`<div class="value-detail" data-group=${group} data-value=${value}>
-			${
-				mine === undefined
-					? html`<ul class="group actions-list">
-							<li>
-								<button
-									type="button"
-									class="item"
-									data-action="rename-value"
-									aria-label=${t("tags.renameValueLabel", { value })}
-									@click=${() => this.startRenameValue(group, value)}
-								>
-									<span class="lead">${icon("edit", 20)}</span>
-									<span class="grow"><b>${t("tags.rename")}</b></span>
-								</button>
-							</li>
-							<li>
-								<button
-									type="button"
-									class="item"
-									data-action="move-value"
-									aria-label=${t("tags.moveValueLabel", { value })}
-									@click=${() => this.startMoveValue(group, value)}
-								>
-									<span class="lead">${icon("move", 20)}</span>
-									<span class="grow"><b>${t("tags.move")}</b><small>${t("tags.anotherGroup")}</small></span>
-								</button>
-							</li>
-							<li>
-								<button
-									type="button"
-									class="item danger"
-									data-action="delete-value"
-									aria-label=${t("tags.deleteValueLabel", { value })}
-									@click=${() => this.askDeleteValue(group, value)}
-								>
-									<span class="lead">${icon("trash", 20)}</span>
-									<span class="grow"><b>${t("tags.delete")}</b></span>
-								</button>
-							</li>
-						</ul>`
-					: this.renderValueBody(group, value, count, mine)
-			}
-		</div>`;
-	}
-
-	private renderGroupOptions(group: string) {
-		const index = this.defs.findIndex((def) => def.id === group);
-		const label = groupLabel(group, this.defs);
-		const prompt = this.prompt;
-		const first = index === 0;
-		const last = index === this.defs.length - 1;
-		let body: unknown;
-		if (prompt?.kind === "rename-group" && prompt.id === group)
-			body = this.renderGroupTitle(group, prompt);
-		else if (prompt?.kind === "delete-group" && prompt.id === group)
-			body = this.renderGroupPrompt(group, label);
-		else
-			body = html`<ul class="group actions-list">
-				<li>
-					<button
-						type="button"
-						class="item"
-						data-action="rename-group"
-						aria-label=${t("tags.renameGroupLabel", { group: label })}
-						@click=${() => this.startRename(group, label)}
-					>
-						<span class="lead">${icon("edit", 20)}</span>
-						<span class="grow"><b>${t("tags.rename")}</b></span>
-					</button>
-				</li>
-				<li>
-					<button
-						type="button"
-						class="item"
-						data-action="move-up"
-						aria-disabled=${first ? "true" : nothing}
-						aria-describedby=${first ? `move-up-reason-${group}` : nothing}
-						@click=${() => this.moveGroupBy(group, -1, first)}
-					>
-						<span class="lead">${icon("up", 20)}</span>
-						<span class="grow"
-							><b>${t("tags.moveUp", { group: label })}</b>${
-								first
-									? html`<small class="reason" id="move-up-reason-${group}" aria-hidden="true">${t("tags.firstGroup")}</small>`
-									: nothing
-							}</span
-						>
-					</button>
-				</li>
-				<li>
-					<button
-						type="button"
-						class="item"
-						data-action="move-down"
-						aria-disabled=${last ? "true" : nothing}
-						aria-describedby=${last ? `move-down-reason-${group}` : nothing}
-						@click=${() => this.moveGroupBy(group, 1, last)}
-					>
-						<span class="lead">${icon("down", 20)}</span>
-						<span class="grow"
-							><b>${t("tags.moveDown", { group: label })}</b>${
-								last
-									? html`<small class="reason" id="move-down-reason-${group}" aria-hidden="true">${t("tags.lastGroup")}</small>`
-									: nothing
-							}</span
-						>
-					</button>
-				</li>
-				<li>
-					<button
-						type="button"
-						class="item danger"
-						data-action="delete-group"
-						aria-label=${t("tags.deleteGroupLabel", { group: label })}
-						@click=${() => this.askDeleteGroup(group)}
-					>
-						<span class="lead">${icon("trash", 20)}</span>
-						<span class="grow"><b>${t("tags.delete")}</b></span>
-					</button>
-				</li>
-			</ul>`;
-		return html`<div class="group-options" data-group=${group}>${body}</div>`;
-	}
-
-	/** The rename-group form; only called once the caller has confirmed the open prompt is this group's rename. */
-	private renderGroupTitle(
-		group: string,
-		prompt: Extract<Prompt, { kind: "rename-group" }>,
-	) {
-		return html`<form
-			class="rename prompt"
-			@submit=${(event: Event) => {
-				event.preventDefault();
-				this.saveGroupName(group, prompt.text);
-			}}
-		>
-			<label>
-				<span class="visually-hidden">${t("tags.addLabel")}</span>
-				<input
-					.value=${live(prompt.text)}
-					@input=${(event: Event) => {
-						this.prompt = {
-							kind: "rename-group",
-							id: prompt.id,
-							text: (event.target as HTMLInputElement).value,
-						};
-					}}
-				/>
-			</label>
-			<button type="submit" class="primary" data-action="save-group-name">${t("tags.save")}</button>
-			<button type="button" data-action="cancel" @click=${() => this.cancelRename(group)}>${t("tags.cancel")}</button>
-			${prompt.error ? html`<p class="error" role="alert">${t(prompt.error)}</p>` : nothing}
-		</form>`;
-	}
-
-	private renderGroupPrompt(group: string, label: string) {
-		const prompt = this.prompt;
-		if (prompt?.kind !== "delete-group" || prompt.id !== group) return nothing;
-		const count = usingGroup(this.restaurants, group);
-		return html`<div role="alert">
-			<p>${count === 1 ? t("tags.deleteGroupPrompt.one", { group: label }) : t("tags.deleteGroupPrompt.other", { group: label, count })}</p>
-			<div class="actions">
-				<button type="button" class="danger" data-action="confirm-delete-group" @click=${() => this.confirmDeleteGroup(group)}>
-					${t("tags.confirmDelete")}
+	private renderResults(entries: readonly TagEntry[], groups: TagGroup[]) {
+		const query = this.query;
+		if (noMatch(entries, query))
+			return html`<div class="card empty no-match">
+				<p>${t("tags.noMatch", { query: query.trim() })}</p>
+				<button type="button" data-action="clear-search-empty" @click=${() => this.search?.clear()}>
+					${t("search.clear")}
 				</button>
-				<button type="button" data-action="cancel" @click=${() => this.cancelDeleteGroup(group)}>${t("tags.cancel")}</button>
-			</div>
-		</div>`;
+			</div>`;
+		return this.renderList(
+			searchByName(entries, query).map(({ item, ranges }): ListRow => {
+				if (item.type === "group") {
+					const values =
+						groups.find((group) => group.id === item.group)?.values ?? 0;
+					return {
+						group: item.group,
+						name: item.name,
+						sub: valuesText(values),
+						ranges,
+					};
+				}
+				return {
+					group: item.group,
+					value: item.value,
+					name: item.name,
+					sub: t("tags.valueSub", {
+						group: groupLabel(item.group, this.defs),
+						count: restaurantsText(item.count),
+					}),
+					ranges,
+					readonly: item.group === "kind",
+				};
+			}),
+		);
 	}
 
-	private renderValueBody(
-		group: string,
-		value: string,
-		count: number,
-		prompt: Exclude<
-			Prompt,
-			{ kind: "rename-group" } | { kind: "delete-group" }
-		>,
-	) {
-		switch (prompt.kind) {
-			case "rename-value":
-				return html`<form
-					class="rename prompt"
-					@submit=${(event: Event) => {
-						event.preventDefault();
-						this.saveValueName(group, value, prompt.text);
-					}}
-				>
-					<label>
-						<span class="visually-hidden">${t("tags.renameLabel", { value })}</span>
-						<input
-							.value=${live(prompt.text)}
-							@input=${(event: Event) => {
-								this.prompt = {
-									kind: "rename-value",
-									group,
-									value,
-									text: (event.target as HTMLInputElement).value,
-								};
-							}}
-						/>
-					</label>
-					<button type="submit" class="primary" data-action="save-value">${t("tags.save")}</button>
-					<button type="button" data-action="cancel" @click=${() => this.cancelRenameValue(group, value)}>${t("tags.cancel")}</button>
-					${prompt.error ? html`<p class="error" role="alert">${t(prompt.error)}</p>` : nothing}
-				</form>`;
-			case "merge":
-				return html`<div class="prompt" role="alert">
-					<p>${count === 1 ? t("tags.mergePrompt.one", { from: value, to: prompt.to }) : t("tags.mergePrompt.other", { from: value, to: prompt.to, count })}</p>
-					<div class="actions">
-						<button type="button" class="primary" data-action="confirm-merge" @click=${() => this.applyRename(group, value, prompt.to)}>
-							${t("tags.confirmMerge")}
-						</button>
-						<button type="button" data-action="cancel" @click=${() => this.cancelMerge(group, value)}>${t("tags.cancel")}</button>
-					</div>
-				</div>`;
-			case "move-value":
-				return html`<form
-					class="prompt"
-					@submit=${(event: Event) => {
-						event.preventDefault();
-						this.applyMove(group, value, prompt.to);
-					}}
-				>
-					<label>
-						<span class="visually-hidden">${t("tags.moveLabel", { value })}</span>
-						<select
-							name="target"
-							.value=${live(prompt.to)}
-							@change=${(event: Event) => {
-								this.prompt = {
-									kind: "move-value",
-									group,
-									value,
-									to: (event.target as HTMLSelectElement).value,
-								};
-							}}
-						>
-							${this.moveTargets(group).map(
-								(id) =>
-									html`<option value=${id}>${groupLabel(id, this.defs)}</option>`,
-							)}
-						</select>
-					</label>
-					<button type="submit" class="primary" data-action="confirm-move">${t("tags.confirmMove")}</button>
-					<button type="button" data-action="cancel" @click=${() => this.cancelMoveValue(group, value)}>${t("tags.cancel")}</button>
-				</form>`;
-			case "delete-value":
-				return html`<div class="prompt" role="alert">
-					<p>${count === 1 ? t("tags.deleteValuePrompt.one", { value }) : t("tags.deleteValuePrompt.other", { value, count })}</p>
-					<div class="actions">
-						<button type="button" class="danger" data-action="confirm-delete-value" @click=${() => this.applyDelete(group, value)}>
-							${t("tags.confirmDelete")}
-						</button>
-						<button type="button" data-action="cancel" @click=${() => this.cancelDeleteValue(group, value)}>${t("tags.cancel")}</button>
-					</div>
-				</div>`;
-		}
-	}
-
-	private renderAddGroup() {
-		return html`<form class="card add-group" novalidate @submit=${this.addNewGroup}>
-			<h2>${t("tags.addTitle")}</h2>
-			<label>
-				${t("tags.addLabel")}
-				<input
-					id="new-group"
-					autocomplete="off"
-					aria-invalid=${this.addError ? "true" : "false"}
-					.value=${live(this.newName)}
-					@input=${(event: Event) => {
-						this.newName = (event.target as HTMLInputElement).value;
-						this.addError = undefined;
-					}}
-				/>
-			</label>
-			${this.addError ? html`<p class="error" role="alert">${t(this.addError)}</p>` : nothing}
-			<div class="actions"><button type="submit" class="primary">${t("tags.add")}</button></div>
-		</form>`;
+	/** One template for values and results, so the list element survives switching between them. */
+	private renderList(rows: ListRow[]) {
+		const form = this.form;
+		return html`<tag-list
+			.rows=${rows}
+			.currentGroup=${form?.kind === "value" ? form.group : form?.kind === "group" ? form.id : undefined}
+			.currentValue=${form?.kind === "value" ? form.value : undefined}
+			@tag-open=${this.onTagOpen}
+		></tag-list>`;
 	}
 }

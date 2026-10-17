@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-17: Neighbourhood presets, search by name and restaurant links
+## 2026-10-17: Neighbourhood presets, search by name, restaurant links and a new Tags page
 
 ### BREAKING CHANGES
 
@@ -12,9 +12,26 @@ What changed in this project and why, newest first.
   writes `location` must use `link`.
 - The restaurant form only accepts a link starting with `https://` or `http://`; free text
   such as "Central Ladprao, 4F" now belongs in Notes.
+- The Tags page moved from `/tags` to `/settings/tags`, and `/tags` is gone (no redirect, as
+  the app is not public yet). Reach it from Settings › Organise › Tags; update any bookmark.
 
 ### Features
 
+- The Tags page lives under Settings at `/settings/tags`, opened from a new **Organise**
+  section after Appearance. It has a back link to Settings, and the Settings tab stays marked.
+- The Tags page is rebuilt to match Restaurants and to stay usable with many groups:
+  - Pick one group at a time. On phones a pill strip scrolls sideways and stays pinned with the
+    header; from 768px the pills wrap; from 1024px a groups column sits on the left.
+  - The subtitle follows the picked group (`4 values · 30 restaurants`, or that plain tags are
+    not used by the home filter).
+  - Search finds group names and values across every group, with the match highlighted. A group
+    result picks that group; a value result opens it.
+  - Editing is done in forms like the restaurant form, in a bottom sheet on phones and a side
+    panel from 768px: **New group** (the `+` button), **Edit** for a custom group (a pencil next
+    to search: rename, move up or down, delete) and a value's form (name and group together,
+    with the merge and delete prompts in place). Moving up or down saves at once.
+  - Type stays visible with how many restaurants use each value, as dashed rows with no arrow,
+    so it reads as information only.
 - A Neighbourhoods page at `/settings/presets` fills the list from ready-made restaurant lists
   bundled with the site: Ladprao (144 restaurants), Ratchayothin (55), Siam (29, across Siam
   Paragon, Siam Center and Siam Square One) and Ngamwongwan (12, at The Mall Ngamwongwan, the
@@ -32,7 +49,7 @@ What changed in this project and why, newest first.
   `bun run presets:index` refreshes the counts, and tests fail when the index and the files
   disagree.
 
-- Restaurants has a search button beside Tags. It turns the title row into a search field
+- Restaurants has a search button. It turns the title row into a search field
   with a clear button and Cancel, and the list narrows to names that contain every word you
   type, in any order. Case and Latin accents are ignored ("cafe" finds "Café"); Thai is
   matched as typed. The matched part of each name is bold.
@@ -65,8 +82,6 @@ What changed in this project and why, newest first.
 - Editing from the results keeps the search; after a save, focus lands on the saved
   restaurant, or back in the field if it no longer matches. A change in another tab re-filters
   the results, and emptying the list ends search.
-- The Tags link on Restaurants is the same height as the search button: 44px on touch
-  screens, 36px with a mouse.
 - From 768px the Restaurants edit panel starts hidden and the list takes the full width. Add
   opens the panel beside the list and pressing it again hides it; Add while editing switches
   to a new restaurant instead. Clicking a row opens the panel for editing, and Save, Cancel,
@@ -97,6 +112,11 @@ What changed in this project and why, newest first.
   `upsert-preset.ts` script applies a small draft to a preset file, giving new restaurants ids
   that no other preset uses, setting timestamps and the index entry's `updatedAt`, and keeping
   each restaurant's place and floor as the first line of its notes.
+- The Tags link is gone from the Restaurants header, which now shows only search (and Add from
+  768px).
+- `restaurant-search` takes its wording from the page through a `labels` property, and the
+  match highlighting both lists use lives in `#lib/highlight`. The tags page parts are in
+  `src/components/tags/` (`tag-picker`, `tag-list`, `tag-value-form`, `tag-group-form`).
 
 ### Bug fixes
 
@@ -117,7 +137,15 @@ What changed in this project and why, newest first.
   pause, so screen readers are not interrupted on every key.
 - The title row stays put only on phones; from 768px the edit side panel is already the part
   that stays in view, and two stuck areas would overlap.
-- Search on the Tags page stays in `TODO.md`.
+- Tags shows one group at a time behind a picker, rather than every group stacked as a card, so
+  any group is one tap away however many there are. The picker changes shape with the width
+  (pills, wrapping pills, a column) rather than one layout everywhere.
+- The open form's typed text lives in the page, not the form, because the sheet and the side
+  panel are different elements: resizing across 768px moves the form without losing it.
+- There is one form at a time: opening another drops the first's unsaved edits, as tapping
+  another restaurant does. Picking a group or starting a search leaves it open.
+- The line above the values that named the group's kind was dropped after review: the subtitle
+  carries the counts, Edit sits next to search, and the dashed Type rows need no "fixed" label.
 - The edit panel used to always show an empty "New restaurant" form, which repeated the Add
   button in the header. Hiding it until Add or a row opens it gives the list the full width
   and works like the phone sheet. Closing it drops anything typed, the same as closing the
