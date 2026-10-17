@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { LitElement } from "lit";
-import { MediaController, WIDE } from "#lib/media";
+import { MediaController, WIDE, WIDER } from "#lib/media";
 
 type HappyWindow = Window & {
 	happyDOM: { setViewport(viewport: { width: number; height: number }): void };
@@ -37,6 +37,10 @@ const mount = async () => {
 
 test("wide is 48rem and up", () => {
 	expect(WIDE).toBe("(min-width: 48rem)");
+});
+
+test("WIDER is the 64rem query", () => {
+	expect(WIDER).toBe("(min-width: 64rem)");
 });
 
 test("reports whether the query matches", async () => {

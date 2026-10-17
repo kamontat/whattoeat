@@ -1,6 +1,7 @@
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
+import { highlight } from "#lib/highlight";
 import { getLang, LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { isLink, metaLine, type Restaurant } from "#lib/restaurant";
@@ -171,7 +172,7 @@ export class RestaurantList extends LitElement {
 				@click=${() => this.emit("restaurant-edit", item)}
 			>
 				<span class="grow">
-					<b class="name">${renderName(item.name, ranges)}</b>
+					<b class="name">${highlight(item.name, ranges)}</b>
 					${meta ? html`<small class="meta" id=${metaId}>${meta}</small>` : nothing}
 				</span>
 				<span class="trail">${icon("chevron", 20)}</span>
@@ -189,18 +190,4 @@ export class RestaurantList extends LitElement {
 			}
 		</li>`;
 	}
-}
-
-/** The name with the parts the search matched wrapped in `<mark>`. */
-function renderName(name: string, ranges: readonly MatchRange[]) {
-	if (ranges.length === 0) return name;
-	const parts: unknown[] = [];
-	let at = 0;
-	for (const { start, end } of ranges) {
-		if (start > at) parts.push(name.slice(at, start));
-		parts.push(html`<mark>${name.slice(start, end)}</mark>`);
-		at = end;
-	}
-	if (at < name.length) parts.push(name.slice(at));
-	return parts;
 }

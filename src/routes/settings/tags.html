@@ -6,22 +6,22 @@
 		<meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)" />
 		<meta name="theme-color" content="#161513" media="(prefers-color-scheme: dark)" />
 		<title>Tags · What to Eat</title>
-		<script type="module" src="../lib/gtm.ts"></script>
-		<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
-		<link rel="manifest" href="../assets/manifest.webmanifest" />
-		<link rel="apple-touch-icon" href="../assets/icons/icon-180.png" />
+		<script type="module" src="../../lib/gtm.ts"></script>
+		<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
+		<link rel="manifest" href="../../assets/manifest.webmanifest" />
+		<link rel="apple-touch-icon" href="../../assets/icons/icon-180.png" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-title" content="What to Eat" />
-		<script type="module" src="../lib/theme.ts"></script>
-		<link rel="stylesheet" href="../styles/global.css" />
-		<script type="module" src="../components/app-header.ts"></script>
-		<script type="module" src="../components/tag-manager.ts"></script>
+		<script type="module" src="../../lib/theme.ts"></script>
+		<link rel="stylesheet" href="../../styles/global.css" />
+		<script type="module" src="../../components/app-header.ts"></script>
+		<script type="module" src="../../components/tag-manager.ts"></script>
 	</head>
 	<body>
-		<app-header current="tags"></app-header>
+		<app-header current="tags" base="../"></app-header>
 		<main id="main" tabindex="-1" class="wide">
-			<tag-manager></tag-manager>
+			<tag-manager base="../"></tag-manager>
 		</main>
 	</body>
 </html>

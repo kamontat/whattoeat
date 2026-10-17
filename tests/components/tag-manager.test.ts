@@ -2,6 +2,10 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/tag-manager";
 import type { AppSheet } from "#components/app-sheet";
 import type { TagManager } from "#components/tag-manager";
+import type { TagGroupForm } from "#components/tags/group-form";
+import type { TagList } from "#components/tags/list";
+import type { TagPicker } from "#components/tags/picker";
+import type { TagValueForm } from "#components/tags/value-form";
 import { FILTER_KEY, LIST_FILTER_KEY } from "#lib/filter";
 import { forgetGroupsMemory, loadGroups, saveGroups } from "#lib/groups";
 import { setLang } from "#lib/i18n";
@@ -11,16 +15,19 @@ import {
 	saveRestaurants,
 	updateRestaurant,
 } from "#lib/store";
+import { PICK_KEY } from "#lib/tags";
 
 const base = { tags: [], link: "", notes: "" };
 
 beforeEach(() => {
 	localStorage.clear();
+	sessionStorage.clear();
 	setLang("en");
 });
 afterEach(() => {
 	document.body.innerHTML = "";
 	localStorage.clear();
+	sessionStorage.clear();
 });
 
 const mount = async () => {
@@ -29,136 +36,349 @@ const mount = async () => {
 	await el.updateComplete;
 	return el;
 };
-const $ = <T extends Element>(el: TagManager, selector: string) =>
-	el.shadowRoot!.querySelector<T>(selector);
-const card = (el: TagManager, group: string) =>
-	$<HTMLElement>(el, `section.tag-group[data-group="${group}"]`)!;
-const click = async (el: TagManager, root: ParentNode, action: string) => {
-	root.querySelector<HTMLButtonElement>(`[data-action="${action}"]`)!.click();
+
+/** The page's parts (tag-*, restaurant-search) each have a shadow root; look inside them too. */
+const isPart = (node: Element): boolean =>
+	node.localName.startsWith("tag-") || node.localName === "restaurant-search";
+
+/** Every match in `el` and its parts, in document order. */
+const $$ = <T extends Element>(root: Element, selector: string): T[] => {
+	const found: T[] = [];
+	const walk = (parent: ParentNode): void => {
+		for (const node of parent.querySelectorAll("*")) {
+			if (node.matches(selector)) found.push(node as T);
+			if (isPart(node) && node.shadowRoot !== null) walk(node.shadowRoot);
+		}
+	};
+	walk(root.shadowRoot ?? root);
+	return found;
+};
+const $ = <T extends Element>(root: Element, selector: string): T | null =>
+	$$<T>(root, selector)[0] ?? null;
+
+/** The focused element, looking through the page's parts. */
+const focused = (el: TagManager): Element | null => {
+	let active = el.shadowRoot!.activeElement;
+	while (active !== null && isPart(active) && active.shadowRoot !== null) {
+		const inner = active.shadowRoot.activeElement;
+		if (inner === null) break;
+		active = inner;
+	}
+	return active;
+};
+
+const settle = async (el: TagManager) => {
+	await el.updateComplete;
+	await new Promise((resolve) => setTimeout(resolve, 0));
 	await el.updateComplete;
 };
-const cardTitles = (el: TagManager) =>
-	[...el.shadowRoot!.querySelectorAll("section.tag-group h2")].map((h) =>
-		h.textContent?.trim(),
-	);
+
 const typeIn = async (
 	el: TagManager,
 	input: HTMLInputElement,
 	text: string,
 ) => {
 	input.value = text;
-	input.dispatchEvent(new Event("input"));
+	input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
 	await el.updateComplete;
 };
-const valueRow = (el: TagManager, group: string, value: string) =>
-	card(el, group).querySelector<HTMLElement>(
-		`li.value[data-value="${value}"]`,
-	)!;
 
-/** Opens a value's actions (side panel at the default test width) and returns that container. */
+const clickOn = async (el: TagManager, button: Element | null) => {
+	(button as HTMLElement).click();
+	await el.updateComplete;
+};
+
+/** The one group picker shown (pills or column); null while searching. */
+const picker = (el: TagManager) =>
+	el.shadowRoot!.querySelector<TagPicker>("tag-picker");
+const pickerIds = (el: TagManager) =>
+	[...picker(el)!.shadowRoot!.querySelectorAll("[data-group]")].map((b) =>
+		b.getAttribute("data-group"),
+	);
+const pressed = (el: TagManager) =>
+	picker(el)!
+		.shadowRoot!.querySelector('[aria-pressed="true"]')
+		?.getAttribute("data-group");
+const pillFor = (el: TagManager, id: string) =>
+	[
+		...picker(el)!.shadowRoot!.querySelectorAll<HTMLElement>("[data-group]"),
+	].find((b) => b.getAttribute("data-group") === id)!;
+const pick = async (el: TagManager, id: string) => {
+	await clickOn(el, pillFor(el, id));
+};
+
+const list = (el: TagManager) =>
+	el.shadowRoot!.querySelector<TagList>("tag-list");
+/** The rows of the values (or search results) list. */
+const rows = (el: TagManager) => [
+	...list(el)!.shadowRoot!.querySelectorAll<HTMLElement>("li[data-group]"),
+];
+const rowFor = (el: TagManager, group: string, value?: string) =>
+	rows(el).find(
+		(li) =>
+			li.getAttribute("data-group") === group &&
+			(li.getAttribute("data-value") ?? undefined) === value,
+	);
+const rowButton = (el: TagManager, group: string, value?: string) =>
+	rowFor(el, group, value)?.querySelector<HTMLButtonElement>(
+		'[data-action="open"]',
+	) ?? null;
+
+/** Where the open form lives: the side panel on wide screens, the open sheet on phones. */
+const formHost = (el: TagManager) =>
+	el.shadowRoot!.querySelector<HTMLElement>("#edit-panel") ??
+	el.shadowRoot!.querySelector<HTMLElement>("app-sheet.form-sheet[open]");
+const valueForm = (el: TagManager) =>
+	formHost(el)?.querySelector<TagValueForm>("tag-value-form") ?? null;
+const groupForm = (el: TagManager) =>
+	formHost(el)?.querySelector<TagGroupForm>("tag-group-form") ?? null;
+const inForm = <T extends Element>(form: Element, selector: string) =>
+	form.shadowRoot!.querySelector<T>(selector)!;
+
+/** Picks the group, opens the value's form and returns it. */
 const openValue = async (el: TagManager, group: string, value: string) => {
-	valueRow(el, group, value)
-		.querySelector<HTMLButtonElement>('[data-action="open-value"]')!
-		.click();
-	await el.updateComplete;
-	return $<HTMLElement>(el, ".value-detail")!;
+	if (picker(el) !== null && pressed(el) !== group) await pick(el, group);
+	await clickOn(el, rowButton(el, group, value));
+	return valueForm(el)!;
 };
 
-/** Opens a custom group's options sheet and returns its content. */
-const openGroup = async (el: TagManager, group: string) => {
-	card(el, group)
-		.querySelector<HTMLButtonElement>('[data-action="group-options"]')!
-		.click();
-	await el.updateComplete;
-	return $<HTMLElement>(el, ".group-options")!;
+/** Picks the custom group, opens its Edit group form and returns it. */
+const openGroup = async (el: TagManager, id: string) => {
+	if (pressed(el) !== id) await pick(el, id);
+	await clickOn(el, $(el, '.head-actions [data-action="edit-group"]'));
+	return groupForm(el)!;
 };
 
-test("shows a card per group in order, ending with plain tags", async () => {
-	saveGroups([{ id: "g1", name: "Price" }]);
+const clickAdd = async (el: TagManager) => {
+	await clickOn(el, $(el, 'button.add[data-action="add"]'));
+};
+
+const openSearch = async (el: TagManager) => {
+	await clickOn(el, $(el, '[data-action="search"]'));
+};
+const searchInput = (el: TagManager) => $<HTMLInputElement>(el, "#search")!;
+const typeSearch = async (el: TagManager, text: string) => {
+	await typeIn(el, searchInput(el), text);
+};
+
+type HappyWindow = Window & {
+	happyDOM: { setViewport(viewport: { width: number; height: number }): void };
+};
+const setWidth = (width: number) => {
+	(window as unknown as HappyWindow).happyDOM.setViewport({
+		width,
+		height: 900,
+	});
+	window.dispatchEvent(new Event("resize"));
+};
+afterEach(() => setWidth(1024));
+
+// Layout
+
+test("large: groups column, values column, no pills", async () => {
 	const el = await mount();
-	expect(cardTitles(el)).toEqual(["Type", "Cuisine", "Area", "Price", "Tags"]);
+	expect($(el, 'tag-picker[variant="column"]')).not.toBeNull();
+	expect($(el, 'tag-picker[variant="pills"]')).toBeNull();
+	expect($(el, ".layout")?.getAttribute("data-stage")).toBe("large");
+	expect(picker(el)!.closest(".layout")).not.toBeNull();
 });
 
-test("each value shows how many restaurants use it, most used first", async () => {
+test("small: wrapping pills and a two-column list", async () => {
+	setWidth(900);
+	const el = await mount();
+	expect($(el, 'tag-picker[variant="pills"][wrap]')).not.toBeNull();
+	expect($(el, 'tag-picker[variant="column"]')).toBeNull();
+	expect($(el, ".layout")?.getAttribute("data-stage")).toBe("small");
+	expect($(el, ".head-actions button.add")).not.toBeNull();
+});
+
+test("phone: pills in the sticky top, pinned add, one form sheet", async () => {
+	setWidth(390);
+	const el = await mount();
+	const pills = picker(el)!;
+	expect(pills.getAttribute("variant")).toBe("pills");
+	expect(pills.hasAttribute("wrap")).toBe(false);
+	expect(pills.closest(".top")).not.toBeNull();
+	expect($(el, ".group-head")).toBeNull();
+	expect($(el, ".pinned button.add")).not.toBeNull();
+	expect($(el, ".head-actions button.add")).toBeNull();
+	expect($(el, "section#edit-panel")).toBeNull();
+	expect(el.shadowRoot!.querySelectorAll("app-sheet.form-sheet").length).toBe(
+		1,
+	);
+	expect($(el, ".layout")?.getAttribute("data-stage")).toBe("phone");
+});
+
+test("the picker lists groups in order, ending with plain tags", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const el = await mount();
+	expect(pickerIds(el)).toEqual(["kind", "cuisine", "area", "g1", "tags"]);
+});
+
+test("the subtitle counts the picked group's values and restaurants", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	addRestaurant({
+		...base,
+		name: "A",
+		tags: ["spicy"],
+		groups: { cuisine: ["thai", "lao"] },
+	});
+	addRestaurant({ ...base, name: "B", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	expect($(el, "p.count")?.textContent?.trim()).toBe(
+		"2 values · 2 restaurants",
+	);
+	await pick(el, "g1");
+	expect($(el, "p.count")?.textContent?.trim()).toBe(
+		"0 values · 0 restaurants",
+	);
+});
+
+test("Cuisine is picked first and the pick is remembered for the session", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	let el = await mount();
+	expect(pressed(el)).toBe("cuisine");
+	await pick(el, "g1");
+	expect(pressed(el)).toBe("g1");
+	el.remove();
+	el = await mount();
+	expect(pressed(el)).toBe("g1");
+	el.remove();
+	sessionStorage.setItem(PICK_KEY, "gone");
+	el = await mount();
+	expect(pressed(el)).toBe("cuisine");
+});
+
+// Values
+
+test("values show how many restaurants use them, most used first", async () => {
 	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
 	addRestaurant({ ...base, name: "B", groups: { cuisine: ["thai", "lao"] } });
 	const el = await mount();
-	const rows = [...card(el, "cuisine").querySelectorAll("li.value")].map(
-		(li) => [
+	expect(
+		rows(el).map((li) => [
 			li.getAttribute("data-value"),
-			li.querySelector(".count")?.textContent?.trim(),
-		],
-	);
-	expect(rows).toEqual([
-		["thai", "2 restaurants"],
-		["lao", "1 restaurant"],
+			li.querySelector(".name")?.textContent?.trim(),
+			li.querySelector(".sub")?.textContent?.trim(),
+		]),
+	).toEqual([
+		["thai", "thai", "2 restaurants"],
+		["lao", "lao", "1 restaurant"],
 	]);
+	expect(rowButton(el, "cuisine", "thai")).not.toBeNull();
 });
 
-test("only custom groups have group actions", async () => {
-	saveGroups([{ id: "g1", name: "Price" }]);
+test("Type values are read-only, with the usual subtitle and no note", async () => {
+	addRestaurant({ ...base, name: "A", kinds: ["food"] });
 	const el = await mount();
-	expect(
-		card(el, "cuisine").querySelector('[data-action="group-options"]'),
-	).toBeNull();
-	expect(
-		card(el, "g1").querySelector('[data-action="group-options"]'),
-	).not.toBeNull();
+	await pick(el, "kind");
+	expect(list(el)!.shadowRoot!.querySelector("button")).toBeNull();
+	expect(list(el)!.shadowRoot!.querySelector("ul.readonly")).not.toBeNull();
+	expect(rowFor(el, "kind", "food")?.querySelector(".name")?.textContent).toBe(
+		"Food",
+	);
+	expect($(el, ".group-head")).toBeNull();
+	expect($(el, "p.count")?.textContent?.trim()).toBe("1 value · 1 restaurant");
 });
 
-test("adding a group saves it and clears the field; blank and taken names show errors", async () => {
+test("only custom groups have Edit group, in the header actions", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
 	const el = await mount();
-	const input = $<HTMLInputElement>(el, "#new-group")!;
-	const submit = async () => {
-		$<HTMLFormElement>(el, "form.add-group")!.dispatchEvent(
-			new Event("submit", { cancelable: true }),
-		);
-		await el.updateComplete;
-	};
-	await submit();
-	expect($(el, "form.add-group .error")?.textContent).toBe("Name is required.");
-	await typeIn(el, input, "area");
-	await submit();
-	expect($(el, "form.add-group .error")?.textContent).toBe(
+	expect($(el, '[data-action="edit-group"]')).toBeNull();
+	await pick(el, "g1");
+	const edit = $(el, '.head-actions [data-action="edit-group"]')!;
+	expect(edit.getAttribute("aria-label")).toBe("Edit Price");
+	expect(edit.getAttribute("title")).toBe("Edit Price");
+});
+
+test("plain tags explain they are not filtered", async () => {
+	const el = await mount();
+	await pick(el, "tags");
+	expect($(el, "p.count")?.textContent?.trim()).toBe(
+		"0 values · not used by the home filter",
+	);
+	expect($(el, "p.muted.no-values")?.textContent?.trim()).toBe(
+		"No values yet.",
+	);
+});
+
+// Groups
+
+test("adding a group picks it and says so", async () => {
+	const el = await mount();
+	const before = loadGroups().length;
+	await clickAdd(el);
+	const form = groupForm(el)!;
+	expect(form.groupId).toBeUndefined();
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("New group");
+	await typeIn(el, inForm(form, "#name"), "Mood");
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	await settle(el);
+	const groups = loadGroups();
+	expect(groups.length).toBe(before + 1);
+	expect(pressed(el)).toBe(groups.at(-1)!.id);
+	expect($(el, ".status")?.textContent?.trim()).toBe("Added Mood");
+	expect(groupForm(el)).toBeNull();
+	expect(focused(el)).toBe(pillFor(el, groups.at(-1)!.id));
+});
+
+test("adding a group with a blank or taken name shows the error", async () => {
+	const el = await mount();
+	await clickAdd(el);
+	let form = groupForm(el)!;
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	form = groupForm(el)!;
+	expect(inForm(form, ".error").textContent).toBe("Name is required.");
+	await typeIn(el, inForm(form, "#name"), "area");
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	expect(inForm(groupForm(el)!, ".error").textContent).toBe(
 		"A group with this name already exists.",
 	);
-	await typeIn(el, input, "Vibe");
-	await submit();
-	expect(loadGroups().map((def) => def.name)).toEqual(["Price", "Vibe"]);
-	expect(input.value).toBe("");
-	expect($(el, "form.add-group .error")).toBeNull();
+	expect(loadGroups()).toEqual([]);
 });
 
 test("renaming a group saves the new name", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
 	const el = await mount();
-	let options = await openGroup(el, "g1");
-	await click(el, options, "rename-group");
-	options = $(el, ".group-options")!;
-	await typeIn(el, options.querySelector<HTMLInputElement>("input")!, "Cost");
-	options = $(el, ".group-options")!;
-	await click(el, options, "save-group-name");
+	const form = await openGroup(el, "g1");
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("Price");
+	expect(inForm<HTMLInputElement>(form, "#name").value).toBe("Price");
+	await typeIn(el, inForm(form, "#name"), "Cost");
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	await settle(el);
 	expect(loadGroups()).toEqual([{ id: "g1", name: "Cost" }]);
+	expect($(el, ".status")?.textContent?.trim()).toBe("Saved Cost");
+	expect(groupForm(el)).toBeNull();
+	expect(focused(el)).toBe(pillFor(el, "g1"));
 });
 
-test("move up and down reorder custom groups", async () => {
+test("moving a group reorders at once and keeps the form open", async () => {
 	saveGroups([
 		{ id: "g1", name: "Price" },
 		{ id: "g2", name: "Vibe" },
 	]);
 	const el = await mount();
-	const options = await openGroup(el, "g2");
-	await click(el, options, "move-up");
+	const form = await openGroup(el, "g2");
+	await clickOn(el, inForm(form, '[data-action="move-up"]'));
+	await settle(el);
 	expect(loadGroups().map((def) => def.id)).toEqual(["g2", "g1"]);
+	expect(pickerIds(el)).toEqual([
+		"kind",
+		"cuisine",
+		"area",
+		"g2",
+		"g1",
+		"tags",
+	]);
+	const open = groupForm(el)!;
+	expect(open.groupId).toBe("g2");
 	expect(
-		$<HTMLElement>(el, ".group-options")!
-			.querySelector<HTMLButtonElement>('[data-action="move-up"]')!
-			.getAttribute("aria-disabled"),
+		inForm(open, '[data-action="move-up"]').getAttribute("aria-disabled"),
 	).toBe("true");
+	expect(focused(el)).toBe(inForm(open, '[data-action="move-down"]'));
 });
 
-test("deleting a group asks first, then turns its values into tags and drops its filter", async () => {
+test("deleting a group turns its values into tags, drops its filter and picks Cuisine", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
 	addRestaurant({ ...base, name: "A", groups: { g1: ["cheap"] } });
 	localStorage.setItem(
@@ -166,53 +386,26 @@ test("deleting a group asks first, then turns its values into tags and drops its
 		JSON.stringify({ g1: { include: ["cheap"], exclude: [] } }),
 	);
 	const el = await mount();
-	let options = await openGroup(el, "g1");
-	await click(el, options, "delete-group");
-	options = $(el, ".group-options")!;
-	expect(options.textContent).toContain(
+	let form = await openGroup(el, "g1");
+	await clickOn(el, inForm(form, '[data-action="delete"]'));
+	form = groupForm(el)!;
+	expect(form.shadowRoot!.textContent).toContain(
 		"Its values on 1 restaurant become plain tags.",
 	);
-	await click(el, options, "confirm-delete-group");
+	await clickOn(el, inForm(form, '[data-action="confirm-delete"]'));
+	await settle(el);
 	expect(loadGroups()).toEqual([]);
 	expect(loadRestaurants()[0]?.tags).toEqual(["cheap"]);
 	expect(JSON.parse(localStorage.getItem(FILTER_KEY) ?? "null")).toEqual({});
-	expect($(el, 'section.group[data-group="g1"]')).toBeNull();
+	expect(pickerIds(el)).not.toContain("g1");
+	expect(pressed(el)).toBe("cuisine");
+	expect(groupForm(el)).toBeNull();
+	expect(focused(el)).toBe(pillFor(el, "cuisine"));
 });
 
-test("with no restaurants, links to the restaurants page and still allows adding groups", async () => {
-	const el = await mount();
-	expect($(el, ".empty a.button-link")?.getAttribute("href")).toBe(
-		"./restaurants",
-	);
-	expect($(el, "form.add-group")).not.toBeNull();
-});
+// Values: edit
 
-test("follows restaurant and group changes from elsewhere", async () => {
-	const el = await mount();
-	saveGroups([{ id: "g1", name: "Price" }]);
-	addRestaurant({ ...base, name: "A", groups: { g1: ["cheap"] } });
-	await el.updateComplete;
-	expect(
-		card(el, "g1").querySelector('li.value[data-value="cheap"]'),
-	).not.toBeNull();
-});
-
-test("renders in Thai", async () => {
-	setLang("th");
-	const el = await mount();
-	expect(cardTitles(el)).toEqual(["ประเภท", "สัญชาติอาหาร", "ย่าน", "แท็ก"]);
-});
-
-test("Type values show counts only", async () => {
-	addRestaurant({ ...base, name: "A", kinds: ["food"] });
-	const el = await mount();
-	expect(valueRow(el, "kind", "food").querySelector("button")).toBeNull();
-	expect(valueRow(el, "kind", "food").querySelector(".name")?.textContent).toBe(
-		"Food",
-	);
-});
-
-test("renaming a value changes it on every restaurant and in the saved filter", async () => {
+test("editing a value renames it everywhere and in the saved filter", async () => {
 	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
 	addRestaurant({ ...base, name: "B", groups: { cuisine: ["thia", "lao"] } });
 	localStorage.setItem(
@@ -220,12 +413,14 @@ test("renaming a value changes it on every restaurant and in the saved filter", 
 		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
 	);
 	const el = await mount();
-	let detail = await openValue(el, "cuisine", "thia");
-	await click(el, detail, "rename-value");
-	detail = $(el, ".value-detail")!;
-	await typeIn(el, detail.querySelector("input")!, " Thai ");
-	detail = $(el, ".value-detail")!;
-	await click(el, detail, "save-value");
+	const form = await openValue(el, "cuisine", "thia");
+	expect($(el, "#form-title")?.textContent?.trim()).toBe("thia");
+	expect(rowButton(el, "cuisine", "thia")?.getAttribute("aria-current")).toBe(
+		"true",
+	);
+	await typeIn(el, inForm(form, "#name"), " Thai ");
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	await settle(el);
 	expect(loadRestaurants().map((item) => item.groups["cuisine"])).toEqual([
 		["thai"],
 		["thai", "lao"],
@@ -233,30 +428,48 @@ test("renaming a value changes it on every restaurant and in the saved filter", 
 	expect(JSON.parse(localStorage.getItem(FILTER_KEY)!)).toEqual({
 		cuisine: { include: ["thai"], exclude: [] },
 	});
+	expect($(el, ".status")?.textContent?.trim()).toBe("Saved thai");
+	expect(valueForm(el)).toBeNull();
+	expect(focused(el)).toBe(rowButton(el, "cuisine", "thai"));
 });
 
-test("renaming to blank text or text with a comma shows an error and changes nothing", async () => {
+test("editing a value to blank text or text with a comma shows an error and changes nothing", async () => {
 	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
 	const el = await mount();
-	let detail = await openValue(el, "cuisine", "thai");
-	await click(el, detail, "rename-value");
-	detail = $(el, ".value-detail")!;
-	const input = detail.querySelector<HTMLInputElement>("input")!;
-	await typeIn(el, input, "  ");
-	detail = $(el, ".value-detail")!;
-	await click(el, detail, "save-value");
-	detail = $(el, ".value-detail")!;
-	expect(detail.querySelector(".error")?.textContent).toBe(
-		"Value is required.",
-	);
-	await typeIn(el, detail.querySelector("input")!, "thai, lao");
-	detail = $(el, ".value-detail")!;
-	await click(el, detail, "save-value");
-	detail = $(el, ".value-detail")!;
-	expect(detail.querySelector(".error")?.textContent).toBe(
+	let form = await openValue(el, "cuisine", "thai");
+	await typeIn(el, inForm(form, "#name"), "  ");
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	form = valueForm(el)!;
+	expect(inForm(form, ".error").textContent).toBe("Value is required.");
+	await typeIn(el, inForm(form, "#name"), "thai, lao");
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	expect(inForm(valueForm(el)!, ".error").textContent).toBe(
 		"A value cannot contain a comma.",
 	);
 	expect(loadRestaurants()[0]?.groups["cuisine"]).toEqual(["thai"]);
+});
+
+test("editing a value's group moves it", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	addRestaurant({ ...base, name: "A", groups: { area: ["cheap"] } });
+	const el = await mount();
+	const form = await openValue(el, "area", "cheap");
+	const select = inForm<HTMLSelectElement>(form, "select");
+	expect([...select.options].map((option) => option.value)).toEqual([
+		"cuisine",
+		"area",
+		"g1",
+		"tags",
+	]);
+	select.value = "g1";
+	select.dispatchEvent(new Event("change"));
+	await el.updateComplete;
+	await clickOn(el, inForm(valueForm(el)!, '[data-action="save"]'));
+	await settle(el);
+	expect(loadRestaurants()[0]?.groups).toEqual({ g1: ["cheap"] });
+	expect(valueForm(el)).toBeNull();
+	// The row went to another group: focus the picked group instead.
+	expect(focused(el)).toBe(pillFor(el, "area"));
 });
 
 test("renaming onto an existing value asks to merge, and merging keeps one copy", async () => {
@@ -264,204 +477,411 @@ test("renaming onto an existing value asks to merge, and merging keeps one copy"
 	saveGroups([{ id: "g1", name: "Dish" }]);
 	addRestaurant({ ...base, name: "A", groups: { g1: ["noodles", "noodle"] } });
 	const el = await mount();
-	let detail = await openValue(el, "g1", "noodles");
-	await click(el, detail, "rename-value");
-	detail = $(el, ".value-detail")!;
-	await typeIn(el, detail.querySelector("input")!, "noodle");
-	detail = $(el, ".value-detail")!;
-	await click(el, detail, "save-value");
-	detail = $(el, ".value-detail")!;
-	expect(detail.textContent).toContain(
+	let form = await openValue(el, "g1", "noodles");
+	await typeIn(el, inForm(form, "#name"), "noodle");
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	form = valueForm(el)!;
+	expect(form.shadowRoot!.textContent).toContain(
 		"noodle already exists. Merge noodles into noodle on 1 restaurant?",
 	);
-	await click(el, detail, "confirm-merge");
+	await clickOn(el, inForm(form, '[data-action="confirm-merge"]'));
 	expect(loadRestaurants()[0]?.groups["g1"]).toEqual(["noodle"]);
-});
-
-test("moving a value offers every group but Type and its own, and moves it", async () => {
-	saveGroups([{ id: "g1", name: "Price" }]);
-	addRestaurant({ ...base, name: "A", groups: { area: ["cheap"] } });
-	const el = await mount();
-	let detail = await openValue(el, "area", "cheap");
-	await click(el, detail, "move-value");
-	detail = $(el, ".value-detail")!;
-	const select = detail.querySelector<HTMLSelectElement>("select")!;
-	expect([...select.options].map((option) => option.value)).toEqual([
-		"cuisine",
-		"g1",
-		"tags",
-	]);
-	select.value = "g1";
-	select.dispatchEvent(new Event("change"));
-	await el.updateComplete;
-	detail = $(el, ".value-detail")!;
-	await click(el, detail, "confirm-move");
-	expect(loadRestaurants()[0]?.groups).toEqual({ g1: ["cheap"] });
 });
 
 test("deleting a value asks first, then removes it everywhere", async () => {
 	addRestaurant({ ...base, name: "A", tags: ["spicy", "hot"] });
-	const el = await mount();
-	let detail = await openValue(el, "tags", "spicy");
-	await click(el, detail, "delete-value");
-	detail = $(el, ".value-detail")!;
-	expect(detail.textContent).toContain("Remove spicy from 1 restaurant?");
-	await click(el, detail, "confirm-delete-value");
-	expect(loadRestaurants()[0]?.tags).toEqual(["hot"]);
-});
-
-test("cancel closes a value prompt without changes", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["spicy"] });
-	const el = await mount();
-	let detail = await openValue(el, "tags", "spicy");
-	await click(el, detail, "delete-value");
-	detail = $(el, ".value-detail")!;
-	await click(el, detail, "cancel");
-	detail = $(el, ".value-detail")!;
-	expect(
-		detail.querySelector('[data-action="confirm-delete-value"]'),
-	).toBeNull();
-	expect(loadRestaurants()[0]?.tags).toEqual(["spicy"]);
-});
-
-test("prompts count more than one restaurant in the plural", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["spicy"] });
 	addRestaurant({ ...base, name: "B", tags: ["spicy"] });
 	const el = await mount();
-	const detail = await openValue(el, "tags", "spicy");
-	await click(el, detail, "delete-value");
-	expect($(el, ".value-detail")!.textContent).toContain(
+	let form = await openValue(el, "tags", "spicy");
+	await clickOn(el, inForm(form, '[data-action="delete"]'));
+	form = valueForm(el)!;
+	expect(form.shadowRoot!.textContent).toContain(
 		"Remove spicy from 2 restaurants?",
 	);
+	await clickOn(el, inForm(form, '[data-action="confirm-delete"]'));
+	await settle(el);
+	expect(loadRestaurants().map((item) => item.tags)).toEqual([["hot"], []]);
+	expect($(el, ".status")?.textContent?.trim()).toBe("Removed spicy");
+	expect(valueForm(el)).toBeNull();
+	expect(focused(el)).toBe(pillFor(el, "tags"));
 });
 
-test("the rename and move controls are not hidden with their label text", async () => {
+test("cancel and the panel's close drop the form and return focus to its opener", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	addRestaurant({ ...base, name: "A", tags: ["spicy", "hot"] });
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
 	const el = await mount();
-	const shown = () => {
-		const controls = [...el.shadowRoot!.querySelectorAll("input, select")];
-		// The add-group field plus the control of the prompt just opened.
-		expect(controls.length).toBe(2);
-		for (const control of controls)
-			expect(control.closest(".visually-hidden")).toBeNull();
-	};
-	const options = await openGroup(el, "g1");
-	await click(el, options, "rename-group");
-	shown();
-	let detail = await openValue(el, "tags", "spicy");
-	await click(el, detail, "rename-value");
-	shown();
-	detail = $(el, ".value-detail")!;
-	expect(detail.querySelector("label")?.textContent).toContain(
-		"New name for spicy",
-	);
-	detail = await openValue(el, "tags", "hot");
-	await click(el, detail, "move-value");
-	shown();
-	detail = $(el, ".value-detail")!;
-	expect(detail.querySelector("label")?.textContent).toContain("Move hot to");
+	const form = await openValue(el, "cuisine", "thai");
+	await clickOn(el, inForm(form, '[data-action="cancel"]'));
+	await settle(el);
+	expect(valueForm(el)).toBeNull();
+	expect(focused(el)).toBe(rowButton(el, "cuisine", "thai"));
+	await openGroup(el, "g1");
+	await clickOn(el, $(el, '[data-action="close-panel"]'));
+	await settle(el);
+	expect($(el, "#edit-panel")).toBeNull();
+	expect(focused(el)).toBe($(el, '[data-action="edit-group"]'));
+	await clickAdd(el);
+	await clickOn(el, inForm(groupForm(el)!, '[data-action="cancel"]'));
+	await settle(el);
+	expect(focused(el)).toBe($(el, ".head button.add"));
 });
 
-test("the move action's accessible name starts with its visible 'Move to…' label (WCAG label-in-name)", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["spicy"] });
-	const el = await mount();
-	const detail = await openValue(el, "tags", "spicy");
-	const button = detail.querySelector<HTMLButtonElement>(
-		'[data-action="move-value"]',
-	)!;
-	const visible = button.querySelector("b")!.textContent!.trim();
-	expect(visible).toBe("Move to…");
-	const label = button.getAttribute("aria-label") ?? "";
-	expect(label.startsWith(visible)).toBe(true);
-	expect(label).toContain("spicy");
-});
+// Search
 
-test("the move action's accessible name starts with its visible label in Thai too", async () => {
-	setLang("th");
-	addRestaurant({ ...base, name: "A", tags: ["เผ็ด"] });
-	const el = await mount();
-	const detail = await openValue(el, "tags", "เผ็ด");
-	const button = detail.querySelector<HTMLButtonElement>(
-		'[data-action="move-value"]',
-	)!;
-	const visible = button.querySelector("b")!.textContent!.trim();
-	expect(visible).toBe("ย้ายไป…");
-	const label = button.getAttribute("aria-label") ?? "";
-	expect(label.startsWith(visible)).toBe(true);
-	expect(label).toContain("เผ็ด");
-});
-
-const focused = (el: TagManager) => el.shadowRoot!.activeElement;
-const settle = async (el: TagManager) => {
-	await el.updateComplete;
-	await new Promise((resolve) => setTimeout(resolve, 0));
-	await el.updateComplete;
+const seedSearch = () => {
+	saveGroups([{ id: "g1", name: "Jam" }]);
+	addRestaurant({
+		...base,
+		name: "A",
+		tags: ["jazz"],
+		groups: { cuisine: ["japanese"] },
+	});
 };
 
-test("moving a group keeps focus on the moved group's button, or the other arrow at an end", async () => {
-	saveGroups([
-		{ id: "g1", name: "Price" },
-		{ id: "g2", name: "Vibe" },
-		{ id: "g3", name: "Dish" },
-	]);
+test("search finds groups and values across groups and highlights them", async () => {
+	seedSearch();
 	const el = await mount();
-	let options = await openGroup(el, "g3");
-	await click(el, options, "move-up");
-	await settle(el);
-	expect(loadGroups().map((def) => def.id)).toEqual(["g1", "g3", "g2"]);
-	expect(focused(el)).toBe(
-		$<HTMLElement>(el, ".group-options")!.querySelector(
-			'[data-action="move-up"]',
-		),
-	);
-	options = $(el, ".group-options")!;
-	await click(el, options, "move-up");
-	await settle(el);
-	expect(loadGroups().map((def) => def.id)).toEqual(["g3", "g1", "g2"]);
-	expect(focused(el)).toBe(
-		$<HTMLElement>(el, ".group-options")!.querySelector(
-			'[data-action="move-down"]',
-		),
-	);
-	await openGroup(el, "g1");
-	options = $(el, ".group-options")!;
-	await click(el, options, "move-down");
-	await settle(el);
-	expect(loadGroups().map((def) => def.id)).toEqual(["g3", "g2", "g1"]);
-	expect(focused(el)).toBe(
-		$<HTMLElement>(el, ".group-options")!.querySelector(
-			'[data-action="move-up"]',
-		),
-	);
+	await openSearch(el);
+	await typeSearch(el, "ja");
+	expect(picker(el)).toBeNull();
+	expect(
+		rows(el).map((li) => [
+			li.querySelector(".name")?.textContent?.trim(),
+			li.querySelector(".sub")?.textContent?.trim(),
+		]),
+	).toEqual([
+		["Jam", "0 values"],
+		["japanese", "Cuisine · 1 restaurant"],
+		["jazz", "Tags · 1 restaurant"],
+	]);
+	for (const li of rows(el)) expect(li.querySelector("mark")).not.toBeNull();
+	expect($(el, ".search-count")?.textContent?.trim()).toBe("3 of 7 tags");
 });
+
+test("search: Type values are read-only results", async () => {
+	addRestaurant({ ...base, name: "A", kinds: ["food"] });
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "foo");
+	const row = rowFor(el, "kind", "food")!;
+	expect(row.querySelector("button")).toBeNull();
+});
+
+test("a group result ends search and picks that group", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ja");
+	await clickOn(el, rowButton(el, "g1"));
+	await settle(el);
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(true);
+	expect(pressed(el)).toBe("g1");
+	expect(focused(el)).toBe(pillFor(el, "g1"));
+});
+
+test("a value result opens its form and search stays open", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "ja");
+	await clickOn(el, rowButton(el, "cuisine", "japanese"));
+	const form = valueForm(el)!;
+	expect(form.group).toBe("cuisine");
+	expect(form.value).toBe("japanese");
+	expect($(el, ".search-row")?.hasAttribute("hidden")).toBe(false);
+	expect(picker(el)).toBeNull();
+});
+
+test("Enter with one match opens it", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "jaz");
+	searchInput(el).dispatchEvent(
+		new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+	);
+	await el.updateComplete;
+	const form = valueForm(el)!;
+	expect(form.value).toBe("jazz");
+});
+
+test("no match offers to clear the search", async () => {
+	seedSearch();
+	const el = await mount();
+	await openSearch(el);
+	await typeSearch(el, "qq");
+	expect($(el, ".no-match p")?.textContent?.trim()).toBe('No tags match "qq".');
+	expect(list(el)).toBeNull();
+	await clickOn(el, $(el, '[data-action="clear-search-empty"]'));
+	expect(searchInput(el).value).toBe("");
+	expect($(el, ".no-match")).toBeNull();
+});
+
+// One form slot
+
+test("opening another form replaces the open one", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	const form = await openValue(el, "cuisine", "thai");
+	await typeIn(el, inForm(form, "#name"), "thai food");
+	await clickAdd(el);
+	const group = groupForm(el)!;
+	expect(group.groupId).toBeUndefined();
+	expect(inForm<HTMLInputElement>(group, "#name").value).toBe("");
+	expect(valueForm(el)).toBeNull();
+});
+
+test("picking another group leaves the open form alone", async () => {
+	addRestaurant({
+		...base,
+		name: "A",
+		groups: { cuisine: ["thai"], area: ["ari"] },
+	});
+	const el = await mount();
+	const form = await openValue(el, "cuisine", "thai");
+	await typeIn(el, inForm(form, "#name"), "thai food");
+	await pick(el, "area");
+	const open = valueForm(el)!;
+	expect(open.value).toBe("thai");
+	expect(inForm<HTMLInputElement>(open, "#name").value).toBe("thai food");
+});
+
+// Focus and resize
 
 test("focus follows a value whose text has a double quote or backslash", async () => {
 	addRestaurant({ ...base, name: "A", tags: ['say "hi"', "a\\b"] });
 	const el = await mount();
-	// A CSS attribute selector would break on these values, so find the row by comparing the
-	// attribute directly, as valueRow's own lookup cannot.
-	const row = (value: string) =>
-		[...card(el, "tags").querySelectorAll("li.value")].find(
-			(li) => li.getAttribute("data-value") === value,
-		)!;
 	for (const value of ['say "hi"', "a\\b"]) {
-		row(value)
-			.querySelector<HTMLButtonElement>('[data-action="open-value"]')!
-			.click();
-		await el.updateComplete;
-		let detail = $<HTMLElement>(el, ".value-detail")!;
-		await click(el, detail, "rename-value");
+		const form = await openValue(el, "tags", value);
 		await settle(el);
-		detail = $(el, ".value-detail")!;
-		expect(focused(el)).toBe(detail.querySelector("input"));
-		await click(el, detail, "cancel");
+		expect(focused(el)).toBe(inForm(form, "#name"));
+		await clickOn(el, inForm(form, '[data-action="cancel"]'));
 		await settle(el);
-		detail = $(el, ".value-detail")!;
-		expect(focused(el)).toBe(
-			detail.querySelector('[data-action="rename-value"]'),
-		);
+		expect(focused(el)).toBe(rowButton(el, "tags", value));
 	}
+});
+
+test("wide: opening a value focuses the form's name field", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	const form = await openValue(el, "cuisine", "thai");
+	await settle(el);
+	expect(focused(el)).toBe(inForm(form, "#name"));
+	expect(form.closest("section#edit-panel")).not.toBeNull();
+	expect($(el, "#edit-panel .panel-sub")?.textContent?.trim()).toBe(
+		"Cuisine · 1 restaurant",
+	);
+});
+
+test("phone: opening a value focuses the sheet's heading", async () => {
+	setWidth(390);
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	await openValue(el, "cuisine", "thai");
+	await settle(el);
+	const sheet = $<AppSheet>(el, "app-sheet.form-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	expect(sheet.getAttribute("heading")).toBe("thai");
+	expect(sheet.getAttribute("subheading")).toBe("Cuisine · 1 restaurant");
+	expect(sheet.shadowRoot!.activeElement?.id).toBe("sheet-title");
+});
+
+test("phone: Edit group and add open their forms in the sheet", async () => {
+	setWidth(390);
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const el = await mount();
+	await openGroup(el, "g1");
+	const sheet = $<AppSheet>(el, "app-sheet.form-sheet")!;
+	expect(sheet.getAttribute("heading")).toBe("Price");
+	expect(sheet.getAttribute("subheading")).toBe(
+		"Custom group · 0 values · 0 restaurants",
+	);
+	sheet.shadowRoot!.querySelector("dialog")!.close();
+	await settle(el);
+	expect(sheet.hasAttribute("open")).toBe(false);
+	await clickOn(el, $(el, ".pinned button.add"));
+	expect(sheet.hasAttribute("open")).toBe(true);
+	expect(sheet.getAttribute("heading")).toBe("New group");
+	expect(groupForm(el)?.groupId).toBeUndefined();
+});
+
+test("phone: deleting the selected value closes its sheet and focuses the picked pill", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	setWidth(390);
+	const el = await mount();
+	let form = await openValue(el, "cuisine", "thai");
+	await clickOn(el, inForm(form, '[data-action="delete"]'));
+	form = valueForm(el)!;
+	await clickOn(el, inForm(form, '[data-action="confirm-delete"]'));
+	await settle(el);
+	expect($(el, "app-sheet.form-sheet")?.hasAttribute("open")).toBe(false);
+	expect(focused(el)).toBe(pillFor(el, "cuisine"));
+});
+
+/**
+ * Patches `<dialog>.close` so its `close` event fires on a later task, like real browsers
+ * (happy-dom fires it synchronously), giving other code a chance to run first.
+ */
+const withAsyncDialogClose = async (run: () => Promise<void>) => {
+	const original = HTMLDialogElement.prototype.close;
+	HTMLDialogElement.prototype.close = function (
+		this: HTMLDialogElement,
+		returnValue?: string,
+	) {
+		const wasOpen = this.open;
+		this.removeAttribute("open");
+		this.returnValue = returnValue ?? "";
+		if (wasOpen) setTimeout(() => this.dispatchEvent(new Event("close")), 0);
+	};
+	try {
+		await run();
+	} finally {
+		HTMLDialogElement.prototype.close = original;
+	}
+};
+
+test("phone: deleting a value while its sheet's close event is still in flight still lands focus on the picked pill", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai", "lao"] } });
+	setWidth(390);
+	const el = await mount();
+	await withAsyncDialogClose(async () => {
+		let form = await openValue(el, "cuisine", "thai");
+		await clickOn(el, inForm(form, '[data-action="delete"]'));
+		form = valueForm(el)!;
+		await clickOn(el, inForm(form, '[data-action="confirm-delete"]'));
+		await settle(el);
+		expect($(el, "app-sheet.form-sheet")?.hasAttribute("open")).toBe(false);
+		expect(focused(el)).toBe(pillFor(el, "cuisine"));
+	});
+});
+
+test("narrow to wide with a value's sheet open moves focus into the panel", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	setWidth(390);
+	const el = await mount();
+	await openValue(el, "cuisine", "thai");
+	setWidth(1024);
+	await settle(el);
+	const form = valueForm(el)!;
+	expect(form.closest("section#edit-panel")).not.toBeNull();
+	expect(focused(el)).toBe(inForm(form, "#name"));
+});
+
+test("wide to narrow with a value selected returns focus to its row, not body, when the sheet closes", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	const el = await mount();
+	await openValue(el, "cuisine", "thai");
+	setWidth(390);
+	await settle(el);
+	const sheet = $(el, "app-sheet.form-sheet")!;
+	expect(sheet.hasAttribute("open")).toBe(true);
+	sheet.shadowRoot!.querySelector("dialog")!.close();
+	await settle(el);
+	expect(focused(el)).toBe(rowButton(el, "cuisine", "thai"));
+});
+
+test("small to large with a form open keeps its typed name", async () => {
+	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	setWidth(900);
+	const el = await mount();
+	const form = await openValue(el, "cuisine", "thai");
+	await typeIn(el, inForm(form, "#name"), "x");
+	setWidth(1024);
+	await settle(el);
+	expect($(el, ".layout")?.getAttribute("data-stage")).toBe("large");
+	expect(inForm<HTMLInputElement>(valueForm(el)!, "#name").value).toBe("x");
+});
+
+test("small to large and back keeps focus on the picker's picked group, not body", async () => {
+	setWidth(900);
+	const el = await mount();
+	pillFor(el, "cuisine").focus();
+	expect(focused(el)).toBe(pillFor(el, "cuisine"));
+
+	setWidth(1024);
+	await settle(el);
+	expect($(el, ".layout")?.getAttribute("data-stage")).toBe("large");
+	expect(focused(el)).toBe(pillFor(el, "cuisine"));
+
+	setWidth(900);
+	await settle(el);
+	expect($(el, ".layout")?.getAttribute("data-stage")).toBe("small");
+	expect(focused(el)).toBe(pillFor(el, "cuisine"));
+});
+
+test("phone to wide and back keeps a group form's typed name", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	setWidth(390);
+	const el = await mount();
+	const form = await openGroup(el, "g1");
+	await typeIn(el, inForm(form, "#name"), "Cost");
+	setWidth(1024);
+	await settle(el);
+	expect(inForm<HTMLInputElement>(groupForm(el)!, "#name").value).toBe("Cost");
+	setWidth(390);
+	await settle(el);
+	expect(inForm<HTMLInputElement>(groupForm(el)!, "#name").value).toBe("Cost");
+});
+
+// Other tabs
+
+test("follows restaurant and group changes from elsewhere", async () => {
+	const el = await mount();
+	saveGroups([{ id: "g1", name: "Price" }]);
+	addRestaurant({ ...base, name: "A", groups: { g1: ["cheap"] } });
+	await el.updateComplete;
+	expect(pickerIds(el)).toContain("g1");
+	await pick(el, "g1");
+	expect(rowFor(el, "g1", "cheap")).not.toBeUndefined();
+});
+
+test("another tab removing the selected value closes the form", async () => {
+	const [item] = addRestaurant({
+		...base,
+		name: "A",
+		groups: { cuisine: ["thai"] },
+	});
+	const el = await mount();
+	await openValue(el, "cuisine", "thai");
+	updateRestaurant(item!.id, { ...base, name: "A", groups: {} });
+	await el.updateComplete;
+	expect(valueForm(el)).toBeNull();
+	expect($(el, "#edit-panel")).toBeNull();
+});
+
+test("another tab deleting the open group closes its form and picks Cuisine", async () => {
+	saveGroups([{ id: "g1", name: "Price" }]);
+	const el = await mount();
+	await openGroup(el, "g1");
+	saveGroups([]);
+	await el.updateComplete;
+	expect(groupForm(el)).toBeNull();
+	expect(pressed(el)).toBe("cuisine");
+});
+
+// Kept as is
+
+test("with no restaurants, links to the restaurants page and still allows adding groups", async () => {
+	const el = await mount();
+	expect($(el, ".empty a.button-link")?.getAttribute("href")).toBe(
+		"./restaurants",
+	);
+	await clickAdd(el);
+	const form = groupForm(el)!;
+	await typeIn(el, inForm(form, "#name"), "Vibe");
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	expect(loadGroups().map((def) => def.name)).toEqual(["Vibe"]);
+});
+
+test("renders in Thai", async () => {
+	setLang("th");
+	const el = await mount();
+	expect(
+		[...picker(el)!.shadowRoot!.querySelectorAll("[data-group] b")].map((b) =>
+			b.textContent?.trim(),
+		),
+	).toEqual(["ประเภท", "สัญชาติอาหาร", "ย่าน", "แท็ก"]);
+	expect($(el, "p.count")?.textContent?.trim()).toBe("0 ค่า · 0 ร้าน");
 });
 
 test("warns about stored restaurants that could not be read", async () => {
@@ -517,371 +937,39 @@ test("warns when the browser refuses to save restaurants or groups", async () =>
 	});
 });
 
-type HappyWindow = Window & {
-	happyDOM: { setViewport(viewport: { width: number; height: number }): void };
-};
-const setWidth = (width: number) => {
-	(window as unknown as HappyWindow).happyDOM.setViewport({
-		width,
-		height: 900,
-	});
-	window.dispatchEvent(new Event("resize"));
-};
-afterEach(() => setWidth(1024));
-
-test("the page has a back link to Restaurants and a large title", async () => {
+test("the page has a back link to Settings and a large title", async () => {
 	const el = await mount();
 	const back = $<HTMLAnchorElement>(el, "a.back")!;
-	expect(back.getAttribute("href")).toBe("./restaurants");
-	expect(back.textContent?.trim()).toBe("Restaurants");
+	expect(back.getAttribute("href")).toBe("./settings");
+	expect(back.textContent?.trim()).toBe("Settings");
 	expect($(el, "h1.page-title")?.textContent?.trim()).toBe("Tags");
-});
-
-test("value rows are buttons with the value and count; Type rows are plain", async () => {
-	addRestaurant({
-		...base,
-		name: "A",
-		kinds: ["food"],
-		groups: { cuisine: ["thai"] },
-	});
-	const el = await mount();
-	const row = valueRow(el, "cuisine", "thai").querySelector(
-		'button.item.value-row[data-action="open-value"]',
-	)!;
-	expect(row.querySelector(".name")?.textContent?.trim()).toBe("thai");
-	expect(row.querySelector(".count")?.textContent?.trim()).toBe("1 restaurant");
-	expect(valueRow(el, "kind", "food").querySelector("button")).toBeNull();
-});
-
-test("wide: the panel asks you to choose a value, then shows its actions", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	const el = await mount();
-	expect($(el, "section.value-panel .pick-hint")).not.toBeNull();
-	expect($(el, "app-sheet.value-sheet")).toBeNull();
-	const detail = await openValue(el, "cuisine", "thai");
-	expect(detail.closest("section.value-panel")).not.toBeNull();
-	expect(detail.getAttribute("data-value")).toBe("thai");
-	expect(
-		[...detail.querySelectorAll("button[data-action]")].map((b) =>
-			b.getAttribute("data-action"),
-		),
-	).toEqual(["rename-value", "move-value", "delete-value"]);
-	expect(
-		valueRow(el, "cuisine", "thai")
-			.querySelector('[data-action="open-value"]')
-			?.getAttribute("aria-current"),
-	).toBe("true");
-});
-
-test("wide: the panel's aria-labelledby always points to a real, visible id", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	const el = await mount();
-	const panel = $<HTMLElement>(el, "section.value-panel")!;
-	const hintId = panel.getAttribute("aria-labelledby")!;
-	const hint = panel.querySelector(`#${hintId}`)!;
-	expect(hint.classList.contains("pick-hint")).toBe(true);
-	expect(hint.textContent?.trim()).toBe(
-		"Choose a value to rename, move or delete it.",
+	expect($(el, '[data-action="search"]')?.getAttribute("aria-label")).toBe(
+		"Search tags",
 	);
-	await openValue(el, "cuisine", "thai");
-	const titleId = panel.getAttribute("aria-labelledby")!;
-	expect(titleId).not.toBe(hintId);
-	expect(panel.querySelector(`#${titleId}`)?.textContent?.trim()).toBe("thai");
+	expect($(el, "button.add")?.getAttribute("aria-label")).toBe("New group");
 });
 
-test("narrow to wide with a value's sheet open moves focus into the panel's Rename button", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	setWidth(390);
+test("base prefixes the back link and the restaurants link", async () => {
 	const el = await mount();
-	await openValue(el, "cuisine", "thai");
-	setWidth(1024);
-	await settle(el);
-	expect($(el, "section.value-panel")).not.toBeNull();
-	expect(focused(el)).toBe(
-		$(el, ".value-detail")!.querySelector('[data-action="rename-value"]'),
+	el.base = "../";
+	await el.updateComplete;
+	expect($(el, "a.back")?.getAttribute("href")).toBe("../settings");
+	expect($(el, ".empty a.button-link")?.getAttribute("href")).toBe(
+		"../restaurants",
 	);
 });
 
-test("narrow to wide with a rename prompt open moves focus to its input instead", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	setWidth(390);
-	const el = await mount();
-	let detail = await openValue(el, "cuisine", "thai");
-	await click(el, detail, "rename-value");
-	setWidth(1024);
-	await settle(el);
-	detail = $(el, ".value-detail")!;
-	expect(focused(el)).toBe(detail.querySelector("input"));
-});
-
-test("wide to narrow with a value selected returns focus to its row, not body, when the sheet closes", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	const el = await mount();
-	await openValue(el, "cuisine", "thai");
-	setWidth(390);
-	await settle(el);
-	const sheet = $(el, "app-sheet.value-sheet")!;
-	expect(sheet.hasAttribute("open")).toBe(true);
-	sheet.shadowRoot!.querySelector("dialog")!.close();
-	await settle(el);
-	expect(focused(el)).toBe(
-		valueRow(el, "cuisine", "thai").querySelector('[data-action="open-value"]'),
-	);
-});
-
-test("phone: a value opens its actions in a sheet titled with the value", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	setWidth(390);
-	const el = await mount();
-	expect($(el, "section.value-panel")).toBeNull();
-	await openValue(el, "cuisine", "thai");
-	const sheet = $(el, "app-sheet.value-sheet")!;
-	expect(sheet.hasAttribute("open")).toBe(true);
-	expect(sheet.getAttribute("heading")).toBe("thai");
-	expect(sheet.getAttribute("subheading")).toBe("Cuisine · 1 restaurant");
-});
-
-test("phone: deleting the selected value closes its sheet and focuses the add-group field", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	setWidth(390);
-	const el = await mount();
-	let detail = await openValue(el, "cuisine", "thai");
-	await click(el, detail, "delete-value");
-	detail = $(el, ".value-detail")!;
-	await click(el, detail, "confirm-delete-value");
-	await settle(el);
-	expect($(el, "app-sheet.value-sheet")?.hasAttribute("open")).toBe(false);
-	// The closed sheet keeps its last content only to draw it sliding away.
-	expect($(el, "app-sheet[open] .value-detail")).toBeNull();
-	expect(el.shadowRoot!.activeElement?.id).toBe("new-group");
-});
-
-/**
- * Patches `<dialog>.close` so its `close` event fires on a later task, like real browsers
- * (happy-dom fires it synchronously), giving other code a chance to run first.
- */
-const withAsyncDialogClose = async (run: () => Promise<void>) => {
-	const original = HTMLDialogElement.prototype.close;
-	HTMLDialogElement.prototype.close = function (
-		this: HTMLDialogElement,
-		returnValue?: string,
-	) {
-		const wasOpen = this.open;
-		this.removeAttribute("open");
-		this.returnValue = returnValue ?? "";
-		if (wasOpen) setTimeout(() => this.dispatchEvent(new Event("close")), 0);
-	};
-	try {
-		await run();
-	} finally {
-		HTMLDialogElement.prototype.close = original;
-	}
-};
-
-test("phone: deleting a value while its sheet's close event is still in flight still lands focus on the add-group field, not a reused row", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai", "lao"] } });
-	setWidth(390);
-	const el = await mount();
-	await withAsyncDialogClose(async () => {
-		let detail = await openValue(el, "cuisine", "thai");
-		await click(el, detail, "delete-value");
-		detail = $(el, ".value-detail")!;
-		await click(el, detail, "confirm-delete-value");
-		// The sheet's own `close` event (deferred above, as in real browsers) has not fired
-		// yet when our own focus landing runs; let both settle before asserting.
-		await settle(el);
-		expect($(el, "app-sheet.value-sheet")?.hasAttribute("open")).toBe(false);
-		expect(el.shadowRoot!.activeElement?.id).toBe("new-group");
-	});
-});
-
-test("renaming keeps the detail open on the new name", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
-	const el = await mount();
-	let detail = await openValue(el, "cuisine", "thia");
-	detail
-		.querySelector<HTMLButtonElement>('[data-action="rename-value"]')!
-		.click();
-	await el.updateComplete;
-	detail = $(el, ".value-detail")!;
-	const input = detail.querySelector<HTMLInputElement>("input")!;
-	input.value = "thai";
-	input.dispatchEvent(new Event("input"));
-	await el.updateComplete;
-	$(el, ".value-detail")!
-		.querySelector<HTMLButtonElement>('[data-action="save-value"]')!
-		.click();
-	await el.updateComplete;
-	await el.updateComplete;
-	expect($(el, ".value-detail")?.getAttribute("data-value")).toBe("thai");
-	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
-		"rename-value",
-	);
-});
-
-test("deleting the selected value closes the detail and focuses the add-group field", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	const el = await mount();
-	const detail = await openValue(el, "cuisine", "thai");
-	detail
-		.querySelector<HTMLButtonElement>('[data-action="delete-value"]')!
-		.click();
-	await el.updateComplete;
-	$(el, ".value-detail")!
-		.querySelector<HTMLButtonElement>('[data-action="confirm-delete-value"]')!
-		.click();
-	await el.updateComplete;
-	await el.updateComplete;
-	expect($(el, ".value-detail")).toBeNull();
-	expect(el.shadowRoot!.activeElement?.id).toBe("new-group");
-});
-
-test("another tab removing the selected value closes the detail", async () => {
-	const [item] = addRestaurant({
-		...base,
-		name: "A",
-		groups: { cuisine: ["thai"] },
-	});
-	const el = await mount();
-	await openValue(el, "cuisine", "thai");
-	updateRestaurant(item!.id, { ...base, name: "A", groups: {} });
-	await el.updateComplete;
-	expect($(el, ".value-detail")).toBeNull();
-});
-
-test("custom groups open their options in a sheet; moves at the ends are disabled with a reason", async () => {
-	saveGroups([
-		{ id: "g1", name: "Price" },
-		{ id: "g2", name: "Vibe" },
-	]);
-	const el = await mount();
-	expect(
-		card(el, "cuisine").querySelector('[data-action="group-options"]'),
-	).toBeNull();
-	const button = card(el, "g1").querySelector('[data-action="group-options"]')!;
-	expect(button.getAttribute("aria-label")).toBe("Price options");
-	expect(button.getAttribute("aria-haspopup")).toBe("dialog");
-	const options = await openGroup(el, "g1");
-	expect($(el, "app-sheet.group-sheet")?.hasAttribute("open")).toBe(true);
-	const up = options.querySelector<HTMLButtonElement>(
-		'[data-action="move-up"]',
-	)!;
-	// Stays focusable (not natively disabled) so its reason is reachable, but does nothing.
-	expect(up.disabled).toBe(false);
-	expect(up.getAttribute("aria-disabled")).toBe("true");
-	const reason = up.querySelector(".reason")!;
-	expect(reason.textContent?.trim()).toBe("Already the first group");
-	expect(up.getAttribute("aria-describedby")).toBe(reason.id);
-	expect(reason.id).toBeTruthy();
-	const before = loadGroups().map((def) => def.id);
-	up.click();
-	await el.updateComplete;
-	expect(loadGroups().map((def) => def.id)).toEqual(before);
-	const down = options.querySelector<HTMLButtonElement>(
-		'[data-action="move-down"]',
-	)!;
-	expect(down.disabled).toBe(false);
-	expect(down.getAttribute("aria-disabled")).toBeNull();
-	expect(down.getAttribute("aria-describedby")).toBeNull();
-});
-
-test("opening a group's options focuses the sheet's heading, not Rename", async () => {
-	saveGroups([{ id: "g1", name: "Price" }]);
-	const el = await mount();
-	await openGroup(el, "g1");
-	await settle(el);
-	const sheet = $<AppSheet>(el, "app-sheet.group-sheet")!;
-	expect(sheet.shadowRoot!.activeElement?.id).toBe("sheet-title");
-});
-
-test("phone: opening a value focuses the sheet's heading, not Rename", async () => {
-	setWidth(390);
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	const el = await mount();
-	await openValue(el, "cuisine", "thai");
-	await settle(el);
-	const sheet = $<AppSheet>(el, "app-sheet.value-sheet")!;
-	expect(sheet.shadowRoot!.activeElement?.id).toBe("sheet-title");
-});
-
-test("wide: opening a value focuses the panel's Rename button", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	const el = await mount();
-	await openValue(el, "cuisine", "thai");
-	await settle(el);
-	expect(focused(el)?.getAttribute("data-action")).toBe("rename-value");
-});
-
-test("another tab deleting the open group closes its sheet", async () => {
-	saveGroups([{ id: "g1", name: "Price" }]);
-	const el = await mount();
-	await openGroup(el, "g1");
-	saveGroups([]);
-	await el.updateComplete;
-	expect($(el, "app-sheet.group-sheet")?.hasAttribute("open")).toBe(false);
-});
-
-test("another tab removing the group whose options are open leaves a wide-panel value draft intact", async () => {
-	saveGroups([{ id: "g1", name: "Price" }]);
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	const el = await mount();
-	let detail = await openValue(el, "cuisine", "thai");
-	await click(el, detail, "rename-value");
-	detail = $(el, ".value-detail")!;
-	await typeIn(el, detail.querySelector("input")!, "Thai food");
-	await openGroup(el, "g1");
-	saveGroups([]);
-	await el.updateComplete;
-	expect($(el, "app-sheet.group-sheet")?.hasAttribute("open")).toBe(false);
-	detail = $(el, ".value-detail")!;
-	expect(detail.querySelector<HTMLInputElement>("input")?.value).toBe(
-		"Thai food",
-	);
-});
-
-test("opening a group's options does not drop an open value's draft", async () => {
-	saveGroups([{ id: "g1", name: "Price" }]);
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	const el = await mount();
-	let detail = await openValue(el, "cuisine", "thai");
-	await click(el, detail, "rename-value");
-	detail = $(el, ".value-detail")!;
-	await typeIn(el, detail.querySelector("input")!, "Thai food");
-	await openGroup(el, "g1");
-	const sheet = $(el, "app-sheet.group-sheet")!;
-	sheet.shadowRoot!.querySelector("dialog")!.close();
-	await settle(el);
-	detail = $(el, ".value-detail")!;
-	expect(detail.querySelector<HTMLInputElement>("input")?.value).toBe(
-		"Thai food",
-	);
-});
-
-test("the intro says plain tags filter only the restaurants page", async () => {
-	const el = await mount();
-	expect($(el, ".page-sub")?.textContent).toBe(
-		"Groups sort your restaurants for the filters. Plain tags filter only the Restaurants page.",
-	);
-	setLang("th");
-	await el.updateComplete;
-	expect($(el, ".page-sub")?.textContent).toBe(
-		"กลุ่มช่วยจัดร้านสำหรับตัวกรอง แท็กทั่วไปใช้กรองได้เฉพาะหน้าร้านอาหาร",
-	);
-});
-
-test("renaming a plain tag changes it in the restaurants page filter too", async () => {
+test("editing a plain tag renames it in the restaurants page filter too", async () => {
 	addRestaurant({ ...base, name: "A", tags: ["spicey"] });
 	localStorage.setItem(
 		LIST_FILTER_KEY,
 		JSON.stringify({ tags: { include: ["spicey"], exclude: [] } }),
 	);
 	const el = await mount();
-	let detail = await openValue(el, "tags", "spicey");
-	await click(el, detail, "rename-value");
-	detail = $(el, ".value-detail")!;
-	await typeIn(el, detail.querySelector("input")!, "spicy");
-	detail = $(el, ".value-detail")!;
-	await click(el, detail, "save-value");
+	const form = await openValue(el, "tags", "spicey");
+	await typeIn(el, inForm(form, "#name"), "spicy");
+	await clickOn(el, inForm(form, '[data-action="save"]'));
+	await settle(el);
 	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
 		tags: { include: ["spicy"], exclude: [] },
 	});
@@ -893,15 +981,13 @@ test("moving a value into plain tags keeps it in the restaurants page filter onl
 	localStorage.setItem(FILTER_KEY, filter);
 	localStorage.setItem(LIST_FILTER_KEY, filter);
 	const el = await mount();
-	let detail = await openValue(el, "area", "siam");
-	await click(el, detail, "move-value");
-	detail = $(el, ".value-detail")!;
-	const select = detail.querySelector<HTMLSelectElement>("select")!;
+	const form = await openValue(el, "area", "siam");
+	const select = inForm<HTMLSelectElement>(form, "select");
 	select.value = "tags";
 	select.dispatchEvent(new Event("change"));
 	await el.updateComplete;
-	detail = $(el, ".value-detail")!;
-	await click(el, detail, "confirm-move");
+	await clickOn(el, inForm(valueForm(el)!, '[data-action="save"]'));
+	await settle(el);
 	expect(JSON.parse(localStorage.getItem(FILTER_KEY)!)).toEqual({});
 	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
 		tags: { include: [], exclude: ["siam"] },
@@ -923,12 +1009,13 @@ test("deleting a value or a group drops it from the restaurants page filter too"
 		}),
 	);
 	const el = await mount();
-	let detail = await openValue(el, "area", "ari");
-	await click(el, detail, "delete-value");
-	detail = $(el, ".value-detail")!;
-	await click(el, detail, "confirm-delete-value");
-	const options = await openGroup(el, "g1");
-	await click(el, options, "delete-group");
-	await click(el, $(el, ".group-options")!, "confirm-delete-group");
+	const form = await openValue(el, "area", "ari");
+	await clickOn(el, inForm(form, '[data-action="delete"]'));
+	await clickOn(el, inForm(valueForm(el)!, '[data-action="confirm-delete"]'));
+	await settle(el);
+	const group = await openGroup(el, "g1");
+	await clickOn(el, inForm(group, '[data-action="delete"]'));
+	await clickOn(el, inForm(groupForm(el)!, '[data-action="confirm-delete"]'));
+	await settle(el);
 	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({});
 });

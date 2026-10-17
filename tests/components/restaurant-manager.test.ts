@@ -118,17 +118,10 @@ const click = async (
 	await el.updateComplete;
 };
 
-test("the heading links to the tags page", async () => {
+test("the heading has no tags link: tags live in Settings", async () => {
 	const el = await mount();
-	const link = $<HTMLAnchorElement>(el, "a.tags-link");
-	expect(link?.getAttribute("href")).toBe("./tags");
-	expect(link?.textContent?.trim()).toBe("Tags");
-	expect(link?.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
-	setLang("th");
-	await el.updateComplete;
-	expect($<HTMLAnchorElement>(el, "a.tags-link")?.textContent?.trim()).toBe(
-		"แท็ก",
-	);
+	expect($(el, "a.tags-link")).toBeNull();
+	expect($(el, 'a[href$="tags"]')).toBeNull();
 });
 
 test("shows the empty message with no restaurants", async () => {
@@ -657,13 +650,12 @@ const phone = async () => {
 };
 afterEach(() => setWidth(1024));
 
-test("the title shows the count, with the Tags link beside it", async () => {
+test("the title shows the count", async () => {
 	addRestaurant({ ...blank, name: "A" });
 	addRestaurant({ ...blank, name: "B" });
 	const el = await mount();
 	expect($(el, "h1.page-title")?.textContent?.trim()).toBe("Restaurants");
 	expect($(el, ".head .count")?.textContent?.trim()).toBe("2 restaurants");
-	expect($(el, ".head a.tags-link")).not.toBeNull();
 });
 
 test("rows are buttons named for editing, in a grouped list", async () => {
@@ -1136,7 +1128,6 @@ test("search: the header button shows only once there is a restaurant", async ()
 	await el.updateComplete;
 	const button = $(el, '.head-actions [data-action="search"]')!;
 	expect(button.getAttribute("aria-label")).toBe("Search restaurants");
-	expect(button.nextElementSibling?.classList.contains("tags-link")).toBe(true);
 });
 
 test("search: opening focuses the field inside the tap, so iOS opens the keyboard", async () => {
@@ -1268,15 +1259,12 @@ test("search: is translated to Thai", async () => {
 	expect($(el, ".search-count")?.textContent?.trim()).toBe("2 จาก 4 ร้าน");
 });
 
-test("the magnifier and the Tags link are the same height", () => {
+test("the magnifier is a full tap target", () => {
 	const css = (RestaurantManager.styles as unknown[])
 		.slice(1)
 		.flat(Number.POSITIVE_INFINITY)
 		.map((style) => (style as { cssText: string }).cssText)
 		.join("\n");
-	expect(css).toMatch(/\.tags-link\s*\{[^}]*min-height:\s*var\(--tap\)/);
-	// A link's min-height leaves out its border unless it is border-box, like the button.
-	expect(css).toMatch(/\.tags-link\s*\{[^}]*box-sizing:\s*border-box/);
 	expect(css).toMatch(/\.search-open\s*\{[^}]*min-height:\s*var\(--tap\)/);
 });
 

@@ -13,9 +13,9 @@ app (see [Install on a phone](#install-on-a-phone)).
 | `/`            | Two random options; press Eat here to save a visit to History |
 | `/restaurants` | Add, edit and delete restaurants; search them by name |
 | `/history`     | Visits grouped by day, stats per restaurant, delete a visit |
-| `/settings`    | Language and theme; export or import JSON as a file or by copy and paste, with replace or merge; neighbourhood presets; clear history by age; delete all data; about |
+| `/settings`    | Language and theme; link to tags; export or import JSON as a file or by copy and paste, with replace or merge; neighbourhood presets; clear history by age; delete all data; about |
 | `/settings/presets` | Tick neighbourhoods and add them to the list or replace it, with undo |
-| `/tags`        | Groups and their values: counts, add, rename, reorder and delete groups; rename, merge, move and delete values |
+| `/settings/tags` | Pick a group from pills or a column; search groups and values; add, rename, reorder and delete groups; rename, merge, move and delete values in a form |
 
 Built from [bun-lit-template](https://github.com/kamontat/bun-lit-template): static
 [Lit](https://lit.dev/) web components, bundled by [Bun](https://bun.com/) through
@@ -117,7 +117,7 @@ Planned future work lives in [TODO.md](TODO.md).
 ```text
 .
 ├── src/                 # application code
-│   ├── routes/          # HTML pages: index, restaurants, history, settings, settings/presets, tags
+│   ├── routes/          # HTML pages: index, restaurants, history, settings, settings/presets, settings/tags
 │   ├── assets/          # files pages link to: favicon.svg, fonts, manifest.webmanifest
 │   │   ├── icons/       # app icons, copied to dist/icons/ by --statics
 │   │   └── data/        # neighbourhood restaurant lists and index, copied to dist/data/ by --statics

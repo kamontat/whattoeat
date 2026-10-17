@@ -109,24 +109,7 @@ export class RestaurantManager extends LitElement {
 				border-radius: var(--radius-pill);
 			}
 
-			.tags-link {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.375rem;
-				/* Same height as the magnifier beside it, borders included. */
-				box-sizing: border-box;
-				min-height: var(--tap);
-				padding: 0 0.875rem;
-				border: 1px solid var(--color-control);
-				border-radius: var(--radius-pill);
-				background: var(--color-surface);
-				color: var(--color-text);
-				font-size: 0.875rem;
-				font-weight: 500;
-				text-decoration: none;
-			}
-
-			/* Same pill as the Tags link beside it. */
+			/* A pill as tall as the magnifier beside it. */
 			.filter-open {
 				gap: 0.375rem;
 				min-height: var(--tap);
@@ -714,7 +697,6 @@ export class RestaurantManager extends LitElement {
 								</button>`
 							: nothing
 					}
-					<a class="tags-link" href="./tags">${icon("tag", 18)}<span>${t("nav.tags")}</span></a>
 					${wide ? add : nothing}
 				</div>
 			</header>
