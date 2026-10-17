@@ -188,7 +188,7 @@ test("follows the language", async () => {
 test("lays the links out as list rows", async () => {
 	for (const environment of ["production", "preview"] as const) {
 		const el = await mount({ environment });
-		expect(rows(el)).toEqual(["env", "built", "commit", "source", "changelog"]);
+		expect(rows(el)).toEqual(["env", "built", "source", "commit", "changelog"]);
 		el.remove();
 	}
 });

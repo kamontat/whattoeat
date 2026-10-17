@@ -97,6 +97,7 @@ export class AppFooter extends LitElement {
 					<small class="trail"><code>${this.environment}</code></small>
 				</div>
 				${this.environment === "development" || this.built === undefined ? nothing : this.renderBuilt(this.built)}
+				${this.renderSource()}
 				${
 					deployed && this.sha !== undefined
 						? html`<a class="item" data-link="commit" href=${commitUrl(this.sha)} target="_blank" rel="noopener">
@@ -106,7 +107,6 @@ export class AppFooter extends LitElement {
 							</a>`
 						: nothing
 				}
-				${this.renderSource()}
 				${
 					deployed
 						? html`<a class="item" data-link="changelog" href=${CHANGELOG_URL} target="_blank" rel="noopener">
