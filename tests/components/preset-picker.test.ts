@@ -1022,6 +1022,53 @@ test('a refused write shows the storage warning and "Added for this session only
 	}
 });
 
+test("when only the restaurant list write is refused, whattoeat:presets in storage is unchanged after Add and after Replace", async () => {
+	saveRestaurants([make("s1"), make("s2")]);
+	const presets = JSON.stringify([
+		{ id: "kaset", updatedAt: "2026-10-16", ids: ["s1"] },
+	]);
+	localStorage.setItem(PRESETS_KEY, presets);
+	const { restore } = stubRoutes();
+	// A quota failure on the large list while the small presets write still fits.
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: (key: string) => real.getItem(key),
+			setItem: (key: string, value: string) => {
+				if (key === "whattoeat:restaurants")
+					throw new Error("QuotaExceededError");
+				real.setItem(key, value);
+			},
+		},
+		configurable: true,
+	});
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+		expect(isMemoryOnly()).toBe(true);
+		expect(toastText(el)).toBe("Added for this session only");
+		expect(real.getItem(PRESETS_KEY)).toBe(presets);
+		expect(storedIds()).toEqual(["s1", "s2"]);
+
+		await setMode(el, "replace");
+		await setChecked(el, "ratchayothin", true);
+		await press(el, '[data-action="apply"]');
+		await press(el, '[data-action="replace-confirm"]');
+		expect(toastText(el)).toBe("Added for this session only");
+		expect(savedIdsNow()).toEqual(["r1", "shared"]);
+		expect(real.getItem(PRESETS_KEY)).toBe(presets);
+		expect(storedIds()).toEqual(["s1", "s2"]);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		restore();
+		saveRestaurants([]);
+	}
+});
+
 test("an aria-live region announces the button label after a change", async () => {
 	const { restore } = stubRoutes();
 	try {

@@ -374,25 +374,29 @@ export class PresetPicker extends LitElement {
 		const before = { list: loadRestaurants(), added: loadAddedPresets() };
 		let message: string;
 		let undoable = true;
-		// Presets first: saving restaurants announces the change, and the rows reload from both.
+		// `whattoeat:presets` is written only once the list itself was stored: a refused list
+		// write must not leave records claiming presets the stored list does not hold.
 		if (mode === "add") {
 			const result = addPresets(before.list, files, before.added);
-			saveAddedPresets(result.added);
 			if (result.newCount === 0) {
-				// Nothing to undo: the list is unchanged, only the presets were recorded.
+				// Nothing to undo: the list is unchanged, only the presets are recorded.
+				saveAddedPresets(result.added);
 				undoable = false;
 				message = t("presets.nothingNew");
+			} else if (saveRestaurants(result.list)) {
+				saveAddedPresets(result.added);
+				message = t("presets.added", { count: result.newCount });
 			} else {
-				message = saveRestaurants(result.list)
-					? t("presets.added", { count: result.newCount })
-					: t("presets.sessionOnly");
+				message = t("presets.sessionOnly");
 			}
 		} else {
 			const result = replaceWithPresets(files);
-			saveAddedPresets(result.added);
-			message = saveRestaurants(result.list)
-				? t("presets.replaced", { count: result.list.length })
-				: t("presets.sessionOnly");
+			if (saveRestaurants(result.list)) {
+				saveAddedPresets(result.added);
+				message = t("presets.replaced", { count: result.list.length });
+			} else {
+				message = t("presets.sessionOnly");
+			}
 		}
 		this.snapshot = undoable ? before : undefined;
 		this.busy = false;
@@ -411,8 +415,8 @@ export class PresetPicker extends LitElement {
 		const snapshot = this.snapshot;
 		if (snapshot === undefined) return;
 		this.snapshot = undefined;
-		saveAddedPresets(snapshot.added);
-		saveRestaurants(snapshot.list);
+		// Same rule as saving: the presets follow the list only once the list was stored.
+		if (saveRestaurants(snapshot.list)) saveAddedPresets(snapshot.added);
 		this.reloadStore();
 		this.toast()?.show(t("presets.undone"), { duration: UNDONE_DURATION });
 	};
