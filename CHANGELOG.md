@@ -26,6 +26,14 @@ What changed in this project and why, newest first.
   the results, and emptying the list ends search.
 - The Tags link on Restaurants is the same height as the search button: 44px on touch
   screens, 36px with a mouse.
+- From 768px the Restaurants edit panel starts hidden and the list takes the full width. Add
+  opens the panel beside the list and pressing it again hides it; Add while editing switches
+  to a new restaurant instead. Clicking a row opens the panel for editing, and Save, Cancel,
+  Delete or the panel's new close button hide it again, returning focus to Add (or to the
+  search field while searching).
+- Add on Restaurants is a round plus button, in the header and pinned on phones, labelled
+  "Add restaurant" for screen readers and on hover. The empty list card has its own "Add
+  restaurant" button.
 
 ### Bug fixes
 
@@ -47,6 +55,10 @@ What changed in this project and why, newest first.
 - The title row stays put only on phones; from 768px the edit side panel is already the part
   that stays in view, and two stuck areas would overlap.
 - Search on the Tags page stays in `TODO.md`.
+- The edit panel used to always show an empty "New restaurant" form, which repeated the Add
+  button in the header. Hiding it until Add or a row opens it gives the list the full width
+  and works like the phone sheet. Closing it drops anything typed, the same as closing the
+  sheet.
 
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 
