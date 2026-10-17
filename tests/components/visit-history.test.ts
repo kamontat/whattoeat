@@ -14,7 +14,7 @@ const restaurant = (id: string, name: string): Restaurant => ({
 	id,
 	name,
 	tags: [],
-	location: "",
+	link: "",
 	notes: "",
 	groups: {},
 	kinds: [],

@@ -13,14 +13,14 @@ import {
 	replaceWithPresets,
 	saveAddedPresets,
 } from "#lib/presets";
-import type { Restaurant } from "#lib/restaurant";
-import { toExportFile } from "#lib/transfer";
+import { isLink, type Restaurant } from "#lib/restaurant";
+import { EXPORT_VERSION, toExportFile } from "#lib/transfer";
 
 const make = (id: string, name = id): Restaurant => ({
 	id,
 	name,
 	tags: [],
-	location: "",
+	link: "",
 	groups: {},
 	kinds: [],
 	notes: "",
@@ -78,6 +78,19 @@ test("parseIndex rejects a missing presets array, an entry with an unknown distr
 test("parseIndex accepts the bundled index", async () => {
 	const data = await Bun.file("src/assets/data/presets/index.json").json();
 	expect(parseIndex(data)).toEqual(data);
+});
+
+test("every bundled preset file is the current export version, with links and no old locations", async () => {
+	const index = await Bun.file("src/assets/data/presets/index.json").json();
+	for (const { id } of index.presets as { id: string }[]) {
+		const data = await Bun.file(`src/assets/data/presets/${id}.json`).json();
+		expect(data.version).toBe(EXPORT_VERSION);
+		for (const item of data.restaurants) {
+			expect(item).not.toHaveProperty("location");
+			expect(typeof item.link).toBe("string");
+			if (item.link !== "") expect(isLink(item.link)).toBe(true);
+		}
+	}
 });
 
 test('presetState is "new" when not recorded', () => {

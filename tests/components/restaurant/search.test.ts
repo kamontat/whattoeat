@@ -29,7 +29,7 @@ afterEach(() => {
 const make = (name: string): Restaurant => ({
 	id: name,
 	name,
-	location: "",
+	link: "",
 	notes: "",
 	kinds: [],
 	tags: [],

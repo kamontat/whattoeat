@@ -15,7 +15,7 @@ afterEach(() => {
 const make = (id: string, name: string, extra = {}): Restaurant => ({
 	id,
 	name,
-	location: "",
+	link: "",
 	notes: "",
 	kinds: [],
 	tags: [],
@@ -95,7 +95,7 @@ test("a query no name has shows the no-match card with Add and Clear", async () 
 });
 
 test("a row click asks to edit that restaurant; the current one is marked", async () => {
-	const pho = make("1", "Pho", { location: "Ari" });
+	const pho = make("1", "Pho", { link: "Ari" });
 	const el = await mount([pho, make("2", "Bun")], { currentId: "1" });
 	const row = $<HTMLButtonElement>(el, 'li[data-id="1"] button')!;
 	expect(row.getAttribute("aria-current")).toBe("true");
@@ -106,6 +106,22 @@ test("a row click asks to edit that restaurant; the current one is marked", asyn
 	const edits = listen<Restaurant>(el, "restaurant-edit");
 	row.click();
 	expect(edits).toEqual([pho]);
+});
+
+test("a row with an http(s) link gets an open-link beside its edit button; other rows don't", async () => {
+	const el = await mount([
+		make("1", "Pho", { link: "https://maps.example/pho" }),
+		make("2", "Bun", { link: "javascript:alert(1)" }),
+		make("3", "Cha"),
+	]);
+	const link = $<HTMLAnchorElement>(el, 'li[data-id="1"] > a.open-link');
+	expect(link?.getAttribute("href")).toBe("https://maps.example/pho");
+	expect(link?.getAttribute("target")).toBe("_blank");
+	expect(link?.getAttribute("rel")).toBe("noopener noreferrer");
+	expect(link?.getAttribute("aria-label")).toBe("Open Pho's link");
+	expect($(el, 'li[data-id="1"] button a')).toBeNull();
+	expect($(el, 'li[data-id="2"] a')).toBeNull();
+	expect($(el, 'li[data-id="3"] a')).toBeNull();
 });
 
 test("focusRow focuses a shown row and says whether it could", async () => {

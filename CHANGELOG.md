@@ -2,7 +2,16 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-17: Neighbourhood presets and search restaurants by name
+## 2026-10-17: Neighbourhood presets, search by name and restaurant links
+
+### BREAKING CHANGES
+
+- A restaurant's `location` is now `link`, and the export format goes from version 4 to 5.
+  Saved data and imported files convert on read: a location that is a link becomes the
+  link, and any other location moves to the first line of the notes. Code that reads or
+  writes `location` must use `link`.
+- The restaurant form only accepts a link starting with `https://` or `http://`; free text
+  such as "Central Ladprao, 4F" now belongs in Notes.
 
 ### Features
 
@@ -39,6 +48,10 @@ What changed in this project and why, newest first.
   branch-name` beneath and opens the pull request. A new **Environment** row reads
   `production` or `preview`. The preview workflow passes the number and branch to the build
   as `BUN_PUBLIC_PR_NUMBER` and `BUN_PUBLIC_BRANCH`.
+
+- A restaurant can have a link: a map, its website or a social page. On the Home result its
+  name opens the link in a new tab, and in the Restaurants list an open-link button sits
+  beside the row.
 
 ### Improvements
 
@@ -125,6 +138,11 @@ What changed in this project and why, newest first.
   moved to Settings › About, where they are one tap from the source link.
 - Environment is worked out from whether a pull request number was passed in, rather than
   from a separate variable that could disagree with it.
+- In the Restaurants list the link is a button beside the row rather than the name itself,
+  because the whole row is already the edit button and a link cannot sit inside a button.
+- An old text location goes into the notes rather than being dropped, so nothing typed is
+  lost. The bundled Ladprao and Ratchayothin presets were rewritten the same way, so their
+  mall and floor now lead each note.
 
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 
