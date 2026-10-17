@@ -34,6 +34,8 @@ jobs:
         ##       The pull request head, not the merge commit GitHub checks out, is the commit worth linking.
         env:
           BUN_PUBLIC_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          BUN_PUBLIC_BRANCH: ${{ github.event.pull_request.head.ref }}
+          BUN_PUBLIC_PR_NUMBER: ${{ github.event.number }}
         with:
           command: versions upload --preview-alias pr-${{ github.event.number }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

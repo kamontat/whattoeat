@@ -17,7 +17,7 @@ import {
 } from "#lib/store";
 import { PICK_KEY } from "#lib/tags";
 
-const base = { tags: [], location: "", notes: "" };
+const base = { tags: [], link: "", notes: "" };
 
 beforeEach(() => {
 	localStorage.clear();

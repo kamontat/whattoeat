@@ -10,6 +10,7 @@ export const en = {
 	"app.title": "What to Eat",
 	"nav.label": "Main",
 	"nav.skip": "Skip to content",
+	"nav.preview": "Preview",
 	"nav.home": "Home",
 	"nav.restaurants": "Restaurants",
 	"nav.tags": "Tags",
@@ -85,7 +86,7 @@ export const en = {
 	"field.tags": "Tags",
 	"field.tagsHint": "Press Enter or comma to add, e.g. thai, noodle",
 	"tagInput.remove": "Remove {tag}",
-	"field.location": "Location or map link",
+	"field.link": "Link: map, website or social page",
 	"field.cuisineHint": "Press Enter or comma to add, e.g. thai, japanese",
 	"field.areaHint": "Short area names to filter by, e.g. siam, ari",
 	"field.groupHint": "Press Enter or comma to add",
@@ -99,6 +100,8 @@ export const en = {
 	"manager.confirmDelete": "Confirm delete",
 	"manager.empty": "No restaurants yet. Add your first one.",
 	"manager.nameRequired": "Name is required.",
+	"manager.linkInvalid": "Enter a link that starts with https:// or http://.",
+	"manager.openLink": "Open {name}'s link",
 	"manager.addTitle": "New restaurant",
 	"manager.editTitle": "Edit {name}",
 	"manager.saved": "Saved {name}",
@@ -252,6 +255,7 @@ export const en = {
 	"footer.changelog": "Changelog",
 	"footer.dev": "Development build",
 	"footer.built": "Built",
+	"footer.env": "Environment",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -260,6 +264,7 @@ export const th: Record<MessageKey, string> = {
 	"app.title": "กินอะไรดี",
 	"nav.label": "เมนูหลัก",
 	"nav.skip": "ข้ามไปยังเนื้อหา",
+	"nav.preview": "พรีวิว",
 	"nav.home": "หน้าแรก",
 	"nav.restaurants": "ร้านอาหาร",
 	"nav.tags": "แท็ก",
@@ -335,7 +340,7 @@ export const th: Record<MessageKey, string> = {
 	"field.tags": "แท็ก",
 	"field.tagsHint": "กด Enter หรือจุลภาคเพื่อเพิ่ม เช่น ไทย, ก๋วยเตี๋ยว",
 	"tagInput.remove": "ลบ {tag}",
-	"field.location": "ที่ตั้งหรือลิงก์แผนที่",
+	"field.link": "ลิงก์: แผนที่ เว็บไซต์ หรือโซเชียล",
 	"field.cuisineHint": "กด Enter หรือจุลภาคเพื่อเพิ่ม เช่น ไทย, ญี่ปุ่น",
 	"field.areaHint": "ชื่อย่านสั้น ๆ สำหรับกรอง เช่น สยาม, อารีย์",
 	"field.groupHint": "กด Enter หรือจุลภาคเพื่อเพิ่ม",
@@ -349,6 +354,8 @@ export const th: Record<MessageKey, string> = {
 	"manager.confirmDelete": "ยืนยันการลบ",
 	"manager.empty": "ยังไม่มีร้านอาหาร เพิ่มร้านแรกได้เลย",
 	"manager.nameRequired": "กรุณาใส่ชื่อร้าน",
+	"manager.linkInvalid": "กรุณาใส่ลิงก์ที่ขึ้นต้นด้วย https:// หรือ http://",
+	"manager.openLink": "เปิดลิงก์ของ {name}",
 	"manager.addTitle": "ร้านใหม่",
 	"manager.editTitle": "แก้ไข {name}",
 	"manager.saved": "บันทึก {name} แล้ว",
@@ -497,6 +504,7 @@ export const th: Record<MessageKey, string> = {
 	"footer.changelog": "บันทึกการเปลี่ยนแปลง",
 	"footer.dev": "รุ่นพัฒนา",
 	"footer.built": "สร้างเมื่อ",
+	"footer.env": "สภาพแวดล้อม",
 };
 
 const dictionaries: Record<Lang, Record<MessageKey, string>> = { en, th };

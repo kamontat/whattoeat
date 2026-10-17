@@ -52,5 +52,9 @@ declare module "bun" {
 		BUN_PUBLIC_COMMIT_SHA?: string;
 		/** ISO 8601 time of the build, inlined by `bun-server build`; see `#lib/build-info`. */
 		BUN_PUBLIC_BUILD_DATE?: string;
+		/** Pull request branch of a preview build, inlined by `bun-server build`; see `#lib/build-info`. */
+		BUN_PUBLIC_BRANCH?: string;
+		/** Pull request number of a preview build, inlined by `bun-server build`; see `#lib/build-info`. */
+		BUN_PUBLIC_PR_NUMBER?: string;
 	}
 }

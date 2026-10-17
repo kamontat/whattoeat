@@ -4,7 +4,7 @@ import { repeat } from "lit/directives/repeat.js";
 import { highlight } from "#lib/highlight";
 import { getLang, LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
-import { metaLine, type Restaurant } from "#lib/restaurant";
+import { isLink, metaLine, type Restaurant } from "#lib/restaurant";
 import { type MatchRange, searchByName } from "#lib/search";
 import { uiStyles } from "#styles/ui";
 
@@ -33,6 +33,32 @@ export class RestaurantList extends LitElement {
 
 			.list .row {
 				min-height: 3.5rem;
+			}
+
+			/* A link sits beside the edit button, not inside it: a button can't hold a link. */
+			li:has(> .open-link) {
+				display: flex;
+			}
+
+			.open-link {
+				display: flex;
+				flex: none;
+				align-items: center;
+				justify-content: center;
+				width: var(--tap);
+				color: var(--color-muted);
+			}
+
+			.open-link:hover {
+				color: var(--color-link);
+			}
+
+			.open-link:focus-visible {
+				outline-offset: -3px;
+			}
+
+			.group > * + * > .open-link {
+				border-top: 1px solid var(--color-border);
 			}
 
 			.list .meta {
@@ -151,6 +177,17 @@ export class RestaurantList extends LitElement {
 				</span>
 				<span class="trail">${icon("chevron", 20)}</span>
 			</button>
+			${
+				isLink(item.link)
+					? html`<a
+							class="open-link"
+							href=${item.link}
+							target="_blank"
+							rel="noopener noreferrer"
+							aria-label=${t("manager.openLink", { name: item.name })}
+						>${icon("external", 20)}</a>`
+					: nothing
+			}
 		</li>`;
 	}
 }

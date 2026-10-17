@@ -32,7 +32,7 @@ const TOUCH = {
 	"title-size": "1.75rem",
 	"row-text": "1rem",
 	"seg-min": "3.25rem",
-	"bar-height": "4.75rem",
+	"bar-height": "4rem",
 	"brand-size": "1.25rem",
 } as const;
 
@@ -43,7 +43,7 @@ const COMPACT = {
 	"title-size": "1.5rem",
 	"row-text": "0.9375rem",
 	"seg-min": "2.75rem",
-	"bar-height": "3.75rem",
+	"bar-height": "3.25rem",
 	"brand-size": "1.0625rem",
 } as const;
 

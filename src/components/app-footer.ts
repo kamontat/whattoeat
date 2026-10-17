@@ -3,6 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 import {
 	CHANGELOG_URL,
 	commitUrl,
+	pullUrl,
 	REPO_URL,
 	readBuildInfo,
 	shortSha,
@@ -36,6 +37,14 @@ export class AppFooter extends LitElement {
 	@property({ attribute: false })
 	built: Date | undefined = build.date;
 
+	/** Pull request number of a preview build; unset in production and development. */
+	@property({ attribute: false })
+	pr: number | undefined = build.pr;
+
+	/** Pull request branch of a preview build; unset in production and development. */
+	@property({ attribute: false })
+	branch: string | undefined = build.branch;
+
 	protected readonly langController = new LangController(this);
 
 	private renderBuilt(built: Date) {
@@ -50,20 +59,30 @@ export class AppFooter extends LitElement {
 			timeStyle: "short",
 		}).format(built);
 		const date = zone === undefined ? time : `${time} ${zone}`;
-		return html`<div class="item">
+		return html`<div class="item" data-row="built">
 			<span class="lead">${icon("clock", 22)}</span>
-			<span class="grow"><span>${t("footer.built")} <time datetime=${built.toISOString()}>${date}</time></span></span>
+			<span class="grow"><b>${t("footer.built")}</b></span>
+			<small class="trail"><time datetime=${built.toISOString()}>${date}</time></small>
 		</div>`;
+	}
+
+	/** A preview names its pull request under the source link, which then opens that pull request. */
+	private renderSource() {
+		const pr =
+			this.pr === undefined
+				? nothing
+				: html`<small>#${this.pr}${this.branch === undefined ? "" : ` - ${this.branch}`}</small>`;
+		return html`<a class="item" data-link="source" href=${this.pr === undefined ? REPO_URL : pullUrl(this.pr)} target="_blank" rel="noopener">
+			<span class="lead">${icon("code", 22)}</span>
+			<span class="grow"><b>${t("footer.source")}</b>${pr}</span>
+			<span class="trail">${icon("chevron", 20)}</span>
+		</a>`;
 	}
 
 	override render() {
 		return html`
 			<footer class="group">
-				<a class="item" data-link="source" href=${REPO_URL} target="_blank" rel="noopener">
-					<span class="lead">${icon("code", 22)}</span>
-					<span class="grow"><b>${t("footer.source")}</b></span>
-					<span class="trail">${icon("chevron", 20)}</span>
-				</a>
+				${this.renderSource()}
 				<a class="item" data-link="changelog" href=${CHANGELOG_URL} target="_blank" rel="noopener">
 					<span class="lead">${icon("list", 22)}</span>
 					<span class="grow"><b>${t("footer.changelog")}</b></span>
@@ -76,7 +95,12 @@ export class AppFooter extends LitElement {
 								<span class="lead">${icon("tag", 22)}</span>
 								<span class="grow"><code>${shortSha(this.sha)}</code></span>
 								<span class="trail">${icon("chevron", 20)}</span>
-							</a>`
+							</a>
+							<div class="item" data-row="env">
+								<span class="lead">${icon("cloud", 22)}</span>
+								<span class="grow"><b>${t("footer.env")}</b></span>
+								<small class="trail"><code>${this.pr === undefined ? "production" : "preview"}</code></small>
+							</div>`
 				}
 				${this.built === undefined ? nothing : this.renderBuilt(this.built)}
 			</footer>

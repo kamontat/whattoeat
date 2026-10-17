@@ -18,7 +18,7 @@ import {
 const input = {
 	name: " Jay Fai ",
 	tags: ["street", " street "],
-	location: "Bangkok",
+	link: "Bangkok",
 	notes: "",
 };
 
@@ -83,7 +83,7 @@ test("addRestaurant normalizes, stamps and saves", () => {
 	expect(list[0]).toMatchObject({
 		name: "Jay Fai",
 		tags: ["street"],
-		location: "Bangkok",
+		link: "Bangkok",
 		notes: "",
 		groups: {},
 		createdAt: now.toISOString(),
@@ -113,7 +113,7 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 		{
 			name: "Jay Fai 2",
 			tags: [],
-			location: "",
+			link: "",
 			notes: "star",
 			groups: { area: [" Old Town "], cuisine: ["Thai"] },
 			kinds: ["dessert", "food"],
@@ -124,7 +124,7 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 		id: first!.id,
 		name: "Jay Fai 2",
 		tags: [],
-		location: "",
+		link: "",
 		notes: "star",
 		groups: { area: ["old town"], cuisine: ["thai"] },
 		kinds: ["food", "dessert"],
@@ -258,7 +258,7 @@ test("restaurants stored before groups load with old area and cuisine moved into
 		id: "a1",
 		name: "Old",
 		tags: ["thai"],
-		location: "",
+		link: "",
 		notes: "",
 		area: "Siam",
 		cuisine: "",

@@ -23,7 +23,7 @@ const make = (id: string, name = id): Restaurant => ({
 	id,
 	name,
 	tags: [],
-	location: "",
+	link: "",
 	groups: {},
 	kinds: [],
 	notes: "",
@@ -67,16 +67,16 @@ const click = async (
 };
 
 test("shows the saved restaurant count and keeps it current", async () => {
-	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
 	const el = await mount();
 	expect($(el, ".count")?.textContent?.trim()).toBe("Restaurants saved: 1");
-	addRestaurant({ name: "B", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "B", tags: [], link: "", notes: "" });
 	await el.updateComplete;
 	expect($(el, ".count")?.textContent?.trim()).toBe("Restaurants saved: 2");
 });
 
 test("export downloads a json file of the stored list", async () => {
-	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
 	saveHistory([visit("h1", "2026-10-12T09:00:00.000Z")]);
 	const blobs: Blob[] = [];
 	const create = spyOn(URL, "createObjectURL").mockImplementation(
@@ -99,7 +99,7 @@ test("export downloads a json file of the stored list", async () => {
 		const file = JSON.parse(await blobs[0]!.text());
 		expect(file).toMatchObject({
 			app: "whattoeat",
-			version: 4,
+			version: 5,
 			restaurants: loadRestaurants(),
 			history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 		});
@@ -155,7 +155,7 @@ test("a file that cannot be read shows an error", async () => {
 });
 
 test("an invalid file shows an error and changes nothing", async () => {
-	addRestaurant({ name: "Keep", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Keep", tags: [], link: "", notes: "" });
 	const el = await mount();
 	el.readImport("{oops");
 	await el.updateComplete;
@@ -183,7 +183,7 @@ test("a file with a bad entry is rejected", async () => {
 });
 
 test("replace swaps the whole list", async () => {
-	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Old", tags: [], link: "", notes: "" });
 	const el = await mount();
 	el.readImport(JSON.stringify(toExportFile([make("x", "X"), make("y", "Y")])));
 	await el.updateComplete;
@@ -197,7 +197,7 @@ test("replace swaps the whole list", async () => {
 });
 
 test("merge keeps existing restaurants and adds new ones", async () => {
-	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Old", tags: [], link: "", notes: "" });
 	const el = await mount();
 	el.readImport(JSON.stringify(toExportFile([make("x", "X")])));
 	await el.updateComplete;
@@ -209,7 +209,7 @@ test("merge keeps existing restaurants and adds new ones", async () => {
 });
 
 test("cancel import discards the pending file", async () => {
-	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Old", tags: [], link: "", notes: "" });
 	const el = await mount();
 	el.readImport(JSON.stringify(toExportFile([make("x")])));
 	await el.updateComplete;
@@ -248,7 +248,7 @@ test("an import still asks when only history is saved", async () => {
 });
 
 test("choosing a file reads and validates it", async () => {
-	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Old", tags: [], link: "", notes: "" });
 	const el = await mount();
 	const input =
 		el.shadowRoot!.querySelector<HTMLInputElement>('input[type="file"]')!;
@@ -306,7 +306,7 @@ const flush = async (el: DataTransferPanel): Promise<void> => {
 };
 
 test("copy puts one-line export json on the clipboard", async () => {
-	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
 	saveHistory([visit("h1", "2026-10-12T09:00:00.000Z")]);
 	let copied = "";
 	setClipboard(async (text) => {
@@ -318,7 +318,7 @@ test("copy puts one-line export json on the clipboard", async () => {
 	expect(copied).not.toContain("\n");
 	expect(JSON.parse(copied)).toMatchObject({
 		app: "whattoeat",
-		version: 4,
+		version: 5,
 		restaurants: loadRestaurants(),
 		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 	});
@@ -329,7 +329,7 @@ test("copy puts one-line export json on the clipboard", async () => {
 });
 
 test("a blocked clipboard shows the json to copy by hand", async () => {
-	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
 	setClipboard(() => Promise.reject(new Error("NotAllowedError")));
 	const el = await mount();
 	$(el, 'button[data-action="copy"]')!.click();
@@ -376,7 +376,7 @@ const pasteByHand = async (
 };
 
 test("paste reads the clipboard and checks it in one tap", async () => {
-	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Old", tags: [], link: "", notes: "" });
 	setClipboardText(() =>
 		Promise.resolve(JSON.stringify(toExportFile([make("x", "X")]))),
 	);
@@ -415,7 +415,7 @@ test("clipboard text that is not an export shows an error", async () => {
 });
 
 test("a blocked clipboard read opens a box to paste by hand", async () => {
-	addRestaurant({ name: "Old", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Old", tags: [], link: "", notes: "" });
 	setClipboardText(() => Promise.reject(new Error("NotAllowedError")));
 	const el = await mount();
 	expect($(el, "textarea.paste")).toBeNull();
@@ -464,7 +464,7 @@ test("warns about stored entries that could not be read until a save drops them"
 	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
 		"2 saved restaurants could not be read and were skipped. They will be removed the next time the list changes.",
 	);
-	addRestaurant({ name: "Fresh", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Fresh", tags: [], link: "", notes: "" });
 	await el.updateComplete;
 	expect(el.shadowRoot!.querySelector(".skipped")).toBeNull();
 });
@@ -506,7 +506,7 @@ test("the reset prompt is padded on every side inside its card, not a squeezed l
 });
 
 test("reset asks for confirmation and can be cancelled", async () => {
-	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
 	const el = await mount();
 	expect($(el, 'button[data-action="reset-confirm"]')).toBeNull();
 	await click(el, 'button[data-action="reset"]');
@@ -531,7 +531,7 @@ test("reset moves focus to the confirm button, cancel moves it back", async () =
 });
 
 test("confirming reset deletes everything in localStorage", async () => {
-	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
 	setLang("th");
 	localStorage.setItem("whattoeat:theme", "dark");
 	const el = await mount();

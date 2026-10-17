@@ -234,15 +234,21 @@ export class RandomPicker extends LitElement {
 				font-size: 0.875rem;
 			}
 
-			.result .location {
-				display: flex;
-				align-items: center;
-				gap: 0.375rem;
-				font-size: 0.875rem;
+			/* The name opens the restaurant's link; the icon says it leaves the app. */
+			.result h2 a {
+				color: inherit;
+				text-decoration: underline;
+				text-decoration-color: var(--color-border);
+				text-underline-offset: 0.2em;
 			}
 
-			.result .location .icon {
-				flex: none;
+			.result h2 a:hover {
+				text-decoration-color: currentColor;
+			}
+
+			.result h2 a .icon {
+				margin-inline-start: 0.375rem;
+				vertical-align: -0.0625em;
 				color: var(--color-muted);
 			}
 
@@ -828,19 +834,12 @@ export class RandomPicker extends LitElement {
 	private renderResult(item: Restaurant) {
 		return html`
 			<article class="card result ${this.visited?.id === item.id ? "visited" : ""}">
-				<h2>${item.name}</h2>
+				<h2>${
+					isLink(item.link)
+						? html`<a href=${item.link} target="_blank" rel="noopener noreferrer">${item.name}${icon("external", 16)}</a>`
+						: item.name
+				}</h2>
 				${metaLine(item) ? html`<p class="meta">${metaLine(item)}</p>` : nothing}
-				${
-					item.location
-						? html`<p class="location">${icon("pin", 16)}
-								${
-									isLink(item.location)
-										? html`<a href=${item.location} target="_blank" rel="noopener noreferrer">${item.location}</a>`
-										: item.location
-								}
-							</p>`
-						: nothing
-				}
 				${item.notes ? html`<p class="notes">${item.notes}</p>` : nothing}
 				${restaurantChips(item, this.defs)}
 				<div class="foot">${this.renderVisit(item)}</div>

@@ -14,10 +14,16 @@ afterEach(() => {
 	localStorage.clear();
 });
 
-const mount = async (sha?: string, built?: Date) => {
+const mount = async (
+	sha?: string,
+	built?: Date,
+	pr?: { number: number; branch?: string },
+) => {
 	const el = document.createElement("app-footer");
 	el.sha = sha;
 	el.built = built;
+	el.pr = pr?.number;
+	el.branch = pr?.branch;
 	document.body.append(el);
 	await el.updateComplete;
 	return el;
@@ -47,12 +53,65 @@ test("links the commit by its short sha", async () => {
 	expect(commit?.textContent?.trim()).toBe("0123456");
 });
 
+const text = (node: Element | null | undefined) =>
+	node?.textContent?.replace(/\s+/g, " ").trim();
+
+test("points the source of a preview build at its pull request", async () => {
+	const el = await mount(SHA, undefined, {
+		number: 34,
+		branch: "worktree-foo",
+	});
+	const source = link(el, "source");
+	expect(source?.getAttribute("href")).toBe(
+		"https://github.com/kamontat/whattoeat/pull/34",
+	);
+	expect(source?.querySelector("b")?.textContent).toBe("Source on GitHub");
+	expect(text(source?.querySelector("small"))).toBe("#34 - worktree-foo");
+	expect(text(link(el, "commit"))).toBe("0123456");
+});
+
+test("leaves the branch out of the pull request without one", async () => {
+	const el = await mount(SHA, undefined, { number: 34 });
+	expect(text(link(el, "source")?.querySelector("small"))).toBe("#34");
+});
+
+test("shows no pull request for a production build", async () => {
+	const el = await mount(SHA);
+	expect(link(el, "source")?.querySelector("small")).toBeNull();
+});
+
+const env = (el: HTMLElement) =>
+	el.shadowRoot!.querySelector('[data-row="env"]');
+
+test("names the production environment", async () => {
+	const el = await mount(SHA);
+	expect(env(el)?.querySelector("b")?.textContent).toBe("Environment");
+	expect(text(env(el)?.querySelector(".trail"))).toBe("production");
+});
+
+test("names the preview environment", async () => {
+	const el = await mount(SHA, undefined, { number: 34 });
+	expect(text(env(el)?.querySelector(".trail"))).toBe("preview");
+});
+
+test("shows no environment for a development build", async () => {
+	const el = await mount();
+	expect(env(el)).toBeNull();
+});
+
 test("shows the build date in a time element", async () => {
 	const el = await mount(SHA, new Date("2026-10-13T08:30:00Z"));
 	const time = el.shadowRoot!.querySelector("time");
 	expect(time?.getAttribute("datetime")).toBe("2026-10-13T08:30:00.000Z");
 	expect(time?.textContent).toContain("2026");
 	expect(el.shadowRoot!.textContent).toContain("Built");
+});
+
+test("lays the build date out like the environment, title left and value right", async () => {
+	const el = await mount(SHA, new Date("2026-10-13T08:30:00Z"));
+	const row = el.shadowRoot!.querySelector('[data-row="built"]');
+	expect(row?.querySelector(".grow b")?.textContent).toBe("Built");
+	expect(row?.querySelector(".trail time")).not.toBeNull();
 });
 
 test("shows the time zone of the build time", async () => {
@@ -88,12 +147,18 @@ test("follows the language", async () => {
 	expect(link(el, "source")?.textContent?.trim()).toBe("ซอร์สโค้ดบน GitHub");
 	expect(link(el, "changelog")?.textContent?.trim()).toBe("บันทึกการเปลี่ยนแปลง");
 	expect(el.shadowRoot!.textContent).toContain("สร้างเมื่อ");
+	expect(env(el)?.querySelector("b")?.textContent).toBe("สภาพแวดล้อม");
 });
 
 test("lays the links out as list rows", async () => {
 	const el = await mount(SHA, new Date("2026-10-15T08:00:00Z"));
 	const rows = [...el.shadowRoot!.querySelectorAll(".group > .item")];
 	expect(
-		rows.map((row) => row.getAttribute("data-link") ?? row.tagName),
-	).toEqual(["source", "changelog", "commit", "DIV"]);
+		rows.map(
+			(row) =>
+				row.getAttribute("data-link") ??
+				row.getAttribute("data-row") ??
+				row.tagName,
+		),
+	).toEqual(["source", "changelog", "commit", "env", "built"]);
 });

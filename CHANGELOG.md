@@ -2,12 +2,23 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-17: Neighbourhood presets and search restaurants by name
+## 2026-10-17: Neighbourhood presets, search by name and restaurant links
+
+### BREAKING CHANGES
+
+- A restaurant's `location` is now `link`, and the export format goes from version 4 to 5.
+  Saved data and imported files convert on read: a location that is a link becomes the
+  link, and any other location moves to the first line of the notes. Code that reads or
+  writes `location` must use `link`.
+- The restaurant form only accepts a link starting with `https://` or `http://`; free text
+  such as "Central Ladprao, 4F" now belongs in Notes.
 
 ### Features
 
 - A Neighbourhoods page at `/settings/presets` fills the list from ready-made restaurant lists
-  bundled with the site: Ladprao (144 restaurants) and Ratchayothin (55). Tick one or more,
+  bundled with the site: Ladprao (144 restaurants), Ratchayothin (55), Siam (29, across Siam
+  Paragon, Siam Center and Siam Square One) and Ngamwongwan (12, at The Mall Ngamwongwan, the
+  first preset outside Bangkok, under Nonthaburi). Tick one or more,
   grouped by district, and press **Add to my list** to merge them in, or switch to **Replace
   my list** to swap the whole list after an inline confirm. Both offer Undo for 6 seconds.
   Presets you have added show **Added**; one whose list changed since shows **Update**.
@@ -32,8 +43,23 @@ What changed in this project and why, newest first.
   keyboard away so every result is in view. On wide screens `/` opens search and `Esc`
   closes it.
 
+- A pull request preview marks itself on every page: an amber line where the page meets the
+  nav (on top of the phone tab bar, under the wide top bar), and a browser tab title starting
+  with `[Preview]`. Production shows neither.
+- Settings › About names a preview's pull request: **Source on GitHub** shows `#34 -
+  branch-name` beneath and opens the pull request. A new **Environment** row reads
+  `production` or `preview`. The preview workflow passes the number and branch to the build
+  as `BUN_PUBLIC_PR_NUMBER` and `BUN_PUBLIC_BRANCH`.
+
+- A restaurant can have a link: a map, its website or a social page. On the Home result its
+  name opens the link in a new tab, and in the Restaurants list an open-link button sits
+  beside the row.
+
 ### Improvements
 
+- The Ratchayothin preset drops Ohkajhu at Major Ratchayothin (closed), moves Sushiro there
+  to 2F, and adds After You, a dessert cafe on 1F. It shows **Update** for anyone who added
+  it before.
 - On phones the Restaurants title row, and the search field while searching, stay at the top
   of the screen, so search is one tap away in a long list.
 - Editing from the results keeps the search; after a save, focus lands on the saved
@@ -62,6 +88,15 @@ What changed in this project and why, newest first.
   shows a short message with an optional action button.
 - A page whose pinned bar is taller than Home's sets `--pinned-space` from its measured
   height, so the Undo message and keyboard scrolling clear the whole bar.
+- The **Built** row in Settings › About puts its title on the left and the date on the right,
+  like **Environment**.
+- The wide top bar is shorter: 64px on touch screens and 52px with a mouse, down from 76px and
+  60px.
+- A new `preset-data` agent skill covers creating and updating neighbourhood presets, from web
+  research or a pasted list, with the field conventions of the existing files. Its
+  `upsert-preset.ts` script applies a small draft to a preset file, giving new restaurants ids
+  that no other preset uses, setting timestamps and the index entry's `updatedAt`, and keeping
+  each restaurant's place and floor as the first line of its notes.
 
 ### Bug fixes
 
@@ -107,6 +142,17 @@ What changed in this project and why, newest first.
 - The preset index is committed and edited by hand rather than generated during the build,
   which stays a single `bun-server` command; a test keeps it honest.
 - Three follow-ups that only matter once there are more presets are in `TODO.md`.
+- The preview marker started as a "Preview #34" label, first at the top of the screen and
+  then on the phone tab bar. It covered page titles in one spot and caught taps meant for the
+  tabs in the other, so it became a line with no text or tap target. The pull request details
+  moved to Settings › About, where they are one tap from the source link.
+- Environment is worked out from whether a pull request number was passed in, rather than
+  from a separate variable that could disagree with it.
+- In the Restaurants list the link is a button beside the row rather than the name itself,
+  because the whole row is already the edit button and a link cannot sit inside a button.
+- An old text location goes into the notes rather than being dropped, so nothing typed is
+  lost. The bundled Ladprao and Ratchayothin presets were rewritten the same way, so their
+  mall and floor now lead each note.
 
 ## 2026-10-16: Mobile redesign, one-tap JSON paste and shared restaurant names
 

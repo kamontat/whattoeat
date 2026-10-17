@@ -24,7 +24,7 @@ afterEach(() => {
 	localStorage.clear();
 });
 
-const blank = { tags: [], location: "", notes: "" };
+const blank = { tags: [], link: "", notes: "" };
 
 const mount = async () => {
 	const el = document.createElement("restaurant-manager");
@@ -141,7 +141,7 @@ test("a blank name shows an error and saves nothing", async () => {
 });
 
 test("a name already in the list saves another restaurant", async () => {
-	addRestaurant({ name: "Jay Fai", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Jay Fai", tags: [], link: "", notes: "" });
 	const el = await mountForm();
 	type(el, "#name", "Jay Fai");
 	await submit(el);
@@ -153,14 +153,33 @@ test("a name already in the list saves another restaurant", async () => {
 });
 
 test("editing can take another restaurant's name", async () => {
-	addRestaurant({ name: "A", tags: [], location: "", notes: "" });
-	addRestaurant({ name: "B", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "A", tags: [], link: "", notes: "" });
+	addRestaurant({ name: "B", tags: [], link: "", notes: "" });
 	const el = await mount();
 	await click(el, 'li[data-id] button[data-action="edit"]');
 	type(el, "#name", "B");
 	await submit(el);
 	expect($(el, "#name-error")).toBeNull();
 	expect(loadRestaurants()).toMatchObject([{ name: "B" }, { name: "B" }]);
+});
+
+test("a link that is not http(s) shows an error and saves nothing", async () => {
+	const el = await mountForm();
+	type(el, "#name", "Cafe");
+	type(el, "#link", "Siam, 2F");
+	await submit(el);
+	expect($(el, "#link-error")?.textContent?.trim()).toBe(
+		"Enter a link that starts with https:// or http://.",
+	);
+	expect($(el, "#link")?.getAttribute("aria-invalid")).toBe("true");
+	expect(loadRestaurants()).toEqual([]);
+	type(el, "#link", "https://maps.example/cafe");
+	await el.updateComplete;
+	expect($(el, "#link-error")).toBeNull();
+	await submit(el);
+	expect(loadRestaurants()).toMatchObject([
+		{ name: "Cafe", link: "https://maps.example/cafe" },
+	]);
 });
 
 test("typing in the name clears the error", async () => {
@@ -175,14 +194,14 @@ test("adds a restaurant with cleaned tags and resets the form", async () => {
 	const el = await mountForm();
 	type(el, "#name", " Jay Fai ");
 	await typeTags(el, " Thai, ,noodle ,thai,");
-	type(el, "#location", "Bangkok");
+	type(el, "#link", " https://maps.example/jayfai ");
 	type(el, "#notes", "Queue early");
 	await submit(el);
 	expect(loadRestaurants()).toMatchObject([
 		{
 			name: "Jay Fai",
 			tags: ["thai", "noodle"],
-			location: "Bangkok",
+			link: "https://maps.example/jayfai",
 			notes: "Queue early",
 		},
 	]);
@@ -214,10 +233,10 @@ test("suggests existing tags, most used first", async () => {
 	addRestaurant({
 		name: "A",
 		tags: ["thai", "noodle"],
-		location: "",
+		link: "",
 		notes: "",
 	});
-	addRestaurant({ name: "B", tags: ["noodle"], location: "", notes: "" });
+	addRestaurant({ name: "B", tags: ["noodle"], link: "", notes: "" });
 	const el = await mountForm();
 	expect(tagInput(el).suggestions).toEqual(["noodle", "thai"]);
 	expect(tagInput(el).label).toBe("Tags");
@@ -227,17 +246,17 @@ test("suggests existing tags, most used first", async () => {
 });
 
 test("lists restaurants sorted by name", async () => {
-	addRestaurant({ name: "Zab", tags: [], location: "", notes: "" });
-	addRestaurant({ name: "Ant", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Zab", tags: [], link: "", notes: "" });
+	addRestaurant({ name: "Ant", tags: [], link: "", notes: "" });
 	const el = await mount();
 	expect(rowNames(el)).toEqual(["Ant", "Zab"]);
 });
 
-test("rows show the name and type line only; location and notes stay in the form", async () => {
+test("rows show the name and type line only; a non-http link and notes stay in the form", async () => {
 	addRestaurant({
 		name: "Sneaky",
 		tags: ["x"],
-		location: "javascript:alert(1)",
+		link: "javascript:alert(1)",
 		notes: "secret",
 		kinds: ["food"],
 	});
@@ -249,16 +268,14 @@ test("rows show the name and type line only; location and notes stay in the form
 	expect(row.textContent).not.toContain("javascript:alert(1)");
 	expect(row.textContent).not.toContain("secret");
 	await click(el, 'li[data-id] button[data-action="edit"]');
-	expect($<HTMLInputElement>(el, "#location")?.value).toBe(
-		"javascript:alert(1)",
-	);
+	expect($<HTMLInputElement>(el, "#link")?.value).toBe("javascript:alert(1)");
 });
 
 test("edit fills the form and save updates the restaurant", async () => {
 	addRestaurant({
 		name: "Old",
 		tags: ["a", "b"],
-		location: "Here",
+		link: "https://here.example",
 		notes: "n",
 	});
 	const el = await mount();
@@ -270,7 +287,7 @@ test("edit fills the form and save updates the restaurant", async () => {
 	type(el, "#name", "New");
 	await submit(el);
 	expect(loadRestaurants()).toMatchObject([
-		{ name: "New", tags: ["a", "b"], location: "Here", notes: "n" },
+		{ name: "New", tags: ["a", "b"], link: "https://here.example", notes: "n" },
 	]);
 	expect(loadRestaurants()).toHaveLength(1);
 	await click(el, ".head button.add");
@@ -445,7 +462,7 @@ test("type and group labels render in Thai", async () => {
 });
 
 test("cancel edit resets the form without saving", async () => {
-	addRestaurant({ name: "Keep", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Keep", tags: [], link: "", notes: "" });
 	const el = await mount();
 	await click(el, 'button[data-action="edit"]');
 	type(el, "#name", "Changed");
@@ -462,7 +479,7 @@ test("cancel edit resets the form without saving", async () => {
 });
 
 test("delete needs confirmation", async () => {
-	addRestaurant({ name: "Bye", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Bye", tags: [], link: "", notes: "" });
 	const el = await mount();
 	await click(el, 'button[data-action="edit"]');
 	await click(el, 'button[data-action="delete"]');
@@ -479,7 +496,7 @@ test("an edit saved elsewhere reloads the open form instead of being overwritten
 	const [item] = addRestaurant({
 		name: "Mine",
 		tags: [],
-		location: "",
+		link: "",
 		notes: "",
 	});
 	const el = await mount();
@@ -487,7 +504,7 @@ test("an edit saved elsewhere reloads the open form instead of being overwritten
 	// Another tab saves a newer version of the same restaurant.
 	updateRestaurant(
 		item!.id,
-		{ name: "Theirs", tags: ["new"], location: "", notes: "" },
+		{ name: "Theirs", tags: ["new"], link: "", notes: "" },
 		new Date(Date.now() + 1000),
 	);
 	await el.updateComplete;
@@ -498,7 +515,7 @@ test("an edit saved elsewhere reloads the open form instead of being overwritten
 });
 
 test("deleting the restaurant being edited resets the form", async () => {
-	addRestaurant({ name: "Editing", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Editing", tags: [], link: "", notes: "" });
 	const el = await mount();
 	await click(el, 'button[data-action="edit"]');
 	await click(el, 'button[data-action="delete"]');
@@ -519,7 +536,7 @@ test("re-renders labels in Thai", async () => {
 });
 
 test("delete moves focus to the confirm button, cancel moves it back", async () => {
-	addRestaurant({ name: "Bye", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Bye", tags: [], link: "", notes: "" });
 	const el = await mount();
 	await click(el, 'button[data-action="edit"]');
 	await click(el, 'button[data-action="delete"]');
@@ -545,7 +562,7 @@ test("warns when the browser refuses to save", async () => {
 		configurable: true,
 	});
 	try {
-		addRestaurant({ name: "Lost", tags: [], location: "", notes: "" });
+		addRestaurant({ name: "Lost", tags: [], link: "", notes: "" });
 		await el.updateComplete;
 		expect($(el, ".warning")?.textContent?.trim()).toBe(
 			"Your browser is not saving changes. They will be lost when you leave this page.",
@@ -560,8 +577,8 @@ test("warns when the browser refuses to save", async () => {
 });
 
 test("starting an edit drops text left in the tag box", async () => {
-	addRestaurant({ name: "A", tags: ["x"], location: "", notes: "" });
-	addRestaurant({ name: "B", tags: ["y"], location: "", notes: "" });
+	addRestaurant({ name: "A", tags: ["x"], link: "", notes: "" });
+	addRestaurant({ name: "B", tags: ["y"], link: "", notes: "" });
 	const el = await mountForm();
 	await typeTags(el, "spi");
 	const editB = [...$$(el, "li[data-id]")]
@@ -582,7 +599,7 @@ test("warns about stored entries that could not be read until a save drops them"
 	expect($(el, ".skipped")?.textContent?.trim()).toBe(
 		"2 saved restaurants could not be read and were skipped. They will be removed the next time the list changes.",
 	);
-	addRestaurant({ name: "Fresh", tags: [], location: "", notes: "" });
+	addRestaurant({ name: "Fresh", tags: [], link: "", notes: "" });
 	await el.updateComplete;
 	expect($(el, ".skipped")).toBeNull();
 });
@@ -595,10 +612,10 @@ test("uses the singular when one stored entry could not be read", async () => {
 	);
 });
 
-test("the form asks for name, type, groups, location, then tags and notes", async () => {
+test("the form asks for name, type, groups, link, then tags and notes", async () => {
 	const el = await mountForm();
 	const order = [
-		...$$(el, "#name, fieldset.kinds, tag-input, #location, #notes"),
+		...$$(el, "#name, fieldset.kinds, tag-input, #link, #notes"),
 	].map(
 		(node) =>
 			(node instanceof HTMLElement && node.getAttribute("data-group")) ||
@@ -610,7 +627,7 @@ test("the form asks for name, type, groups, location, then tags and notes", asyn
 		"kinds",
 		"cuisine",
 		"area",
-		"location",
+		"link",
 		"tags",
 		"notes",
 	]);

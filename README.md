@@ -384,6 +384,7 @@ that teach an agent this repository's workflow and conventions:
 | `ui-components`      | Lit component conventions, shadow DOM styling, events, happy-dom test limits |
 | `build-and-deploy`   | the build, `--statics`, `wrangler.jsonc`, workflows, pinned action SHAs      |
 | `repo-scripts`       | package scripts, what `check` reads, TypeScript and Biome strictness         |
+| `preset-data`        | creating or updating a neighbourhood preset, with a script for the JSON      |
 
 `shipping-a-change` and `landing-a-change` assume merge commits are allowed and
 head branches are deleted after merge (`gh repo edit --enable-merge-commit

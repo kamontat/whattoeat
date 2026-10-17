@@ -18,10 +18,6 @@ then delete it here when it ships.
 
 ## Data
 
-- **Location as a link.** The location field accepts only a link (for example a map URL),
-  not free text. When a restaurant has a link, its name becomes clickable on the random
-  result and in the restaurant list. Needs URL validation in the form and a decision on
-  existing free-text locations.
 - **Cloud sync or a shared list.** One list for a group or across devices without manual
   export and import. Needs a backend (for example Cloudflare KV or D1 behind the Worker),
   sign-in or share links, and conflict handling; the biggest change on this list.

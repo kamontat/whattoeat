@@ -49,6 +49,7 @@ const NAMES = [
 	"border",
 	"danger",
 	"success",
+	"preview",
 	"focus",
 ];
 

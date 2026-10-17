@@ -18,7 +18,7 @@ import { type GroupDef, loadGroups, onGroupsChanged } from "#lib/groups";
 import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
-import type { Restaurant } from "#lib/restaurant";
+import { isLink, type Restaurant } from "#lib/restaurant";
 import { countText } from "#lib/search";
 import {
 	addRestaurant,
@@ -212,6 +212,9 @@ export class RestaurantManager extends LitElement {
 	@state()
 	private nameError: "manager.nameRequired" | undefined;
 
+	@state()
+	private linkError: "manager.linkInvalid" | undefined;
+
 	/** Stored entries the last load could not read. */
 	@state()
 	private skipped = 0;
@@ -354,6 +357,7 @@ export class RestaurantManager extends LitElement {
 			editingId: this.editingId,
 			confirmingId: this.confirmingId,
 			nameError: this.nameError,
+			linkError: this.linkError,
 		};
 	}
 
@@ -361,20 +365,22 @@ export class RestaurantManager extends LitElement {
 		this.form = EMPTY_FORM;
 		this.editingId = undefined;
 		this.nameError = undefined;
+		this.linkError = undefined;
 		for (const form of this.forms) form.clearText();
 	}
 
 	private readonly onFormChange = (event: CustomEvent<FormState>): void => {
 		if (event.detail.name !== this.form.name) this.nameError = undefined;
+		if (event.detail.link !== this.form.link) this.linkError = undefined;
 		this.form = event.detail;
 	};
 
 	private readonly onFormSubmit = (event: CustomEvent<FormState>): void => {
 		const input = event.detail;
-		if (input.name.trim() === "") {
-			this.nameError = "manager.nameRequired";
-			return;
-		}
+		const link = input.link.trim();
+		if (input.name.trim() === "") this.nameError = "manager.nameRequired";
+		if (link !== "" && !isLink(link)) this.linkError = "manager.linkInvalid";
+		if (this.nameError !== undefined || this.linkError !== undefined) return;
 		const editingId = this.editingId;
 		const name = input.name.trim();
 		const wasSearching = this.searching;
@@ -400,6 +406,7 @@ export class RestaurantManager extends LitElement {
 		this.editingId = item.id;
 		this.editingUpdatedAt = item.updatedAt;
 		this.nameError = undefined;
+		this.linkError = undefined;
 		this.form = formFromRestaurant(item);
 	}
 

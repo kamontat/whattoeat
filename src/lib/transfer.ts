@@ -13,14 +13,14 @@ import {
 } from "#lib/history";
 import { cleanStored, isRestaurant, type Restaurant } from "#lib/restaurant";
 
-export const EXPORT_VERSION = 4;
+export const EXPORT_VERSION = 5;
 
 /**
  * Version 1 files predate history; they still import, with no history. Version 2 files call
  * each visit's time `lockedAt`. Versions 1–3 have no group list and keep area and cuisine as
- * single strings.
+ * single strings. Versions 1–4 keep a free-text `location` where version 5 has a `link`.
  */
-const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3, EXPORT_VERSION];
+const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3, 4, EXPORT_VERSION];
 
 export type ExportFile = {
 	app: "whattoeat";
@@ -120,7 +120,7 @@ export const parseImport = (text: string): ImportResult => {
 		history = newestFirst(entries.map(cleanEntry));
 	}
 	let groups: GroupDef[] | undefined;
-	if (file.version === EXPORT_VERSION) {
+	if (file.version === 4 || file.version === EXPORT_VERSION) {
 		if (!Array.isArray(file.groups))
 			return { ok: false, error: "import.error.format" };
 		if (
