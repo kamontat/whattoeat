@@ -101,7 +101,7 @@ test.each(pages)(
 	},
 );
 
-test("home and restaurants opt into room for their pinned buttons; other pages do not", async () => {
+test("home, restaurants and settings/presets opt into room for their pinned areas; other pages do not", async () => {
 	for (const page of pages) {
 		const html = await Bun.file(`src/routes/${page}`).text();
 		const tag = html.match(/<html[^>]*>/)?.[0];

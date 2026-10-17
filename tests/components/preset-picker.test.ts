@@ -972,7 +972,7 @@ test("one file failing leaves storage untouched, keeps the selection, and shows 
 	}
 });
 
-test('a refused write shows the storage warning and "Added for this session only"; Undo after Replace still restores the in-memory list', async () => {
+test('a refused write shows the storage warning and "Replaced for this session only"; Undo after Replace still restores the in-memory list', async () => {
 	saveRestaurants([make("s1"), make("s2")]);
 	const { restore } = stubRoutes();
 	// happy-dom bypasses a mocked Storage.prototype.setItem after real writes (see store.test.ts),
@@ -1004,7 +1004,7 @@ test('a refused write shows the storage warning and "Added for this session only
 		expect(warning?.textContent?.trim()).toBe(
 			"Your browser is not saving changes. They will be lost when you leave this page.",
 		);
-		expect(toastText(el)).toBe("Added for this session only");
+		expect(toastText(el)).toBe("Replaced for this session only");
 		expect(toastAction(el)?.textContent?.trim()).toBe("Undo");
 
 		await clickUndo(el);
@@ -1055,7 +1055,7 @@ test("when only the restaurant list write is refused, whattoeat:presets in stora
 		await setChecked(el, "ratchayothin", true);
 		await press(el, '[data-action="apply"]');
 		await press(el, '[data-action="replace-confirm"]');
-		expect(toastText(el)).toBe("Added for this session only");
+		expect(toastText(el)).toBe("Replaced for this session only");
 		expect(savedIdsNow()).toEqual(["r1", "shared"]);
 		expect(real.getItem(PRESETS_KEY)).toBe(presets);
 		expect(storedIds()).toEqual(["s1", "s2"]);
@@ -1110,5 +1110,231 @@ test("the no-match line is a status", async () => {
 		expect($(el, ".no-match")?.getAttribute("role")).toBe("status");
 	} finally {
 		restore();
+	}
+});
+
+// --- Final review fixes ---
+
+/** Swap `globalThis.ResizeObserver` for a fake whose callback the test drives. */
+const fakeResizeObserver = () => {
+	const real = globalThis.ResizeObserver;
+	const state: {
+		callback: ResizeObserverCallback | undefined;
+		observed: Element[];
+		disconnected: boolean;
+	} = { callback: undefined, observed: [], disconnected: false };
+	class Fake {
+		constructor(callback: ResizeObserverCallback) {
+			state.callback = callback;
+		}
+		observe(target: Element): void {
+			state.observed.push(target);
+		}
+		unobserve(target: Element): void {
+			state.observed = state.observed.filter((item) => item !== target);
+		}
+		disconnect(): void {
+			state.disconnected = true;
+			state.observed = [];
+		}
+	}
+	globalThis.ResizeObserver = Fake as unknown as typeof ResizeObserver;
+	/** Report `height` px for every observed element. */
+	const resize = (height: number): void => {
+		state.callback?.(
+			state.observed.map(
+				(target) =>
+					({
+						target,
+						borderBoxSize: [{ blockSize: height, inlineSize: 320 }],
+					}) as unknown as ResizeObserverEntry,
+			),
+			{} as ResizeObserver,
+		);
+	};
+	return {
+		state,
+		resize,
+		restore: () => {
+			globalThis.ResizeObserver = real;
+		},
+	};
+};
+
+const pinnedSpace = (): string =>
+	document.documentElement.style.getPropertyValue("--pinned-space");
+
+test("the pinned area's measured height sets --pinned-space on the page root, and leaving clears it", async () => {
+	saveRestaurants([make("s1")]);
+	const ro = fakeResizeObserver();
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		expect(ro.state.observed.length).toBe(1);
+		expect(ro.state.observed[0] === $(el, ".pinned")).toBe(true);
+		ro.resize(122);
+		expect(pinnedSpace()).toBe("122px");
+
+		// The confirm card is a new pinned element; it is measured instead.
+		await setMode(el, "replace");
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+		expect($(el, ".confirm")).not.toBeNull();
+		expect(ro.state.observed.length).toBe(1);
+		expect(ro.state.observed[0] === $(el, ".pinned")).toBe(true);
+		ro.resize(150);
+		expect(pinnedSpace()).toBe("150px");
+
+		el.remove();
+		expect(ro.state.disconnected).toBe(true);
+		expect(pinnedSpace()).toBe("");
+	} finally {
+		ro.restore();
+		restore();
+		document.documentElement.style.removeProperty("--pinned-space");
+	}
+});
+
+test("without ResizeObserver, --pinned-space falls back to a static room for the switch and button", async () => {
+	const real = globalThis.ResizeObserver;
+	// Simulate a browser without ResizeObserver.
+	Object.defineProperty(globalThis, "ResizeObserver", {
+		value: undefined,
+		configurable: true,
+		writable: true,
+	});
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		expect(pinnedSpace()).toBe("9.5rem");
+		el.remove();
+		expect(pinnedSpace()).toBe("");
+	} finally {
+		globalThis.ResizeObserver = real;
+		restore();
+		document.documentElement.style.removeProperty("--pinned-space");
+	}
+});
+
+test("focus moves to the pinned action after Add, after Undo, and after a confirmed Replace", async () => {
+	saveRestaurants([make("s1")]);
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		const focused = () =>
+			el.shadowRoot!.activeElement?.getAttribute("data-action");
+
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+		await el.updateComplete;
+		expect(focused()).toBe("go-picker");
+
+		(document.activeElement as HTMLElement | null)?.blur();
+		await clickUndo(el);
+		await el.updateComplete;
+		expect(focused()).toBe("go-picker");
+
+		await setMode(el, "replace");
+		await setChecked(el, "kaset", true);
+		await press(el, '[data-action="apply"]');
+		await press(el, '[data-action="replace-confirm"]');
+		await el.updateComplete;
+		expect(focused()).toBe("go-picker");
+	} finally {
+		restore();
+	}
+});
+
+test("Replace then Undo restores the stored list and whattoeat:presets exactly", async () => {
+	saveRestaurants([make("s1", "First"), make("s2", "Second")]);
+	const presets = JSON.stringify([
+		{ id: "kaset", updatedAt: "2026-10-01", ids: ["s1"] },
+	]);
+	localStorage.setItem(PRESETS_KEY, presets);
+	const listBefore = localStorage.getItem("whattoeat:restaurants");
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		await setMode(el, "replace");
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+		await press(el, '[data-action="replace-confirm"]');
+		expect(storedIds()).toEqual(["l1", "l2", "shared"]);
+		expect(localStorage.getItem(PRESETS_KEY)).not.toBe(presets);
+
+		await clickUndo(el);
+		// Same records field for field (the store may write keys in its own order).
+		expect(
+			JSON.parse(localStorage.getItem("whattoeat:restaurants") ?? "null"),
+		).toEqual(JSON.parse(listBefore ?? ""));
+		expect(localStorage.getItem(PRESETS_KEY)).toBe(presets);
+	} finally {
+		restore();
+	}
+});
+
+test("a refused write after Replace has its own Thai message too", async () => {
+	setLang("th");
+	saveRestaurants([make("s1")]);
+	const { restore } = stubRoutes();
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: (key: string) => real.getItem(key),
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+		},
+		configurable: true,
+	});
+	try {
+		const el = await mount();
+		await setMode(el, "replace");
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+		await press(el, '[data-action="replace-confirm"]');
+		expect(toastText(el)).toBe("แทนที่ไว้เฉพาะครั้งนี้เท่านั้น");
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		restore();
+		saveRestaurants([]);
+	}
+});
+
+test("while a save is in flight, the row checkboxes and the mode switch are disabled", async () => {
+	saveRestaurants([make("s1")]);
+	let release: () => void = () => {};
+	const gate = new Promise<void>((resolve) => {
+		release = resolve;
+	});
+	const spy = spyOn(globalThis, "fetch").mockImplementation(((
+		input: RequestInfo | URL,
+	) => {
+		const url = String(input);
+		if (url.endsWith("index.json")) return jsonResponse(INDEX_M);
+		return gate.then(() => jsonResponse(FILES["ladprao"]));
+	}) as typeof fetch);
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		($(el, '[data-action="apply"]') as HTMLButtonElement).click();
+		await el.updateComplete;
+		for (const box of $$(el, "[data-preset] input"))
+			expect((box as HTMLInputElement).disabled).toBe(true);
+		for (const mode of ["add", "replace"] as const)
+			expect(modeInput(el, mode).disabled).toBe(true);
+
+		release();
+		await flush(el);
+		await flush(el);
+		expect(modeInput(el, "add").disabled).toBe(false);
+		expect(
+			($(el, '[data-preset="kaset"] input') as HTMLInputElement).disabled,
+		).toBe(false);
+	} finally {
+		spy.mockRestore();
 	}
 });

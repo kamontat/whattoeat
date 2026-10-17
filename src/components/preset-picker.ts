@@ -47,6 +47,12 @@ const restaurantsText = (n: number): string =>
 		? t("presets.restaurants.one")
 		: t("presets.restaurants.other", { n });
 
+/**
+ * Room for the pinned area where ResizeObserver is missing: the switch, the Replace warning
+ * line and the button, at phone size. Measured otherwise.
+ */
+const PINNED_FALLBACK = "9.5rem";
+
 /** Above this many presets a search box earns its place. */
 const SEARCH_THRESHOLD = 7;
 
@@ -240,6 +246,17 @@ export class PresetPicker extends LitElement {
 
 	private unsubscribe: (() => void) | undefined;
 
+	/**
+	 * Measures the pinned area and publishes its height as `--pinned-space` on the page root,
+	 * so the toast sits above it and `scroll-padding-bottom` keeps focused rows clear of it.
+	 * The area grows with the Replace warning line and the confirm card, and stays pinned on
+	 * wide screens too, so the static `html.has-pinned` value (sized for Home) is not enough.
+	 */
+	private resizeObserver: ResizeObserver | undefined;
+
+	/** The `.pinned` element being measured; each render branch makes its own. */
+	private measured: Element | undefined;
+
 	override connectedCallback(): void {
 		super.connectedCallback();
 		this.mode = "add";
@@ -247,6 +264,13 @@ export class PresetPicker extends LitElement {
 		this.ownToast = document.querySelector("app-toast") === null;
 		this.reloadStore();
 		this.unsubscribe = onRestaurantsChanged(() => this.reloadStore());
+		if (typeof ResizeObserver === "function")
+			this.resizeObserver = new ResizeObserver(this.onPinnedResize);
+		else
+			document.documentElement.style.setProperty(
+				"--pinned-space",
+				PINNED_FALLBACK,
+			);
 		void this.loadIndex();
 	}
 
@@ -254,7 +278,35 @@ export class PresetPicker extends LitElement {
 		super.disconnectedCallback();
 		this.unsubscribe?.();
 		this.unsubscribe = undefined;
+		this.resizeObserver?.disconnect();
+		this.resizeObserver = undefined;
+		this.measured = undefined;
+		document.documentElement.style.removeProperty("--pinned-space");
 	}
+
+	override updated(): void {
+		const observer = this.resizeObserver;
+		if (observer === undefined) return;
+		const pinned = this.renderRoot.querySelector(".pinned") ?? undefined;
+		if (pinned === this.measured) return;
+		if (this.measured !== undefined) observer.unobserve(this.measured);
+		if (pinned !== undefined) observer.observe(pinned);
+		this.measured = pinned;
+	}
+
+	private readonly onPinnedResize = (
+		entries: readonly ResizeObserverEntry[],
+	): void => {
+		const entry = entries.at(-1);
+		if (entry === undefined) return;
+		const height =
+			entry.borderBoxSize?.[0]?.blockSize ??
+			entry.target.getBoundingClientRect().height;
+		document.documentElement.style.setProperty(
+			"--pinned-space",
+			`${Math.ceil(height)}px`,
+		);
+	};
 
 	private reloadStore(): void {
 		this.savedIds = new Set(loadRestaurants().map((item) => item.id));
@@ -294,6 +346,13 @@ export class PresetPicker extends LitElement {
 		this.setMode(next);
 		this.focusAfterRender(() => this.modeInput(next));
 	};
+
+	/** The pinned area's action: the apply button, or the Go to picker link with nothing ticked. */
+	private pinnedAction(): Element | null {
+		return this.renderRoot.querySelector(
+			'[data-action="apply"], [data-action="go-picker"]',
+		);
+	}
 
 	/** The page's toast if it mounted one, otherwise our own. */
 	private toast(): AppToast | null {
@@ -395,7 +454,7 @@ export class PresetPicker extends LitElement {
 				saveAddedPresets(result.added);
 				message = t("presets.replaced", { count: result.list.length });
 			} else {
-				message = t("presets.sessionOnly");
+				message = t("presets.replacedSessionOnly");
 			}
 		}
 		this.snapshot = undoable ? before : undefined;
@@ -403,6 +462,8 @@ export class PresetPicker extends LitElement {
 		this.confirming = false;
 		this.selected = new Set();
 		this.reloadStore();
+		// The apply button (or the confirm card) just went away; keep focus in the pinned area.
+		this.focusAfterRender(() => this.pinnedAction());
 		await this.updateComplete;
 		this.toast()?.show(
 			message,
@@ -418,6 +479,8 @@ export class PresetPicker extends LitElement {
 		// Same rule as saving: the presets follow the list only once the list was stored.
 		if (saveRestaurants(snapshot.list)) saveAddedPresets(snapshot.added);
 		this.reloadStore();
+		// The toast's Undo button had focus and is gone now.
+		this.focusAfterRender(() => this.pinnedAction());
 		this.toast()?.show(t("presets.undone"), { duration: UNDONE_DURATION });
 	};
 
@@ -557,6 +620,7 @@ export class PresetPicker extends LitElement {
 							name="preset-mode"
 							value=${mode}
 							.checked=${live(this.mode === mode)}
+							?disabled=${this.busy}
 							@change=${() => this.setMode(mode)}
 						/>
 						<span>${t(mode === "add" ? "presets.mode.add" : "presets.mode.replace")}</span>
@@ -641,7 +705,7 @@ export class PresetPicker extends LitElement {
 
 	private renderSearch(index: PresetIndex) {
 		if (index.presets.length <= SEARCH_THRESHOLD) return nothing;
-		return html`<label class="search-field">
+		return html`<label>
 			<span class="visually-hidden">${t("presets.search")}</span>
 			<input
 				type="search"
@@ -704,7 +768,7 @@ export class PresetPicker extends LitElement {
 				<input
 					type="checkbox"
 					.checked=${checked}
-					?disabled=${locked}
+					?disabled=${locked || this.busy}
 					@change=${(event: Event) =>
 						this.toggle(entry.id, (event.target as HTMLInputElement).checked)}
 				/>

@@ -119,7 +119,10 @@
 	color-scheme: light;
 }
 
-/* A page with a pinned action (Home) reserves room for it above the tab bar. */
+/*
+ * A page with a pinned action (Home) reserves room for it above the tab bar. The presets page
+ * overrides this with its measured pinned height, set inline on the root by <preset-picker>.
+ */
 :root.has-pinned {
 	--pinned-space: 4.5rem;
 }
