@@ -2,6 +2,7 @@ import type { AppFooter } from "#components/app-footer";
 import type { AppHeader } from "#components/app-header";
 import type { AppPreferences } from "#components/app-preferences";
 import type { AppSheet } from "#components/app-sheet";
+import type { AppToast } from "#components/app-toast";
 import type { DataTransferPanel } from "#components/data-transfer";
 import type { HistoryClear } from "#components/history-clear";
 import type { RandomPicker } from "#components/random-picker";
@@ -16,6 +17,7 @@ declare global {
 		"app-header": AppHeader;
 		"app-preferences": AppPreferences;
 		"app-sheet": AppSheet;
+		"app-toast": AppToast;
 		"data-transfer": DataTransferPanel;
 		"history-clear": HistoryClear;
 		"visit-history": VisitHistory;
