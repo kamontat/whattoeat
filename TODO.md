@@ -26,6 +26,24 @@ then delete it here when it ships.
   export and import. Needs a backend (for example Cloudflare KV or D1 behind the Worker),
   sign-in or share links, and conflict handling; the biggest change on this list.
 
+## Neighbourhood presets
+
+None of these can happen with today's two presets in one city; each matters once the list
+grows.
+
+- **Show the matched mall in search.** A row's subtitle shows only the first two places and
+  "+N", so a search that matches a later place (for example "Soi 15" in Ladprao) shows the
+  row with nothing visible explaining why. While searching, show the matching place in place
+  of the second one. Search only appears above 7 presets.
+- **No chip for an empty city.** City chips come from the index's `cities` map, so a city
+  listed there with no presets gets a chip that shows an empty list. Build chips only from
+  cities that have presets, and add a test that flags a city or district no preset uses.
+  Chips only appear with 2 or more cities.
+- **Closer total for an Update row.** Ticking an "Update" preset counts its whole `count` in
+  the button ("Add 1 area · 144 restaurants") even when only a few are new; the message after
+  saving already gives the real number. Subtract the preset's recorded ids that are still
+  saved.
+
 ## Look and feel
 
 - **Work offline.** The installed app opens without a connection. Needs a service worker
