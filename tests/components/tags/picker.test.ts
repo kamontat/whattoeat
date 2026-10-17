@@ -22,7 +22,7 @@ const make = (
 	id,
 	name: id,
 	tags: [],
-	location: "",
+	link: "",
 	notes: "",
 	groups,
 	kinds: [],
