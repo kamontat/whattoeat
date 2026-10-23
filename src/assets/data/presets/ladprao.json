@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 6,
-	"exportedAt": "2026-10-23T10:02:27.445Z",
+	"exportedAt": "2026-10-23T10:24:30.196Z",
 	"restaurants": [
 		{
 			"id": "uu7b9Kul",
@@ -1603,7 +1603,7 @@
 			"id": "Hif0k7e1",
 			"name": {
 				"en": "Starbucks",
-				"th": ""
+				"th": "สตาร์บัคส์"
 			},
 			"link": "https://www.starbucks.co.th/",
 			"notes": "Union Mall, G",
@@ -1613,7 +1613,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T10:24:30.196Z"
 		},
 		{
 			"id": "xCTGecNF",
@@ -1996,9 +1996,9 @@
 			"id": "9Lt9pFrg",
 			"name": {
 				"en": "Karayama",
-				"th": ""
+				"th": "คารายามะ"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Karayama%20Lotus's%20Ladprao",
+			"link": "https://www.facebook.com/Karayama-Thailand-454784181583843/",
 			"notes": "Lotus's Ladprao\nJapanese fried chicken.",
 			"kinds": ["food"],
 			"groups": {
@@ -2007,7 +2007,7 @@
 			},
 			"tags": ["fried chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T10:24:30.196Z"
 		},
 		{
 			"id": "d88lRzye",

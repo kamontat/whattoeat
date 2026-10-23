@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 6,
-	"exportedAt": "2026-10-23T10:02:27.445Z",
+	"exportedAt": "2026-10-23T10:24:30.196Z",
 	"restaurants": [
 		{
 			"id": "5auiMZiG",
@@ -73,7 +73,7 @@
 			"id": "g4ahjKQ2",
 			"name": {
 				"en": "Starbucks",
-				"th": ""
+				"th": "สตาร์บัคส์"
 			},
 			"link": "https://www.starbucks.co.th/",
 			"notes": "The Mall Ngamwongwan, G",
@@ -83,7 +83,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T10:24:30.196Z"
 		},
 		{
 			"id": "nqxa69Nr",

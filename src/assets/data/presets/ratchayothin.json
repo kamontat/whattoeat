@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 6,
-	"exportedAt": "2026-10-23T10:02:27.445Z",
+	"exportedAt": "2026-10-23T10:24:30.196Z",
 	"restaurants": [
 		{
 			"id": "s1b53yJp",
@@ -406,7 +406,7 @@
 			"id": "IcGUVX6U",
 			"name": {
 				"en": "Starbucks",
-				"th": ""
+				"th": "สตาร์บัคส์"
 			},
 			"link": "https://www.starbucks.co.th/",
 			"notes": "Major Ratchayothin\nNear Villa Market.",
@@ -416,7 +416,7 @@
 			},
 			"tags": ["cafe", "coffee", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T10:24:30.196Z"
 		},
 		{
 			"id": "bmFXKgkL",
