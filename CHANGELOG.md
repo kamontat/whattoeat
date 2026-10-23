@@ -2,6 +2,39 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-23: Restaurant names in English and Thai
+
+### BREAKING CHANGES
+
+- A restaurant's `name` is now `{ en, th }` instead of a string, and the export format goes
+  from version 5 to 6. Saved lists and version 1–5 files convert on read; code that reads
+  `name` as a string must use `displayName` (or `localize`) instead.
+
+### Features
+
+- Each restaurant has an English and a Thai name. The add/edit form shows both fields, the
+  current language first, and needs at least one. Lists, the picker, history and prompts show
+  the current language's name and fall back to the other when it is empty.
+- Search on the Restaurants page matches either name; a row found only by its other-language
+  name shows that name, highlighted.
+
+### Improvements
+
+- Bundled presets are version 6 files with every name under `en`. The preset-data skill's
+  upsert script takes a draft `name` as a string (English) or `{ en, th }`, merges only the
+  languages given and matches existing restaurants by either name.
+- `Localized` and `localize` moved from `#lib/presets` to `#lib/i18n`, and `localize` now
+  falls back to the other language when the current one is blank.
+
+### Decisions
+
+- An old one-string name becomes Thai only when it is all Thai script with no Latin letters.
+  Preset names like `Sushiro (ซูชิโร่) - Siam Paragon` stay English: some brackets hold a
+  description rather than a name, so splitting them automatically would guess. Thai preset
+  names come in a later change.
+- History keeps each visit's name as one string, the name shown when Eat here was pressed;
+  a restaurant that still exists shows its current name in the current language.
+
 ## 2026-10-18: Delete only restaurants, and About names its environment
 
 ### Features
