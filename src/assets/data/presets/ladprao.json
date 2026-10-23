@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T16:22:21.587Z",
+	"exportedAt": "2026-10-23T16:38:05.588Z",
 	"restaurants": [
 		{
 			"id": "uu7b9Kul",
@@ -37,11 +37,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Seki%20Hand%20Roll%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/sekihandroll"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/sekihandroll/"
 				}
 			],
@@ -53,7 +53,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "OalNlbFc",
@@ -67,7 +67,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=OOTOYA%20OKI%20Shabu%20%26%20Sukiyaki%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/ootoyaoki/"
 				}
 			],
@@ -79,7 +79,7 @@
 			},
 			"tags": ["shabu", "sukiyaki"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "kzmZHvWG",
@@ -93,19 +93,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Boon%20Tong%20Kee%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/BoonTongKeeThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/boontongkee_thailand"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://line.me/R/ti/p/%40nfx6766h"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://twitter.com/boontongkee_th"
 				},
 				{
@@ -125,7 +125,7 @@
 			},
 			"tags": ["chicken rice", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "c3Y8B5sA",
@@ -139,7 +139,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Teraoka%20Gyoza%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/teraokagyoza/"
 				}
 			],
@@ -151,7 +151,7 @@
 			},
 			"tags": ["gyoza", "ramen"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "IsbfAQtn",
@@ -165,15 +165,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/kfcth/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/kfcthailand/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/kfcth"
 				},
 				{
@@ -188,7 +188,7 @@
 			},
 			"tags": ["fast food", "fried chicken"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "DpRs4IVj",
@@ -202,19 +202,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Pasta%20Ama%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/pastaama/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/pastaama.bkk/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://lin.ee/t5C8QB6"
 				},
 				{
-					"label": "social",
+					"label": "tiktok",
 					"url": "https://www.tiktok.com/@pastaama.bkk"
 				}
 			],
@@ -226,7 +226,7 @@
 			},
 			"tags": ["pasta"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "tyCJVO2z",
@@ -240,7 +240,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Spicy%20Cat%20La%20Meow%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Lameowbkk/"
 				},
 				{
@@ -256,7 +256,7 @@
 			},
 			"tags": ["mala", "hotpot", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "g224CUeK",
@@ -270,19 +270,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Jones%27%20Salad%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/JonesSaladOfficial/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/jonessalad/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/vob8822w"
 				},
 				{
-					"label": "social",
+					"label": "tiktok",
 					"url": "https://www.tiktok.com/@jonessaladofficial"
 				},
 				{
@@ -301,7 +301,7 @@
 			},
 			"tags": ["healthy", "salad"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "K2olzW4i",
@@ -315,15 +315,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Salad%20Factory%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/saladfactoryofthailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/saladfactorythailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/pac6513g"
 				},
 				{
@@ -338,7 +338,7 @@
 			},
 			"tags": ["healthy", "salad", "steak"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "HT7icX3R",
@@ -352,7 +352,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Kuay%20Teow%20Ruea%20Suea%20Na%20Yok%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/jadetiger.th"
 				}
 			],
@@ -364,7 +364,7 @@
 			},
 			"tags": ["noodles", "boat noodles", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Cqy9EjzU",
@@ -378,11 +378,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Chunn%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/chunn.bkk/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/chunn.bkk/"
 				}
 			],
@@ -394,7 +394,7 @@
 			},
 			"tags": ["wagyu", "rice bowl", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "xfEFlhBz",
@@ -408,11 +408,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=EASY!%20buddy%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Easybuddybkk/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/easybuddybkk/"
 				}
 			],
@@ -424,7 +424,7 @@
 			},
 			"tags": ["street food"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "QARnvVQ6",
@@ -460,15 +460,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Hachiban%20Ramen%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/hachibanramenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/hachibanramenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://twitter.com/hachibanramenth"
 				},
 				{
@@ -488,7 +488,7 @@
 			},
 			"tags": ["ramen", "noodles"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "71vFI9ly",
@@ -502,16 +502,16 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Jae%20Daeng%20Samyan%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
-					"url": "https://www.tiktok.com/@jaedangsamyan"
-				},
-				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Jaedangsamyan.JD/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/jaedang_samyan/"
+				},
+				{
+					"label": "tiktok",
+					"url": "https://www.tiktok.com/@jaedangsamyan"
 				}
 			],
 			"notes": "Central Ladprao, G\nSom tam, grilled pork neck. Budget.",
@@ -522,7 +522,7 @@
 			},
 			"tags": ["som tam"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "8y8SNjYU",
@@ -536,11 +536,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=KEN%20PHU%20PANG%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/kenphupang/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/kenphupang/"
 				}
 			],
@@ -551,7 +551,7 @@
 			},
 			"tags": ["bakery", "toast", "cafe"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "qjNCx0pA",
@@ -565,7 +565,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Eric%20Kayser%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/MaisonEricKayserThailand/"
 				},
 				{
@@ -581,7 +581,7 @@
 			},
 			"tags": ["bakery", "cafe"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "78IxVgrz",
@@ -595,11 +595,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Chongdee%20Teahouse%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/chongdee.teahouse/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/chongdee.teahouse/"
 				}
 			],
@@ -610,7 +610,7 @@
 			},
 			"tags": ["thai tea"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "mzTvut4C",
@@ -624,12 +624,12 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=KUMOLAB%20Cheese%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
-					"url": "https://page.line.me/581miemt"
+					"label": "facebook",
+					"url": "https://www.facebook.com/p/Kumolab-Cheese-61564368866187/"
 				},
 				{
-					"label": "social",
-					"url": "https://www.facebook.com/p/Kumolab-Cheese-61564368866187/"
+					"label": "line",
+					"url": "https://page.line.me/581miemt"
 				}
 			],
 			"notes": "Central Ladprao, G\nJapanese cheesecake. Now named KUMOLAB Cheese, near Tops.",
@@ -639,7 +639,7 @@
 			},
 			"tags": ["cheesecake"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "iJMKPbwF",
@@ -653,7 +653,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Din%20Tai%20Fung%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/DinTaiFungTh/"
 				},
 				{
@@ -669,7 +669,7 @@
 			},
 			"tags": ["dim sum"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "60UwGz6X",
@@ -683,7 +683,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Restaurants%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/mkrestaurants/"
 				},
 				{
@@ -707,7 +707,7 @@
 			},
 			"tags": ["suki", "hotpot"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "iE6NNzCV",
@@ -747,11 +747,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Saemaeul%20Sikdang%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/saemaeul.thailand"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/saemaeul.thailand/"
 				}
 			],
@@ -763,7 +763,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "KUyo2WOy",
@@ -777,11 +777,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=On%20The%20Table%2C%20Tokyo%20Cafe%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/OntheTableTokyoCafe"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/onthetable.th/"
 				}
 			],
@@ -793,7 +793,7 @@
 			},
 			"tags": ["fusion", "pasta", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "6Xccxawp",
@@ -807,11 +807,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Khampun%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Kumpoon.fanpage/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/kumpoon_/"
 				}
 			],
@@ -823,7 +823,7 @@
 			},
 			"tags": ["som tam", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "FPp4XTev",
@@ -837,15 +837,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Zen%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Zenjapaneserestaurant/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/zen_restaurant/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://line.me/R/ti/p/%40hyy7563k"
 				},
 				{
@@ -869,7 +869,7 @@
 			},
 			"tags": ["buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "3fek1U4O",
@@ -883,16 +883,12 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=After%20You%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/afteryoucafe/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/afteryoudessertcafe/"
-				},
-				{
-					"label": "website",
-					"url": "https://www.afteryoudessertcafe.com/en/branches/"
 				},
 				{
 					"label": "website",
@@ -906,7 +902,7 @@
 			},
 			"tags": ["cafe"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "mmqPa2VQ",
@@ -920,7 +916,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=UNO%20Coffee%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/UNOCoffeeCompany/"
 				}
 			],
@@ -931,7 +927,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "DBXJLimK",
@@ -945,7 +941,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=ThongSmith%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/p/Thongsmith-Central-Ladprao-%E0%B9%80%E0%B8%8B%E0%B9%87%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B1%E0%B8%A5-%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7-100063629375894/"
 				}
 			],
@@ -957,7 +953,7 @@
 			},
 			"tags": ["noodles", "boat noodles"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "HiREzt0r",
@@ -971,24 +967,20 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=MOS%20Burger%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/MOSBURGERThai/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/mosburgerthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/560vcpbv"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/MOSBurger_Th"
-				},
-				{
-					"label": "website",
-					"url": "https://www.mos-th.com/en/branch/"
 				},
 				{
 					"label": "website",
@@ -1011,7 +1003,7 @@
 			},
 			"tags": ["burger", "fast food"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "SfKL94aZ",
@@ -1025,15 +1017,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Bar%20B%20Q%20Plaza%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/BarBQPlazaThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/barbqplaza_th/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://twitter.com/BarBQPlazaThai"
 				},
 				{
@@ -1048,7 +1040,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "mwnwqMJR",
@@ -1062,20 +1054,16 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Mo-Mo-Paradise%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/ThaiMoMoParadise"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/momoparadiseth"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/xmj7324r"
-				},
-				{
-					"label": "website",
-					"url": "https://mo-mo-paradiseth.com/branches/"
 				},
 				{
 					"label": "website",
@@ -1094,7 +1082,7 @@
 			},
 			"tags": ["shabu", "sukiyaki", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "cp058Xok",
@@ -1108,11 +1096,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Sukishi%20Korean%20Charcoal%20Grill%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/sukishifanclub"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/sukishigroup"
 				},
 				{
@@ -1128,7 +1116,7 @@
 			},
 			"tags": ["bbq", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Qyet2pd8",
@@ -1142,7 +1130,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Sakura%20Yakiniku%20Shabu%20%26%20Sushi%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/SakuraThailandPage/"
 				}
 			],
@@ -1154,7 +1142,7 @@
 			},
 			"tags": ["yakiniku", "shabu", "sushi", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "N8TMWgqT",
@@ -1168,19 +1156,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Sizzler%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/SizzlerThai/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/sizzlerth/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/mjg0575g"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/sizzlerthai"
 				},
 				{
@@ -1208,7 +1196,7 @@
 			},
 			"tags": ["steak", "salad bar"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "rsSzpJoz",
@@ -1222,12 +1210,8 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=CoCo%20ICHIBANYA%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/cocoichibanyathailand/"
-				},
-				{
-					"label": "website",
-					"url": "https://www.tgi.co.th/our-business/coco/?lang=en"
 				},
 				{
 					"label": "website",
@@ -1242,7 +1226,7 @@
 			},
 			"tags": ["curry", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "KgWH9DRw",
@@ -1256,15 +1240,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Yuzu%20Suki%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/yuzusuki.th/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/yuzusuki_th/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/211udfss"
 				}
 			],
@@ -1276,7 +1260,7 @@
 			},
 			"tags": ["shabu", "sukiyaki"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "BbD7fj7F",
@@ -1290,11 +1274,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Fuji%20Japanese%20Restaurant%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/FujiRestaurant"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/fujirestaurant"
 				},
 				{
@@ -1318,7 +1302,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "soli9BIE",
@@ -1332,11 +1316,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Burn%20Busaba%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/burnbusaba/"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/BurnbusabaSiamparagon/"
 				}
 			],
@@ -1348,7 +1332,7 @@
 			},
 			"tags": ["som tam"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "6U377Q5w",
@@ -1362,20 +1346,16 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Greyhound%20Cafe%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/GreyhoundCafe/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/greyhoundcafe/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://lin.ee/JA2up7"
-				},
-				{
-					"label": "website",
-					"url": "https://www.greyhoundcafe.co.th/branch/central-lardprao/"
 				},
 				{
 					"label": "website",
@@ -1394,7 +1374,7 @@
 			},
 			"tags": ["fusion", "cafe"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "wBHJ7XZ0",
@@ -1408,20 +1388,16 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Kyo%20Roll%20En%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/KyoRollEn"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://instagram.com/kachabros/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://twitter.com/kyorollen"
-				},
-				{
-					"label": "website",
-					"url": "https://www.kyorollen.com/find-us/"
 				},
 				{
 					"label": "website",
@@ -1444,7 +1420,7 @@
 			},
 			"tags": ["matcha"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "rPzmMYOm",
@@ -1458,15 +1434,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Laem%20Charoen%20Seafood%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/laemcharoenseafood/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/laemcharoenseafood/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://lin.ee/am3bvcp"
 				},
 				{
@@ -1486,7 +1462,7 @@
 			},
 			"tags": ["seafood"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "E37U9fH7",
@@ -1500,7 +1476,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Shabushi%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/oishigroup/"
 				},
 				{
@@ -1520,7 +1496,7 @@
 			},
 			"tags": ["shabu", "sushi", "buffet", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "w3jxivZJ",
@@ -1534,15 +1510,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Sushi%20Seki%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/SushiSekiThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/sushisekithailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/afp3384o"
 				}
 			],
@@ -1554,7 +1530,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "a2I90fUl",
@@ -1568,15 +1544,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Honmono%20Sushi%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Honmono/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/honmonosushi_official/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://lin.ee/2Ns5cUp"
 				},
 				{
@@ -1596,7 +1572,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "6CA9yXEV",
@@ -1610,7 +1586,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Tonkatsu%20Wako%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/tonkatsuwakoth/"
 				}
 			],
@@ -1622,7 +1598,7 @@
 			},
 			"tags": ["tonkatsu", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "BQ3dbMMt",
@@ -1636,20 +1612,16 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Ootoya%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/ootoyathai/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/ootoya_thailand/"
 				},
 				{
 					"label": "website",
 					"url": "https://www.ootoya.co.th/"
-				},
-				{
-					"label": "website",
-					"url": "https://www.ootoya.co.th/branches.php"
 				},
 				{
 					"label": "menu",
@@ -1668,7 +1640,7 @@
 			},
 			"tags": ["teishoku"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "8yv4RF4X",
@@ -1682,15 +1654,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Kub%20Kao%27%20Kub%20Pla%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/kubkaokubplalp/"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/kubkaokubplabyiberry/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/kubkaokubpla/"
 				}
 			],
@@ -1702,7 +1674,7 @@
 			},
 			"tags": ["fusion"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "LjPPpxwl",
@@ -1716,11 +1688,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Somtam%20Nua%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Somtamnuathailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/somtamnua/"
 				}
 			],
@@ -1732,7 +1704,7 @@
 			},
 			"tags": ["som tam"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "nL1wilp0",
@@ -1746,11 +1718,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Baan%20Ice%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/baanice.restaurants/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/baanicerestaurant"
 				},
 				{
@@ -1766,7 +1738,7 @@
 			},
 			"tags": [],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "lRAy6Dbv",
@@ -1780,15 +1752,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Bonchon%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/bonchonthailand"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/bonchonthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/723pnafj"
 				}
 			],
@@ -1800,7 +1772,7 @@
 			},
 			"tags": ["fried chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "8iuZHWWa",
@@ -1814,7 +1786,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Nice%20Two%20Meat%20U%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/nicetwomeatuthailand/"
 				}
 			],
@@ -1826,7 +1798,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Y0TleChA",
@@ -1840,15 +1812,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Nam%20Nam%20Pasta%20%26%20Tapas%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/namnampastaandtapas/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/namnampastaandtapas/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://line.me/ti/p/@namnampasta"
 				},
 				{
@@ -1868,7 +1840,7 @@
 			},
 			"tags": ["pasta"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "bhogztkt",
@@ -1882,19 +1854,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Phed%20Phed%20Cafe%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/PhedPhedFood"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/phedphedcafe20/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/phedphed_food/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/menu_phedphed_cafe"
 				},
 				{
@@ -1922,7 +1894,7 @@
 			},
 			"tags": ["som tam"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "wtiz7ZsW",
@@ -1936,11 +1908,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Kagurazaka%20Saryo%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/saryothailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/saryo_thailand/"
 				}
 			],
@@ -1952,7 +1924,7 @@
 			},
 			"tags": ["matcha", "cafe", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Qs8QDqyz",
@@ -1966,7 +1938,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Yoshinoya%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/yoshinoya.thailand/"
 				}
 			],
@@ -1978,7 +1950,7 @@
 			},
 			"tags": ["rice bowl", "fast food"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "9ZuHiarz",
@@ -1992,7 +1964,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Tenya%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/TenyaThailand/"
 				}
 			],
@@ -2004,7 +1976,7 @@
 			},
 			"tags": ["tempura", "rice bowl", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "MxSUK0am",
@@ -2018,11 +1990,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=QQ%20Dessert%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/QQdessert.th/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/qqdessert/"
 				}
 			],
@@ -2034,7 +2006,7 @@
 			},
 			"tags": ["bingsu"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "EIsQlq3x",
@@ -2048,15 +2020,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=TUDARI%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/tudarithailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/tudarithailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/tqr1886j"
 				}
 			],
@@ -2068,7 +2040,7 @@
 			},
 			"tags": ["unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "5hTWUnfq",
@@ -2082,7 +2054,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=A%20Fox%20Princess%20Kitchen%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/afoxprincessandfriends/"
 				}
 			],
@@ -2094,7 +2066,7 @@
 			},
 			"tags": [],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "KVedpJvY",
@@ -2108,11 +2080,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Ba%20Hao%20Tian%20Mi%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/bahaotianmi/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/bahaotianmi/"
 				},
 				{
@@ -2128,7 +2100,7 @@
 			},
 			"tags": ["pudding", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "xw7NJ1U2",
@@ -2142,7 +2114,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Mihimihi%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/mihimihi.thailand/"
 				}
 			],
@@ -2153,7 +2125,7 @@
 			},
 			"tags": ["unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "WWwACmBy",
@@ -2188,11 +2160,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Auntie%20Anne%27s%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/AuntieAnnesThailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/xuy8285j"
 				}
 			],
@@ -2203,7 +2175,7 @@
 			},
 			"tags": ["snack", "pretzel"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "ruFX90i4",
@@ -2217,19 +2189,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Bottomless%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Bottomless.es"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/bottomless_es"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/vvq9877c"
 				},
 				{
-					"label": "social",
+					"label": "tiktok",
 					"url": "https://www.tiktok.com/@bottomlesscoffeeroasters"
 				},
 				{
@@ -2248,7 +2220,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Oe6AutAW",
@@ -2262,11 +2234,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Rowie%27s%20Coffee%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/rowiescoffee/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/rowiescoffee"
 				}
 			],
@@ -2277,7 +2249,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Af7rCUfh",
@@ -2420,12 +2392,8 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Blue%20Sky%20Rooftop%20Bar%20%26%20Dining%20Centara%20Grand%20at%20Central%20Ladprao%20%28hotel%29"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/CGLBBlueSky/"
-				},
-				{
-					"label": "website",
-					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/blue-sky-rooftop-restaurant"
 				},
 				{
 					"label": "website",
@@ -2440,7 +2408,7 @@
 			},
 			"tags": ["steak", "rooftop", "bar", "hotel"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "d3LqpCWO",
@@ -2480,16 +2448,12 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Sushiro%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/SushiroThailand"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/sushirothailand/"
-				},
-				{
-					"label": "website",
-					"url": "https://sushiro.co.th/branch/"
 				},
 				{
 					"label": "website",
@@ -2508,7 +2472,7 @@
 			},
 			"tags": ["sushi", "conveyor"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Ivih7KN7",
@@ -2522,11 +2486,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=YONNY%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/yonny.th/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/yonnyth/"
 				},
 				{
@@ -2542,7 +2506,7 @@
 			},
 			"tags": ["sichuan", "fish", "mala"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "dOv8mPgL",
@@ -2556,11 +2520,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Lucky%20Suki%20Marche%20%26%20Dimsum%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/luckysuki.bkk/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/luckysuki.bkk/"
 				},
 				{
@@ -2575,7 +2539,7 @@
 			},
 			"tags": ["suki", "shabu", "dim sum", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "uwpkYDKs",
@@ -2589,7 +2553,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Xiong%20Lao%20Han%20Malatang%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/xionglaohanTH/"
 				}
 			],
@@ -2601,7 +2565,7 @@
 			},
 			"tags": ["mala", "malatang"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Hil7Y3eX",
@@ -2637,11 +2601,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Kin-Tiew-Gan%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/KinTiewKan"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/kintiewkan/"
 				}
 			],
@@ -2653,7 +2617,7 @@
 			},
 			"tags": ["noodles", "boat noodles"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "46IxrcME",
@@ -2689,19 +2653,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Choongman%20Chicken%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/choongman.unionmall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/p/Choongman-Thailand-61552156374410/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/choongmanth_official/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/choongman.unionmall/"
 				}
 			],
@@ -2713,7 +2677,7 @@
 			},
 			"tags": ["fried chicken"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "v9gdFjzB",
@@ -2727,7 +2691,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Eat%20Am%20Are%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/eatamareofficial/"
 				}
 			],
@@ -2739,7 +2703,7 @@
 			},
 			"tags": ["steak", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "5TbK0yK1",
@@ -2797,7 +2761,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Kha%20Noi%20Kho%20Shabu%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/khanoykorshabu"
 				}
 			],
@@ -2808,7 +2772,7 @@
 			},
 			"tags": ["shabu", "pizza", "buffet", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "sjtvS1Qe",
@@ -2822,20 +2786,20 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Dookki%20Topokki%20Union%20Mall"
 				},
 				{
-					"label": "social",
-					"url": "https://twitter.com/dookki_union"
-				},
-				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/dookkitopokki/"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
+					"url": "https://www.facebook.com/dookki.union/"
+				},
+				{
+					"label": "instagram",
 					"url": "https://instagram.com/dookki.thailand"
 				},
 				{
-					"label": "social",
-					"url": "https://www.facebook.com/dookki.union/"
+					"label": "x",
+					"url": "https://twitter.com/dookki_union"
 				}
 			],
 			"notes": "Union Mall, 4F\nTteokbokki buffet ~299-329 THB, 90 min.",
@@ -2846,7 +2810,7 @@
 			},
 			"tags": ["tteokbokki", "buffet", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "aLoDXE87",
@@ -2860,15 +2824,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Bar%20B%20Q%20Plaza%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/BarBQPlazaThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/barbqplaza_th/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://twitter.com/BarBQPlazaThai"
 				},
 				{
@@ -2883,7 +2847,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "qlEphHsL",
@@ -2897,7 +2861,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Restaurants%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/mkrestaurants/"
 				},
 				{
@@ -2921,7 +2885,7 @@
 			},
 			"tags": ["suki", "hotpot"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "ipfU0jsa",
@@ -2935,15 +2899,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Katsuya%20Union%20Mall"
 				},
 				{
-					"label": "social",
-					"url": "https://www.instagram.com/katsuya_thailand/"
-				},
-				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/KatsuyaThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
+					"url": "https://www.instagram.com/katsuya_thailand/"
+				},
+				{
+					"label": "line",
 					"url": "https://page.line.me/oya5464q"
 				}
 			],
@@ -2955,7 +2919,7 @@
 			},
 			"tags": ["tonkatsu"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "oS2yVOU5",
@@ -2969,16 +2933,12 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Sukiya%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/SukiyaThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://instagram.com/sukiya_thailand"
-				},
-				{
-					"label": "website",
-					"url": "https://www.sukiya.co.th/th/store/"
 				},
 				{
 					"label": "website",
@@ -3005,7 +2965,7 @@
 			},
 			"tags": ["rice bowl", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "2XCQ6v2P",
@@ -3017,10 +2977,6 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Santa%20Fe%20Steak%20Union%20Mall"
-				},
-				{
-					"label": "website",
-					"url": "https://www.santafesteak.com/santafesteak/frontends/searchlocation/"
 				},
 				{
 					"label": "website",
@@ -3039,7 +2995,7 @@
 			},
 			"tags": ["steak"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "OTzqDx8s",
@@ -3075,16 +3031,12 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=AKA%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/akarestaurant"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/akayakiniku"
-				},
-				{
-					"label": "website",
-					"url": "https://akayakiniku.com/branch.php"
 				},
 				{
 					"label": "website",
@@ -3099,7 +3051,7 @@
 			},
 			"tags": ["yakiniku", "bbq", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Hif0k7e1",
@@ -3113,15 +3065,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Starbucks%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/StarbucksThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/starbucksthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/853tzvmu"
 				},
 				{
@@ -3140,7 +3092,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "xCTGecNF",
@@ -3154,11 +3106,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=McDonald%27s%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/McThai/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/mcdonaldsthailand/"
 				},
 				{
@@ -3173,7 +3125,7 @@
 			},
 			"tags": ["fast food", "burger"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "qyRuRbXQ",
@@ -3187,15 +3139,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/kfcth/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/kfcthailand/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/kfcth"
 				},
 				{
@@ -3210,7 +3162,7 @@
 			},
 			"tags": ["fast food", "fried chicken"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "UpjF0ULb",
@@ -3224,11 +3176,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Chester%27s%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/chesterthai/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/chesters_official/"
 				},
 				{
@@ -3244,7 +3196,7 @@
 			},
 			"tags": ["fast food", "grilled chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "AI9T8hdn",
@@ -3258,19 +3210,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Jones%27%20Salad%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/JonesSaladOfficial/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/jonessalad/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/vob8822w"
 				},
 				{
-					"label": "social",
+					"label": "tiktok",
 					"url": "https://www.tiktok.com/@jonessaladofficial"
 				},
 				{
@@ -3289,7 +3241,7 @@
 			},
 			"tags": ["healthy", "salad"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "9QOWfgUi",
@@ -3324,15 +3276,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Dolce%20Gelatino%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/dolce.gelatino/"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/dolceunionmall/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/dolcegelatino/"
 				}
 			],
@@ -3343,7 +3295,7 @@
 			},
 			"tags": ["ice cream"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "46boUHkE",
@@ -3378,7 +3330,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Mixue%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/mixuethailand/"
 				}
 			],
@@ -3389,7 +3341,7 @@
 			},
 			"tags": ["ice cream", "bubble tea", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "ek9c7TAh",
@@ -3424,20 +3376,16 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Kyo%20Roll%20En%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/KyoRollEn"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://instagram.com/kachabros/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://twitter.com/kyorollen"
-				},
-				{
-					"label": "website",
-					"url": "https://www.kyorollen.com/find-us/"
 				},
 				{
 					"label": "website",
@@ -3460,7 +3408,7 @@
 			},
 			"tags": ["matcha", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "lyc52Cox",
@@ -3474,11 +3422,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Mr.Shake%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/mrshake.thailand"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/mr_shake/"
 				}
 			],
@@ -3489,7 +3437,7 @@
 			},
 			"tags": ["bubble tea", "smoothie", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "9hv8HBJs",
@@ -3503,11 +3451,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Nobicha%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/nobichathaiofficial/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/nobichathaiofficial/"
 				},
 				{
@@ -3526,7 +3474,7 @@
 			},
 			"tags": ["bubble tea"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "HHMHcgd1",
@@ -3540,12 +3488,12 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=OWL%20CHA%20Union%20Mall"
 				},
 				{
-					"label": "social",
-					"url": "https://www.instagram.com/owlcha.official/"
+					"label": "facebook",
+					"url": "https://www.facebook.com/owlcha.official/"
 				},
 				{
-					"label": "social",
-					"url": "https://www.facebook.com/owlcha.official/"
+					"label": "instagram",
+					"url": "https://www.instagram.com/owlcha.official/"
 				}
 			],
 			"notes": "Union Mall, 2F\nIn front of Miniso.",
@@ -3555,7 +3503,7 @@
 			},
 			"tags": ["bubble tea"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "l2G4fIem",
@@ -3569,7 +3517,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Wua%20Luan%20Luan%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/wua_luanluan/"
 				}
 			],
@@ -3580,7 +3528,7 @@
 			},
 			"tags": ["milk", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "zuejMdIe",
@@ -3594,15 +3542,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Cafe%20Amazon%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/cafeamazonofficial/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/cafeamazonofficial/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/799likpv"
 				},
 				{
@@ -3617,7 +3565,7 @@
 			},
 			"tags": ["cafe", "coffee", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "pEQgKnCh",
@@ -3631,15 +3579,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Dairy%20Queen%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/dairyqueenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/dairyqueenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://line.me/R/ti/p/%40dairyqueenth"
 				},
 				{
@@ -3662,7 +3610,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "DgK22foG",
@@ -3676,7 +3624,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Zhangliang%20Malatang%20Union%20Mall"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/p/%E6%B3%B0%E5%9B%BD%E5%BC%A0%E4%BA%AE%E9%BA%BB%E8%BE%A3%E7%83%AB-Zhangliang-Malatang-Thailand-61553121875809/"
 				}
 			],
@@ -3688,7 +3636,7 @@
 			},
 			"tags": ["mala", "malatang", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "ozkiOg2z",
@@ -3702,11 +3650,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Chester%27s%20Lotus%27s%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/chesterthai/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/chesters_official/"
 				},
 				{
@@ -3722,7 +3670,7 @@
 			},
 			"tags": ["fast food", "grilled chicken"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "xC6hfrbV",
@@ -3736,15 +3684,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Hachiban%20Ramen%20Lotus%27s%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/hachibanramenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/hachibanramenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://twitter.com/hachibanramenth"
 				},
 				{
@@ -3764,7 +3712,7 @@
 			},
 			"tags": ["ramen", "noodles", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "9sDA4FwC",
@@ -3778,7 +3726,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Restaurants%20Lotus%27s%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/mkrestaurants/"
 				},
 				{
@@ -3802,7 +3750,7 @@
 			},
 			"tags": ["suki", "hotpot"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "3RYv7hcB",
@@ -3814,10 +3762,6 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Santa%20Fe%20Steak%20Lotus%27s%20Ladprao"
-				},
-				{
-					"label": "website",
-					"url": "https://www.santafesteak.com/santafesteak/frontends/searchlocation/"
 				},
 				{
 					"label": "website",
@@ -3836,7 +3780,7 @@
 			},
 			"tags": ["steak"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "roTNbf81",
@@ -3850,11 +3794,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Fuji%20Japanese%20Restaurant%20Lotus%27s%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/FujiRestaurant"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/fujirestaurant"
 				},
 				{
@@ -3878,7 +3822,7 @@
 			},
 			"tags": ["sushi", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "3PrjE3zc",
@@ -3914,19 +3858,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Karayama%20Lotus%27s%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/karayamathailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/karayamath_official/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/nvp3500m"
 				},
 				{
-					"label": "social",
+					"label": "tiktok",
 					"url": "https://www.tiktok.com/@karayamath"
 				},
 				{
@@ -3942,7 +3886,7 @@
 			},
 			"tags": ["fried chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "d88lRzye",
@@ -3956,15 +3900,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20Lotus%27s%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/kfcth/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/kfcthailand/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/kfcth"
 				},
 				{
@@ -3979,7 +3923,7 @@
 			},
 			"tags": ["fast food", "fried chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "9vQXZvcr",
@@ -3993,7 +3937,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Five%20Star%20Lotus's%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Fivestarbusiness/"
 				},
 				{
@@ -4009,7 +3953,7 @@
 			},
 			"tags": ["grilled chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "VCJ4jGDG",
@@ -4023,7 +3967,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=So%20Vegan%20Lotus's%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/soveganthailand/"
 				},
 				{
@@ -4038,7 +3982,7 @@
 			},
 			"tags": ["vegetarian", "healthy", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "VVzOgBXh",
@@ -4052,15 +3996,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Dairy%20Queen%20Lotus%27s%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/dairyqueenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/dairyqueenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://line.me/R/ti/p/%40dairyqueenth"
 				},
 				{
@@ -4083,7 +4027,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "BM6veNTp",
@@ -4097,15 +4041,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Swensen%27s%20Lotus%27s%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/weloveswensens/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/we_love_swensens"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://liff.line.me/1645278921-kWRPP32q/?accountId=qic0396o"
 				},
 				{
@@ -4124,7 +4068,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "P2TBBS6W",
@@ -4138,7 +4082,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=TrueCoffee%20GO%20Lotus's%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/truecoffeego/"
 				}
 			],
@@ -4149,7 +4093,7 @@
 			},
 			"tags": ["cafe", "coffee", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "FbOtnSq7",
@@ -4163,7 +4107,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Vanilla%20Prince%20Cafe%20Lotus's%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/vpcafe/"
 				}
 			],
@@ -4174,7 +4118,7 @@
 			},
 			"tags": ["bakery", "cake", "cafe", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "xd1DLETf",
@@ -4210,11 +4154,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=In%20The%20Middle%20by%20Kaizen%20Ladprao%20Hills"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/InTheMiddleByKaizen"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/in_the_middle_by_kaizen/"
 				}
 			],
@@ -4226,7 +4170,7 @@
 			},
 			"tags": ["yakiniku", "buffet"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "PAP4X5Yx",
@@ -4262,15 +4206,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Pepper%20Lunch%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/pepperlunchthailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/pepperlunchthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/ntq7973r"
 				}
 			],
@@ -4282,7 +4226,7 @@
 			},
 			"tags": ["steak"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "M4bkVYSi",
@@ -4296,7 +4240,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Tops%20Eatery%20Central%20Ladprao"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/TopsEatery/"
 				}
 			],
@@ -4308,7 +4252,7 @@
 			},
 			"tags": ["food court"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "zHgp1mTh",
@@ -4322,7 +4266,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%AE%E0%B9%89%E0%B8%AD%E0%B8%99%E0%B9%81%E0%B8%AE%E0%B8%87%20%E0%B8%AB%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/honhaeng5yaek/"
 				}
 			],
@@ -4334,7 +4278,7 @@
 			},
 			"tags": ["som tam", "live music", "unverified"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "2FMYImZY",
@@ -4348,11 +4292,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B9%80%E0%B8%88%E0%B8%B5%E0%B8%A2%E0%B8%87%E0%B8%AE%E0%B8%B2%E0%B8%A2%20%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7%20%E0%B8%8B%E0%B8%AD%E0%B8%A2%204"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/jeanghainoodle"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/jeanghainoodlesoi4/"
 				}
 			],
@@ -4364,7 +4308,7 @@
 			},
 			"tags": ["khao soi", "noodles", "unverified"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "vwqALvx3",

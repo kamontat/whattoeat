@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T16:17:13.860Z",
+	"exportedAt": "2026-10-23T16:38:05.588Z",
 	"restaurants": [
 		{
 			"id": "5auiMZiG",
@@ -15,7 +15,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Restaurants%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/mkrestaurants/"
 				},
 				{
@@ -39,7 +39,7 @@
 			},
 			"tags": ["suki", "hotpot"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "0GzP8V0o",
@@ -53,11 +53,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Fuji%20Japanese%20Restaurant%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/FujiRestaurant"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/fujirestaurant"
 				},
 				{
@@ -81,7 +81,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Agv4KiRb",
@@ -95,15 +95,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Bar%20B%20Q%20Plaza%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/BarBQPlazaThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/barbqplaza_th/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://twitter.com/BarBQPlazaThai"
 				},
 				{
@@ -118,7 +118,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "t1XHAist",
@@ -132,15 +132,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Swensen%27s%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/weloveswensens/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/we_love_swensens"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://liff.line.me/1645278921-kWRPP32q/?accountId=qic0396o"
 				},
 				{
@@ -159,7 +159,7 @@
 			},
 			"tags": ["ice cream"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "g4ahjKQ2",
@@ -173,15 +173,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Starbucks%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/StarbucksThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/starbucksthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/853tzvmu"
 				},
 				{
@@ -200,7 +200,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "nqxa69Nr",
@@ -214,24 +214,20 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Ohkajhu%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/ohkajhuorganic/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/pcb3808y"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/ohkajhu"
 				},
 				{
 					"label": "website",
 					"url": "https://www.okjgroup.com/"
-				},
-				{
-					"label": "website",
-					"url": "https://www.okjgroup.com/en/business-and-brands/ohkajhu"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, 5F\nOrganic salads, steaks and rice bowls. Mid price.",
@@ -241,7 +237,7 @@
 			},
 			"tags": ["healthy", "salad"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "FDZHDA3R",
@@ -255,24 +251,20 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Yayoi%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/YayoiRestaurantThailand"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/yayoi_thailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/327rcyjo"
 				},
 				{
 					"label": "website",
 					"url": "https://yayoirestaurants.com/"
-				},
-				{
-					"label": "website",
-					"url": "https://www.yayoirestaurants.com/branch"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, 5F\nJapanese set meals. Budget to mid price.",
@@ -283,7 +275,7 @@
 			},
 			"tags": ["teishoku"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "FvwCXP7j",
@@ -297,20 +289,16 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=After%20You%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/afteryoucafe/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/afteryoudessertcafe/"
 				},
 				{
 					"label": "website",
 					"url": "https://www.afteryoudessertcafe.com/"
-				},
-				{
-					"label": "website",
-					"url": "https://www.afteryoudessertcafe.com/en/branches/"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, G\nShibuya honey toast, bingsu. Greenhouse zone.",
@@ -320,7 +308,7 @@
 			},
 			"tags": ["cafe"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "mSG77rp5",
@@ -334,15 +322,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/kfcth/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/kfcthailand/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/kfcth"
 				},
 				{
@@ -357,7 +345,7 @@
 			},
 			"tags": ["fast food", "fried chicken"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "lkr3ZnmW",
@@ -371,19 +359,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Sizzler%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/SizzlerThai/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/sizzlerth/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/mjg0575g"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/sizzlerthai"
 				},
 				{
@@ -411,7 +399,7 @@
 			},
 			"tags": ["steak", "salad bar"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Bd9KVAEJ",
@@ -425,7 +413,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Shabushi%20The%20Mall%20Ngamwongwan"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/oishigroup/"
 				},
 				{
@@ -445,7 +433,7 @@
 			},
 			"tags": ["shabu", "sushi", "buffet"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "61s1yVuA",

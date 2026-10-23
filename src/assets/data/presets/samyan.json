@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T16:22:21.555Z",
+	"exportedAt": "2026-10-23T16:38:05.588Z",
 	"restaurants": [
 		{
 			"id": "l5lAJ4bc",
@@ -15,15 +15,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Bearhouse%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/bearhousethailand"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/bearhouse_thailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/ezc0124k"
 				},
 				{
@@ -38,7 +38,7 @@
 			},
 			"tags": ["bubble tea", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "xdgTGni7",
@@ -52,15 +52,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Caf%C3%A9%20Amazon%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/cafeamazonofficial/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/cafeamazonofficial/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/799likpv"
 				},
 				{
@@ -75,7 +75,7 @@
 			},
 			"tags": ["coffee", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "bK8R5xf8",
@@ -89,12 +89,8 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=CoCo%20ICHIBANYA%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/cocoichibanyathailand/"
-				},
-				{
-					"label": "website",
-					"url": "https://www.tgi.co.th/our-business/coco/?lang=en"
 				},
 				{
 					"label": "website",
@@ -109,7 +105,7 @@
 			},
 			"tags": ["curry", "rice dish"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "ZP93RWKR",
@@ -123,15 +119,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Dairy%20Queen%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/dairyqueenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/dairyqueenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://line.me/R/ti/p/%40dairyqueenth"
 				},
 				{
@@ -154,7 +150,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "ZWmVL6qH",
@@ -168,15 +164,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Hachiban%20Ramen%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/hachibanramenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/hachibanramenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://twitter.com/hachibanramenth"
 				},
 				{
@@ -196,7 +192,7 @@
 			},
 			"tags": ["ramen", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "b7fogBQJ",
@@ -210,19 +206,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Karayama%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/karayamathailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/karayamath_official/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/nvp3500m"
 				},
 				{
-					"label": "social",
+					"label": "tiktok",
 					"url": "https://www.tiktok.com/@karayamath"
 				},
 				{
@@ -238,7 +234,7 @@
 			},
 			"tags": ["fried chicken", "teishoku"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "QvC9wU8B",
@@ -252,15 +248,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=KOI%20Th%C3%A9%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/koithethailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/koithethailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/yaz9702l"
 				},
 				{
@@ -275,7 +271,7 @@
 			},
 			"tags": ["bubble tea", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "329oZ2GV",
@@ -289,15 +285,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Lim%20Lao%20Ngow%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/limlaongow"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/limlaongow"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://lin.ee/lxxgdEI"
 				},
 				{
@@ -313,7 +309,7 @@
 			},
 			"tags": ["noodles"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "4ici4MoG",
@@ -327,15 +323,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Machi%20Machi%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/machimachithailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/machimachi_thailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://lin.ee/4uu6KVU"
 				}
 			],
@@ -346,7 +342,7 @@
 			},
 			"tags": ["bubble tea", "tea", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "DpXL6R6G",
@@ -360,24 +356,20 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=MOS%20Burger%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/MOSBURGERThai/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/mosburgerthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/560vcpbv"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/MOSBurger_Th"
-				},
-				{
-					"label": "website",
-					"url": "https://www.mos-th.com/en/branch/"
 				},
 				{
 					"label": "website",
@@ -399,7 +391,7 @@
 			},
 			"tags": ["burger", "fast food", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "aLoorxgW",
@@ -413,11 +405,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Nua%20Tair%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Nuatair"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/nuatair.official/"
 				},
 				{
@@ -433,7 +425,7 @@
 			},
 			"tags": ["steak"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "4aJwQ7fz",
@@ -447,15 +439,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Pepper%20Lunch%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/pepperlunchthailand"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/pepperlunchthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/ntq7973r"
 				}
 			],
@@ -467,7 +459,7 @@
 			},
 			"tags": ["rice dish", "steak"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "7PK5r2JY",
@@ -503,7 +495,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Shabushi%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/oishigroup/"
 				},
 				{
@@ -523,7 +515,7 @@
 			},
 			"tags": ["shabu", "buffet", "conveyor"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Haml8BH7",
@@ -559,7 +551,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Tenya%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/TenyaThailand/"
 				}
 			],
@@ -571,7 +563,7 @@
 			},
 			"tags": ["rice bowl", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "NBl4vcfL",
@@ -585,15 +577,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=TUDARI%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/tudarithailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/tudarithailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/tqr1886j"
 				}
 			],
@@ -605,7 +597,7 @@
 			},
 			"tags": ["hotpot"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "fP07i6O6",
@@ -619,24 +611,20 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Yayoi%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/YayoiRestaurantThailand"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/yayoi_thailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/327rcyjo"
 				},
 				{
 					"label": "website",
 					"url": "https://yayoirestaurants.com/"
-				},
-				{
-					"label": "website",
-					"url": "https://www.yayoirestaurants.com/branch"
 				}
 			],
 			"notes": "Samyan Mitrtown, B1\nJapanese set meals with rice refills. Mid price.",
@@ -647,7 +635,7 @@
 			},
 			"tags": ["teishoku", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "mGIrvSe4",
@@ -661,15 +649,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=GUGU%20Chicken%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Guguchickenthailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/guguchicken.official/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/guguchicken_major.ratchayothin/"
 				},
 				{
@@ -689,7 +677,7 @@
 			},
 			"tags": ["fried chicken"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "4f90EwHe",
@@ -703,11 +691,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=MX%20Cakes%20%26%20Bakery%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/mxcakesandbakerythailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/mxcakesandbakerythailand/"
 				},
 				{
@@ -722,7 +710,7 @@
 			},
 			"tags": ["cake", "bakery", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "IaY79WAp",
@@ -736,15 +724,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/kfcth/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/kfcthailand/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/kfcth"
 				},
 				{
@@ -759,7 +747,7 @@
 			},
 			"tags": ["fried chicken", "fast food", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "f5PMYssK",
@@ -773,20 +761,16 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=After%20You%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/afteryoucafe/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/afteryoudessertcafe/"
 				},
 				{
 					"label": "website",
 					"url": "https://www.afteryoudessertcafe.com/"
-				},
-				{
-					"label": "website",
-					"url": "https://www.afteryoudessertcafe.com/en/branches/"
 				}
 			],
 			"notes": "Samyan Mitrtown, G\nShibuya honey toast, kakigori and cakes. Mid price.",
@@ -796,7 +780,7 @@
 			},
 			"tags": ["bingsu", "toast", "cake", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Eg0QY1eo",
@@ -810,15 +794,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Bonchon%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/bonchonthailand"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/bonchonthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/723pnafj"
 				}
 			],
@@ -830,7 +814,7 @@
 			},
 			"tags": ["fried chicken"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "0lrajJ2N",
@@ -844,19 +828,19 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Get%20Fresh%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/getfreshth/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/getfreshth/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://lin.ee/tGGVAKL"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://x.com/getfreshth"
 				},
 				{
@@ -876,7 +860,7 @@
 			},
 			"tags": ["healthy", "salad"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "VU1XdjEQ",
@@ -890,11 +874,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Kanom%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/khnm.khafe/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/kanomofficialth/"
 				}
 			],
@@ -905,7 +889,7 @@
 			},
 			"tags": ["bakery"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "YAIHWPs0",
@@ -919,11 +903,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Lhong%20Tou%20Cafe%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/Lhongtouyaowaratofficial/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/lhongtoucafe_official/"
 				}
 			],
@@ -935,7 +919,7 @@
 			},
 			"tags": ["dim sum", "cafe"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "ZRkTU1h5",
@@ -949,7 +933,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Man%20Fu%20Yuan%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/ManFuYuanKitchen/"
 				}
 			],
@@ -961,7 +945,7 @@
 			},
 			"tags": ["rice dish"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "axTiy5cy",
@@ -975,7 +959,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=On%20The%20Table%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/onthetable.th/"
 				}
 			],
@@ -987,7 +971,7 @@
 			},
 			"tags": ["pasta"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "kRfNz2Rd",
@@ -1023,7 +1007,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=So%20Asean%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/SOasean/"
 				}
 			],
@@ -1035,7 +1019,7 @@
 			},
 			"tags": ["rice dish"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "inSQq4rO",
@@ -1049,15 +1033,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Starbucks%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/StarbucksThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/starbucksthailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/853tzvmu"
 				},
 				{
@@ -1076,7 +1060,7 @@
 			},
 			"tags": ["coffee", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "eG3aS5b9",
@@ -1090,15 +1074,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Swensen%27s%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/weloveswensens/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/we_love_swensens"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://liff.line.me/1645278921-kWRPP32q/?accountId=qic0396o"
 				},
 				{
@@ -1117,7 +1101,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "2Drjw5B3",
@@ -1131,15 +1115,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Taco%20Bell%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/tacobellth"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/tacobellth/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://lin.ee/fz2bMbM"
 				},
 				{
@@ -1162,7 +1146,7 @@
 			},
 			"tags": ["fast food"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "DkNYpc1r",
@@ -1176,11 +1160,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=The%20Coffee%20Club%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/thecoffeeclubthailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/thecoffeeclubthailand/"
 				},
 				{
@@ -1196,7 +1180,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "PY16xY6q",
@@ -1210,15 +1194,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Tim%20Hortons%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/timhortonsth/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/timhortons.th/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://lin.ee/gThu0O0"
 				},
 				{
@@ -1237,7 +1221,7 @@
 			},
 			"tags": ["coffee"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "aArSHxGw",
@@ -1251,15 +1235,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=TP%20Tea%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/tpteathailand"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/tptea.thailand/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/tpteathailand"
 				}
 			],
@@ -1270,7 +1254,7 @@
 			},
 			"tags": ["bubble tea", "tea", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Ux7HERZV",
@@ -1284,11 +1268,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Skinnylicious%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/skinnylicious.bkk/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://lin.ee/9ntjR5a"
 				},
 				{
@@ -1308,7 +1292,7 @@
 			},
 			"tags": ["healthy", "salad", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "K6Ip52HU",
@@ -1322,11 +1306,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Guss%20Damn%20Good%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/gussdamngood/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/gussdamngood/"
 				}
 			],
@@ -1337,7 +1321,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "gqIaltkN",
@@ -1351,15 +1335,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=A%20Ramen%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/ARamenOfficial/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/aramen_official/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://line.me/ti/p/~@A-ramen"
 				},
 				{
@@ -1395,7 +1379,7 @@
 			},
 			"tags": ["ramen"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "8Nia2sfp",
@@ -1430,16 +1414,12 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=AKA%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/akarestaurant"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/akayakiniku"
-				},
-				{
-					"label": "website",
-					"url": "https://akayakiniku.com/branch.php"
 				},
 				{
 					"label": "website",
@@ -1454,7 +1434,7 @@
 			},
 			"tags": ["yakiniku", "buffet"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "XUCtt59F",
@@ -1468,15 +1448,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Bar%20B%20Q%20Plaza%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/BarBQPlazaThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/barbqplaza_th/"
 				},
 				{
-					"label": "social",
+					"label": "x",
 					"url": "https://twitter.com/BarBQPlazaThai"
 				},
 				{
@@ -1492,7 +1472,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "eky1u29v",
@@ -1506,7 +1486,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=K-StrEAT%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/k.streat_official/"
 				}
 			],
@@ -1518,7 +1498,7 @@
 			},
 			"tags": ["food court"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "78wQO4oH",
@@ -1532,7 +1512,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Restaurants%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/mkrestaurants/"
 				},
 				{
@@ -1556,7 +1536,7 @@
 			},
 			"tags": ["suki", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "8nJayNU0",
@@ -1570,7 +1550,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Muteki%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/p/Muteki-Samyan-Mitrtown-100058245261194/"
 				}
 			],
@@ -1582,7 +1562,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "JjbOrT48",
@@ -1596,15 +1576,15 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Nittaya%20Kai%20Yang%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/nittayakaiyangofficial/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/nittayakaiyangofficial/"
 				},
 				{
-					"label": "social",
+					"label": "line",
 					"url": "https://page.line.me/muf5839e"
 				},
 				{
@@ -1620,7 +1600,7 @@
 			},
 			"tags": ["grilled chicken", "som tam"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "CoeiviFZ",
@@ -1660,7 +1640,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Samyan%20Food%20Legends%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/foodlegendsbymbk/"
 				}
 			],
@@ -1672,7 +1652,7 @@
 			},
 			"tags": ["food court", "street food"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "3dBWZTgv",
@@ -1686,11 +1666,11 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=Sushi%20Hiro%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/SushiHiroThailand/"
 				},
 				{
-					"label": "social",
+					"label": "instagram",
 					"url": "https://www.instagram.com/sushihirothailand/"
 				}
 			],
@@ -1702,7 +1682,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "dsKdYd4f",
@@ -1716,7 +1696,7 @@
 					"url": "https://www.google.com/maps/search/?api=1&query=The%20Pizza%20Company%20Samyan%20Mitrtown"
 				},
 				{
-					"label": "social",
+					"label": "facebook",
 					"url": "https://www.facebook.com/thepizzacompany/"
 				},
 				{
@@ -1732,7 +1712,7 @@
 			},
 			"tags": ["pizza", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "zhJN3rcV",
