@@ -132,3 +132,14 @@ for (const entry of index.presets) {
 		expect(keys.filter((key, at) => keys.indexOf(key) !== at)).toEqual([]);
 	});
 }
+
+test("restaurant ids are 8 random letters and digits", async () => {
+	for (const entry of index.presets) {
+		const result = parseImport(
+			await Bun.file(`${DIR}/${entry.id}.json`).text(),
+		);
+		if (!result.ok) throw new Error(result.error);
+		for (const item of result.restaurants)
+			expect(item.id).toMatch(/^[0-9A-Za-z]{8}$/);
+	}
+});

@@ -1,10 +1,10 @@
 {
 	"app": "whattoeat",
 	"version": 6,
-	"exportedAt": "2026-10-23T09:59:33.774Z",
+	"exportedAt": "2026-10-23T10:02:27.445Z",
 	"restaurants": [
 		{
-			"id": "ouEbWrQ2",
+			"id": "s6jL5NcS",
 			"name": {
 				"en": "Nara Thai Cuisine",
 				"th": ""
@@ -18,10 +18,10 @@
 			},
 			"tags": ["curry"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "46H7oRvv",
+			"id": "U8fD7Va0",
 			"name": {
 				"en": "Taling Pling",
 				"th": "ตะลิ่งปลิ่ง"
@@ -35,10 +35,10 @@
 			},
 			"tags": ["curry"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "AGtDtzyp",
+			"id": "au7lSX8P",
 			"name": {
 				"en": "Tonchin Ramen",
 				"th": ""
@@ -52,10 +52,10 @@
 			},
 			"tags": ["ramen", "noodles"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "VbQWhvjY",
+			"id": "6p2G2kXa",
 			"name": {
 				"en": "Suki Masa",
 				"th": ""
@@ -69,10 +69,10 @@
 			},
 			"tags": ["sukiyaki", "shabu", "wagyu"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "2DeZfDvl",
+			"id": "7dFDD1ZM",
 			"name": {
 				"en": "Nabezo Premium",
 				"th": ""
@@ -86,10 +86,10 @@
 			},
 			"tags": ["shabu", "sukiyaki", "buffet"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "FD8S1Kvt",
+			"id": "pGfpxQ1n",
 			"name": {
 				"en": "JUMBO Seafood",
 				"th": ""
@@ -103,10 +103,10 @@
 			},
 			"tags": ["seafood", "crab"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "TW3wvQ3l",
+			"id": "K6gk5m1z",
 			"name": {
 				"en": "Sushiro",
 				"th": "ซูชิโร่"
@@ -120,10 +120,10 @@
 			},
 			"tags": ["sushi", "conveyor"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "BMGxFLJz",
+			"id": "7RoavUXj",
 			"name": {
 				"en": "Maple Tree House",
 				"th": ""
@@ -137,10 +137,10 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "GM7bAi3O",
+			"id": "KSfAtApO",
 			"name": {
 				"en": "Another Hound Cafe",
 				"th": ""
@@ -154,10 +154,10 @@
 			},
 			"tags": ["pasta"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "bVpjC9XK",
+			"id": "5pwZROs4",
 			"name": {
 				"en": "Coffee Beans by Dao",
 				"th": ""
@@ -171,10 +171,10 @@
 			},
 			"tags": ["cake", "cafe"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "o7rPeGXk",
+			"id": "7Jfw7ljH",
 			"name": {
 				"en": "TWG Tea",
 				"th": ""
@@ -187,10 +187,10 @@
 			},
 			"tags": ["tea", "cafe"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "gycLBA3p",
+			"id": "SIbDP3S7",
 			"name": {
 				"en": "Karun Thai Tea",
 				"th": ""
@@ -203,10 +203,10 @@
 			},
 			"tags": ["thai tea"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "59VSh8mG",
+			"id": "CfibphYI",
 			"name": {
 				"en": "Veganerie",
 				"th": ""
@@ -220,10 +220,10 @@
 			},
 			"tags": ["vegetarian", "cafe", "cake"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "23QE0DwF",
+			"id": "0orTnlhy",
 			"name": {
 				"en": "Gyukatsu Kyoto Katsugyu",
 				"th": ""
@@ -237,10 +237,10 @@
 			},
 			"tags": ["gyukatsu"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "eID5odBV",
+			"id": "WDF76DFq",
 			"name": {
 				"en": "Tonkatsu Wako",
 				"th": "วาโก ทงคัทสึ"
@@ -254,10 +254,10 @@
 			},
 			"tags": ["tonkatsu"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "AGOffpHN",
+			"id": "HVT4HQRJ",
 			"name": {
 				"en": "Baan Ying",
 				"th": "บ้านหญิง"
@@ -271,10 +271,10 @@
 			},
 			"tags": ["rice dish"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "dY9YKvzF",
+			"id": "MDi57Kqz",
 			"name": {
 				"en": "Pasta Ama",
 				"th": "พาสต้าอาม่า"
@@ -288,10 +288,10 @@
 			},
 			"tags": ["pasta"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "4N0hmXPJ",
+			"id": "VDJJVyr4",
 			"name": {
 				"en": "Hachiban Ramen",
 				"th": "ฮะจิบัง ราเมน"
@@ -305,10 +305,10 @@
 			},
 			"tags": ["ramen", "noodles"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "mxutPWrQ",
+			"id": "ffs6tHWI",
 			"name": {
 				"en": "Zhangliang Malatang",
 				"th": "จางเลี่ยง หม่าล่าทั่ง"
@@ -322,10 +322,10 @@
 			},
 			"tags": ["mala", "malatang"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "Z3xM1Q7z",
+			"id": "QN2qN02q",
 			"name": {
 				"en": "Bonchon",
 				"th": "บอนชอน"
@@ -339,10 +339,10 @@
 			},
 			"tags": ["fried chicken", "fast food"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "5oNyUpbq",
+			"id": "W7bV7WUd",
 			"name": {
 				"en": "Hasul Korean Restaurant",
 				"th": ""
@@ -356,10 +356,10 @@
 			},
 			"tags": ["stew"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "meANdYrs",
+			"id": "ZCuBnAws",
 			"name": {
 				"en": "Tajimaya Shabu",
 				"th": "ทะจิมะยะ ชาบู"
@@ -373,10 +373,10 @@
 			},
 			"tags": ["shabu", "buffet", "wagyu"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "1pnaxR0d",
+			"id": "0ql7f0nt",
 			"name": {
 				"en": "Hongdae BBQ Buffet",
 				"th": "ฮงแด"
@@ -390,10 +390,10 @@
 			},
 			"tags": ["bbq", "buffet"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "eGWrdLGZ",
+			"id": "ZJW5bzz8",
 			"name": {
 				"en": "Kouen Sushi Bar",
 				"th": ""
@@ -407,10 +407,10 @@
 			},
 			"tags": ["sushi", "buffet"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "8LBGVwbE",
+			"id": "Tb2F8Vri",
 			"name": {
 				"en": "Jaguemsong",
 				"th": "จากึมซอง"
@@ -424,10 +424,10 @@
 			},
 			"tags": ["noodles", "jajangmyeon"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "BFeM9M5C",
+			"id": "lPPo0HtG",
 			"name": {
 				"en": "Ramen Kagetsu Arashi",
 				"th": "คาเกทสึ อาราชิ"
@@ -441,10 +441,10 @@
 			},
 			"tags": ["ramen", "noodles"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "xCqu1VnC",
+			"id": "4R7sPdY2",
 			"name": {
 				"en": "Ohkajhu",
 				"th": "โอ้กะจู๋"
@@ -458,10 +458,10 @@
 			},
 			"tags": ["healthy", "salad", "unverified"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "dR27VRp6",
+			"id": "B0NqQ7ft",
 			"name": {
 				"en": "After You",
 				"th": "อาฟเตอร์ ยู"
@@ -474,10 +474,10 @@
 			},
 			"tags": ["bingsu", "toast", "unverified"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "Xpt3g3As",
+			"id": "kV6w8BA0",
 			"name": {
 				"en": "Amai Soft Serve",
 				"th": "อามาอิ ซอฟท์เสริฟ"
@@ -490,7 +490,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		}
 	],
 	"history": [],

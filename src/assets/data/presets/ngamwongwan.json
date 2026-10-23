@@ -1,10 +1,10 @@
 {
 	"app": "whattoeat",
 	"version": 6,
-	"exportedAt": "2026-10-23T09:59:33.774Z",
+	"exportedAt": "2026-10-23T10:02:27.445Z",
 	"restaurants": [
 		{
-			"id": "Djgb6jqO",
+			"id": "5auiMZiG",
 			"name": {
 				"en": "MK Restaurants",
 				"th": "เอ็มเค"
@@ -18,10 +18,10 @@
 			},
 			"tags": ["suki", "hotpot"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "IRKsiEYE",
+			"id": "0GzP8V0o",
 			"name": {
 				"en": "Fuji Japanese Restaurant",
 				"th": "ฟูจิ"
@@ -35,10 +35,10 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "kFp0cBwb",
+			"id": "Agv4KiRb",
 			"name": {
 				"en": "Bar B Q Plaza",
 				"th": "บาร์บีคิวพลาซ่า"
@@ -51,10 +51,10 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "Qilky3ef",
+			"id": "t1XHAist",
 			"name": {
 				"en": "Swensen's",
 				"th": "สเวนเซ่นส์"
@@ -67,10 +67,10 @@
 			},
 			"tags": ["ice cream"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "ZyNWSYs1",
+			"id": "g4ahjKQ2",
 			"name": {
 				"en": "Starbucks",
 				"th": ""
@@ -83,10 +83,10 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "oSrzAY7X",
+			"id": "nqxa69Nr",
 			"name": {
 				"en": "Ohkajhu",
 				"th": "โอ้กะจู๋"
@@ -99,10 +99,10 @@
 			},
 			"tags": ["healthy", "salad"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "ME1TlxZM",
+			"id": "FDZHDA3R",
 			"name": {
 				"en": "Yayoi",
 				"th": "ยาโยอิ"
@@ -116,10 +116,10 @@
 			},
 			"tags": ["teishoku"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "9BDFW066",
+			"id": "FvwCXP7j",
 			"name": {
 				"en": "After You",
 				"th": "อาฟเตอร์ ยู"
@@ -132,10 +132,10 @@
 			},
 			"tags": ["cafe"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "E9qY98XD",
+			"id": "mSG77rp5",
 			"name": {
 				"en": "KFC",
 				"th": "เคเอฟซี"
@@ -148,10 +148,10 @@
 			},
 			"tags": ["fast food", "fried chicken"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "CsJX4YHC",
+			"id": "lkr3ZnmW",
 			"name": {
 				"en": "Sizzler",
 				"th": "ซิซซ์เล่อร์"
@@ -165,10 +165,10 @@
 			},
 			"tags": ["steak", "salad bar"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "ZjkMlZvW",
+			"id": "Bd9KVAEJ",
 			"name": {
 				"en": "Shabushi",
 				"th": "ชาบูชิ"
@@ -182,10 +182,10 @@
 			},
 			"tags": ["shabu", "sushi", "buffet"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "RYLXV2Ui",
+			"id": "61s1yVuA",
 			"name": {
 				"en": "Tim Ho Wan",
 				"th": ""
@@ -199,7 +199,7 @@
 			},
 			"tags": ["dim sum", "unverified"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T09:59:33.774Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		}
 	],
 	"history": [],
