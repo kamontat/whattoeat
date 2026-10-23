@@ -2,6 +2,26 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-24: Official links for the last map-only preset restaurants
+
+### Improvements
+
+- 24 preset restaurants in Ladprao, Ratchayothin, Samyan and Siam that had only a map link now
+  also link to the brand's own Facebook, Instagram, LINE, TikTok, X, website or menu pages.
+
+### Bug fixes
+
+- Yi Fang is gone from the Samyan preset, because the brand left Thailand in October 2024.
+- Pathe in the Ladprao preset no longer lists a phone number that belonged to its Victory
+  Monument branch.
+
+### Decisions
+
+- Nine restaurants keep only their map link, because no official page could be tied to that
+  branch. A wrong page sends people to the wrong shop, which is worse than no page.
+- Pages on a parent company's site (Ssamthing Together on Maguro Group's site, Lotus's Eats on
+  Lotus's corporate site) are not used as `website`, which is for a brand's own homepage only.
+
 ## 2026-10-23: Labelled links, names in English and Thai, and a Samyan Mitrtown preset
 
 ### BREAKING CHANGES
