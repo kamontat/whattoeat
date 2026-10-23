@@ -14,8 +14,8 @@
  * `name` is a string (the English name) or `{ en?, th? }`; an update changes only the
  * languages it gives. Every restaurant needs a name in at least one language.
  *
- * `links` is a list of `{ label?, url }`, each url an http(s) URL; an update replaces the whole
- * list. A label is optional: the app shows the URL's host without one.
+ * `links` is a list of `{ label, url }`, each url an http(s) URL and each label one of
+ * LINK_LABELS (any case); an update replaces the whole list.
  * New restaurants get 8-character ids unique across every preset file and today's timestamps.
  * Changed ones get a new `updatedAt`. Tags and group values are cleaned the way the app does.
  * When the preset already has an index entry, its `updatedAt` is set to today if anything
@@ -24,6 +24,8 @@
 
 const DIR = "src/assets/data/presets";
 const KINDS = ["food", "drinks", "dessert"] as const;
+/** The app's preset link labels (src/lib/restaurant.ts), highest priority first. */
+const LINK_LABELS = ["main", "map", "social", "website", "menu", "delivery"];
 const ID_ALPHABET =
 	"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -48,7 +50,7 @@ type Draft = {
 	name?: string | Partial<Name>;
 	location?: string;
 	notes?: string;
-	links?: { label?: string; url: string }[];
+	links?: { label: string; url: string }[];
 	kinds?: string[];
 	cuisine?: string | string[];
 	area?: string;
@@ -153,7 +155,10 @@ const checkLinks = (links: Draft["links"], label: string): Link[] =>
 		const url = link.url?.trim() ?? "";
 		if (!/^https?:\/\//.test(url))
 			fail(`${label}: each link url must start with https:// or http:// (put places and floors in notes)`);
-		return { label: link.label?.trim() ?? "", url };
+		const kind = link.label?.trim().toLowerCase() ?? "";
+		if (!LINK_LABELS.includes(kind))
+			fail(`${label}: link label "${link.label ?? ""}" must be one of ${LINK_LABELS.join(", ")}`);
+		return { label: kind, url };
 	});
 
 const checkKinds = (kinds: string[], label: string): string[] => {
