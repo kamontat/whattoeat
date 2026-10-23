@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T10:24:30.196Z",
+	"exportedAt": "2026-10-23T16:17:13.860Z",
 	"restaurants": [
 		{
 			"id": "5auiMZiG",
@@ -11,8 +11,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Restaurants%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/mkrestaurants/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.mkrestaurant.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.mkrestaurant.com/en/mk-menu"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.mk1642.com/th/"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, 5F\nSuki, roast duck. Family-friendly.",
@@ -23,7 +39,7 @@
 			},
 			"tags": ["suki", "hotpot"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "0GzP8V0o",
@@ -33,8 +49,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Fuji%20Japanese%20Restaurant%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/FujiRestaurant"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/fujirestaurant"
+				},
+				{
 					"label": "website",
 					"url": "https://www.fuji.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.fuji.co.th/menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://food.grab.com/th/en/chain/fuji-japanese-restaurant-delivery"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, 5F\nSushi, sashimi, set meals. Mid price.",
@@ -45,7 +81,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Agv4KiRb",
@@ -54,6 +90,22 @@
 				"th": "บาร์บีคิวพลาซ่า"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Bar%20B%20Q%20Plaza%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/BarBQPlazaThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/barbqplaza_th/"
+				},
+				{
+					"label": "social",
+					"url": "https://twitter.com/BarBQPlazaThai"
+				},
 				{
 					"label": "website",
 					"url": "https://barbqplaza.com/"
@@ -66,7 +118,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "t1XHAist",
@@ -76,8 +128,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Swensen%27s%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/weloveswensens/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/we_love_swensens"
+				},
+				{
+					"label": "social",
+					"url": "https://liff.line.me/1645278921-kWRPP32q/?accountId=qic0396o"
+				},
+				{
 					"label": "website",
 					"url": "https://www.swensens1112.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://brandsite.swensens1112.com/our-menu"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, G\nIce cream sundaes.",
@@ -87,7 +159,7 @@
 			},
 			"tags": ["ice cream"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "g4ahjKQ2",
@@ -97,8 +169,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Starbucks%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/StarbucksThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/starbucksthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/853tzvmu"
+				},
+				{
 					"label": "website",
 					"url": "https://www.starbucks.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.starbucks.co.th/en/menu/"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, G",
@@ -108,7 +200,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "nqxa69Nr",
@@ -118,8 +210,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Ohkajhu%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/ohkajhuorganic/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/pcb3808y"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/ohkajhu"
+				},
+				{
 					"label": "website",
 					"url": "https://www.okjgroup.com/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.okjgroup.com/en/business-and-brands/ohkajhu"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, 5F\nOrganic salads, steaks and rice bowls. Mid price.",
@@ -129,7 +241,7 @@
 			},
 			"tags": ["healthy", "salad"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "FDZHDA3R",
@@ -139,8 +251,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Yayoi%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/YayoiRestaurantThailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/yayoi_thailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/327rcyjo"
+				},
+				{
 					"label": "website",
 					"url": "https://yayoirestaurants.com/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.yayoirestaurants.com/branch"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, 5F\nJapanese set meals. Budget to mid price.",
@@ -151,7 +283,7 @@
 			},
 			"tags": ["teishoku"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "FvwCXP7j",
@@ -161,8 +293,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=After%20You%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/afteryoucafe/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/afteryoudessertcafe/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.afteryoudessertcafe.com/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.afteryoudessertcafe.com/en/branches/"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, G\nShibuya honey toast, bingsu. Greenhouse zone.",
@@ -172,7 +320,7 @@
 			},
 			"tags": ["cafe"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "mSG77rp5",
@@ -181,6 +329,22 @@
 				"th": "เคเอฟซี"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/kfcth/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/kfcthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/kfcth"
+				},
 				{
 					"label": "website",
 					"url": "https://www.kfc.co.th/"
@@ -193,7 +357,7 @@
 			},
 			"tags": ["fast food", "fried chicken"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "lkr3ZnmW",
@@ -203,8 +367,40 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sizzler%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/SizzlerThai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/sizzlerth/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/mjg0575g"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/sizzlerthai"
+				},
+				{
 					"label": "website",
 					"url": "https://www.sizzler.co.th/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://1112delivery.com/restaurant/sizzler"
+				},
+				{
+					"label": "delivery",
+					"url": "https://grb.to/46nOo0x"
+				},
+				{
+					"label": "delivery",
+					"url": "https://lineman.onelink.me/1N3T/5dx66kjs"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, 5F\nSteaks with salad bar. Mid price.",
@@ -215,7 +411,7 @@
 			},
 			"tags": ["steak", "salad bar"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Bd9KVAEJ",
@@ -225,8 +421,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Shabushi%20The%20Mall%20Ngamwongwan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/oishigroup/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.oishifood.com/restaurant/shabushi/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://oishidelivery.com/th"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, 5F\nConveyor shabu and sushi buffet.",
@@ -237,7 +445,7 @@
 			},
 			"tags": ["shabu", "sushi", "buffet"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "61s1yVuA",
@@ -247,8 +455,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Tim%20Ho%20Wan%20The%20Mall%20Ngamwongwan"
+				},
+				{
 					"label": "website",
 					"url": "https://www.timhowan.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.timhowan.com/our-menu"
 				}
 			],
 			"notes": "The Mall Ngamwongwan, 1F\nHong Kong dim sum, baked BBQ pork buns. Mid price.",
@@ -259,7 +475,7 @@
 			},
 			"tags": ["dim sum", "unverified"],
 			"createdAt": "2026-10-17T09:12:44.542Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		}
 	],
 	"history": [],

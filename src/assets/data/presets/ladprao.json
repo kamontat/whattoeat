@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T10:24:30.196Z",
+	"exportedAt": "2026-10-23T16:17:13.860Z",
 	"restaurants": [
 		{
 			"id": "uu7b9Kul",
@@ -33,8 +33,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Seki%20Hand%20Roll%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/sekihandroll"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/sekihandroll/"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nHand-roll sets from 590 THB (4 rolls). New 2026.",
@@ -45,7 +53,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "OalNlbFc",
@@ -54,6 +62,10 @@
 				"th": "โอโตยะ โอกิ"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=OOTOYA%20OKI%20Shabu%20%26%20Sukiyaki%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/ootoyaoki/"
@@ -67,7 +79,7 @@
 			},
 			"tags": ["shabu", "sukiyaki"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "kzmZHvWG",
@@ -77,8 +89,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Boon%20Tong%20Kee%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/BoonTongKeeThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/boontongkee_thailand"
+				},
+				{
+					"label": "social",
+					"url": "https://line.me/R/ti/p/%40nfx6766h"
+				},
+				{
+					"label": "social",
+					"url": "https://twitter.com/boontongkee_th"
+				},
+				{
+					"label": "website",
+					"url": "https://www.boontongkeethailand.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.boontongkeethailand.com/Page_menu.php"
 				}
 			],
 			"notes": "Central Ladprao, G\nHainanese chicken rice. Mid price.",
@@ -89,7 +125,7 @@
 			},
 			"tags": ["chicken rice", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "c3Y8B5sA",
@@ -98,6 +134,10 @@
 				"th": "เทราโอกะ เกี๊ยวซ่า"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Teraoka%20Gyoza%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/teraokagyoza/"
@@ -111,7 +151,7 @@
 			},
 			"tags": ["gyoza", "ramen"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "IsbfAQtn",
@@ -120,6 +160,22 @@
 				"th": "เคเอฟซี"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/kfcth/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/kfcthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/kfcth"
+				},
 				{
 					"label": "website",
 					"url": "https://www.kfc.co.th/"
@@ -132,7 +188,7 @@
 			},
 			"tags": ["fast food", "fried chicken"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "DpRs4IVj",
@@ -142,8 +198,24 @@
 			},
 			"links": [
 				{
-					"label": "website",
-					"url": "https://www.tiktok.com/@pastaama_"
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Pasta%20Ama%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/pastaama/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/pastaama.bkk/"
+				},
+				{
+					"label": "social",
+					"url": "https://lin.ee/t5C8QB6"
+				},
+				{
+					"label": "social",
+					"url": "https://www.tiktok.com/@pastaama.bkk"
 				}
 			],
 			"notes": "Central Ladprao, G\nFresh pasta. 251-500 THB.",
@@ -154,7 +226,7 @@
 			},
 			"tags": ["pasta"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "tyCJVO2z",
@@ -163,6 +235,14 @@
 				"th": "ล่าเมียว"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Spicy%20Cat%20La%20Meow%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/Lameowbkk/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.lameow.com/"
@@ -176,7 +256,7 @@
 			},
 			"tags": ["mala", "hotpot", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "g224CUeK",
@@ -186,8 +266,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Jones%27%20Salad%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/JonesSaladOfficial/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/jonessalad/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/vob8822w"
+				},
+				{
+					"label": "social",
+					"url": "https://www.tiktok.com/@jonessaladofficial"
+				},
+				{
 					"label": "website",
 					"url": "https://www.jonessalad.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.jonessalad.com/menu/"
 				}
 			],
 			"notes": "Central Ladprao, G\nBuild-your-own salad.",
@@ -197,7 +301,7 @@
 			},
 			"tags": ["healthy", "salad"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "K2olzW4i",
@@ -206,6 +310,22 @@
 				"th": "สลัดแฟคทอรี่"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Salad%20Factory%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/saladfactoryofthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/saladfactorythailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/pac6513g"
+				},
 				{
 					"label": "website",
 					"url": "https://www.saladfactorythailand.com/"
@@ -218,7 +338,7 @@
 			},
 			"tags": ["healthy", "salad", "steak"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "HT7icX3R",
@@ -227,6 +347,10 @@
 				"th": "ก๋วยเตี๋ยวเรือเสือหน้าหยก"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Kuay%20Teow%20Ruea%20Suea%20Na%20Yok%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/jadetiger.th"
@@ -240,7 +364,7 @@
 			},
 			"tags": ["noodles", "boat noodles", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Cqy9EjzU",
@@ -252,6 +376,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Chunn%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/chunn.bkk/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/chunn.bkk/"
 				}
 			],
 			"notes": "Central Ladprao, G\nWagyu rice bowl, wagyu fried rice.",
@@ -262,7 +394,7 @@
 			},
 			"tags": ["wagyu", "rice bowl", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "xfEFlhBz",
@@ -274,6 +406,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=EASY!%20buddy%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/Easybuddybkk/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/easybuddybkk/"
 				}
 			],
 			"notes": "Central Ladprao, G\nPad kra pao. Budget.",
@@ -284,7 +424,7 @@
 			},
 			"tags": ["street food"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "QARnvVQ6",
@@ -316,8 +456,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Hachiban%20Ramen%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/hachibanramenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/hachibanramenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://twitter.com/hachibanramenth"
+				},
+				{
 					"label": "website",
 					"url": "https://www.hachiban.co.th/en/branch/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.hachiban.co.th/th/menu/"
 				}
 			],
 			"notes": "Central Ladprao, G\nMiso and shoyu ramen. Budget.",
@@ -328,7 +488,7 @@
 			},
 			"tags": ["ramen", "noodles"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "71vFI9ly",
@@ -338,8 +498,20 @@
 			},
 			"links": [
 				{
-					"label": "website",
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Jae%20Daeng%20Samyan%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
 					"url": "https://www.tiktok.com/@jaedangsamyan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/Jaedangsamyan.JD/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/jaedang_samyan/"
 				}
 			],
 			"notes": "Central Ladprao, G\nSom tam, grilled pork neck. Budget.",
@@ -350,7 +522,7 @@
 			},
 			"tags": ["som tam"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "8y8SNjYU",
@@ -360,8 +532,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=KEN%20PHU%20PANG%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/kenphupang/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/kenphupang/"
 				}
 			],
 			"notes": "Central Ladprao, G\nSignature toast, avocado slushy.",
@@ -371,7 +551,7 @@
 			},
 			"tags": ["bakery", "toast", "cafe"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "qjNCx0pA",
@@ -381,8 +561,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Eric%20Kayser%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/MaisonEricKayserThailand/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://shop.line.me/@erickayserth"
 				}
 			],
 			"notes": "Central Ladprao, G\nBaguettes, croissants, shio pan.",
@@ -393,7 +581,7 @@
 			},
 			"tags": ["bakery", "cafe"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "78IxVgrz",
@@ -405,6 +593,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Chongdee%20Teahouse%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/chongdee.teahouse/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/chongdee.teahouse/"
 				}
 			],
 			"notes": "Central Ladprao, 2F\nThai tea slushies. Long queues.",
@@ -414,7 +610,7 @@
 			},
 			"tags": ["thai tea"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "mzTvut4C",
@@ -424,8 +620,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=KUMOLAB%20Cheese%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://page.line.me/581miemt"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/p/Kumolab-Cheese-61564368866187/"
 				}
 			],
 			"notes": "Central Ladprao, G\nJapanese cheesecake. Now named KUMOLAB Cheese, near Tops.",
@@ -435,7 +639,7 @@
 			},
 			"tags": ["cheesecake"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "fJ4aALBS",
@@ -445,8 +649,20 @@
 			},
 			"links": [
 				{
-					"label": "website",
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=bonnana%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
 					"url": "https://www.tiktok.com/@bonnana.house"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/bonnana.house/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/p/Bonnana-%E0%B8%9A%E0%B8%AD%E0%B8%99%E0%B8%99%E0%B8%B2%E0%B8%99%E0%B9%88%E0%B8%B2-61561041122452/"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nCakes. Near B2S. Closed until Jan 2027 per Wongnai.",
@@ -456,7 +672,7 @@
 			},
 			"tags": ["bakery", "cake", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "iJMKPbwF",
@@ -465,6 +681,14 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Din%20Tai%20Fung%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/DinTaiFungTh/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.dintaifung.com.tw/eng/store_world.php?cid=6"
@@ -478,7 +702,7 @@
 			},
 			"tags": ["dim sum"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "60UwGz6X",
@@ -488,8 +712,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Restaurants%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/mkrestaurants/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.mkrestaurant.com/th/branch"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.mkrestaurant.com/en/mk-menu"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.mk1642.com/th/"
 				}
 			],
 			"notes": "Central Ladprao, 1F\nSuki, roast duck. Family-friendly.",
@@ -500,7 +740,7 @@
 			},
 			"tags": ["suki", "hotpot"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "iE6NNzCV",
@@ -509,6 +749,10 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Yakiniku%20Like%20Central%20Ladprao"
+				},
 				{
 					"label": "website",
 					"url": "https://dining-innovation.com.sg/yakinikulike/country/thailand"
@@ -522,7 +766,7 @@
 			},
 			"tags": ["bbq", "yakiniku"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "BmAiOy19",
@@ -532,8 +776,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Saemaeul%20Sikdang%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/saemaeul.thailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/saemaeul.thailand/"
 				}
 			],
 			"notes": "Central Ladprao, 1F\nThin-sliced marinated pork BBQ. Budget-mid.",
@@ -544,7 +796,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "KUyo2WOy",
@@ -554,8 +806,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=On%20The%20Table%2C%20Tokyo%20Cafe%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/OntheTableTokyoCafe"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/onthetable.th/"
 				}
 			],
 			"notes": "Central Ladprao, 1F\nJapanese-style pasta. Mid price.",
@@ -566,7 +826,7 @@
 			},
 			"tags": ["fusion", "pasta", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "6Xccxawp",
@@ -576,8 +836,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Khampun%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/Kumpoon.fanpage/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/kumpoon_/"
 				}
 			],
 			"notes": "Central Ladprao, 1F\nSom tam, spicy pork rib soup. Mid price.",
@@ -588,7 +856,7 @@
 			},
 			"tags": ["som tam", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "FPp4XTev",
@@ -598,8 +866,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Zen%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/Zenjapaneserestaurant/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/zen_restaurant/"
+				},
+				{
+					"label": "social",
+					"url": "https://line.me/R/ti/p/%40hyy7563k"
+				},
+				{
 					"label": "website",
 					"url": "https://www.zenrestaurant.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://zenrestaurant.co.th/menu.php"
+				},
+				{
+					"label": "delivery",
+					"url": "https://zenrestaurant.co.th/delivery.php"
 				}
 			],
 			"notes": "Central Ladprao, 1F\nJapanese buffet and a la carte. Mid-high price.",
@@ -610,7 +902,7 @@
 			},
 			"tags": ["buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "3fek1U4O",
@@ -620,8 +912,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=After%20You%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/afteryoucafe/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/afteryoudessertcafe/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.afteryoudessertcafe.com/en/branches/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.afteryoudessertcafe.com/"
 				}
 			],
 			"notes": "Central Ladprao, 1F\nShibuya honey toast, bingsu. 101-250 THB.",
@@ -631,7 +939,7 @@
 			},
 			"tags": ["cafe"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "mmqPa2VQ",
@@ -640,6 +948,10 @@
 				"th": "อูโน่"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=UNO%20Coffee%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/UNOCoffeeCompany/"
@@ -652,7 +964,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "DBXJLimK",
@@ -661,6 +973,10 @@
 				"th": "ทองสมิทธ์"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=ThongSmith%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/p/Thongsmith-Central-Ladprao-%E0%B9%80%E0%B8%8B%E0%B9%87%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B1%E0%B8%A5-%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7-100063629375894/"
@@ -674,7 +990,7 @@
 			},
 			"tags": ["noodles", "boat noodles"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "HiREzt0r",
@@ -684,8 +1000,40 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MOS%20Burger%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/MOSBURGERThai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/mosburgerthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/560vcpbv"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/MOSBurger_Th"
+				},
+				{
 					"label": "website",
 					"url": "https://www.mos-th.com/en/branch/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.mos-th.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.mos-th.com/en/menu-cat/main-menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.mos-th.com/en/delivery/"
 				}
 			],
 			"notes": "Central Ladprao, 2F\nRice burgers. Budget.",
@@ -696,7 +1044,7 @@
 			},
 			"tags": ["burger", "fast food"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "SfKL94aZ",
@@ -705,6 +1053,22 @@
 				"th": "บาร์บีคิวพลาซ่า"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Bar%20B%20Q%20Plaza%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/BarBQPlazaThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/barbqplaza_th/"
+				},
+				{
+					"label": "social",
+					"url": "https://twitter.com/BarBQPlazaThai"
+				},
 				{
 					"label": "website",
 					"url": "https://barbqplaza.com/branch/"
@@ -717,7 +1081,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "mwnwqMJR",
@@ -727,8 +1091,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Mo-Mo-Paradise%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/ThaiMoMoParadise"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/momoparadiseth"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/xmj7324r"
+				},
+				{
 					"label": "website",
 					"url": "https://mo-mo-paradiseth.com/branches/"
+				},
+				{
+					"label": "website",
+					"url": "https://mo-mo-paradiseth.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://mo-mo-paradiseth.com/menu/"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nPremium shabu/sukiyaki buffet. Mid-high price.",
@@ -739,7 +1127,7 @@
 			},
 			"tags": ["shabu", "sukiyaki", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "cp058Xok",
@@ -749,8 +1137,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sukishi%20Korean%20Charcoal%20Grill%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/sukishifanclub"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/sukishigroup"
+				},
+				{
 					"label": "website",
-					"url": "https://www.sukishi.co.th/"
+					"url": "https://www.sukishigroup.com/"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nCharcoal grill buffet, 100+ items.",
@@ -761,7 +1161,7 @@
 			},
 			"tags": ["bbq", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Qyet2pd8",
@@ -770,6 +1170,10 @@
 				"th": "ซากุระ ยากินิคุแอนด์ชาบู"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sakura%20Yakiniku%20Shabu%20%26%20Sushi%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/SakuraThailandPage/"
@@ -783,7 +1187,7 @@
 			},
 			"tags": ["yakiniku", "shabu", "sushi", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "N8TMWgqT",
@@ -793,8 +1197,40 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sizzler%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/SizzlerThai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/sizzlerth/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/mjg0575g"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/sizzlerthai"
+				},
+				{
 					"label": "website",
 					"url": "https://www.sizzler.co.th/en/all-branches"
+				},
+				{
+					"label": "delivery",
+					"url": "https://1112delivery.com/restaurant/sizzler"
+				},
+				{
+					"label": "delivery",
+					"url": "https://grb.to/46nOo0x"
+				},
+				{
+					"label": "delivery",
+					"url": "https://lineman.onelink.me/1N3T/5dx66kjs"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nSteaks with salad bar. Mid price.",
@@ -805,7 +1241,7 @@
 			},
 			"tags": ["steak", "salad bar"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "rsSzpJoz",
@@ -815,8 +1251,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=CoCo%20ICHIBANYA%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/cocoichibanyathailand/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.tgi.co.th/our-business/coco/?lang=en"
+				},
+				{
+					"label": "website",
+					"url": "https://www.cocothailand.com/"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nKatsu curry rice. Budget-mid.",
@@ -827,7 +1275,7 @@
 			},
 			"tags": ["curry", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "KgWH9DRw",
@@ -837,8 +1285,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Yuzu%20Suki%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/yuzusuki.th/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/yuzusuki_th/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/211udfss"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nA5 beef, Iberico pork. Premium.",
@@ -849,7 +1309,7 @@
 			},
 			"tags": ["shabu", "sukiyaki"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "BbD7fj7F",
@@ -859,8 +1319,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Fuji%20Japanese%20Restaurant%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/FujiRestaurant"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/fujirestaurant"
+				},
+				{
 					"label": "website",
 					"url": "https://www.fuji.co.th/?lang=en"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.fuji.co.th/menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://food.grab.com/th/en/chain/fuji-japanese-restaurant-delivery"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nSushi, sashimi, set meals. Mid price.",
@@ -871,7 +1351,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "soli9BIE",
@@ -881,8 +1361,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Burn%20Busaba%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/burnbusaba/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/BurnbusabaSiamparagon/"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nPremium som tam, yum, grill.",
@@ -893,7 +1381,7 @@
 			},
 			"tags": ["som tam"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "6U377Q5w",
@@ -903,8 +1391,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Greyhound%20Cafe%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/GreyhoundCafe/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/greyhoundcafe/"
+				},
+				{
+					"label": "social",
+					"url": "https://lin.ee/JA2up7"
+				},
+				{
 					"label": "website",
 					"url": "https://www.greyhoundcafe.co.th/branch/central-lardprao/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.greyhoundcafe.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.greyhoundcafe.co.th/menu_category/food/"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nEgg-wrapped pad thai. Mid price.",
@@ -915,7 +1427,7 @@
 			},
 			"tags": ["fusion", "cafe"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "wBHJ7XZ0",
@@ -925,8 +1437,36 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Kyo%20Roll%20En%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/KyoRollEn"
+				},
+				{
+					"label": "social",
+					"url": "https://instagram.com/kachabros/"
+				},
+				{
+					"label": "social",
+					"url": "https://twitter.com/kyorollen"
+				},
+				{
 					"label": "website",
 					"url": "https://www.kyorollen.com/find-us/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.kyorollen.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.kyorollen.com/menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.kyorollen.com/order"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nMatcha roll cake, parfait.",
@@ -937,7 +1477,7 @@
 			},
 			"tags": ["matcha"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "rPzmMYOm",
@@ -947,8 +1487,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Laem%20Charoen%20Seafood%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/laemcharoenseafood/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/laemcharoenseafood/"
+				},
+				{
+					"label": "social",
+					"url": "https://lin.ee/am3bvcp"
+				},
+				{
 					"label": "website",
 					"url": "https://www.laemcharoenseafood.com/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.laemcharoenseafood.com/th/delivery"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nDeep-fried sea bass with fish sauce. Mid-high price.",
@@ -959,7 +1519,7 @@
 			},
 			"tags": ["seafood"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "E37U9fH7",
@@ -969,8 +1529,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Shabushi%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/oishigroup/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.oishifood.com/restaurant/shabushi/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://oishidelivery.com/th"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nConveyor shabu and sushi buffet from ~499 THB.",
@@ -981,7 +1553,7 @@
 			},
 			"tags": ["shabu", "sushi", "buffet", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "w3jxivZJ",
@@ -991,8 +1563,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sushi%20Seki%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/SushiSekiThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/sushisekithailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/afp3384o"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nSushi and donburi; omakase from 2,499 THB.",
@@ -1003,7 +1587,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "a2I90fUl",
@@ -1013,8 +1597,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Honmono%20Sushi%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/Honmono/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/honmonosushi_official/"
+				},
+				{
+					"label": "social",
+					"url": "https://lin.ee/2Ns5cUp"
+				},
+				{
 					"label": "website",
 					"url": "https://www.honmono.xyz/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.honmono.xyz/delivery-a-la-carte"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nPremium sushi, Tsukiji-sourced fish. High price.",
@@ -1025,7 +1629,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "6CA9yXEV",
@@ -1034,6 +1638,10 @@
 				"th": "วาโก ทงคัทสึ"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Tonkatsu%20Wako%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/tonkatsuwakoth/"
@@ -1047,7 +1655,7 @@
 			},
 			"tags": ["tonkatsu", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "BQ3dbMMt",
@@ -1057,8 +1665,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Ootoya%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/ootoyathai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/ootoya_thailand/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.ootoya.co.th/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.ootoya.co.th/branches.php"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.ootoya.co.th/menu.php"
+				},
+				{
+					"label": "delivery",
+					"url": "https://lin.ee/8mt3LLS"
 				}
 			],
 			"notes": "Central Ladprao, 3F\nJapanese set meals, grilled mackerel. Budget-mid.",
@@ -1069,7 +1701,7 @@
 			},
 			"tags": ["teishoku"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "8yv4RF4X",
@@ -1079,8 +1711,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Kub%20Kao%27%20Kub%20Pla%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/kubkaokubplalp/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/kubkaokubplabyiberry/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/kubkaokubpla/"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nSmoked salmon waterfall salad. Mid-high price.",
@@ -1091,7 +1735,7 @@
 			},
 			"tags": ["fusion"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "LjPPpxwl",
@@ -1103,6 +1747,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Somtam%20Nua%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/Somtamnuathailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/somtamnua/"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nSom tam, fried chicken wings.",
@@ -1113,7 +1765,7 @@
 			},
 			"tags": ["som tam"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "nL1wilp0",
@@ -1122,6 +1774,18 @@
 				"th": "บ้านไอซ์"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Baan%20Ice%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/baanice.restaurants/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/baanicerestaurant"
+				},
 				{
 					"label": "website",
 					"url": "https://www.baanice.com/"
@@ -1135,7 +1799,7 @@
 			},
 			"tags": [],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "lRAy6Dbv",
@@ -1145,8 +1809,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Bonchon%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/bonchonthailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/bonchonthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/723pnafj"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nKorean fried chicken. Budget-mid.",
@@ -1157,7 +1833,7 @@
 			},
 			"tags": ["fried chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "8iuZHWWa",
@@ -1169,6 +1845,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Nice%20Two%20Meat%20U%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/nicetwomeatuthailand/"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nKorean BBQ, budae jjigae. Mid price.",
@@ -1179,7 +1859,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Y0TleChA",
@@ -1189,7 +1869,27 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Nam%20Nam%20Pasta%20%26%20Tapas%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/namnampastaandtapas/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/namnampastaandtapas/"
+				},
+				{
+					"label": "social",
+					"url": "https://line.me/ti/p/@namnampasta"
+				},
+				{
 					"label": "website",
+					"url": "https://www.namnampasta.com/"
+				},
+				{
+					"label": "menu",
 					"url": "https://www.namnampasta.com/branchesmenu"
 				}
 			],
@@ -1201,7 +1901,7 @@
 			},
 			"tags": ["pasta"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "bhogztkt",
@@ -1211,8 +1911,40 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Phed%20Phed%20Cafe%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/PhedPhedFood"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/phedphedcafe20/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/phedphed_food/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/menu_phedphed_cafe"
+				},
+				{
 					"label": "website",
 					"url": "https://www.phedphed.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.phedphed.com/_files/ugd/0218cd_7c75a173e22140c09720d28640356ec6.pdf"
+				},
+				{
+					"label": "delivery",
+					"url": "https://r.grab.com/g/6-20260706_152821_885593C1892145BEB9366EB9EB1C6BBC_MEXMPS-3-C3CFJVETPAAYJT"
+				},
+				{
+					"label": "delivery",
+					"url": "https://lin.ee/ybCQUWC"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nSom tam, fried pork. Mid-high price.",
@@ -1223,7 +1955,7 @@
 			},
 			"tags": ["som tam"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "wtiz7ZsW",
@@ -1233,8 +1965,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Kagurazaka%20Saryo%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/saryothailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/saryo_thailand/"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nJapanese matcha desserts.",
@@ -1245,7 +1985,7 @@
 			},
 			"tags": ["matcha", "cafe", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Qs8QDqyz",
@@ -1254,6 +1994,10 @@
 				"th": "โยชิโนยะ"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Yoshinoya%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.instagram.com/yoshinoya.thailand/"
@@ -1267,7 +2011,7 @@
 			},
 			"tags": ["rice bowl", "fast food"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "9ZuHiarz",
@@ -1276,6 +2020,10 @@
 				"th": "เทนยะ"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Tenya%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/TenyaThailand/"
@@ -1289,7 +2037,7 @@
 			},
 			"tags": ["tempura", "rice bowl", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "MxSUK0am",
@@ -1301,6 +2049,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=QQ%20Dessert%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/QQdessert.th/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/qqdessert/"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nMango shaved ice.",
@@ -1311,7 +2067,7 @@
 			},
 			"tags": ["bingsu"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "EIsQlq3x",
@@ -1321,8 +2077,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=TUDARI%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/tudarithailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/tudarithailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/tqr1886j"
 				}
 			],
 			"notes": "Central Ladprao\nKorean dishes. Budget-mid.",
@@ -1333,7 +2101,7 @@
 			},
 			"tags": ["unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "5hTWUnfq",
@@ -1342,6 +2110,10 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=A%20Fox%20Princess%20Kitchen%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/afoxprincessandfriends/"
@@ -1355,7 +2127,7 @@
 			},
 			"tags": [],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "KVedpJvY",
@@ -1364,6 +2136,18 @@
 				"th": "ปา เฮ่า เถียน มี่"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Ba%20Hao%20Tian%20Mi%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/bahaotianmi/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/bahaotianmi/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.ba-hao.com/tianmi"
@@ -1377,7 +2161,7 @@
 			},
 			"tags": ["pudding", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "xw7NJ1U2",
@@ -1386,6 +2170,10 @@
 				"th": "มิฮิมิฮิ"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Mihimihi%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/mihimihi.thailand/"
@@ -1398,7 +2186,7 @@
 			},
 			"tags": ["unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "WWwACmBy",
@@ -1408,8 +2196,8 @@
 			},
 			"links": [
 				{
-					"label": "website",
-					"url": "https://new.yamazaki.co.th/"
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Saint%20Etoile%20Central%20Ladprao"
 				}
 			],
 			"notes": "Central Ladprao, G\nYamazaki bakery.",
@@ -1419,7 +2207,7 @@
 			},
 			"tags": ["bakery"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "xChq60Wi",
@@ -1429,8 +2217,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Auntie%20Anne%27s%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/AuntieAnnesThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/xuy8285j"
 				}
 			],
 			"notes": "Central Ladprao, G\nPretzels.",
@@ -1440,7 +2236,7 @@
 			},
 			"tags": ["snack", "pretzel"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "ruFX90i4",
@@ -1450,8 +2246,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Bottomless%20Central%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/Bottomless.es"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/bottomless_es"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/vvq9877c"
+				},
+				{
+					"label": "social",
+					"url": "https://www.tiktok.com/@bottomlesscoffeeroasters"
+				},
+				{
 					"label": "website",
 					"url": "https://bottomlesscoffeeroasters.com/cafe/"
+				},
+				{
+					"label": "menu",
+					"url": "https://anyflip.com/uifrv/cmup/"
 				}
 			],
 			"notes": "Central Ladprao, 2F\nSpecialty coffee.",
@@ -1461,7 +2281,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Oe6AutAW",
@@ -1471,8 +2291,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Rowie%27s%20Coffee%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.instagram.com/rowiescoffee/"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/rowiescoffee"
 				}
 			],
 			"notes": "Central Ladprao, G\nOpened 2025.",
@@ -1482,7 +2310,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Af7rCUfh",
@@ -1491,6 +2319,10 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=ZUS%20Coffee%20Central%20Ladprao"
+				},
 				{
 					"label": "website",
 					"url": "https://zuscoffee.com/"
@@ -1503,7 +2335,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "11HJe4IK",
@@ -1512,6 +2344,10 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Suan%20Bua%20Centara%20Grand%20at%20Central%20Ladprao%20%28hotel%29"
+				},
 				{
 					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/suan-bua-thai-restaurant"
@@ -1525,7 +2361,7 @@
 			},
 			"tags": ["hotel"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "ZFsfdZs6",
@@ -1534,6 +2370,10 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Chatuchak%20Cafe%20Centara%20Grand%20at%20Central%20Ladprao%20%28hotel%29"
+				},
 				{
 					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/chatuchak-cafe"
@@ -1547,7 +2387,7 @@
 			},
 			"tags": ["buffet", "hotel"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "zS5JfxbK",
@@ -1556,6 +2396,10 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Hagi%20Centara%20Grand%20at%20Central%20Ladprao%20%28hotel%29"
+				},
 				{
 					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/hagi-japanese-restaurant"
@@ -1569,7 +2413,7 @@
 			},
 			"tags": ["buffet", "hotel"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "EbIL9YSR",
@@ -1578,6 +2422,10 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Dynasty%20Centara%20Grand%20at%20Central%20Ladprao%20%28hotel%29"
+				},
 				{
 					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/dynasty-chinese-restaurant"
@@ -1591,7 +2439,7 @@
 			},
 			"tags": ["cantonese", "dim sum", "hotel"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "o8PNXTUJ",
@@ -1601,8 +2449,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Blue%20Sky%20Rooftop%20Bar%20%26%20Dining%20Centara%20Grand%20at%20Central%20Ladprao%20%28hotel%29"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/CGLBBlueSky/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/blue-sky-rooftop-restaurant"
+				},
+				{
+					"label": "website",
+					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/blue-sky-bar"
 				}
 			],
 			"notes": "Centara Grand at Central Ladprao (hotel), 24F\nWagyu, lobster bisque, from 1,190 THB.",
@@ -1613,7 +2473,7 @@
 			},
 			"tags": ["steak", "rooftop", "bar", "hotel"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "d3LqpCWO",
@@ -1622,6 +2482,10 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Don%20Giovanni%20Centara%20Grand%20at%20Central%20Ladprao%20%28hotel%29"
+				},
 				{
 					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/don-giovanni"
@@ -1635,7 +2499,7 @@
 			},
 			"tags": ["hotel"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "hmdMISQh",
@@ -1645,8 +2509,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sushiro%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/SushiroThailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/sushirothailand/"
+				},
+				{
 					"label": "website",
 					"url": "https://sushiro.co.th/branch/"
+				},
+				{
+					"label": "website",
+					"url": "https://sushiro.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://sushiro.co.th/menus/"
 				}
 			],
 			"notes": "Union Mall, G\nConveyor-belt sushi. Opened Jul 2025.",
@@ -1657,7 +2541,7 @@
 			},
 			"tags": ["sushi", "conveyor"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Ivih7KN7",
@@ -1666,6 +2550,18 @@
 				"th": "ปลาต้มผักกาดดอง"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=YONNY%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/yonny.th/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/yonnyth/"
+				},
 				{
 					"label": "website",
 					"url": "https://yonny.co.th/"
@@ -1679,7 +2575,7 @@
 			},
 			"tags": ["sichuan", "fish", "mala"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "dOv8mPgL",
@@ -1688,6 +2584,18 @@
 				"th": "ลัคกี้ สุกี้"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Lucky%20Suki%20Marche%20%26%20Dimsum%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/luckysuki.bkk/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/luckysuki.bkk/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.lucky-suki.com/"
@@ -1700,7 +2608,7 @@
 			},
 			"tags": ["suki", "shabu", "dim sum", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "uwpkYDKs",
@@ -1709,6 +2617,10 @@
 				"th": "เซียงเหล่าฮั่น"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Xiong%20Lao%20Han%20Malatang%20Union%20Mall"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/xionglaohanTH/"
@@ -1722,7 +2634,7 @@
 			},
 			"tags": ["mala", "malatang"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Hil7Y3eX",
@@ -1756,6 +2668,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Kin-Tiew-Gan%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/KinTiewKan"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/kintiewkan/"
 				}
 			],
 			"notes": "Union Mall, 4F\nBoat noodles from ~18 THB a bowl. Very popular.",
@@ -1766,7 +2686,7 @@
 			},
 			"tags": ["noodles", "boat noodles"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "46IxrcME",
@@ -1798,8 +2718,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Choongman%20Chicken%20Union%20Mall"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/choongman.unionmall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/p/Choongman-Thailand-61552156374410/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/choongmanth_official/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/choongman.unionmall/"
 				}
 			],
 			"notes": "Union Mall, G\nSnow Onion chicken, Cheese Tornado.",
@@ -1810,7 +2746,7 @@
 			},
 			"tags": ["fried chicken"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "v9gdFjzB",
@@ -1822,6 +2758,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Eat%20Am%20Are%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/eatamareofficial/"
 				}
 			],
 			"notes": "Union Mall, 1F\nBudget steaks 100-300 THB. Near the MRT link.",
@@ -1832,7 +2772,7 @@
 			},
 			"tags": ["steak", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "5TbK0yK1",
@@ -1888,6 +2828,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Kha%20Noi%20Kho%20Shabu%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/khanoykorshabu"
 				}
 			],
 			"notes": "Union Mall, 1F\nShabu + pizza buffet ~229-329 THB.",
@@ -1897,7 +2841,7 @@
 			},
 			"tags": ["shabu", "pizza", "buffet", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "sjtvS1Qe",
@@ -1907,8 +2851,24 @@
 			},
 			"links": [
 				{
-					"label": "website",
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Dookki%20Topokki%20Union%20Mall"
+				},
+				{
+					"label": "social",
 					"url": "https://twitter.com/dookki_union"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/dookkitopokki/"
+				},
+				{
+					"label": "social",
+					"url": "https://instagram.com/dookki.thailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/dookki.union/"
 				}
 			],
 			"notes": "Union Mall, 4F\nTteokbokki buffet ~299-329 THB, 90 min.",
@@ -1919,7 +2879,7 @@
 			},
 			"tags": ["tteokbokki", "buffet", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "aLoDXE87",
@@ -1928,6 +2888,22 @@
 				"th": "บาร์บีคิวพลาซ่า"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Bar%20B%20Q%20Plaza%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/BarBQPlazaThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/barbqplaza_th/"
+				},
+				{
+					"label": "social",
+					"url": "https://twitter.com/BarBQPlazaThai"
+				},
 				{
 					"label": "website",
 					"url": "https://barbqplaza.com/branch/"
@@ -1940,7 +2916,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "qlEphHsL",
@@ -1950,8 +2926,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Restaurants%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/mkrestaurants/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.mkrestaurant.com/en/branch"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.mkrestaurant.com/en/mk-menu"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.mk1642.com/th/"
 				}
 			],
 			"notes": "Union Mall, 2F\nSuki, roast duck.",
@@ -1962,7 +2954,7 @@
 			},
 			"tags": ["suki", "hotpot"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "ipfU0jsa",
@@ -1972,8 +2964,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Katsuya%20Union%20Mall"
+				},
+				{
 					"label": "social",
 					"url": "https://www.instagram.com/katsuya_thailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/KatsuyaThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/oya5464q"
 				}
 			],
 			"notes": "Union Mall, G\nTonkatsu sets.",
@@ -1984,7 +2988,7 @@
 			},
 			"tags": ["tonkatsu"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "oS2yVOU5",
@@ -1994,8 +2998,36 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sukiya%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/SukiyaThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://instagram.com/sukiya_thailand"
+				},
+				{
 					"label": "website",
 					"url": "https://www.sukiya.co.th/th/store/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.sukiya.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.sukiya.co.th/menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.sukiya.co.th/delivery/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.foodpanda.co.th/th/chain/cw7bk/sukiya"
 				}
 			],
 			"notes": "Union Mall, G\nGyudon, sukiyaki bowls. Brand's store list says temporarily closed.",
@@ -2006,7 +3038,7 @@
 			},
 			"tags": ["rice bowl", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "2XCQ6v2P",
@@ -2016,8 +3048,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Santa%20Fe%20Steak%20Union%20Mall"
+				},
+				{
 					"label": "website",
 					"url": "https://www.santafesteak.com/santafesteak/frontends/searchlocation/"
+				},
+				{
+					"label": "website",
+					"url": "https://santafesteak.com/santafesteak/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://santafesteak.com/santafesteak/frontends/delivery/th"
 				}
 			],
 			"notes": "Union Mall, G\nFamily steakhouse.",
@@ -2028,7 +3072,7 @@
 			},
 			"tags": ["steak"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "OTzqDx8s",
@@ -2060,8 +3104,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=AKA%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/akarestaurant"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/akayakiniku"
+				},
+				{
 					"label": "website",
 					"url": "https://akayakiniku.com/branch.php"
+				},
+				{
+					"label": "website",
+					"url": "https://akayakiniku.com/"
 				}
 			],
 			"notes": "Union Mall, G\nYakiniku buffet.",
@@ -2072,7 +3132,7 @@
 			},
 			"tags": ["yakiniku", "bbq", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "Hif0k7e1",
@@ -2082,8 +3142,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Starbucks%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/StarbucksThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/starbucksthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/853tzvmu"
+				},
+				{
 					"label": "website",
 					"url": "https://www.starbucks.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.starbucks.co.th/en/menu/"
 				}
 			],
 			"notes": "Union Mall, G",
@@ -2093,7 +3173,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "xCTGecNF",
@@ -2102,6 +3182,18 @@
 				"th": "แมคโดนัลด์"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=McDonald%27s%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/McThai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/mcdonaldsthailand/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.mcdonalds.co.th/"
@@ -2114,7 +3206,7 @@
 			},
 			"tags": ["fast food", "burger"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "qyRuRbXQ",
@@ -2123,6 +3215,22 @@
 				"th": "เคเอฟซี"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/kfcth/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/kfcthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/kfcth"
+				},
 				{
 					"label": "website",
 					"url": "https://www.kfc.co.th/"
@@ -2135,7 +3243,7 @@
 			},
 			"tags": ["fast food", "fried chicken"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "UpjF0ULb",
@@ -2144,6 +3252,18 @@
 				"th": "เชสเตอร์"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Chester%27s%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/chesterthai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/chesters_official/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.chesters.co.th/"
@@ -2157,7 +3277,7 @@
 			},
 			"tags": ["fast food", "grilled chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "AI9T8hdn",
@@ -2167,8 +3287,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Jones%27%20Salad%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/JonesSaladOfficial/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/jonessalad/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/vob8822w"
+				},
+				{
+					"label": "social",
+					"url": "https://www.tiktok.com/@jonessaladofficial"
+				},
+				{
 					"label": "website",
 					"url": "https://www.jonessalad.com/location/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.jonessalad.com/menu/"
 				}
 			],
 			"notes": "Union Mall, G\nBuild-your-own salad.",
@@ -2178,7 +3322,7 @@
 			},
 			"tags": ["healthy", "salad"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "9QOWfgUi",
@@ -2209,8 +3353,20 @@
 			},
 			"links": [
 				{
-					"label": "website",
-					"url": "https://x.com/dolce_gelatino"
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Dolce%20Gelatino%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/dolce.gelatino/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/dolceunionmall/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/dolcegelatino/"
 				}
 			],
 			"notes": "Union Mall, 3F\nTwo scoops 39 THB.",
@@ -2220,7 +3376,7 @@
 			},
 			"tags": ["ice cream"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "46boUHkE",
@@ -2253,6 +3409,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Mixue%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/mixuethailand/"
 				}
 			],
 			"notes": "Union Mall",
@@ -2262,7 +3422,7 @@
 			},
 			"tags": ["ice cream", "bubble tea", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "ek9c7TAh",
@@ -2272,8 +3432,8 @@
 			},
 			"links": [
 				{
-					"label": "social",
-					"url": "https://www.facebook.com/p/All-Tea-House-61560454436295/"
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=All%20Tea%20House%20Union%20Mall"
 				}
 			],
 			"notes": "Union Mall\nYokMek cream-topped tea ~120 THB.",
@@ -2283,7 +3443,7 @@
 			},
 			"tags": ["bubble tea"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "YZZfZoGK",
@@ -2293,8 +3453,36 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Kyo%20Roll%20En%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/KyoRollEn"
+				},
+				{
+					"label": "social",
+					"url": "https://instagram.com/kachabros/"
+				},
+				{
+					"label": "social",
+					"url": "https://twitter.com/kyorollen"
+				},
+				{
 					"label": "website",
 					"url": "https://www.kyorollen.com/find-us/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.kyorollen.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.kyorollen.com/menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.kyorollen.com/order"
 				}
 			],
 			"notes": "Union Mall\nMatcha roll cake.",
@@ -2305,7 +3493,7 @@
 			},
 			"tags": ["matcha", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "lyc52Cox",
@@ -2315,8 +3503,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Mr.Shake%20Union%20Mall"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/mrshake.thailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/mr_shake/"
 				}
 			],
 			"notes": "Union Mall",
@@ -2326,7 +3522,7 @@
 			},
 			"tags": ["bubble tea", "smoothie", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "9hv8HBJs",
@@ -2336,8 +3532,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Nobicha%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/nobichathaiofficial/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/nobichathaiofficial/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.nobicha.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.nobicha.co.th/menu/"
 				}
 			],
 			"notes": "Union Mall, G",
@@ -2347,7 +3559,7 @@
 			},
 			"tags": ["bubble tea"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "HHMHcgd1",
@@ -2357,8 +3569,16 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=OWL%20CHA%20Union%20Mall"
+				},
+				{
 					"label": "social",
 					"url": "https://www.instagram.com/owlcha.official/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/owlcha.official/"
 				}
 			],
 			"notes": "Union Mall, 2F\nIn front of Miniso.",
@@ -2368,7 +3588,7 @@
 			},
 			"tags": ["bubble tea"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "l2G4fIem",
@@ -2380,6 +3600,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Wua%20Luan%20Luan%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/wua_luanluan/"
 				}
 			],
 			"notes": "Union Mall",
@@ -2389,7 +3613,7 @@
 			},
 			"tags": ["milk", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "zuejMdIe",
@@ -2398,6 +3622,22 @@
 				"th": "คาเฟ่ อเมซอน"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Cafe%20Amazon%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/cafeamazonofficial/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/cafeamazonofficial/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/799likpv"
+				},
 				{
 					"label": "website",
 					"url": "https://www.cafe-amazon.com/"
@@ -2410,7 +3650,7 @@
 			},
 			"tags": ["cafe", "coffee", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "pEQgKnCh",
@@ -2420,8 +3660,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Dairy%20Queen%20Union%20Mall"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/dairyqueenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/dairyqueenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://line.me/R/ti/p/%40dairyqueenth"
+				},
+				{
 					"label": "website",
 					"url": "https://www.dairyqueenthailand.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.dairyqueenthailand.com/product/icecream"
+				},
+				{
+					"label": "delivery",
+					"url": "https://1112delivery.com/restaurant/dairy-queen"
 				}
 			],
 			"notes": "Union Mall, G\nOpposite MK.",
@@ -2431,7 +3695,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "DgK22foG",
@@ -2440,6 +3704,10 @@
 				"th": "จางเลี่ยง หม่าล่าทั่ง"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Zhangliang%20Malatang%20Union%20Mall"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/p/%E6%B3%B0%E5%9B%BD%E5%BC%A0%E4%BA%AE%E9%BA%BB%E8%BE%A3%E7%83%AB-Zhangliang-Malatang-Thailand-61553121875809/"
@@ -2453,7 +3721,7 @@
 			},
 			"tags": ["mala", "malatang", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "ozkiOg2z",
@@ -2462,6 +3730,18 @@
 				"th": "เชสเตอร์"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Chester%27s%20Lotus%27s%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/chesterthai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/chesters_official/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.chesters.co.th/"
@@ -2475,7 +3755,7 @@
 			},
 			"tags": ["fast food", "grilled chicken"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "xC6hfrbV",
@@ -2485,8 +3765,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Hachiban%20Ramen%20Lotus%27s%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/hachibanramenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/hachibanramenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://twitter.com/hachibanramenth"
+				},
+				{
 					"label": "website",
 					"url": "https://www.hachiban.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.hachiban.co.th/th/menu/"
 				}
 			],
 			"notes": "Lotus's Ladprao\n10:00-21:00. Budget ramen, tsukemen.",
@@ -2497,7 +3797,7 @@
 			},
 			"tags": ["ramen", "noodles", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "9sDA4FwC",
@@ -2507,8 +3807,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Restaurants%20Lotus%27s%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/mkrestaurants/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.mkrestaurant.com/en/branch"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.mkrestaurant.com/en/mk-menu"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.mk1642.com/th/"
 				}
 			],
 			"notes": "Lotus's Ladprao, 2F\n09:30-20:30 (Fri from 10:30).",
@@ -2519,7 +3835,7 @@
 			},
 			"tags": ["suki", "hotpot"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "3RYv7hcB",
@@ -2529,8 +3845,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Santa%20Fe%20Steak%20Lotus%27s%20Ladprao"
+				},
+				{
 					"label": "website",
 					"url": "https://www.santafesteak.com/santafesteak/frontends/searchlocation/"
+				},
+				{
+					"label": "website",
+					"url": "https://santafesteak.com/santafesteak/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://santafesteak.com/santafesteak/frontends/delivery/th"
 				}
 			],
 			"notes": "Lotus's Ladprao\n10:00-20:00. Small, quiet branch.",
@@ -2541,7 +3869,7 @@
 			},
 			"tags": ["steak"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "roTNbf81",
@@ -2551,8 +3879,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Fuji%20Japanese%20Restaurant%20Lotus%27s%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/FujiRestaurant"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/fujirestaurant"
+				},
+				{
 					"label": "website",
 					"url": "https://www.fuji.co.th/?lang=en"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.fuji.co.th/menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://food.grab.com/th/en/chain/fuji-japanese-restaurant-delivery"
 				}
 			],
 			"notes": "Lotus's Ladprao, G\n10:00-20:30. Sashimi, salmon head miso soup.",
@@ -2563,7 +3911,7 @@
 			},
 			"tags": ["sushi", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "3PrjE3zc",
@@ -2573,8 +3921,8 @@
 			},
 			"links": [
 				{
-					"label": "website",
-					"url": "https://corporate.lotuss.com/malls/plaza-lotus-eats/lotuss-eats-delivery/"
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Lotus%27s%20Eats%20Lotus%27s%20Ladprao"
 				}
 			],
 			"notes": "Lotus's Ladprao, food court\n09:00-20:00. Under 100 THB; 199 THB buffet promo.",
@@ -2585,7 +3933,7 @@
 			},
 			"tags": ["food court", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "9Lt9pFrg",
@@ -2595,8 +3943,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Karayama%20Lotus%27s%20Ladprao"
+				},
+				{
 					"label": "social",
-					"url": "https://www.facebook.com/Karayama-Thailand-454784181583843/"
+					"url": "https://www.facebook.com/karayamathailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/karayamath_official/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/nvp3500m"
+				},
+				{
+					"label": "social",
+					"url": "https://www.tiktok.com/@karayamath"
+				},
+				{
+					"label": "website",
+					"url": "https://www.karayamathailand.com/"
 				}
 			],
 			"notes": "Lotus's Ladprao\nJapanese fried chicken.",
@@ -2607,7 +3975,7 @@
 			},
 			"tags": ["fried chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "d88lRzye",
@@ -2616,6 +3984,22 @@
 				"th": "เคเอฟซี"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20Lotus%27s%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/kfcth/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/kfcthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/kfcth"
+				},
 				{
 					"label": "website",
 					"url": "https://www.kfc.co.th/"
@@ -2628,7 +4012,7 @@
 			},
 			"tags": ["fast food", "fried chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "9vQXZvcr",
@@ -2640,6 +4024,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Five%20Star%20Lotus's%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/Fivestarbusiness/"
+				},
+				{
+					"label": "website",
+					"url": "https://fivestar.in.th/"
 				}
 			],
 			"notes": "Lotus's Ladprao\nBudget.",
@@ -2650,7 +4042,7 @@
 			},
 			"tags": ["grilled chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "VCJ4jGDG",
@@ -2662,6 +4054,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=So%20Vegan%20Lotus's%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/soveganthailand/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.soveganth.com/th"
 				}
 			],
 			"notes": "Lotus's Ladprao\nBudget.",
@@ -2671,7 +4071,7 @@
 			},
 			"tags": ["vegetarian", "healthy", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "VVzOgBXh",
@@ -2681,8 +4081,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Dairy%20Queen%20Lotus%27s%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/dairyqueenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/dairyqueenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://line.me/R/ti/p/%40dairyqueenth"
+				},
+				{
 					"label": "website",
 					"url": "https://www.dairyqueenthailand.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.dairyqueenthailand.com/product/icecream"
+				},
+				{
+					"label": "delivery",
+					"url": "https://1112delivery.com/restaurant/dairy-queen"
 				}
 			],
 			"notes": "Lotus's Ladprao, 1F",
@@ -2692,7 +4116,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "BM6veNTp",
@@ -2702,8 +4126,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Swensen%27s%20Lotus%27s%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/weloveswensens/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/we_love_swensens"
+				},
+				{
+					"label": "social",
+					"url": "https://liff.line.me/1645278921-kWRPP32q/?accountId=qic0396o"
+				},
+				{
 					"label": "website",
 					"url": "https://www.swensens1112.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://brandsite.swensens1112.com/our-menu"
 				}
 			],
 			"notes": "Lotus's Ladprao, 1F\nLast review 2019; may be gone.",
@@ -2713,7 +4157,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "P2TBBS6W",
@@ -2725,6 +4169,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=TrueCoffee%20GO%20Lotus's%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/truecoffeego/"
 				}
 			],
 			"notes": "Lotus's Ladprao",
@@ -2734,7 +4182,7 @@
 			},
 			"tags": ["cafe", "coffee", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "FbOtnSq7",
@@ -2746,6 +4194,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Vanilla%20Prince%20Cafe%20Lotus's%20Ladprao"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/vpcafe/"
 				}
 			],
 			"notes": "Lotus's Ladprao",
@@ -2755,7 +4207,7 @@
 			},
 			"tags": ["bakery", "cake", "cafe", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "xd1DLETf",
@@ -2789,6 +4241,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=In%20The%20Middle%20by%20Kaizen%20Ladprao%20Hills"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/InTheMiddleByKaizen"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/in_the_middle_by_kaizen/"
 				}
 			],
 			"notes": "The Quarter, Lat Phrao Soi 4, opposite Union Mall. ฿589–1,159++. Daily 10:30–20:30.",
@@ -2799,7 +4259,7 @@
 			},
 			"tags": ["yakiniku", "buffet"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "PAP4X5Yx",
@@ -2831,8 +4291,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Pepper%20Lunch%20Central%20Ladprao"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/pepperlunchthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/pepperlunchthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/ntq7973r"
 				}
 			],
 			"notes": "Central Ladprao, G\nRooms G29-30. Sizzling steak and pepper rice.",
@@ -2843,7 +4315,7 @@
 			},
 			"tags": ["steak"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "M4bkVYSi",
@@ -2852,6 +4324,10 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Tops%20Eatery%20Central%20Ladprao"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/TopsEatery/"
@@ -2865,7 +4341,7 @@
 			},
 			"tags": ["food court"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "zHgp1mTh",
@@ -2877,6 +4353,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%AE%E0%B9%89%E0%B8%AD%E0%B8%99%E0%B9%81%E0%B8%AE%E0%B8%87%20%E0%B8%AB%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/honhaeng5yaek/"
 				}
 			],
 			"notes": "1128/1 Vibhavadi Rd. Daily 13:30–22:00.",
@@ -2887,7 +4367,7 @@
 			},
 			"tags": ["som tam", "live music", "unverified"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "2FMYImZY",
@@ -2899,6 +4379,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B9%80%E0%B8%88%E0%B8%B5%E0%B8%A2%E0%B8%87%E0%B8%AE%E0%B8%B2%E0%B8%A2%20%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7%20%E0%B8%8B%E0%B8%AD%E0%B8%A2%204"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/jeanghainoodle"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/jeanghainoodlesoi4/"
 				}
 			],
 			"notes": "148 Lat Phrao Soi 4, opposite Union Mall. Daily 10:30–20:00.",
@@ -2909,7 +4397,7 @@
 			},
 			"tags": ["khao soi", "noodles", "unverified"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "vwqALvx3",

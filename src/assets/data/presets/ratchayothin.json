@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T10:24:30.196Z",
+	"exportedAt": "2026-10-23T16:17:13.860Z",
 	"restaurants": [
 		{
 			"id": "s1b53yJp",
@@ -11,8 +11,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sushiro%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/SushiroThailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/sushirothailand/"
+				},
+				{
 					"label": "website",
 					"url": "https://sushiro.co.th/branch/"
+				},
+				{
+					"label": "website",
+					"url": "https://sushiro.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://sushiro.co.th/menus/"
 				}
 			],
 			"notes": "Major Ratchayothin, 1F\nRooms 110-112. 10:00-22:00.",
@@ -23,7 +43,7 @@
 			},
 			"tags": ["sushi", "conveyor"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "4oQVVGLX",
@@ -32,6 +52,18 @@
 				"th": "เชสเตอร์"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Chester%27s%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/chesterthai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/chesters_official/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.chesters.co.th/"
@@ -45,7 +77,7 @@
 			},
 			"tags": ["fast food", "grilled chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "kP33uPJn",
@@ -54,6 +86,18 @@
 				"th": "แมคโดนัลด์"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=McDonald%27s%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/McThai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/mcdonaldsthailand/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.mcdonalds.co.th/"
@@ -66,7 +110,7 @@
 			},
 			"tags": ["fast food", "burger", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "L29Z3t2A",
@@ -75,6 +119,26 @@
 				"th": "คามุ"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Kamu%20Tea%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/kamukamu.tea/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/kamukamu.tea/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/kamutea"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/kamukamutea"
+				},
 				{
 					"label": "website",
 					"url": "https://www.kamutea.com/"
@@ -87,7 +151,7 @@
 			},
 			"tags": ["bubble tea", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "lz1reIF0",
@@ -97,8 +161,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Hachiban%20Ramen%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/hachibanramenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/hachibanramenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://twitter.com/hachibanramenth"
+				},
+				{
 					"label": "website",
 					"url": "https://www.hachiban.co.th/en/branch/?id=44"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.hachiban.co.th/th/menu/"
 				}
 			],
 			"notes": "Major Ratchayothin, 1F\n10:00-21:00.",
@@ -109,7 +193,7 @@
 			},
 			"tags": ["ramen", "noodles"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "xLK1icbY",
@@ -141,8 +225,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Shakariki432%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/shakariki432/"
+				},
+				{
 					"label": "website",
 					"url": "https://shakariki432.com/en/brand-en/shakariki-outlet-en/maior-ratchayothein-en/"
+				},
+				{
+					"label": "website",
+					"url": "https://shakariki432.com/brand/shakariki432-th/"
 				}
 			],
 			"notes": "Major Ratchayothin\n11:00-01:00. 251-500 THB.",
@@ -153,7 +249,7 @@
 			},
 			"tags": ["izakaya", "bar"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "rANXsaBm",
@@ -163,8 +259,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=GUGU%20Chicken%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/Guguchickenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/guguchicken.official/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/guguchicken_major.ratchayothin/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.guguchickenthailand.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.guguchickenthailand.com/en/chicken-en/"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\n10:00-22:00.",
@@ -175,7 +291,7 @@
 			},
 			"tags": ["fried chicken"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "IdbFEH3j",
@@ -185,8 +301,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Suki%20Buffet%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/mkrestaurants"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/mkrestaurant/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.mkrestaurant.com/th"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.mkrestaurant.com/th/mk-menu"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.mk1642.com"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\nBy BTS link. 10:30-21:00, buffet 499-899 THB. May 2026 review says it may be under renovation.",
@@ -197,7 +333,7 @@
 			},
 			"tags": ["suki", "hotpot", "buffet", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "a93XD66n",
@@ -207,8 +343,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Potato%20Corner%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/potatocornerthailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/potatocornerth/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.potatocornerthailand.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.potatocornerthailand.com/menu"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\n10:30-00:30. Opposite MK.",
@@ -218,7 +370,7 @@
 			},
 			"tags": ["snack", "fries", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "yndMJ0ya",
@@ -227,6 +379,22 @@
 				"th": "แบร์เฮาส์"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Bearhouse%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/bearhousethailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/bearhouse_thailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/ezc0124k"
+				},
 				{
 					"label": "website",
 					"url": "https://bearhouse.co.th/"
@@ -239,7 +407,7 @@
 			},
 			"tags": ["bubble tea"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "qJwfl5SI",
@@ -248,6 +416,18 @@
 				"th": "บูสท์จูซบาร์"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Boost%20Juice%20Bars%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/boostjuicebarsthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/boostjuice_thailand/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.boostjuicebars.in.th/"
@@ -260,7 +440,7 @@
 			},
 			"tags": ["juice", "smoothie", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "HRw2GsAV",
@@ -269,6 +449,10 @@
 				"th": "กองจู"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Kong%20Ju%20Grill%20%26%20Shabu%20Major%20Ratchayothin"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/KongJu888"
@@ -282,7 +466,7 @@
 			},
 			"tags": ["bbq", "shabu", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "vA0g8ZTT",
@@ -291,6 +475,22 @@
 				"th": "เคเอฟซี"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/kfcth/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/kfcthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/kfcth"
+				},
 				{
 					"label": "website",
 					"url": "https://www.kfc.co.th/"
@@ -303,7 +503,7 @@
 			},
 			"tags": ["fast food", "fried chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "OPMp8537",
@@ -315,6 +515,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Eat%20Am%20Are%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/eatamareofficial/"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\nRoom 202. 10:00-22:00. Big plates, cheap.",
@@ -325,7 +529,7 @@
 			},
 			"tags": ["steak"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "cM7FDqRq",
@@ -335,8 +539,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Katsuya%20Major%20Ratchayothin"
+				},
+				{
 					"label": "social",
 					"url": "https://www.instagram.com/katsuya_thailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/KatsuyaThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/oya5464q"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\nRoom 213A. 10:00-21:00.",
@@ -347,7 +563,7 @@
 			},
 			"tags": ["tonkatsu"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "evBWY0PD",
@@ -356,6 +572,22 @@
 				"th": "สีฟ้า"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=SEE%20FAH%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/seefahfanpage"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/seefah_restaurant"
+				},
+				{
+					"label": "social",
+					"url": "https://lin.ee/cuz39hq"
+				},
 				{
 					"label": "website",
 					"url": "https://seefah.com/"
@@ -369,7 +601,7 @@
 			},
 			"tags": [],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "1Xx6vcO5",
@@ -403,6 +635,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Suk%20Pho%20Di%20Moo%20Kata%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/p/%E0%B8%AA%E0%B8%B8%E0%B8%81%E0%B8%9E%E0%B8%AD%E0%B8%94%E0%B8%B5-%E0%B8%AB%E0%B8%A1%E0%B8%B9%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B8%97%E0%B8%B0-%E0%B8%AA%E0%B8%B2%E0%B8%82%E0%B8%B2%E0%B9%80%E0%B8%A1%E0%B9%80%E0%B8%88%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%A3%E0%B8%B1%E0%B8%8A%E0%B9%82%E0%B8%A2%E0%B8%98%E0%B8%B4%E0%B8%99-61554677194131/"
 				}
 			],
 			"notes": "Major Ratchayothin, outdoor market\nEvenings.",
@@ -413,7 +649,7 @@
 			},
 			"tags": ["moo kata", "bbq", "street food", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "oXwaMSFU",
@@ -425,6 +661,22 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=MALATANG%20by%20%E5%B0%8F%E9%A3%9F%E8%AE%B0%20Savory%20Story%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/savorymalatang.th"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/savorymalatang.th/"
+				},
+				{
+					"label": "social",
+					"url": "https://line.me/R/ti/p/@522dmdsj"
+				},
+				{
+					"label": "website",
+					"url": "https://www.savorymalatangth.com/"
 				}
 			],
 			"notes": "Major Ratchayothin",
@@ -435,7 +687,7 @@
 			},
 			"tags": ["mala", "malatang", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "EDoPJvr4",
@@ -466,8 +718,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Swensen%27s%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/weloveswensens/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/we_love_swensens"
+				},
+				{
+					"label": "social",
+					"url": "https://liff.line.me/1645278921-kWRPP32q/?accountId=qic0396o"
+				},
+				{
 					"label": "website",
 					"url": "https://www.swensens1112.com/th"
+				},
+				{
+					"label": "menu",
+					"url": "https://brandsite.swensens1112.com/our-menu"
 				}
 			],
 			"notes": "Major Ratchayothin, 1F\n09:00-20:30.",
@@ -477,7 +749,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "joEEBzbN",
@@ -489,6 +761,18 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Black%20Canyon%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/BlackCanyonThailand/"
+				},
+				{
+					"label": "website",
+					"url": "https://blackcanyon.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://blackcanyon.co.th/site/menu/"
 				}
 			],
 			"notes": "Major Ratchayothin, G\n10:30-20:00.",
@@ -499,7 +783,7 @@
 			},
 			"tags": ["cafe", "coffee", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "tGeZ6k2g",
@@ -508,6 +792,14 @@
 				"th": "กาโตว์ เฮ้าส์"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Gateaux%20House%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/gateaux_house/"
+				},
 				{
 					"label": "website",
 					"url": "https://www.gateauxhouse.co.th/"
@@ -520,7 +812,7 @@
 			},
 			"tags": ["bakery", "cake", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "IcGUVX6U",
@@ -530,8 +822,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Starbucks%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/StarbucksThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/starbucksthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/853tzvmu"
+				},
+				{
 					"label": "website",
 					"url": "https://www.starbucks.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.starbucks.co.th/en/menu/"
 				}
 			],
 			"notes": "Major Ratchayothin\nNear Villa Market.",
@@ -541,7 +853,7 @@
 			},
 			"tags": ["cafe", "coffee", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "bmFXKgkL",
@@ -551,8 +863,32 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Dairy%20Queen%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/dairyqueenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/dairyqueenthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://line.me/R/ti/p/%40dairyqueenth"
+				},
+				{
 					"label": "website",
 					"url": "https://www.dairyqueenthailand.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.dairyqueenthailand.com/product/icecream"
+				},
+				{
+					"label": "delivery",
+					"url": "https://1112delivery.com/restaurant/dairy-queen"
 				}
 			],
 			"notes": "Major Ratchayothin\n10:00-22:00.",
@@ -562,7 +898,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "woc0WUSm",
@@ -572,8 +908,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Nobicha%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/nobichathaiofficial/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/nobichathaiofficial/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.nobicha.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.nobicha.co.th/menu/"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\n10:00-21:00. Opposite Yayoi.",
@@ -583,7 +935,7 @@
 			},
 			"tags": ["bubble tea", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "ksMDXV8n",
@@ -595,6 +947,18 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=JOE%20WINGS%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/people/Joe-Wings/61574017943623/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/joewingsthailand/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.okjgroup.com/en/business-and-brands/joe-wings"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\n10:00-22:00. Next to Shabushi. No reviews yet.",
@@ -604,7 +968,7 @@
 			},
 			"tags": ["fried chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "ib7O7tF0",
@@ -614,8 +978,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Pepper%20Lunch%20Major%20Ratchayothin"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/pepperlunchthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/pepperlunchthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/ntq7973r"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\nRoom 207. 10:00-21:00.",
@@ -626,7 +1002,7 @@
 			},
 			"tags": ["steak", "rice dish"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "G5YxvXcG",
@@ -636,8 +1012,40 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MOS%20Burger%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/MOSBURGERThai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/mosburgerthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/560vcpbv"
+				},
+				{
+					"label": "social",
+					"url": "https://x.com/MOSBurger_Th"
+				},
+				{
 					"label": "website",
 					"url": "https://www.mos-th.com/en/branch/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.mos-th.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.mos-th.com/en/menu-cat/main-menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.mos-th.com/en/delivery/"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\n10:00-21:00. By BTS bridge. No reviews yet.",
@@ -648,7 +1056,7 @@
 			},
 			"tags": ["burger", "fast food", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "qLs8v7nq",
@@ -658,8 +1066,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Yayoi%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/YayoiRestaurantThailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/yayoi_thailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/327rcyjo"
+				},
+				{
 					"label": "website",
 					"url": "https://yayoirestaurants.com/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.yayoirestaurants.com/branch"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\n10:00-22:00.",
@@ -670,7 +1098,7 @@
 			},
 			"tags": ["teishoku"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "QNjCTSzE",
@@ -679,6 +1107,18 @@
 				"th": "ปลาต้มผักกาดดอง"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=YONNY%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/yonny.th/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/yonnyth/"
+				},
 				{
 					"label": "website",
 					"url": "https://yonny.co.th/"
@@ -692,7 +1132,7 @@
 			},
 			"tags": ["sichuan", "fish", "mala", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "tBP33Wnm",
@@ -704,6 +1144,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Bake%20A%20Wish%20The%20Avenue%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/bakeawish.japanesehomemadecake/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/tmm1001v"
 				}
 			],
 			"notes": "The Avenue Ratchayothin, 1F\nCakes.",
@@ -713,7 +1161,7 @@
 			},
 			"tags": ["bakery", "cake", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "PwibU8h3",
@@ -723,8 +1171,24 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=After%20You%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/afteryoucafe/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/afteryoudessertcafe/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.afteryoudessertcafe.com/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.afteryoudessertcafe.com/en/branches/"
 				}
 			],
 			"notes": "Major Ratchayothin, 1F\nKakigori and Shibuya honey toast. Mid price.",
@@ -734,7 +1198,7 @@
 			},
 			"tags": ["cafe", "bingsu", "toast", "unverified"],
 			"createdAt": "2026-10-17T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "GhZ4lzoC",
@@ -746,6 +1210,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Leanlicious%20Major%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/leanlicious/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/leanlicious.official/"
 				}
 			],
 			"notes": "Major Ratchayothin, 3F\nOpposite BLOOM.",
@@ -755,7 +1227,7 @@
 			},
 			"tags": ["healthy", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "YZ2Xzfxm",
@@ -765,8 +1237,36 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sukiya%20The%20Avenue%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/SukiyaThailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://instagram.com/sukiya_thailand"
+				},
+				{
 					"label": "website",
 					"url": "https://www.sukiya.co.th/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.sukiya.co.th/th/store/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.sukiya.co.th/menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.sukiya.co.th/delivery/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.foodpanda.co.th/th/chain/cw7bk/sukiya"
 				}
 			],
 			"notes": "The Avenue Ratchayothin\n24h. Opened Oct 2026.",
@@ -777,7 +1277,7 @@
 			},
 			"tags": ["rice bowl"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "3xFYyWVt",
@@ -789,6 +1289,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Tenjo%20Sushi%20%26%20Yakiniku%20Premium%20Buffet%20The%20Avenue%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/TenjoSushiYakiniku/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.tenjosushiyakiniku.com/"
 				}
 			],
 			"notes": "The Avenue Ratchayothin, 2F\nC202-3. 10:00-22:00.",
@@ -799,7 +1307,7 @@
 			},
 			"tags": ["sushi", "yakiniku", "buffet"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "V1CDsOlq",
@@ -875,8 +1383,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Bonchon%20The%20Avenue%20Ratchayothin"
+				},
+				{
 					"label": "social",
 					"url": "https://www.facebook.com/bonchonthailand"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/bonchonthailand/"
+				},
+				{
+					"label": "social",
+					"url": "https://page.line.me/723pnafj"
 				}
 			],
 			"notes": "The Avenue Ratchayothin\n10:00-23:30. Between Kasikorn Bank and Major.",
@@ -887,7 +1407,7 @@
 			},
 			"tags": ["fried chicken", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "vrD5dPDy",
@@ -896,6 +1416,10 @@
 				"th": "อูโน่"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=UNO%20Coffee%20The%20Avenue%20Ratchayothin"
+				},
 				{
 					"label": "social",
 					"url": "https://www.facebook.com/UNOCoffeeCompany/"
@@ -908,7 +1432,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "JVZ6bMOv",
@@ -942,6 +1466,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Tofu%20House%20The%20Avenue%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/khruataohu"
+				},
+				{
+					"label": "social",
+					"url": "https://lin.ee/IJ2yjC9-"
 				}
 			],
 			"notes": "The Avenue Ratchayothin, 2F\nRoom 204C. Mon-Sat 7:00-21:00, Sun 7:30-21:00.",
@@ -951,7 +1483,7 @@
 			},
 			"tags": ["vegetarian", "tofu", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "c83cSRO7",
@@ -963,6 +1495,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Do%20Nua%20The%20Avenue%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/p/Do-N%C5%ABa-100090583812430/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.tiktok.com/@do_nua_"
 				}
 			],
 			"notes": "The Avenue Ratchayothin\nB114. 11:00-22:00.",
@@ -973,7 +1513,7 @@
 			},
 			"tags": ["som tam", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "nXVAleCH",
@@ -985,6 +1525,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=1%3A2%20coffee%20The%20Avenue%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/onetotwocoffee/"
 				}
 			],
 			"notes": "The Avenue Ratchayothin, G\nC103. 8:00-21:00.",
@@ -994,7 +1538,7 @@
 			},
 			"tags": ["cafe", "coffee", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "GkrQJJG5",
@@ -1004,8 +1548,20 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=CoCo%20ICHIBANYA%20The%20Avenue%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/cocoichibanyathailand/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.tgi.co.th/our-business/coco/?lang=en"
+				},
+				{
+					"label": "website",
+					"url": "https://www.cocothailand.com/"
 				}
 			],
 			"notes": "The Avenue Ratchayothin, 2F\n9:30-20:30. Next to Fuji.",
@@ -1016,7 +1572,7 @@
 			},
 			"tags": ["curry"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "MJrLjyYU",
@@ -1025,6 +1581,10 @@
 				"th": ""
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Wine%20Connection%20Major%20Ratchayothin"
+				},
 				{
 					"label": "website",
 					"url": "https://wineconnection.co.th/"
@@ -1038,7 +1598,7 @@
 			},
 			"tags": ["bar", "wine"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "tRt4PvKs",
@@ -1048,8 +1608,28 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Fuji%20Japanese%20Restaurant%20The%20Avenue%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/FujiRestaurant"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/fujirestaurant"
+				},
+				{
 					"label": "website",
 					"url": "https://www.fuji.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.fuji.co.th/menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://food.grab.com/th/en/chain/fuji-japanese-restaurant-delivery"
 				}
 			],
 			"notes": "The Avenue Ratchayothin, 2F\nB209. 10:00-21:30.",
@@ -1060,7 +1640,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "bczMVaOe",
@@ -1072,6 +1652,18 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=A%20RAMEN%20The%20Avenue%20Ratchayothin%20Open%2024%20hours."
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/ARamenOfficial/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/aramen_official/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.a-ramen.com/"
 				}
 			],
 			"notes": "The Avenue Ratchayothin Open 24 hours.",
@@ -1082,7 +1674,7 @@
 			},
 			"tags": ["ramen", "noodles"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "I8jqRTce",
@@ -1114,6 +1706,18 @@
 			},
 			"links": [
 				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=McDonald%27s%20The%20Avenue%20Ratchayothin"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/McThai/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/mcdonaldsthailand/"
+				},
+				{
 					"label": "website",
 					"url": "https://www.mcdonalds.co.th/"
 				}
@@ -1125,7 +1729,7 @@
 			},
 			"tags": ["fast food", "burger", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "oc2qbEHi",
@@ -1134,6 +1738,18 @@
 				"th": "คาเฟ่ดอยตุง"
 			},
 			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Caf%C3%A9%20DoiTung%20SCB%20Park%20Plaza%20East%20Tower.%20Closed%20on%20weekends."
+				},
+				{
+					"label": "social",
+					"url": "https://www.instagram.com/cafedoitung/"
+				},
+				{
+					"label": "social",
+					"url": "https://www.facebook.com/DoiTungClub"
+				},
 				{
 					"label": "website",
 					"url": "https://www.doitung.com/cafe-doitung/"
@@ -1147,7 +1763,7 @@
 			},
 			"tags": ["cafe", "coffee", "unverified"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		}
 	],
 	"history": [],
