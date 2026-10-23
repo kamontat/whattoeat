@@ -11,7 +11,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=SHAMEN%20by%20SEKI%20Central%20Ladprao"
 				}
 			],
@@ -33,7 +33,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/sekihandroll"
 				}
 			],
@@ -55,7 +55,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/ootoyaoki/"
 				}
 			],
@@ -77,7 +77,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/BoonTongKeeThailand/"
 				}
 			],
@@ -99,7 +99,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/teraokagyoza/"
 				}
 			],
@@ -121,7 +121,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.kfc.co.th/"
 				}
 			],
@@ -142,7 +142,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.tiktok.com/@pastaama_"
 				}
 			],
@@ -164,7 +164,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.lameow.com/"
 				}
 			],
@@ -186,7 +186,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.jonessalad.com/"
 				}
 			],
@@ -207,7 +207,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.saladfactorythailand.com/"
 				}
 			],
@@ -228,7 +228,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/jadetiger.th"
 				}
 			],
@@ -250,7 +250,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Chunn%20Central%20Ladprao"
 				}
 			],
@@ -272,7 +272,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=EASY!%20buddy%20Central%20Ladprao"
 				}
 			],
@@ -294,7 +294,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Lao%20Yuan%20Central%20Ladprao"
 				}
 			],
@@ -316,7 +316,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.hachiban.co.th/en/branch/"
 				}
 			],
@@ -338,7 +338,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.tiktok.com/@jaedangsamyan"
 				}
 			],
@@ -360,7 +360,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/kenphupang/"
 				}
 			],
@@ -381,7 +381,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/MaisonEricKayserThailand/"
 				}
 			],
@@ -403,7 +403,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Chongdee%20Teahouse%20Central%20Ladprao"
 				}
 			],
@@ -424,7 +424,7 @@
 			},
 			"links": [
 				{
-					"label": "LINE",
+					"label": "social",
 					"url": "https://page.line.me/581miemt"
 				}
 			],
@@ -445,7 +445,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.tiktok.com/@bonnana.house"
 				}
 			],
@@ -466,7 +466,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.dintaifung.com.tw/eng/store_world.php?cid=6"
 				}
 			],
@@ -488,7 +488,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.mkrestaurant.com/th/branch"
 				}
 			],
@@ -510,7 +510,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://dining-innovation.com.sg/yakinikulike/country/thailand"
 				}
 			],
@@ -532,7 +532,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/saemaeul.thailand"
 				}
 			],
@@ -554,7 +554,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/OntheTableTokyoCafe"
 				}
 			],
@@ -576,7 +576,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/Kumpoon.fanpage/"
 				}
 			],
@@ -598,7 +598,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.zenrestaurant.co.th/"
 				}
 			],
@@ -620,7 +620,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.afteryoudessertcafe.com/en/branches/"
 				}
 			],
@@ -641,7 +641,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/UNOCoffeeCompany/"
 				}
 			],
@@ -662,7 +662,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/p/Thongsmith-Central-Ladprao-%E0%B9%80%E0%B8%8B%E0%B9%87%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B1%E0%B8%A5-%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7-100063629375894/"
 				}
 			],
@@ -684,7 +684,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.mos-th.com/en/branch/"
 				}
 			],
@@ -706,7 +706,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://barbqplaza.com/branch/"
 				}
 			],
@@ -727,7 +727,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://mo-mo-paradiseth.com/branches/"
 				}
 			],
@@ -749,7 +749,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.sukishi.co.th/"
 				}
 			],
@@ -771,7 +771,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/SakuraThailandPage/"
 				}
 			],
@@ -793,7 +793,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.sizzler.co.th/en/all-branches"
 				}
 			],
@@ -815,7 +815,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.tgi.co.th/our-business/coco/?lang=en"
 				}
 			],
@@ -837,7 +837,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/yuzusuki.th/"
 				}
 			],
@@ -859,7 +859,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.fuji.co.th/?lang=en"
 				}
 			],
@@ -881,7 +881,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/burnbusaba/"
 				}
 			],
@@ -903,7 +903,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.greyhoundcafe.co.th/branch/central-lardprao/"
 				}
 			],
@@ -925,7 +925,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.kyorollen.com/find-us/"
 				}
 			],
@@ -947,7 +947,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.laemcharoenseafood.com/"
 				}
 			],
@@ -969,7 +969,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.oishifood.com/restaurant/shabushi/"
 				}
 			],
@@ -991,7 +991,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/SushiSekiThailand/"
 				}
 			],
@@ -1013,7 +1013,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.honmono.xyz/"
 				}
 			],
@@ -1035,7 +1035,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/tonkatsuwakoth/"
 				}
 			],
@@ -1057,7 +1057,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.ootoya.co.th/"
 				}
 			],
@@ -1079,7 +1079,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/kubkaokubplalp/"
 				}
 			],
@@ -1101,7 +1101,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Somtam%20Nua%20Central%20Ladprao"
 				}
 			],
@@ -1123,7 +1123,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.baanice.com/"
 				}
 			],
@@ -1145,7 +1145,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/bonchonthailand"
 				}
 			],
@@ -1167,7 +1167,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Nice%20Two%20Meat%20U%20Central%20Ladprao"
 				}
 			],
@@ -1189,7 +1189,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.namnampasta.com/branchesmenu"
 				}
 			],
@@ -1211,7 +1211,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.phedphed.com/"
 				}
 			],
@@ -1233,7 +1233,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/saryothailand/"
 				}
 			],
@@ -1255,7 +1255,7 @@
 			},
 			"links": [
 				{
-					"label": "Instagram",
+					"label": "social",
 					"url": "https://www.instagram.com/yoshinoya.thailand/"
 				}
 			],
@@ -1277,7 +1277,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/TenyaThailand/"
 				}
 			],
@@ -1299,7 +1299,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=QQ%20Dessert%20Central%20Ladprao"
 				}
 			],
@@ -1321,7 +1321,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/tudarithailand/"
 				}
 			],
@@ -1343,7 +1343,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/afoxprincessandfriends/"
 				}
 			],
@@ -1365,7 +1365,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.ba-hao.com/tianmi"
 				}
 			],
@@ -1387,7 +1387,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/mihimihi.thailand/"
 				}
 			],
@@ -1408,7 +1408,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://new.yamazaki.co.th/"
 				}
 			],
@@ -1429,7 +1429,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/AuntieAnnesThailand/"
 				}
 			],
@@ -1450,7 +1450,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://bottomlesscoffeeroasters.com/cafe/"
 				}
 			],
@@ -1471,7 +1471,7 @@
 			},
 			"links": [
 				{
-					"label": "Instagram",
+					"label": "social",
 					"url": "https://www.instagram.com/rowiescoffee/"
 				}
 			],
@@ -1492,7 +1492,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://zuscoffee.com/"
 				}
 			],
@@ -1513,7 +1513,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/suan-bua-thai-restaurant"
 				}
 			],
@@ -1535,7 +1535,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/chatuchak-cafe"
 				}
 			],
@@ -1557,7 +1557,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/hagi-japanese-restaurant"
 				}
 			],
@@ -1579,7 +1579,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/dynasty-chinese-restaurant"
 				}
 			],
@@ -1601,7 +1601,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/blue-sky-rooftop-restaurant"
 				}
 			],
@@ -1623,7 +1623,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.centarahotelsresorts.com/centaragrand/cglb/don-giovanni"
 				}
 			],
@@ -1645,7 +1645,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://sushiro.co.th/branch/"
 				}
 			],
@@ -1667,7 +1667,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://yonny.co.th/"
 				}
 			],
@@ -1689,7 +1689,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.lucky-suki.com/"
 				}
 			],
@@ -1710,7 +1710,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/xionglaohanTH/"
 				}
 			],
@@ -1732,7 +1732,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Yang%20Guo%20Fu%20Malatang%20Union%20Mall"
 				}
 			],
@@ -1754,7 +1754,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Kin-Tiew-Gan%20Union%20Mall"
 				}
 			],
@@ -1776,7 +1776,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=MA%20SHI%20TANG%20Union%20Mall"
 				}
 			],
@@ -1798,7 +1798,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/choongman.unionmall"
 				}
 			],
@@ -1820,7 +1820,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Eat%20Am%20Are%20Union%20Mall"
 				}
 			],
@@ -1842,7 +1842,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Haan%20Jao%20Nuea%20Union%20Mall"
 				}
 			],
@@ -1864,7 +1864,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Shinkanzen%20Sushi%20Union%20Mall"
 				}
 			],
@@ -1886,7 +1886,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Kha%20Noi%20Kho%20Shabu%20Union%20Mall"
 				}
 			],
@@ -1907,7 +1907,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://twitter.com/dookki_union"
 				}
 			],
@@ -1929,7 +1929,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://barbqplaza.com/branch/"
 				}
 			],
@@ -1950,7 +1950,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.mkrestaurant.com/en/branch"
 				}
 			],
@@ -1972,7 +1972,7 @@
 			},
 			"links": [
 				{
-					"label": "Instagram",
+					"label": "social",
 					"url": "https://www.instagram.com/katsuya_thailand/"
 				}
 			],
@@ -1994,7 +1994,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.sukiya.co.th/th/store/"
 				}
 			],
@@ -2016,7 +2016,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.santafesteak.com/santafesteak/frontends/searchlocation/"
 				}
 			],
@@ -2038,7 +2038,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Lao%20Yuan%20Union%20Mall"
 				}
 			],
@@ -2060,7 +2060,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://akayakiniku.com/branch.php"
 				}
 			],
@@ -2082,7 +2082,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.starbucks.co.th/"
 				}
 			],
@@ -2103,7 +2103,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.mcdonalds.co.th/"
 				}
 			],
@@ -2124,7 +2124,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.kfc.co.th/"
 				}
 			],
@@ -2145,7 +2145,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.chesters.co.th/"
 				}
 			],
@@ -2167,7 +2167,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.jonessalad.com/location/"
 				}
 			],
@@ -2188,7 +2188,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Good%20Noodle%20Bkk%20Union%20Mall"
 				}
 			],
@@ -2209,7 +2209,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://x.com/dolce_gelatino"
 				}
 			],
@@ -2230,7 +2230,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Freshy%20Crepe%20Union%20Mall"
 				}
 			],
@@ -2251,7 +2251,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Mixue%20Union%20Mall"
 				}
 			],
@@ -2272,7 +2272,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/p/All-Tea-House-61560454436295/"
 				}
 			],
@@ -2293,7 +2293,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.kyorollen.com/find-us/"
 				}
 			],
@@ -2315,7 +2315,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/mrshake.thailand"
 				}
 			],
@@ -2336,7 +2336,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.nobicha.co.th/"
 				}
 			],
@@ -2357,7 +2357,7 @@
 			},
 			"links": [
 				{
-					"label": "Instagram",
+					"label": "social",
 					"url": "https://www.instagram.com/owlcha.official/"
 				}
 			],
@@ -2378,7 +2378,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Wua%20Luan%20Luan%20Union%20Mall"
 				}
 			],
@@ -2399,7 +2399,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.cafe-amazon.com/"
 				}
 			],
@@ -2420,7 +2420,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.dairyqueenthailand.com/"
 				}
 			],
@@ -2441,7 +2441,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/p/%E6%B3%B0%E5%9B%BD%E5%BC%A0%E4%BA%AE%E9%BA%BB%E8%BE%A3%E7%83%AB-Zhangliang-Malatang-Thailand-61553121875809/"
 				}
 			],
@@ -2463,7 +2463,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.chesters.co.th/"
 				}
 			],
@@ -2485,7 +2485,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.hachiban.co.th/"
 				}
 			],
@@ -2507,7 +2507,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.mkrestaurant.com/en/branch"
 				}
 			],
@@ -2529,7 +2529,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.santafesteak.com/santafesteak/frontends/searchlocation/"
 				}
 			],
@@ -2551,7 +2551,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.fuji.co.th/?lang=en"
 				}
 			],
@@ -2573,7 +2573,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://corporate.lotuss.com/malls/plaza-lotus-eats/lotuss-eats-delivery/"
 				}
 			],
@@ -2595,7 +2595,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/Karayama-Thailand-454784181583843/"
 				}
 			],
@@ -2617,7 +2617,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.kfc.co.th/"
 				}
 			],
@@ -2638,7 +2638,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Five%20Star%20Lotus's%20Ladprao"
 				}
 			],
@@ -2660,7 +2660,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=So%20Vegan%20Lotus's%20Ladprao"
 				}
 			],
@@ -2681,7 +2681,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.dairyqueenthailand.com/"
 				}
 			],
@@ -2702,7 +2702,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.swensens1112.com/"
 				}
 			],
@@ -2723,7 +2723,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=TrueCoffee%20GO%20Lotus's%20Ladprao"
 				}
 			],
@@ -2744,7 +2744,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Vanilla%20Prince%20Cafe%20Lotus's%20Ladprao"
 				}
 			],
@@ -2765,7 +2765,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B9%81%E0%B8%8B%E0%B9%88%E0%B8%9A%E0%B8%8B%E0%B8%B9%E0%B9%89%E0%B8%94%E0%B8%94%E0%B8%94%20%E0%B8%AB%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7"
 				}
 			],
@@ -2787,7 +2787,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=In%20The%20Middle%20by%20Kaizen%20Ladprao%20Hills"
 				}
 			],
@@ -2809,7 +2809,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=The%20Fat%20Cow%20Lat%20Phrao%20Soi%2015"
 				}
 			],
@@ -2831,7 +2831,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/pepperlunchthailand/"
 				}
 			],
@@ -2853,7 +2853,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/TopsEatery/"
 				}
 			],
@@ -2875,7 +2875,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%AE%E0%B9%89%E0%B8%AD%E0%B8%99%E0%B9%81%E0%B8%AE%E0%B8%87%20%E0%B8%AB%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7"
 				}
 			],
@@ -2897,7 +2897,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B9%80%E0%B8%88%E0%B8%B5%E0%B8%A2%E0%B8%87%E0%B8%AE%E0%B8%B2%E0%B8%A2%20%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7%20%E0%B8%8B%E0%B8%AD%E0%B8%A2%204"
 				}
 			],
@@ -2919,7 +2919,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%81%E0%B9%8B%E0%B8%A7%E0%B8%A2%E0%B9%80%E0%B8%95%E0%B8%B5%E0%B9%8B%E0%B8%A2%E0%B8%A7%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%A1%E0%B8%B0%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%88%E0%B9%8A%E0%B9%81%E0%B8%94%E0%B8%87%20%E0%B8%AB%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7"
 				}
 			],
@@ -2941,7 +2941,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%9B%E0%B8%B2%E0%B9%80%E0%B8%95%E0%B9%8A%E0%B8%B0%20%E0%B8%AB%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7"
 				}
 			],

@@ -11,7 +11,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Nara%20Thai%20Cuisine%20Siam%20Paragon"
 				}
 			],
@@ -33,7 +33,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Taling%20Pling%20Siam%20Paragon"
 				}
 			],
@@ -55,7 +55,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/tonchinth/"
 				}
 			],
@@ -77,7 +77,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Suki%20Masa%20Siam%20Paragon"
 				}
 			],
@@ -99,7 +99,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/NabezoPremium/"
 				}
 			],
@@ -121,7 +121,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.jumboseafood.com.sg/"
 				}
 			],
@@ -143,7 +143,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://sushiro.co.th/"
 				}
 			],
@@ -165,7 +165,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Maple%20Tree%20House%20Siam%20Paragon"
 				}
 			],
@@ -187,7 +187,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.greyhoundcafe.co.th/"
 				}
 			],
@@ -209,7 +209,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.coffeebeans.co.th/"
 				}
 			],
@@ -231,7 +231,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://twgtea.com/"
 				}
 			],
@@ -252,7 +252,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Karun%20Thai%20Tea%20Siam%20Paragon"
 				}
 			],
@@ -273,7 +273,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.veganerie.co.th/"
 				}
 			],
@@ -295,7 +295,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/GyukatsuKyotoKatsugyuThailand"
 				}
 			],
@@ -317,7 +317,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/tonkatsuwakoth/"
 				}
 			],
@@ -339,7 +339,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Baan%20Ying%20Siam%20Center"
 				}
 			],
@@ -361,7 +361,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.tiktok.com/@pastaama_"
 				}
 			],
@@ -383,7 +383,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.hachiban.co.th/"
 				}
 			],
@@ -405,7 +405,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/p/%E6%B3%B0%E5%9B%BD%E5%BC%A0%E4%BA%AE%E9%BA%BB%E8%BE%A3%E7%83%AB-Zhangliang-Malatang-Thailand-61553121875809/"
 				}
 			],
@@ -427,7 +427,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/bonchonthailand"
 				}
 			],
@@ -449,7 +449,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Hasul%20Korean%20Restaurant%20Siam%20Center"
 				}
 			],
@@ -471,7 +471,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/TajimayaShabuSQ1TH/"
 				}
 			],
@@ -493,7 +493,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/hongdaebuffet/"
 				}
 			],
@@ -515,7 +515,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/kouensushibar/"
 				}
 			],
@@ -537,7 +537,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Jaguemsong%20Siam%20Square%20One"
 				}
 			],
@@ -559,7 +559,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/Ramenkagetsuarashithailand/"
 				}
 			],
@@ -581,7 +581,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.okjgroup.com/"
 				}
 			],
@@ -603,7 +603,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.afteryoudessertcafe.com/"
 				}
 			],
@@ -624,7 +624,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Amai%20Soft%20Serve%20Siam%20Square%20One"
 				}
 			],
@@ -645,7 +645,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=IPPUDO%20Siam%20Paragon"
 				}
 			],
@@ -667,7 +667,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Four%20Seasons%20Siam%20Paragon"
 				}
 			],
@@ -689,7 +689,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Gold%20Siam%20Paragon"
 				}
 			],
@@ -711,7 +711,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Song%20Fa%20Bak%20Kut%20Teh%20Siam%20Paragon"
 				}
 			],
@@ -733,7 +733,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/burnbusaba/"
 				}
 			],
@@ -755,7 +755,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Khao-S%C5%8D-i%20Siam%20Paragon"
 				}
 			],
@@ -777,7 +777,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/p/Thongsmith-Central-Ladprao-%E0%B9%80%E0%B8%8B%E0%B9%87%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B1%E0%B8%A5-%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7-100063629375894/"
 				}
 			],
@@ -799,7 +799,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/teraokagyoza/"
 				}
 			],
@@ -821,7 +821,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Soba%20House%20Konjiki%20Hototogisu%20Siam%20Paragon"
 				}
 			],
@@ -843,7 +843,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Luk%20Kai%20Thong%20Siam%20Paragon"
 				}
 			],
@@ -865,7 +865,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Gordon%20Ramsay%20Street%20Burger%20Siam%20Paragon"
 				}
 			],
@@ -887,7 +887,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=L%27Antica%20Pizzeria%20da%20Michele%20Siam%20Paragon"
 				}
 			],
@@ -909,7 +909,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Sapparos%20Siam%20Paragon"
 				}
 			],
@@ -931,7 +931,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Shabu%20Baru%20Siam%20Paragon"
 				}
 			],
@@ -953,7 +953,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Ded%20Ka%20Prao%20Siam%20Paragon"
 				}
 			],
@@ -975,7 +975,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.kyorollen.com/find-us/"
 				}
 			],
@@ -997,7 +997,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Mandarin%20Oriental%20Shop%20Siam%20Paragon"
 				}
 			],
@@ -1019,7 +1019,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.swensens1112.com/"
 				}
 			],
@@ -1040,7 +1040,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Bacha%20Coffee%20Siam%20Paragon"
 				}
 			],
@@ -1061,7 +1061,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Henri%20Charpentier%20Siam%20Paragon"
 				}
 			],
@@ -1083,7 +1083,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.greyhoundcafe.co.th/branch/central-lardprao/"
 				}
 			],
@@ -1105,7 +1105,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.afteryoudessertcafe.com/en/branches/"
 				}
 			],
@@ -1126,7 +1126,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Gong%20Cha%20Siam%20Center"
 				}
 			],
@@ -1147,7 +1147,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=CPS%20Coffee%20Siam%20Center"
 				}
 			],
@@ -1168,7 +1168,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://barbqplaza.com/branch/"
 				}
 			],
@@ -1190,7 +1190,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://mo-mo-paradiseth.com/branches/"
 				}
 			],
@@ -1212,7 +1212,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Palsaik%20Siam%20Center"
 				}
 			],
@@ -1234,7 +1234,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://dining-innovation.com.sg/yakinikulike/country/thailand"
 				}
 			],
@@ -1256,7 +1256,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.oishifood.com/restaurant/shabushi/"
 				}
 			],
@@ -1278,7 +1278,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Tonkotsu%20Kazan%20Ramen%20Siam%20Center"
 				}
 			],
@@ -1300,7 +1300,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Niku%20Niku%20Oh%21%21%20Kome%20Siam%20Center"
 				}
 			],
@@ -1322,7 +1322,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Maji%20Curry%20Siam%20Center"
 				}
 			],
@@ -1344,7 +1344,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Easy%20Buddy%20Siam%20Center"
 				}
 			],
@@ -1366,7 +1366,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.lameow.com/"
 				}
 			],
@@ -1388,7 +1388,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://yonny.co.th/"
 				}
 			],
@@ -1410,7 +1410,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Don%20Siam%20Center"
 				}
 			],
@@ -1432,7 +1432,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=BHC%20Chicken%20Siam%20Center"
 				}
 			],
@@ -1454,7 +1454,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%25%20Arabica%20Siam%20Discovery"
 				}
 			],
@@ -1475,7 +1475,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Au%20Bon%20Pain%20Siam%20Discovery"
 				}
 			],
@@ -1497,7 +1497,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=JIAN%20CHA%20Tea%20Siam%20Discovery"
 				}
 			],
@@ -1518,7 +1518,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=BEANS%20Siam%20Discovery"
 				}
 			],
@@ -1539,7 +1539,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.starbucks.co.th/"
 				}
 			],
@@ -1560,7 +1560,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Kagonoya%20Siam%20Discovery"
 				}
 			],
@@ -1582,7 +1582,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Have%20A%20Zeed%20Siam%20Discovery"
 				}
 			],
@@ -1604,7 +1604,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Kungthong%20Seafood%20Siam%20Discovery"
 				}
 			],
@@ -1626,7 +1626,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.barbqplaza.com/th/branch"
 				}
 			],
@@ -1648,7 +1648,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://akiyoshi.co.th/"
 				}
 			],
@@ -1670,7 +1670,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.somboonseafood.com/"
 				}
 			],
@@ -1692,7 +1692,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://whiteflowerbkk.net/th/"
 				}
 			],
@@ -1714,7 +1714,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.ootoya.co.th/branches.php"
 				}
 			],
@@ -1736,7 +1736,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.yayoirestaurants.com/branch"
 				}
 			],
@@ -1758,7 +1758,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.hachiban.co.th/"
 				}
 			],
@@ -1780,7 +1780,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/GyukakuTH/"
 				}
 			],
@@ -1802,7 +1802,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/Karayama-Thailand-454784181583843/"
 				}
 			],
@@ -1824,7 +1824,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/pukeepick/"
 				}
 			],
@@ -1846,7 +1846,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.mkrestaurant.com/"
 				}
 			],
@@ -1868,7 +1868,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/pepperlunchthailand/"
 				}
 			],
@@ -1890,7 +1890,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://koithe.com/"
 				}
 			],

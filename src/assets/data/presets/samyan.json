@@ -11,7 +11,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://bearhouse.co.th/"
 				}
 			],
@@ -32,7 +32,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.cafe-amazon.com/"
 				}
 			],
@@ -53,7 +53,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.tgi.co.th/our-business/coco/?lang=en"
 				}
 			],
@@ -75,7 +75,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.dairyqueenthailand.com/"
 				}
 			],
@@ -96,7 +96,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.hachiban.co.th/"
 				}
 			],
@@ -118,7 +118,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/Karayama-Thailand-454784181583843/"
 				}
 			],
@@ -140,7 +140,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://koithe.com/"
 				}
 			],
@@ -161,7 +161,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.limlaongow.com/"
 				}
 			],
@@ -183,7 +183,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Machi%20Machi%20Samyan%20Mitrtown"
 				}
 			],
@@ -204,7 +204,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.mos-th.com/en/branch/"
 				}
 			],
@@ -225,7 +225,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.nuatair.com/"
 				}
 			],
@@ -247,7 +247,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/pepperlunchthailand"
 				}
 			],
@@ -269,7 +269,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Phra%20Nakorn%20Noodle%20Samyan%20Mitrtown"
 				}
 			],
@@ -291,7 +291,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.oishifood.com/restaurant/shabushi/"
 				}
 			],
@@ -313,7 +313,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Shinkanzen%20Sushi%20Samyan%20Mitrtown"
 				}
 			],
@@ -335,7 +335,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/TenyaThailand/"
 				}
 			],
@@ -357,7 +357,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/tudarithailand/"
 				}
 			],
@@ -379,7 +379,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://yayoirestaurants.com/"
 				}
 			],
@@ -401,7 +401,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.guguchickenthailand.com/"
 				}
 			],
@@ -423,7 +423,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=MX%20Cakes%20%26%20Bakery%20Samyan%20Mitrtown"
 				}
 			],
@@ -444,7 +444,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.kfc.co.th/"
 				}
 			],
@@ -465,7 +465,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.afteryoudessertcafe.com/"
 				}
 			],
@@ -486,7 +486,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/bonchonthailand"
 				}
 			],
@@ -508,7 +508,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Din%27s%20Samyan%20Mitrtown"
 				}
 			],
@@ -530,7 +530,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://getfresh.co.th/"
 				}
 			],
@@ -552,7 +552,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Kanom%20Samyan%20Mitrtown"
 				}
 			],
@@ -573,7 +573,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Lhong%20Tou%20Cafe%20Samyan%20Mitrtown"
 				}
 			],
@@ -595,7 +595,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Man%20Fu%20Yuan%20Samyan%20Mitrtown"
 				}
 			],
@@ -617,7 +617,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=On%20The%20Table%20Samyan%20Mitrtown"
 				}
 			],
@@ -639,7 +639,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Ssamthing%20Together%20Samyan%20Mitrtown"
 				}
 			],
@@ -661,7 +661,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=So%20Asean%20Samyan%20Mitrtown"
 				}
 			],
@@ -683,7 +683,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.starbucks.co.th/"
 				}
 			],
@@ -704,7 +704,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.swensens1112.com/"
 				}
 			],
@@ -725,7 +725,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://tacobell.co.th/"
 				}
 			],
@@ -746,7 +746,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.thecoffeeclub.co.th/"
 				}
 			],
@@ -768,7 +768,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://timhortons.co.th/"
 				}
 			],
@@ -789,7 +789,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=TP%20Tea%20Samyan%20Mitrtown"
 				}
 			],
@@ -810,7 +810,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Skinnylicious%20Samyan%20Mitrtown"
 				}
 			],
@@ -832,7 +832,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Guss%20Damn%20Good%20Samyan%20Mitrtown"
 				}
 			],
@@ -853,7 +853,7 @@
 			},
 			"links": [
 				{
-					"label": "Facebook",
+					"label": "social",
 					"url": "https://www.facebook.com/ARamenOfficial/"
 				}
 			],
@@ -875,7 +875,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.yifangtea.com/en/home"
 				}
 			],
@@ -896,7 +896,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://akayakiniku.com/branch.php"
 				}
 			],
@@ -918,7 +918,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://barbqplaza.com/"
 				}
 			],
@@ -940,7 +940,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Gogida%20Samyan%20Mitrtown"
 				}
 			],
@@ -962,7 +962,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=K-StrEAT%20Samyan%20Mitrtown"
 				}
 			],
@@ -984,7 +984,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Makai%20Samyan%20Mitrtown"
 				}
 			],
@@ -1005,7 +1005,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.mkrestaurant.com/"
 				}
 			],
@@ -1027,7 +1027,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Muteki%20Samyan%20Mitrtown"
 				}
 			],
@@ -1049,7 +1049,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.nittayakaiyang.com/th/"
 				}
 			],
@@ -1071,7 +1071,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.oishifood.com/restaurant/oishi-eaterium/"
 				}
 			],
@@ -1093,7 +1093,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Samyan%20Food%20Legends%20Samyan%20Mitrtown"
 				}
 			],
@@ -1115,7 +1115,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Sushi%20Hiro%20Samyan%20Mitrtown"
 				}
 			],
@@ -1137,7 +1137,7 @@
 			},
 			"links": [
 				{
-					"label": "",
+					"label": "website",
 					"url": "https://www.1112.com/"
 				}
 			],
@@ -1159,7 +1159,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=The%20Spicy%20House%20Samyan%20Mitrtown"
 				}
 			],
@@ -1181,7 +1181,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Tummour%20Samyan%20Mitrtown"
 				}
 			],
@@ -1203,7 +1203,7 @@
 			},
 			"links": [
 				{
-					"label": "Google Maps",
+					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=You%20%26%20I%20Samyan%20Mitrtown"
 				}
 			],
