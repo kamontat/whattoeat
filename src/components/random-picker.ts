@@ -20,7 +20,7 @@ import {
 } from "#lib/groups";
 import { addVisit, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
-import { icon } from "#lib/icons";
+import { type IconName, icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
 import {
 	loadPickCount,
@@ -31,8 +31,11 @@ import {
 } from "#lib/random";
 import {
 	displayName,
-	isLink,
+	type Link,
+	type LinkLabel,
+	linkLabel,
 	metaLine,
+	openLinks,
 	type Restaurant,
 } from "#lib/restaurant";
 import {
@@ -153,6 +156,31 @@ export class RandomPicker extends LitElement {
 				margin-inline-start: 0.375rem;
 				vertical-align: -0.0625em;
 				color: var(--color-muted);
+			}
+
+			/* Two or more links: a wrapping row of icons under the notes, each named by its label. */
+			.result .links {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.25rem;
+				margin: 0 -0.5rem;
+				padding: 0;
+				list-style: none;
+			}
+
+			.result .links a {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: var(--tap);
+				height: var(--tap);
+				border-radius: var(--radius-sm);
+				color: var(--color-muted);
+			}
+
+			.result .links a:hover {
+				background: var(--color-surface-2);
+				color: var(--color-link);
 			}
 
 			.notes {
@@ -498,19 +526,50 @@ export class RandomPicker extends LitElement {
 		return html`<p class="visited-label" tabindex="-1">${t("picker.visited", { time })}</p>`;
 	}
 
+	/** One link as an icon; the label is its accessible name and tooltip. */
+	private renderLink(link: Link) {
+		const name = linkLabel(link);
+		return html`<li>
+			<a href=${link.url} target="_blank" rel="noopener noreferrer" aria-label=${name} title=${name}>
+				${icon(LINK_ICONS[link.label as LinkLabel] ?? "external", 22)}
+			</a>
+		</li>`;
+	}
+
 	private renderResult(item: Restaurant) {
+		const links = openLinks(item);
+		const [first] = links;
 		return html`
 			<article class="card result ${this.visited?.id === item.id ? "visited" : ""}">
 				<h2>${
-					isLink(item.link)
-						? html`<a href=${item.link} target="_blank" rel="noopener noreferrer">${displayName(item)}${icon("external", 16)}</a>`
+					first !== undefined
+						? html`<a href=${first.url} target="_blank" rel="noopener noreferrer">${displayName(item)}${icon("external", 16)}</a>`
 						: displayName(item)
 				}</h2>
 				${metaLine(item) ? html`<p class="meta">${metaLine(item)}</p>` : nothing}
 				${item.notes ? html`<p class="notes">${item.notes}</p>` : nothing}
+				${
+					links.length > 1
+						? html`<ul class="links" aria-label=${t("picker.links", { name: displayName(item) })}>
+								${links.map((link) => this.renderLink(link))}
+							</ul>`
+						: nothing
+				}
 				${restaurantChips(item, this.defs)}
 				<div class="foot">${this.renderVisit(item)}</div>
 			</article>
 		`;
 	}
-}
+} /** The icon for each preset link label; any other label shows the leave-the-app icon. */
+const LINK_ICONS: Partial<Record<LinkLabel, IconName>> = {
+	main: "star",
+	map: "pin",
+	facebook: "facebook",
+	instagram: "instagram",
+	line: "line",
+	tiktok: "tiktok",
+	x: "x-logo",
+	website: "globe",
+	menu: "book",
+	delivery: "bag",
+};

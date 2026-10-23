@@ -29,6 +29,15 @@ const SHAPES = {
 	list: svg`<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/>`,
 	search: svg`<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>`,
 	external: svg`<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>`,
+	globe: svg`<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z"/>`,
+	star: svg`<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>`,
+	book: svg`<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19M9 7.5h6M9 11h6"/>`,
+	bag: svg`<path d="M5 8h14l-1 12.5H6z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/>`,
+	facebook: svg`<circle cx="12" cy="12" r="9"/><path d="M15 8h-1.5A2.5 2.5 0 0 0 11 10.5V21M8.5 13h6"/>`,
+	instagram: svg`<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/>`,
+	line: svg`<path d="M12 4c-4.97 0-9 3.13-9 7 0 3.15 2.7 5.82 6.4 6.7L9 21l3.6-3c4.75-.27 8.4-3.3 8.4-7 0-3.87-4.03-7-9-7z"/><path d="M8 9v4h1.5M11.5 9v4M14 13V9l2.5 4V9"/>`,
+	tiktok: svg`<path d="M13.5 3v11.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M13.5 3c.4 2.6 2.4 4.6 5 5"/>`,
+	"x-logo": svg`<path d="M4 4h4.5L20 20h-4.5z"/><path d="M19.5 4l-6.2 7.1M4.5 20l6.2-7.1"/>`,
 } satisfies Record<string, SVGTemplateResult>;
 
 export type IconName = keyof typeof SHAPES;
@@ -39,6 +48,7 @@ export const ICON_NAMES = Object.keys(SHAPES) as readonly IconName[];
 export const icon = (name: IconName, size = 24): TemplateResult =>
 	html`<svg
 		class="icon"
+		data-icon=${name}
 		width=${size}
 		height=${size}
 		viewBox="0 0 24 24"

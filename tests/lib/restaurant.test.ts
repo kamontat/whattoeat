@@ -1,16 +1,19 @@
 import { expect, test } from "bun:test";
 import { setLang } from "#lib/i18n";
 import {
+	canonicalLabel,
 	cleanStored,
 	displayName,
 	groupValues,
 	isLink,
 	isRestaurant,
+	linkLabel,
 	metaLine,
 	nameFromText,
 	newId,
 	normalizeInput,
 	normalizeTag,
+	openLinks,
 	parseTags,
 	type Restaurant,
 	type StoredRestaurant,
@@ -22,7 +25,7 @@ const valid: Restaurant = {
 	id: "a1",
 	name: { en: "Som Tam Nua", th: "" },
 	tags: ["thai", "spicy"],
-	link: "https://maps.example/siam",
+	links: [{ label: "map", url: "https://maps.example/siam" }],
 	notes: "",
 	groups: { area: ["siam"], cuisine: ["thai"] },
 	kinds: ["food"],
@@ -65,7 +68,7 @@ test("normalizeInput trims both names", () => {
 		normalizeInput({
 			name: { en: " Pho ", th: " เฝอ " },
 			tags: [],
-			link: "",
+			links: [],
 			notes: "",
 		}).name,
 	).toEqual({ en: "Pho", th: "เฝอ" });
@@ -130,13 +133,20 @@ test("normalizeInput trims every field and cleans tags", () => {
 		normalizeInput({
 			name: { en: "  Jay Fai ", th: "" },
 			tags: [" street ", "", "street"],
-			link: " Bangkok ",
+			links: [
+				{ label: " Map ", url: " https://maps.example/jayfai " },
+				{ label: "  ", url: "  " },
+				{ label: "", url: "https://ig.example/jayfai" },
+			],
 			notes: " ok ",
 		}),
 	).toEqual({
 		name: { en: "Jay Fai", th: "" },
 		tags: ["street"],
-		link: "Bangkok",
+		links: [
+			{ label: "map", url: "https://maps.example/jayfai" },
+			{ label: "", url: "https://ig.example/jayfai" },
+		],
 		notes: "ok",
 		groups: {},
 		kinds: [],
@@ -149,7 +159,7 @@ test("normalizeInput cleans group values like tags, drops empty groups and keeps
 			{
 				name: { en: "Cafe", th: "" },
 				tags: [],
-				link: "",
+				links: [],
 				notes: "",
 				groups: {
 					area: ["  Old   Town ", "old town"],
@@ -172,7 +182,7 @@ test("normalizeInput moves values of unknown groups into tags", () => {
 			{
 				name: { en: "Cafe", th: "" },
 				tags: ["spicy"],
-				link: "",
+				links: [],
 				notes: "",
 				groups: { gone: ["Cheap"], kind: ["food"], g1: ["cosy"] },
 			},
@@ -231,26 +241,29 @@ test("cleanStored keeps only known fields and trims text", () => {
 });
 
 test("isRestaurant accepts the old shape with a location and no link", () => {
-	const { link: _l, ...rest } = valid;
+	const { links: _l, ...rest } = valid;
 	expect(isRestaurant({ ...rest, location: "Siam Square" })).toBe(true);
 	expect(isRestaurant(rest)).toBe(true);
 });
 
 test("cleanStored moves an old location that is a link into link", () => {
-	const { link: _l, ...rest } = valid;
+	const { links: _l, ...rest } = valid;
 	expect(
 		cleanStored({ ...rest, location: " https://maps.example/x " }),
-	).toEqual({ ...valid, link: "https://maps.example/x" });
+	).toEqual({
+		...valid,
+		links: [{ label: "", url: "https://maps.example/x" }],
+	});
 });
 
 test("cleanStored moves an old location that is not a link to the start of the notes", () => {
-	const { link: _l, ...rest } = valid;
+	const { links: _l, ...rest } = valid;
 	expect(
 		cleanStored({ ...rest, location: " Siam, 2F ", notes: "Queue early" }),
-	).toEqual({ ...valid, link: "", notes: "Siam, 2F\nQueue early" });
+	).toEqual({ ...valid, links: [], notes: "Siam, 2F\nQueue early" });
 	expect(cleanStored({ ...rest, location: "Siam", notes: "" })).toEqual({
 		...valid,
-		link: "",
+		links: [],
 		notes: "Siam",
 	});
 });
@@ -259,7 +272,9 @@ test("cleanStored keeps an existing link and moves a different old location to t
 	expect(
 		cleanStored({ ...valid, location: "https://other.example", notes: "" }),
 	).toEqual({ ...valid, notes: "https://other.example" });
-	expect(cleanStored({ ...valid, location: valid.link })).toEqual(valid);
+	expect(
+		cleanStored({ ...valid, location: "https://maps.example/siam" }),
+	).toEqual(valid);
 	expect(cleanStored({ ...valid, location: " " })).toEqual(valid);
 });
 
@@ -317,6 +332,12 @@ test.each([
 	["missing tags", { ...valid, tags: undefined }],
 	["non-string tag", { ...valid, tags: ["ok", 1] }],
 	["numeric link", { ...valid, link: 5 }],
+	["links not an array", { ...valid, links: "https://x.example" }],
+	["a link with no url", { ...valid, links: [{ label: "Map" }] }],
+	[
+		"a numeric link label",
+		{ ...valid, links: [{ label: 1, url: "https://x.example" }] },
+	],
 	["numeric location", { ...valid, location: 5 }],
 	["missing notes", { ...valid, notes: undefined }],
 	["missing createdAt", { ...valid, createdAt: undefined }],
@@ -365,4 +386,173 @@ test("newId skips bytes that would bias the alphabet", () => {
 		return bytes;
 	};
 	expect(newId([], random)).toBe("zzzzzzzz");
+});
+
+test("cleanStored turns an old single link into one unlabelled link", () => {
+	const { links: _l, ...rest } = valid;
+	expect(
+		cleanStored({ ...rest, link: " https://maps.example/old " }).links,
+	).toEqual([{ label: "", url: "https://maps.example/old" }]);
+	expect(cleanStored({ ...rest, links: [] }).links).toEqual([]);
+	expect(cleanStored(rest).links).toEqual([]);
+});
+
+test("cleanStored keeps links when there are some and drops an old link beside them", () => {
+	expect(
+		cleanStored({ ...valid, link: "https://maps.example/old" }).links,
+	).toEqual(valid.links);
+});
+
+test("isRestaurant accepts labelled links and the old single link", () => {
+	expect(
+		isRestaurant({
+			...valid,
+			links: [
+				{ label: "Map", url: "https://maps.example" },
+				{ label: "", url: "https://ig.example" },
+			],
+		}),
+	).toBe(true);
+	const { links: _l, ...rest } = valid;
+	expect(isRestaurant({ ...rest, link: "https://maps.example" })).toBe(true);
+});
+
+test("linkLabel names a preset label in the current language, else the label, else the host without www", () => {
+	setLang("en");
+	expect(linkLabel({ label: "map", url: "https://maps.example" })).toBe("Map");
+	setLang("th");
+	expect(linkLabel({ label: "map", url: "https://maps.example" })).toBe("แผนที่");
+	setLang("en");
+	expect(linkLabel({ label: "line", url: "https://lin.ee/abc" })).toBe("LINE");
+	expect(linkLabel({ label: "Grab", url: "https://x.example/grab" })).toBe(
+		"Grab",
+	);
+	expect(
+		linkLabel({ label: " ", url: "https://www.instagram.com/jayfai/" }),
+	).toBe("instagram.com");
+	expect(linkLabel({ label: "", url: "not a url" })).toBe("not a url");
+});
+
+test("canonicalLabel ignores case: a preset label in either language becomes its key, any other is normalized", () => {
+	expect(canonicalLabel(" Map ")).toBe("map");
+	expect(canonicalLabel("FaceBook")).toBe("facebook");
+	expect(canonicalLabel("TikTok")).toBe("tiktok");
+	expect(canonicalLabel("เว็บไซต์")).toBe("website");
+	expect(canonicalLabel(" Grab  Food ")).toBe("grab food");
+	expect(canonicalLabel("GRAB food")).toBe(canonicalLabel("grab Food"));
+	expect(canonicalLabel("  ")).toBe("");
+});
+
+test("normalizeInput stores a preset label as its key", () => {
+	expect(
+		normalizeInput({
+			name: { en: "Pho", th: "" },
+			tags: [],
+			links: [
+				{ label: "Main", url: "https://pho.example" },
+				{ label: "แผนที่", url: "https://maps.example/pho" },
+			],
+			notes: "",
+		}).links,
+	).toEqual([
+		{ label: "main", url: "https://pho.example" },
+		{ label: "map", url: "https://maps.example/pho" },
+	]);
+});
+
+test("normalizeInput names a blank or old social label after its site", () => {
+	const links = (label: string, urls: string[]) =>
+		normalizeInput({
+			name: { en: "Pho", th: "" },
+			tags: [],
+			links: urls.map((url) => ({ label, url })),
+			notes: "",
+		}).links.map((link) => link.label);
+	expect(
+		links("", [
+			"https://www.facebook.com/pho",
+			"https://m.facebook.com/pho",
+			"https://instagram.com/pho",
+			"https://lin.ee/pho",
+			"https://page.line.me/pho",
+			"https://www.tiktok.com/@pho",
+			"https://x.com/pho",
+			"https://twitter.com/pho",
+			"https://www.google.com/maps/search/?api=1&query=pho",
+			"https://maps.app.goo.gl/abc",
+			"https://pho.example",
+		]),
+	).toEqual([
+		"facebook",
+		"facebook",
+		"instagram",
+		"line",
+		"line",
+		"tiktok",
+		"x",
+		"x",
+		"map",
+		"map",
+		"",
+	]);
+	expect(
+		links("social", ["https://www.instagram.com/pho", "https://pho.example"]),
+	).toEqual(["instagram", "social"]);
+	expect(links("Menu", ["https://www.facebook.com/pho/menu"])).toEqual([
+		"menu",
+	]);
+});
+
+test("openLinks keeps only http(s) links", () => {
+	expect(
+		openLinks({
+			...valid,
+			links: [
+				{ label: "", url: "javascript:alert(1)" },
+				{ label: "map", url: "https://maps.example" },
+			],
+		}),
+	).toEqual([{ label: "map", url: "https://maps.example" }]);
+});
+
+test("openLinks orders main, map, the social sites, website, menu, delivery, then the rest as given", () => {
+	const link = (label: string) => ({
+		label,
+		url: `https://x.example/${label}`,
+	});
+	expect(
+		openLinks({
+			...valid,
+			links: [
+				link("Grab"),
+				link(""),
+				link("delivery"),
+				link("menu"),
+				link("website"),
+				link("x"),
+				link("tiktok"),
+				link("line"),
+				link("instagram"),
+				link("facebook"),
+				link("map"),
+				link("main"),
+			],
+		}).map((item) => item.label),
+	).toEqual([
+		"main",
+		"map",
+		"facebook",
+		"instagram",
+		"line",
+		"tiktok",
+		"x",
+		"website",
+		"menu",
+		"delivery",
+		"Grab",
+		"",
+	]);
+	expect(
+		openLinks({ ...valid, links: [link("website"), link("map")] })[0]?.label,
+	).toBe("map");
 });

@@ -15,7 +15,7 @@ afterEach(() => {
 const make = (id: string, name: string, extra = {}): Restaurant => ({
 	id,
 	name: nameFromText(name),
-	link: "",
+	links: [],
 	notes: "",
 	kinds: [],
 	tags: [],
@@ -116,7 +116,7 @@ test("a query no name has shows the no-match card with Add and Clear", async () 
 });
 
 test("a row click asks to edit that restaurant; the current one is marked", async () => {
-	const pho = make("1", "Pho", { link: "Ari" });
+	const pho = make("1", "Pho", { links: [{ label: "", url: "Ari" }] });
 	const el = await mount([pho, make("2", "Bun")], { currentId: "1" });
 	const row = $<HTMLButtonElement>(el, 'li[data-id="1"] button')!;
 	expect(row.getAttribute("aria-current")).toBe("true");
@@ -129,10 +129,16 @@ test("a row click asks to edit that restaurant; the current one is marked", asyn
 	expect(edits).toEqual([pho]);
 });
 
-test("a row with an http(s) link gets an open-link beside its edit button; other rows don't", async () => {
+test("a row with an http(s) link gets an open-link to the first one beside its edit button; other rows don't", async () => {
 	const el = await mount([
-		make("1", "Pho", { link: "https://maps.example/pho" }),
-		make("2", "Bun", { link: "javascript:alert(1)" }),
+		make("1", "Pho", {
+			links: [
+				{ label: "", url: "javascript:alert(1)" },
+				{ label: "Map", url: "https://maps.example/pho" },
+				{ label: "", url: "https://ig.example/pho" },
+			],
+		}),
+		make("2", "Bun", { links: [{ label: "", url: "javascript:alert(1)" }] }),
 		make("3", "Cha"),
 	]);
 	const link = $<HTMLAnchorElement>(el, 'li[data-id="1"] > a.open-link');

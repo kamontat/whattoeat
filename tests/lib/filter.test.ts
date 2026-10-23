@@ -24,7 +24,7 @@ const make = (name: string, extra: Partial<Restaurant> = {}): Restaurant => ({
 	id: name,
 	name: nameFromText(name),
 	tags: [],
-	link: "",
+	links: [],
 	notes: "",
 	groups: {},
 	kinds: [],

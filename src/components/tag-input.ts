@@ -65,9 +65,10 @@ export class TagInput extends LitElement {
 				line-height: 1;
 			}
 
+			/* Above the restaurant form's pinned Save row (z-index 1), which follows it on the page. */
 			[role="listbox"] {
 				position: absolute;
-				z-index: 1;
+				z-index: 2;
 				top: 100%;
 				right: 0;
 				left: 0;

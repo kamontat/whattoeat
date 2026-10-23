@@ -17,7 +17,7 @@ const make = (id: string, name = id): Restaurant => ({
 	id,
 	name: nameFromText(name),
 	tags: [],
-	link: "",
+	links: [],
 	groups: {},
 	kinds: [],
 	notes: "",

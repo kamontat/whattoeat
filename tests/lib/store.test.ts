@@ -18,7 +18,7 @@ import {
 const input = {
 	name: { en: " Jay Fai ", th: "" },
 	tags: ["street", " street "],
-	link: "Bangkok",
+	links: [{ label: " Map ", url: " https://maps.example/jayfai " }],
 	notes: "",
 };
 
@@ -83,7 +83,7 @@ test("addRestaurant normalizes, stamps and saves", () => {
 	expect(list[0]).toMatchObject({
 		name: { en: "Jay Fai", th: "" },
 		tags: ["street"],
-		link: "Bangkok",
+		links: [{ label: "map", url: "https://maps.example/jayfai" }],
 		notes: "",
 		groups: {},
 		createdAt: now.toISOString(),
@@ -115,7 +115,7 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 		{
 			name: { en: "Jay Fai 2", th: "" },
 			tags: [],
-			link: "",
+			links: [],
 			notes: "star",
 			groups: { area: [" Old Town "], cuisine: ["Thai"] },
 			kinds: ["dessert", "food"],
@@ -126,7 +126,7 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 		id: first!.id,
 		name: { en: "Jay Fai 2", th: "" },
 		tags: [],
-		link: "",
+		links: [],
 		notes: "star",
 		groups: { area: ["old town"], cuisine: ["thai"] },
 		kinds: ["food", "dessert"],
@@ -262,7 +262,7 @@ test("restaurants stored before groups load with old area and cuisine moved into
 		id: "a1",
 		name: "Old",
 		tags: ["thai"],
-		link: "",
+		links: [],
 		notes: "",
 		area: "Siam",
 		cuisine: "",

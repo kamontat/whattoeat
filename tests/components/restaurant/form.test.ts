@@ -22,7 +22,7 @@ afterEach(() => {
 const make = (id: string, name: string, extra = {}): Restaurant => ({
 	id,
 	name: nameFromText(name),
-	link: "",
+	links: [],
 	notes: "",
 	kinds: [],
 	tags: [],
@@ -37,7 +37,7 @@ const addView = (form: Partial<FormState> = {}): FormView => ({
 	editingId: undefined,
 	confirmingId: undefined,
 	nameError: undefined,
-	linkError: undefined,
+	linkErrors: [],
 });
 
 const editView = (
@@ -48,7 +48,7 @@ const editView = (
 	editingId: item.id,
 	confirmingId: undefined,
 	nameError: undefined,
-	linkError: undefined,
+	linkErrors: [],
 	...extra,
 });
 
@@ -107,7 +107,10 @@ const own = (el: RestaurantForm): void => {
 
 test("draws the view's values", async () => {
 	const item = make("1", "Old", {
-		link: "Here",
+		links: [
+			{ label: "menu", url: "https://x.example/menu" },
+			{ label: "", url: "https://maps.example/old" },
+		],
 		notes: "n",
 		kinds: ["food"],
 		tags: ["a"],
@@ -116,7 +119,14 @@ test("draws the view's values", async () => {
 	const el = await mount(editView(item));
 	expect($<HTMLInputElement>(el, "#name-en")?.value).toBe("Old");
 	expect($<HTMLInputElement>(el, "#name-th")?.value).toBe("");
-	expect($<HTMLInputElement>(el, "#link")?.value).toBe("Here");
+	expect($<HTMLInputElement>(el, "#link-label-0")?.value).toBe("Menu");
+	expect($<HTMLInputElement>(el, "#link-url-0")?.value).toBe(
+		"https://x.example/menu",
+	);
+	expect($<HTMLInputElement>(el, "#link-label-1")?.value).toBe("");
+	expect($<HTMLInputElement>(el, "#link-url-1")?.value).toBe(
+		"https://maps.example/old",
+	);
 	expect($<HTMLTextAreaElement>(el, "#notes")?.value).toBe("n");
 	expect(
 		$<HTMLInputElement>(el, 'input[name="kinds"][value="food"]')?.checked,
@@ -143,7 +153,7 @@ test("asks for name, type, groups, link, then tags and notes", async () => {
 	});
 	const order = [
 		...el.shadowRoot!.querySelectorAll(
-			"#name-en, #name-th, fieldset.kinds, tag-input, #link, #notes",
+			"#name-en, #name-th, fieldset.kinds, tag-input, fieldset.links, #notes",
 		),
 	].map(
 		(node) =>
@@ -159,7 +169,7 @@ test("asks for name, type, groups, link, then tags and notes", async () => {
 		"area",
 		"g2",
 		"g1",
-		"link",
+		"links",
 		"tags",
 		"notes",
 	]);
@@ -172,7 +182,8 @@ test("reports every edit as a whole new form state", async () => {
 	const changes = listen<FormState>(el, "form-change");
 	type(el, "#name-en", "Cafe");
 	type(el, "#name-th", "คาเฟ่");
-	type(el, "#link", "Ari");
+	type(el, "#link-url-0", "https://ari.example");
+	type(el, "#link-label-0", "Menu");
 	type(el, "#notes", "late");
 	await el.updateComplete;
 	$<HTMLInputElement>(el, 'input[name="kinds"][value="dessert"]')!.click();
@@ -183,7 +194,7 @@ test("reports every edit as a whole new form state", async () => {
 	await el.updateComplete;
 	expect(changes.at(-1)).toEqual({
 		name: { en: "Cafe", th: "คาเฟ่" },
-		link: "Ari",
+		links: [{ label: "Menu", url: "https://ari.example" }],
 		notes: "late",
 		kinds: ["food", "dessert"],
 		tags: [],
@@ -253,14 +264,85 @@ test("the name field for the current language comes first", async () => {
 	expect($(el, "label:has(#name-en)")?.textContent?.trim()).toBe("ชื่อภาษาอังกฤษ");
 });
 
-test("the link field is a URL box and shows the view's link error", async () => {
-	const el = await mount({ ...addView(), linkError: "manager.linkInvalid" });
-	expect($(el, "#link")?.getAttribute("type")).toBe("url");
-	expect($(el, "#link-error")?.textContent?.trim()).toBe(
+test("a link label suggests the preset labels in the current language", async () => {
+	const el = await mount();
+	const input = $<HTMLInputElement>(el, "#link-label-0")!;
+	const list = $<HTMLDataListElement>(el, `#${input.getAttribute("list")}`);
+	expect(
+		[...(list?.querySelectorAll("option") ?? [])].map((option) => option.value),
+	).toEqual([
+		"Main",
+		"Map",
+		"Facebook",
+		"Instagram",
+		"LINE",
+		"TikTok",
+		"X",
+		"Website",
+		"Menu",
+		"Delivery",
+	]);
+	setLang("th");
+	await el.updateComplete;
+	expect(list?.querySelector("option")?.value).toBe("หลัก");
+});
+
+test("a new form shows one blank link row with no Remove", async () => {
+	const el = await mount();
+	expect(el.shadowRoot!.querySelectorAll(".link-row")).toHaveLength(1);
+	expect($(el, "#link-url-0")?.getAttribute("type")).toBe("url");
+	expect($<HTMLInputElement>(el, "#link-url-0")?.value).toBe("");
+	expect($(el, '[data-action="remove-link"]')).toBeNull();
+});
+
+test("each link row has a label and a URL box, and shows its own error", async () => {
+	const el = await mount({
+		...addView({
+			links: [
+				{ label: "Map", url: "https://maps.example" },
+				{ label: "", url: "Siam, 2F" },
+			],
+		}),
+		linkErrors: [1],
+	});
+	expect($(el, "label:has(#link-label-0)")?.textContent?.trim()).toBe("Label");
+	expect($(el, "label:has(#link-url-0)")?.textContent?.trim()).toBe("URL");
+	expect($(el, "#link-url-0")?.getAttribute("aria-invalid")).toBe("false");
+	expect($(el, "#link-error-0")).toBeNull();
+	expect($(el, "#link-error-1")?.textContent?.trim()).toBe(
 		"Enter a link that starts with https:// or http://.",
 	);
-	expect($(el, "#link")?.getAttribute("aria-invalid")).toBe("true");
-	expect($(el, "#link")?.getAttribute("aria-describedby")).toBe("link-error");
+	expect($(el, "#link-url-1")?.getAttribute("aria-invalid")).toBe("true");
+	expect($(el, "#link-url-1")?.getAttribute("aria-describedby")).toBe(
+		"link-error-1",
+	);
+});
+
+test("Add link appends a blank row and Remove drops that row", async () => {
+	const el = await mount(
+		addView({ links: [{ label: "Map", url: "https://maps.example" }] }),
+	);
+	own(el);
+	const changes = listen<FormState>(el, "form-change");
+	$<HTMLButtonElement>(el, '[data-action="add-link"]')!.click();
+	await el.updateComplete;
+	expect(changes.at(-1)?.links).toEqual([
+		{ label: "Map", url: "https://maps.example" },
+		{ label: "", url: "" },
+	]);
+	expect(el.shadowRoot!.activeElement?.id).toBe("link-label-1");
+	type(el, "#link-url-1", "https://ig.example");
+	await el.updateComplete;
+	const removes = el.shadowRoot!.querySelectorAll<HTMLButtonElement>(
+		'[data-action="remove-link"]',
+	);
+	expect(removes).toHaveLength(2);
+	expect(removes[0]?.getAttribute("aria-label")).toBe("Remove link 1");
+	removes[0]!.click();
+	await el.updateComplete;
+	expect(changes.at(-1)?.links).toEqual([
+		{ label: "", url: "https://ig.example" },
+	]);
 });
 
 test("suggests each group's values from the other restaurants, most used first", async () => {

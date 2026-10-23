@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
-	"version": 6,
-	"exportedAt": "2026-10-23T10:24:30.196Z",
+	"version": 7,
+	"exportedAt": "2026-10-23T16:38:05.588Z",
 	"restaurants": [
 		{
 			"id": "l5lAJ4bc",
@@ -9,7 +9,28 @@
 				"en": "Bearhouse",
 				"th": "แบร์เฮาส์"
 			},
-			"link": "https://bearhouse.co.th/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Bearhouse%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/bearhousethailand"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/bearhouse_thailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/ezc0124k"
+				},
+				{
+					"label": "website",
+					"url": "https://bearhouse.co.th/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nFresh-milk bubble tea and tea drinks. Budget. In the Mitr 24-hour zone.",
 			"kinds": ["drinks"],
 			"groups": {
@@ -17,7 +38,7 @@
 			},
 			"tags": ["bubble tea", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "xdgTGni7",
@@ -25,7 +46,28 @@
 				"en": "Café Amazon",
 				"th": "คาเฟ่ อเมซอน"
 			},
-			"link": "https://www.cafe-amazon.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Caf%C3%A9%20Amazon%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/cafeamazonofficial/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/cafeamazonofficial/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/799likpv"
+				},
+				{
+					"label": "website",
+					"url": "https://www.cafe-amazon.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nThai coffee chain. Budget. Next to the MRT link.",
 			"kinds": ["drinks"],
 			"groups": {
@@ -33,7 +75,7 @@
 			},
 			"tags": ["coffee", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "bK8R5xf8",
@@ -41,7 +83,20 @@
 				"en": "CoCo ICHIBANYA",
 				"th": "โคโค่ อิจิบังยะ"
 			},
-			"link": "https://www.tgi.co.th/our-business/coco/?lang=en",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=CoCo%20ICHIBANYA%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/cocoichibanyathailand/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.cocothailand.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nJapanese curry rice with your choice of topping and spice level. Mid price. 10:00-21:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -50,7 +105,7 @@
 			},
 			"tags": ["curry", "rice dish"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "ZP93RWKR",
@@ -58,7 +113,36 @@
 				"en": "Dairy Queen",
 				"th": "แดรี่ควีน"
 			},
-			"link": "https://www.dairyqueenthailand.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Dairy%20Queen%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/dairyqueenthailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/dairyqueenthailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://line.me/R/ti/p/%40dairyqueenth"
+				},
+				{
+					"label": "website",
+					"url": "https://www.dairyqueenthailand.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.dairyqueenthailand.com/product/icecream"
+				},
+				{
+					"label": "delivery",
+					"url": "https://1112delivery.com/restaurant/dairy-queen"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nSoft-serve and Blizzards. Budget.",
 			"kinds": ["dessert"],
 			"groups": {
@@ -66,7 +150,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "ZWmVL6qH",
@@ -74,7 +158,32 @@
 				"en": "Hachiban Ramen",
 				"th": "ฮะจิบัง ราเมน"
 			},
-			"link": "https://www.hachiban.co.th/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Hachiban%20Ramen%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/hachibanramenthailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/hachibanramenthailand/"
+				},
+				{
+					"label": "x",
+					"url": "https://twitter.com/hachibanramenth"
+				},
+				{
+					"label": "website",
+					"url": "https://www.hachiban.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.hachiban.co.th/th/menu/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nHachiban ramen, gyoza and fried rice. Budget to mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -83,7 +192,7 @@
 			},
 			"tags": ["ramen", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "b7fogBQJ",
@@ -91,7 +200,32 @@
 				"en": "Karayama",
 				"th": "คารายามะ"
 			},
-			"link": "https://www.facebook.com/Karayama-Thailand-454784181583843/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Karayama%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/karayamathailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/karayamath_official/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/nvp3500m"
+				},
+				{
+					"label": "tiktok",
+					"url": "https://www.tiktok.com/@karayamath"
+				},
+				{
+					"label": "website",
+					"url": "https://www.karayamathailand.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nJapanese karaage fried chicken sets. Budget to mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -100,7 +234,7 @@
 			},
 			"tags": ["fried chicken", "teishoku"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "QvC9wU8B",
@@ -108,7 +242,28 @@
 				"en": "KOI Thé",
 				"th": "โคอิ เตะ"
 			},
-			"link": "https://koithe.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=KOI%20Th%C3%A9%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/koithethailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/koithethailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/yaz9702l"
+				},
+				{
+					"label": "website",
+					"url": "https://koithe.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nTaiwanese bubble tea and macchiato teas. Budget.",
 			"kinds": ["drinks"],
 			"groups": {
@@ -116,7 +271,7 @@
 			},
 			"tags": ["bubble tea", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "329oZ2GV",
@@ -124,7 +279,28 @@
 				"en": "Lim Lao Ngow",
 				"th": "ลิ้มเหล่าโหงว"
 			},
-			"link": "https://www.limlaongow.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Lim%20Lao%20Ngow%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/limlaongow"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/limlaongow"
+				},
+				{
+					"label": "line",
+					"url": "https://lin.ee/lxxgdEI"
+				},
+				{
+					"label": "website",
+					"url": "https://www.limlaongow.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nYaowarat fish-ball noodle shop. Budget.",
 			"kinds": ["food"],
 			"groups": {
@@ -133,7 +309,7 @@
 			},
 			"tags": ["noodles"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "4ici4MoG",
@@ -141,7 +317,24 @@
 				"en": "Machi Machi",
 				"th": "มาชิ มาชิ"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Machi%20Machi%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Machi%20Machi%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/machimachithailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/machimachi_thailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://lin.ee/4uu6KVU"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nTaiwanese tea and cheese-foam drinks. Budget.",
 			"kinds": ["drinks"],
 			"groups": {
@@ -149,7 +342,7 @@
 			},
 			"tags": ["bubble tea", "tea", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "DpXL6R6G",
@@ -157,7 +350,40 @@
 				"en": "MOS Burger",
 				"th": "มอส เบอร์เกอร์"
 			},
-			"link": "https://www.mos-th.com/en/branch/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MOS%20Burger%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/MOSBURGERThai/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/mosburgerthailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/560vcpbv"
+				},
+				{
+					"label": "x",
+					"url": "https://x.com/MOSBurger_Th"
+				},
+				{
+					"label": "website",
+					"url": "https://www.mos-th.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.mos-th.com/en/menu-cat/main-menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.mos-th.com/en/delivery/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nJapanese burger chain with rice burgers. Budget.",
 			"kinds": ["food"],
 			"groups": {
@@ -165,7 +391,7 @@
 			},
 			"tags": ["burger", "fast food", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "aLoorxgW",
@@ -173,7 +399,24 @@
 				"en": "Nua Tair",
 				"th": "เนื้อแท้"
 			},
-			"link": "https://www.nuatair.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Nua%20Tair%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/Nuatair"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/nuatair.official/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.nuatair.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nBlack Angus beef steaks and beef dishes. Halal. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -182,7 +425,7 @@
 			},
 			"tags": ["steak"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "4aJwQ7fz",
@@ -190,7 +433,24 @@
 				"en": "Pepper Lunch",
 				"th": "เป๊ปเปอร์ ลันช์"
 			},
-			"link": "https://www.facebook.com/pepperlunchthailand",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Pepper%20Lunch%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/pepperlunchthailand"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/pepperlunchthailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/ntq7973r"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nSizzling hot-plate pepper rice and steaks. Budget to mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -199,7 +459,7 @@
 			},
 			"tags": ["rice dish", "steak"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "7PK5r2JY",
@@ -207,7 +467,12 @@
 				"en": "Kuay Teow Ruea Phra Nakhon",
 				"th": "ก๋วยเตี๋ยวเรือพระนคร"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Phra%20Nakorn%20Noodle%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Phra%20Nakorn%20Noodle%20Samyan%20Mitrtown"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nSmall-bowl boat noodles. Budget.",
 			"kinds": ["food"],
 			"groups": {
@@ -224,7 +489,24 @@
 				"en": "Shabushi",
 				"th": "ชาบูชิ"
 			},
-			"link": "https://www.oishifood.com/restaurant/shabushi/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Shabushi%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/oishigroup/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.oishifood.com/restaurant/shabushi/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://oishidelivery.com/th"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nConveyor-belt shabu buffet with sushi. Mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -233,7 +515,7 @@
 			},
 			"tags": ["shabu", "buffet", "conveyor"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Haml8BH7",
@@ -241,7 +523,12 @@
 				"en": "Shinkanzen Sushi",
 				"th": "ชินคันเซ็น ซูชิ"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Shinkanzen%20Sushi%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Shinkanzen%20Sushi%20Samyan%20Mitrtown"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nCheap fresh sushi from about ฿13 a piece. Budget.",
 			"kinds": ["food"],
 			"groups": {
@@ -258,7 +545,16 @@
 				"en": "Tenya",
 				"th": "เทนยะ"
 			},
-			"link": "https://www.facebook.com/TenyaThailand/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Tenya%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/TenyaThailand/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nTendon tempura rice bowls. Budget to mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -267,7 +563,7 @@
 			},
 			"tags": ["rice bowl", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "NBl4vcfL",
@@ -275,7 +571,24 @@
 				"en": "TUDARI",
 				"th": "ทูดาริ"
 			},
-			"link": "https://www.facebook.com/tudarithailand/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=TUDARI%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/tudarithailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/tudarithailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/tqr1886j"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nKorean hotpots and army stew with instant noodles. Mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -284,7 +597,7 @@
 			},
 			"tags": ["hotpot"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "fP07i6O6",
@@ -292,7 +605,28 @@
 				"en": "Yayoi",
 				"th": "ยาโยอิ"
 			},
-			"link": "https://yayoirestaurants.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Yayoi%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/YayoiRestaurantThailand"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/yayoi_thailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/327rcyjo"
+				},
+				{
+					"label": "website",
+					"url": "https://yayoirestaurants.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nJapanese set meals with rice refills. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -301,7 +635,7 @@
 			},
 			"tags": ["teishoku", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "mGIrvSe4",
@@ -309,7 +643,32 @@
 				"en": "GUGU Chicken",
 				"th": "กูร์กูร์ ชิกเก้น"
 			},
-			"link": "https://www.guguchickenthailand.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=GUGU%20Chicken%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/Guguchickenthailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/guguchicken.official/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/guguchicken_major.ratchayothin/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.guguchickenthailand.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.guguchickenthailand.com/en/chicken-en/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nKorean fried chicken. Budget. 10:00-21:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -318,7 +677,7 @@
 			},
 			"tags": ["fried chicken"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "4f90EwHe",
@@ -326,7 +685,24 @@
 				"en": "MX Cakes & Bakery",
 				"th": "เอ็มเอกซ์ เค้ก แอนด์ เบเกอรี่"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=MX%20Cakes%20%26%20Bakery%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MX%20Cakes%20%26%20Bakery%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/mxcakesandbakerythailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/mxcakesandbakerythailand/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.mxcakesandbakery.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nCakes and bakery. Budget.",
 			"kinds": ["dessert"],
 			"groups": {
@@ -334,7 +710,7 @@
 			},
 			"tags": ["cake", "bakery", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "IaY79WAp",
@@ -342,7 +718,28 @@
 				"en": "KFC",
 				"th": "เคเอฟซี"
 			},
-			"link": "https://www.kfc.co.th/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=KFC%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/kfcth/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/kfcthailand/"
+				},
+				{
+					"label": "x",
+					"url": "https://x.com/kfcth"
+				},
+				{
+					"label": "website",
+					"url": "https://www.kfc.co.th/"
+				}
+			],
 			"notes": "Samyan Mitrtown, B1\nFried chicken. Budget. Listed in 2025 as open 24 hours in the Mitr 24-hour zone.",
 			"kinds": ["food"],
 			"groups": {
@@ -350,7 +747,7 @@
 			},
 			"tags": ["fried chicken", "fast food", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "f5PMYssK",
@@ -358,7 +755,24 @@
 				"en": "After You",
 				"th": "อาฟเตอร์ ยู"
 			},
-			"link": "https://www.afteryoudessertcafe.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=After%20You%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/afteryoucafe/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/afteryoudessertcafe/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.afteryoudessertcafe.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nShibuya honey toast, kakigori and cakes. Mid price.",
 			"kinds": ["drinks", "dessert"],
 			"groups": {
@@ -366,7 +780,7 @@
 			},
 			"tags": ["bingsu", "toast", "cake", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Eg0QY1eo",
@@ -374,7 +788,24 @@
 				"en": "Bonchon",
 				"th": "บอนชอน"
 			},
-			"link": "https://www.facebook.com/bonchonthailand",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Bonchon%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/bonchonthailand"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/bonchonthailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/723pnafj"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nKorean fried chicken in soy-garlic or spicy glaze. Mid price. 10:00-21:20.",
 			"kinds": ["food"],
 			"groups": {
@@ -383,24 +814,7 @@
 			},
 			"tags": ["fried chicken"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
-		},
-		{
-			"id": "8r2UdLIY",
-			"name": {
-				"en": "Din's",
-				"th": "ดินส์"
-			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Din%27s%20Samyan%20Mitrtown",
-			"notes": "Samyan Mitrtown, G\nNeo-Taiwanese: xiaolongbao, pan-fried buns and noodles. Mid price. 10:00-22:00.",
-			"kinds": ["food"],
-			"groups": {
-				"cuisine": ["taiwanese"],
-				"area": ["samyan mitrtown"]
-			},
-			"tags": ["dim sum", "noodles"],
-			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "0lrajJ2N",
@@ -408,7 +822,36 @@
 				"en": "Get Fresh",
 				"th": "เก็ต เฟรช"
 			},
-			"link": "https://getfresh.co.th/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Get%20Fresh%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/getfreshth/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/getfreshth/"
+				},
+				{
+					"label": "line",
+					"url": "https://lin.ee/tGGVAKL"
+				},
+				{
+					"label": "x",
+					"url": "https://x.com/getfreshth"
+				},
+				{
+					"label": "website",
+					"url": "https://getfresh.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://getfresh.co.th/menu/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nHealthy salads and bowls. Mid price. 10:00-21:30.",
 			"kinds": ["food"],
 			"groups": {
@@ -417,7 +860,7 @@
 			},
 			"tags": ["healthy", "salad"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "VU1XdjEQ",
@@ -425,7 +868,20 @@
 				"en": "Kanom",
 				"th": "ขนม"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Kanom%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Kanom%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/khnm.khafe/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/kanomofficialth/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nFamous egg tarts plus savoury dishes. Budget to mid price. 10:00-22:00.",
 			"kinds": ["food", "dessert"],
 			"groups": {
@@ -433,7 +889,7 @@
 			},
 			"tags": ["bakery"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "YAIHWPs0",
@@ -441,7 +897,20 @@
 				"en": "Lhong Tou Cafe",
 				"th": "หลงโถว คาเฟ่"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Lhong%20Tou%20Cafe%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Lhong%20Tou%20Cafe%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/Lhongtouyaowaratofficial/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/lhongtoucafe_official/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nYaowarat-style Chinese cafe: dim sum, toast and tea. Mid price.",
 			"kinds": ["food", "drinks"],
 			"groups": {
@@ -450,7 +919,7 @@
 			},
 			"tags": ["dim sum", "cafe"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "ZRkTU1h5",
@@ -458,7 +927,16 @@
 				"en": "Man Fu Yuan",
 				"th": "หม่าน ฟู่ หยวน"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Man%20Fu%20Yuan%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Man%20Fu%20Yuan%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/ManFuYuanKitchen/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nHong Kong-style crispy pork and char siu. Mid to high price. 11:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -467,7 +945,7 @@
 			},
 			"tags": ["rice dish"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "axTiy5cy",
@@ -475,7 +953,16 @@
 				"en": "On The Table",
 				"th": ""
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=On%20The%20Table%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=On%20The%20Table%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/onthetable.th/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nJapanese fusion pasta and rice dishes. Mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -484,7 +971,7 @@
 			},
 			"tags": ["pasta"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "kRfNz2Rd",
@@ -492,7 +979,12 @@
 				"en": "Ssamthing Together",
 				"th": "ซัมติง ทูเก็ทเตอร์"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Ssamthing%20Together%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Ssamthing%20Together%20Samyan%20Mitrtown"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nKorean BBQ with set and à la carte menus. Mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -509,7 +1001,16 @@
 				"en": "So Asean",
 				"th": "โซ อาเซียน"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=So%20Asean%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=So%20Asean%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/SOasean/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nThai and Southeast Asian dishes. Mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -518,7 +1019,7 @@
 			},
 			"tags": ["rice dish"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "inSQq4rO",
@@ -526,7 +1027,32 @@
 				"en": "Starbucks",
 				"th": "สตาร์บัคส์"
 			},
-			"link": "https://www.starbucks.co.th/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Starbucks%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/StarbucksThailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/starbucksthailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/853tzvmu"
+				},
+				{
+					"label": "website",
+					"url": "https://www.starbucks.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.starbucks.co.th/en/menu/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nCoffee and pastries. Mid price. In the Mitr 24-hour zone by the Rama 4 entrance.",
 			"kinds": ["drinks"],
 			"groups": {
@@ -534,7 +1060,7 @@
 			},
 			"tags": ["coffee", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "eG3aS5b9",
@@ -542,7 +1068,32 @@
 				"en": "Swensen's",
 				"th": "สเวนเซ่นส์"
 			},
-			"link": "https://www.swensens1112.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Swensen%27s%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/weloveswensens/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/we_love_swensens"
+				},
+				{
+					"label": "line",
+					"url": "https://liff.line.me/1645278921-kWRPP32q/?accountId=qic0396o"
+				},
+				{
+					"label": "website",
+					"url": "https://www.swensens1112.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://brandsite.swensens1112.com/our-menu"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nIce cream sundaes. Mid price. In the Mitr 24-hour zone.",
 			"kinds": ["dessert"],
 			"groups": {
@@ -550,7 +1101,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "2Drjw5B3",
@@ -558,7 +1109,36 @@
 				"en": "Taco Bell",
 				"th": "ทาโก้ เบลล์"
 			},
-			"link": "https://tacobell.co.th/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Taco%20Bell%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/tacobellth"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/tacobellth/"
+				},
+				{
+					"label": "line",
+					"url": "https://lin.ee/fz2bMbM"
+				},
+				{
+					"label": "website",
+					"url": "https://tacobell.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://tacobell.co.th/menu/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://tacobell.co.th/order-now-location/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nTacos, burritos, quesadillas and nachos. Budget.",
 			"kinds": ["food"],
 			"groups": {
@@ -566,7 +1146,7 @@
 			},
 			"tags": ["fast food"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "DkNYpc1r",
@@ -574,7 +1154,24 @@
 				"en": "The Coffee Club",
 				"th": "คอฟฟี่คลับ"
 			},
-			"link": "https://www.thecoffeeclub.co.th/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=The%20Coffee%20Club%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/thecoffeeclubthailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/thecoffeeclubthailand/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.thecoffeeclub.co.th/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nAll-day breakfast, Western mains, coffee and desserts. Mid price. 06:30-24:00.",
 			"kinds": ["food", "drinks"],
 			"groups": {
@@ -583,7 +1180,7 @@
 			},
 			"tags": ["cafe", "coffee"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "PY16xY6q",
@@ -591,7 +1188,32 @@
 				"en": "Tim Hortons",
 				"th": "ทิม ฮอร์ตันส์"
 			},
-			"link": "https://timhortons.co.th/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Tim%20Hortons%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/timhortonsth/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/timhortons.th/"
+				},
+				{
+					"label": "line",
+					"url": "https://lin.ee/gThu0O0"
+				},
+				{
+					"label": "website",
+					"url": "https://timhortons.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://timhortons.co.th/menu/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nCanadian coffee, donuts and sandwiches. Mid price. 07:00-23:00.",
 			"kinds": ["drinks", "dessert"],
 			"groups": {
@@ -599,7 +1221,7 @@
 			},
 			"tags": ["coffee"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "aArSHxGw",
@@ -607,7 +1229,24 @@
 				"en": "TP Tea",
 				"th": "ทีพี ที"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=TP%20Tea%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=TP%20Tea%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/tpteathailand"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/tptea.thailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/tpteathailand"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nTaiwanese tea and bubble tea. Budget.",
 			"kinds": ["drinks"],
 			"groups": {
@@ -615,7 +1254,7 @@
 			},
 			"tags": ["bubble tea", "tea", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "Ux7HERZV",
@@ -623,7 +1262,28 @@
 				"en": "Skinnylicious",
 				"th": "สกินนี่ ลิเชียส"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Skinnylicious%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Skinnylicious%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/skinnylicious.bkk/"
+				},
+				{
+					"label": "line",
+					"url": "https://lin.ee/9ntjR5a"
+				},
+				{
+					"label": "website",
+					"url": "https://www.skinnyliciousbkk.com/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.skinnyliciousbkk.com/shipping-pick-up"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nHealthy cafe: salads, bowls and all-day brunch. Mid price.",
 			"kinds": ["food", "drinks"],
 			"groups": {
@@ -632,7 +1292,7 @@
 			},
 			"tags": ["healthy", "salad", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "K6Ip52HU",
@@ -640,7 +1300,20 @@
 				"en": "Guss Damn Good",
 				"th": "กัส แดม กู๊ด"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Guss%20Damn%20Good%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Guss%20Damn%20Good%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/gussdamngood/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/gussdamngood/"
+				}
+			],
 			"notes": "Samyan Mitrtown, G\nThai craft ice cream. Mid price.",
 			"kinds": ["dessert"],
 			"groups": {
@@ -648,7 +1321,7 @@
 			},
 			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "gqIaltkN",
@@ -656,7 +1329,48 @@
 				"en": "A Ramen",
 				"th": "เอ ราเมน"
 			},
-			"link": "https://www.facebook.com/ARamenOfficial/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=A%20Ramen%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/ARamenOfficial/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/aramen_official/"
+				},
+				{
+					"label": "line",
+					"url": "https://line.me/ti/p/~@A-ramen"
+				},
+				{
+					"label": "website",
+					"url": "https://www.a-ramen.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.a-ramen.com/menu"
+				},
+				{
+					"label": "delivery",
+					"url": "https://a-ramen.co/Grab"
+				},
+				{
+					"label": "delivery",
+					"url": "https://a-ramen.co/LINEMAN"
+				},
+				{
+					"label": "delivery",
+					"url": "https://a-ramen.co/RBH"
+				},
+				{
+					"label": "delivery",
+					"url": "https://a-ramen.co/SF"
+				}
+			],
 			"notes": "Samyan Mitrtown, 1F\nRich-broth Japanese ramen and cold noodles from about ฿120. Budget to mid price. In the Mitr 24-hour zone; listed as open 24 hours.",
 			"kinds": ["food"],
 			"groups": {
@@ -665,7 +1379,7 @@
 			},
 			"tags": ["ramen"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "8Nia2sfp",
@@ -673,7 +1387,12 @@
 				"en": "Yi Fang",
 				"th": "อี้ ฟาง"
 			},
-			"link": "https://www.yifangtea.com/en/home",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Yi%20Fang%20Samyan%20Mitrtown"
+				}
+			],
 			"notes": "Samyan Mitrtown, 2F\nTaiwanese fruit tea and brown-sugar drinks. Budget.",
 			"kinds": ["drinks"],
 			"groups": {
@@ -681,7 +1400,7 @@
 			},
 			"tags": ["bubble tea", "tea", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "hz7fuMWv",
@@ -689,7 +1408,24 @@
 				"en": "AKA",
 				"th": "อากะ"
 			},
-			"link": "https://akayakiniku.com/branch.php",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=AKA%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/akarestaurant"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/akayakiniku"
+				},
+				{
+					"label": "website",
+					"url": "https://akayakiniku.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nJapanese yakiniku buffet. Mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -698,7 +1434,7 @@
 			},
 			"tags": ["yakiniku", "buffet"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "XUCtt59F",
@@ -706,7 +1442,28 @@
 				"en": "Bar B Q Plaza",
 				"th": "บาร์บีคิวพลาซ่า"
 			},
-			"link": "https://barbqplaza.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Bar%20B%20Q%20Plaza%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/BarBQPlazaThailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/barbqplaza_th/"
+				},
+				{
+					"label": "x",
+					"url": "https://twitter.com/BarBQPlazaThai"
+				},
+				{
+					"label": "website",
+					"url": "https://barbqplaza.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nThai-style grill on the dome pan. Mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -715,24 +1472,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
-		},
-		{
-			"id": "sjJpvlQO",
-			"name": {
-				"en": "Gogida",
-				"th": "โกกีดา"
-			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Gogida%20Samyan%20Mitrtown",
-			"notes": "Samyan Mitrtown, 4F\nKorean BBQ. Pork buffet from ฿299. Mid price. 10:00-22:00.",
-			"kinds": ["food"],
-			"groups": {
-				"cuisine": ["korean"],
-				"area": ["samyan mitrtown"]
-			},
-			"tags": ["bbq", "buffet"],
-			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "eky1u29v",
@@ -740,7 +1480,16 @@
 				"en": "K-StrEAT",
 				"th": "เค-สตรีท"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=K-StrEAT%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=K-StrEAT%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/k.streat_official/"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nKorean food hall with several self-service Korean counters. Budget to mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -749,23 +1498,7 @@
 			},
 			"tags": ["food court"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
-		},
-		{
-			"id": "MfEyLl09",
-			"name": {
-				"en": "Makai",
-				"th": "มาคาอิ"
-			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Makai%20Samyan%20Mitrtown",
-			"notes": "Samyan Mitrtown, 4F\nAçaí bowls, oat pancakes and superfood drinks. Mid price. 10:00-22:00.",
-			"kinds": ["food", "dessert"],
-			"groups": {
-				"area": ["samyan mitrtown"]
-			},
-			"tags": ["healthy"],
-			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "78wQO4oH",
@@ -773,7 +1506,28 @@
 				"en": "MK Restaurants",
 				"th": "เอ็มเค"
 			},
-			"link": "https://www.mkrestaurant.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MK%20Restaurants%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/mkrestaurants/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.mkrestaurant.com/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.mkrestaurant.com/en/mk-menu"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.mk1642.com/th/"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nThai-style suki hotpot with roast duck and dim sum. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -782,7 +1536,7 @@
 			},
 			"tags": ["suki", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:24:30.196Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "8nJayNU0",
@@ -790,7 +1544,16 @@
 				"en": "Muteki",
 				"th": "มูเทกิ"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Muteki%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Muteki%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/p/Muteki-Samyan-Mitrtown-100058245261194/"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nJapanese restaurant by Mugendai: sushi and sashimi. Mid to high price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -799,7 +1562,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "JjbOrT48",
@@ -807,7 +1570,28 @@
 				"en": "Nittaya Kai Yang",
 				"th": "นิตยาไก่ย่าง"
 			},
-			"link": "https://www.nittayakaiyang.com/th/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Nittaya%20Kai%20Yang%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/nittayakaiyangofficial/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/nittayakaiyangofficial/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/muf5839e"
+				},
+				{
+					"label": "website",
+					"url": "https://www.nittayakaiyang.com/th/"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nIsan grilled chicken, som tam and sticky rice. Budget to mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -816,7 +1600,7 @@
 			},
 			"tags": ["grilled chicken", "som tam"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "CoeiviFZ",
@@ -824,7 +1608,16 @@
 				"en": "Oishi Eaterium",
 				"th": "โออิชิ อีทเทอเรียม"
 			},
-			"link": "https://www.oishifood.com/restaurant/oishi-eaterium/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Oishi%20Eaterium%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "website",
+					"url": "https://www.oishifood.com/restaurant/oishi-eaterium/"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nPremium Japanese buffet: sushi, sashimi and teppanyaki. Expensive. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -833,7 +1626,7 @@
 			},
 			"tags": ["buffet", "sushi"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
 			"id": "VgWW4ZS1",
@@ -841,7 +1634,16 @@
 				"en": "Samyan Food Legends",
 				"th": "สามย่าน ฟู้ด เลเจนด์ส"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Samyan%20Food%20Legends%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Samyan%20Food%20Legends%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/foodlegendsbymbk/"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nFood hall of old Samyan street-food names, such as pork blood soup and curry rice, with an outdoor terrace. Budget. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -850,7 +1652,7 @@
 			},
 			"tags": ["food court", "street food"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "3dBWZTgv",
@@ -858,7 +1660,20 @@
 				"en": "Sushi Hiro",
 				"th": "ซูชิ ฮิโระ"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Sushi%20Hiro%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sushi%20Hiro%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/SushiHiroThailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/sushihirothailand/"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nSushi, sashimi and Japanese dishes at fair prices. Mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -867,7 +1682,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "dsKdYd4f",
@@ -875,7 +1690,20 @@
 				"en": "The Pizza Company",
 				"th": "เดอะ พิซซ่า คอมปะนี"
 			},
-			"link": "https://www.1112.com/",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=The%20Pizza%20Company%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/thepizzacompany/"
+				},
+				{
+					"label": "website",
+					"url": "https://www.1112.com/"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nThai pizza chain. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -884,7 +1712,7 @@
 			},
 			"tags": ["pizza", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
 			"id": "zhJN3rcV",
@@ -892,7 +1720,12 @@
 				"en": "The Spicy House",
 				"th": "เดอะ สไปซี่ เฮ้าส์"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=The%20Spicy%20House%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=The%20Spicy%20House%20Samyan%20Mitrtown"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nSichuan-style Chinese. Pick your own ingredients and pay by weight. Mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -909,7 +1742,12 @@
 				"en": "Tummour",
 				"th": "ตำมั่ว"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=Tummour%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Tummour%20Samyan%20Mitrtown"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nSpicy som tam and Isan dishes. Budget to mid price. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -926,7 +1764,12 @@
 				"en": "You & I",
 				"th": "ยู แอนด์ ไอ"
 			},
-			"link": "https://www.google.com/maps/search/?api=1&query=You%20%26%20I%20Samyan%20Mitrtown",
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=You%20%26%20I%20Samyan%20Mitrtown"
+				}
+			],
 			"notes": "Samyan Mitrtown, 4F\nPremium suki buffet, one pot per person, from ฿498. Mid to high price. North zone.",
 			"kinds": ["food"],
 			"groups": {

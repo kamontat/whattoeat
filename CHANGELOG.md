@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-23: Restaurant names in English and Thai, and a Samyan Mitrtown preset
+## 2026-10-23: Labelled links, names in English and Thai, and a Samyan Mitrtown preset
 
 ### BREAKING CHANGES
 
@@ -12,6 +12,12 @@ What changed in this project and why, newest first.
 - Every bundled preset restaurant has a new random 8-character id. A preset added before this
   change is not recognised as added, and adding it again creates duplicates; delete those
   restaurants and add the preset again.
+- A restaurant's single `link` string is now `links`, a list of `{ label, url }`, and the
+  export format goes from version 6 to 7. Saved lists and version 5–6 files convert on read,
+  each old link becoming one unlabelled link; code that reads `link` must read `links` (or
+  `openLinks`, which keeps the http(s) ones in priority order).
+- The preset-data upsert script takes a draft `links` list instead of `link`, and refuses any
+  label that is not one of the preset labels.
 
 ### Features
 
@@ -23,6 +29,19 @@ What changed in this project and why, newest first.
 - A new Samyan preset (Samyan Mitrtown, Pathum Wan) with 56 places, including the 24-hour zone
   and the Samyan Food Legends and K-StrEAT food halls.
 - The Siam preset grows from 29 to 87 places and adds Siam Discovery.
+- A restaurant can have several links, each with an optional label. The form shows one row
+  per link (label and URL) with Add link and Remove; a row whose URL is not http(s), or that
+  has a label but no URL, shows its own error, and blank rows are dropped on save.
+- Link labels suggest `main`, `map`, `facebook`, `instagram`, `line`, `tiktok`, `x`,
+  `website`, `menu` and `delivery`, shown in the current language. A blank label is filled in
+  from the link's site (facebook.com, lin.ee, twitter.com, Google Maps and so on).
+- The restaurant's name, and the list's open-link button, open the link with the highest
+  priority: main, map, then the social sites, website, menu, delivery and any other label.
+  With two or more links the picker card shows each one as an icon in that order, named in
+  its tooltip and for screen readers.
+- Every preset restaurant has a map link, and most also link their official homepage, social
+  accounts, menu page and the brand's own ordering or delivery pages: about 1,300 links in
+  all, up from one per restaurant.
 
 ### Improvements
 
@@ -41,6 +60,20 @@ What changed in this project and why, newest first.
   Places not confirmed open in 2025-2026 carry a plain `unverified` tag.
 - The preset-data upsert script matches and dedupes restaurants by name and area, since
   branches of a brand now share a name.
+- Link labels compare like tags, ignoring case and extra spaces, so `MAP`, `map` and
+  `แผนที่` are the same label.
+- Presets drop places found closed or no longer listed (Din's, Gogida and Makai at Samyan
+  Mitrtown, Nabezo Premium at Siam Paragon, BEANS at Siam Discovery, bonnana at Central
+  Ladprao), move Panda Mala to Major Ratchayothin 3F and mark Saint Etoile `unverified`.
+  Links whose domains now serve spam or belong to another branch or country were removed.
+- The preset-data skill writes version 7 files with every link it can confirm, a label per
+  social site and one homepage per restaurant.
+
+### Bug fixes
+
+- On wide screens the edit panel fits the screen and scrolls, so a long form can reach Save;
+  before, the panel ran off the bottom of the window.
+- On phones, tag suggestions show above the pinned Save and Cancel row instead of under it.
 
 ### Decisions
 
@@ -54,6 +87,16 @@ What changed in this project and why, newest first.
   rather than a guessed URL.
 - History keeps each visit's name as one string, the name shown when Eat here was pressed;
   a restaurant that still exists shows its current name in the current language.
+- Preset link labels are stored as English keys and shown translated, so a list reads right
+  in either language; free-text labels are still allowed rather than a fixed menu.
+- Social links are labelled by site rather than one `social` label, so the picker can show
+  each platform's icon.
+- A preset restaurant keeps only its brand's homepage, not branch or "find us" pages, since
+  the map link already finds the branch.
+- Preset links come only from pages seen while researching, never guessed URLs. 37 preset
+  restaurants still have only a map link because the session's web-search limit ran out.
+- Places with weaker signs of closing (Saint Etoile, Tim Ho Wan) are tagged `unverified`
+  instead of removed.
 
 ## 2026-10-18: Delete only restaurants, and About names its environment
 

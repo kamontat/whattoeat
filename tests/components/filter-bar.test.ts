@@ -29,7 +29,7 @@ afterEach(() => {
 const make = (name: string, extra: Partial<Restaurant> = {}): Restaurant => ({
 	id: name,
 	name: nameFromText(name),
-	link: "",
+	links: [],
 	notes: "",
 	kinds: [],
 	tags: [],

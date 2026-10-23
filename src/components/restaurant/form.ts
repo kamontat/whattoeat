@@ -18,6 +18,9 @@ import {
 	displayName,
 	KINDS,
 	type Kind,
+	LINK_LABELS,
+	type Link,
+	labelText,
 	type Restaurant,
 	VALUE_GROUPS,
 	valuesByUsage,
@@ -26,7 +29,7 @@ import { uiStyles } from "#styles/ui";
 
 export type FormState = {
 	name: Localized;
-	link: string;
+	links: Link[];
 	notes: string;
 	kinds: Kind[];
 	tags: string[];
@@ -36,7 +39,7 @@ export type FormState = {
 
 export const EMPTY_FORM: FormState = {
 	name: { en: "", th: "" },
-	link: "",
+	links: [],
 	notes: "",
 	kinds: [],
 	tags: [],
@@ -49,7 +52,8 @@ export type FormView = {
 	editingId: string | undefined;
 	confirmingId: string | undefined;
 	nameError: "manager.nameRequired" | undefined;
-	linkError: "manager.linkInvalid" | undefined;
+	/** Positions of the link rows that are not an http(s) URL. */
+	linkErrors: readonly number[];
 };
 
 export const EMPTY_VIEW: FormView = {
@@ -57,12 +61,13 @@ export const EMPTY_VIEW: FormView = {
 	editingId: undefined,
 	confirmingId: undefined,
 	nameError: undefined,
-	linkError: undefined,
+	linkErrors: [],
 };
 
 export const formFromRestaurant = (item: Restaurant): FormState => ({
 	name: item.name,
-	link: item.link,
+	// A preset label shows in the current language; saving turns it back into its key.
+	links: item.links.map((link) => ({ ...link, label: labelText(link.label) })),
 	notes: item.notes,
 	kinds: item.kinds,
 	tags: item.tags,
@@ -73,6 +78,12 @@ const NAME_LABELS: Record<Lang, MessageKey> = {
 	en: "field.nameEn",
 	th: "field.nameTh",
 };
+
+const BLANK_LINK: Link = { label: "", url: "" };
+
+/** The link rows to draw: the links, or one blank row to type the first into. */
+const linkRows = (form: FormState): Link[] =>
+	form.links.length > 0 ? form.links : [BLANK_LINK];
 
 const HINTS: Record<string, MessageKey> = {
 	cuisine: "field.cuisineHint",
@@ -160,6 +171,55 @@ export class RestaurantForm extends LitElement {
 				min-width: 0;
 			}
 
+			fieldset.links {
+				display: grid;
+				gap: 0.75rem;
+				margin: 0;
+				padding: 0;
+				border: 0;
+			}
+
+			fieldset.links legend {
+				padding: 0;
+				margin-bottom: 0.375rem;
+				font-weight: 600;
+			}
+
+			/* Phone: label above URL, Remove beside both. */
+			.link-row {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) auto;
+				grid-template-areas:
+					"label remove"
+					"url remove"
+					"error error";
+				gap: 0.5rem;
+				align-items: end;
+			}
+
+			.link-row > .link-label {
+				grid-area: label;
+			}
+
+			.link-row > .link-url {
+				grid-area: url;
+			}
+
+			.link-row > [data-action="remove-link"] {
+				grid-area: remove;
+				align-self: center;
+				width: var(--tap);
+				padding: 0;
+			}
+
+			.link-row > .error {
+				grid-area: error;
+			}
+
+			fieldset.links > .actions {
+				justify-content: flex-start;
+			}
+
 			.delete-zone {
 				display: grid;
 				gap: 0.625rem;
@@ -201,6 +261,18 @@ export class RestaurantForm extends LitElement {
 					grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
 				}
 
+				/* The side panel has room for a link's label and URL on one line. */
+				.link-row {
+					grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto;
+					grid-template-areas:
+						"label url remove"
+						"error error error";
+				}
+
+				.link-row > [data-action="remove-link"] {
+					align-self: end;
+				}
+
 				form input,
 				form textarea,
 				form tag-input,
@@ -224,8 +296,8 @@ export class RestaurantForm extends LitElement {
 	@property({ attribute: false })
 	defs: readonly GroupDef[] = [];
 
-	/** A button to focus once the owner's answer to a delete prompt has been drawn. */
-	private pendingFocus: "delete" | "confirm-delete" | undefined;
+	/** A control to focus once the owner's answer has been drawn: a delete prompt's or a new link row's. */
+	private pendingFocus: string | undefined;
 
 	private get tagInputs(): TagInput[] {
 		return [...this.renderRoot.querySelectorAll("tag-input")];
@@ -245,7 +317,7 @@ export class RestaurantForm extends LitElement {
 	protected override updated(): void {
 		if (this.pendingFocus === undefined) return;
 		const target = this.renderRoot.querySelector<HTMLElement>(
-			`[data-action="${this.pendingFocus}"]`,
+			this.pendingFocus,
 		);
 		if (target === null) return;
 		this.pendingFocus = undefined;
@@ -275,11 +347,34 @@ export class RestaurantForm extends LitElement {
 		this.emit("form-change", form);
 	}
 
-	private readonly onInput = (event: Event): void => {
-		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
-		const field = target.name as "link" | "notes";
-		this.change({ ...this.current, [field]: target.value });
+	private readonly onNotesInput = (event: Event): void => {
+		const target = event.target as HTMLTextAreaElement;
+		this.change({ ...this.current, notes: target.value });
 	};
+
+	private onLinkInput(index: number, field: keyof Link, event: Event): void {
+		const form = this.current;
+		const links = [...linkRows(form)];
+		const value = (event.target as HTMLInputElement).value;
+		links[index] = { ...(links[index] ?? BLANK_LINK), [field]: value };
+		this.change({ ...form, links });
+	}
+
+	private readonly addLink = (): void => {
+		const form = this.current;
+		const links = [...linkRows(form), BLANK_LINK];
+		this.pendingFocus = `#link-label-${links.length - 1}`;
+		this.change({ ...form, links });
+	};
+
+	private removeLink(index: number): void {
+		const form = this.current;
+		this.pendingFocus = '[data-action="add-link"]';
+		this.change({
+			...form,
+			links: linkRows(form).filter((_, at) => at !== index),
+		});
+	}
 
 	private onNameInput(lang: Lang, event: Event): void {
 		const form = this.current;
@@ -332,7 +427,7 @@ export class RestaurantForm extends LitElement {
 	};
 
 	override render() {
-		const { form, nameError, linkError } = this.view;
+		const { form, nameError } = this.view;
 		const editing = this.view.editingId !== undefined;
 		return html`
 			<form id="restaurant-form" novalidate @submit=${this.submit}>
@@ -374,26 +469,11 @@ export class RestaurantForm extends LitElement {
 						(group) => this.renderGroupInput(group),
 					)}
 				</div>
-				<label>
-					${t("field.link")}
-					<input
-						id="link"
-						name="link"
-						type="url"
-						inputmode="url"
-						autocomplete="off"
-						placeholder="https://"
-						aria-invalid=${linkError ? "true" : "false"}
-						aria-describedby=${linkError ? "link-error" : nothing}
-						.value=${live(form.link)}
-						@input=${this.onInput}
-					/>
-				</label>
-				${linkError ? html`<p id="link-error" class="error" role="alert">${t(linkError)}</p>` : nothing}
+				${this.renderLinks(form)}
 				${this.renderGroupInput("tags")}
 				<label>
 					${t("field.notes")}
-					<textarea id="notes" name="notes" rows="2" .value=${live(form.notes)} @input=${this.onInput}></textarea>
+					<textarea id="notes" name="notes" rows="2" .value=${live(form.notes)} @input=${this.onNotesInput}></textarea>
 				</label>
 				<div class="actions form-actions">
 					<button type="submit" class="primary">${editing ? t("manager.save") : t("manager.add")}</button>
@@ -433,7 +513,7 @@ export class RestaurantForm extends LitElement {
 									type="button"
 									data-action="cancel-delete"
 									@click=${() => {
-										this.pendingFocus = "delete";
+										this.pendingFocus = '[data-action="delete"]';
 										this.emit("delete-cancel");
 									}}
 								>
@@ -446,7 +526,7 @@ export class RestaurantForm extends LitElement {
 								class="danger"
 								data-action="delete"
 								@click=${() => {
-									this.pendingFocus = "confirm-delete";
+									this.pendingFocus = '[data-action="confirm-delete"]';
 									this.emit("delete-request", id);
 								}}
 							>
@@ -455,6 +535,64 @@ export class RestaurantForm extends LitElement {
 						</div>`
 			}
 		</div>`;
+	}
+
+	/** One row per link, each a label and a URL box, then Add link. A lone row has no Remove. */
+	private renderLinks(form: FormState) {
+		const rows = linkRows(form);
+		return html`<fieldset class="links">
+			<legend>${t("field.links")}</legend>
+			<datalist id="link-labels">
+				${LINK_LABELS.map((label) => html`<option value=${labelText(label)}></option>`)}
+			</datalist>
+			${rows.map((link, index) => {
+				const invalid = this.view.linkErrors.includes(index);
+				return html`<div class="link-row">
+					<label class="link-label">
+						${t("field.linkLabel")}
+						<input
+							id=${`link-label-${index}`}
+							autocomplete="off"
+							list="link-labels"
+							placeholder=${t("field.linkLabelHint")}
+							.value=${live(link.label)}
+							@input=${(event: Event) => this.onLinkInput(index, "label", event)}
+						/>
+					</label>
+					<label class="link-url">
+						${t("field.linkUrl")}
+						<input
+							id=${`link-url-${index}`}
+							type="url"
+							inputmode="url"
+							autocomplete="off"
+							placeholder="https://"
+							aria-invalid=${invalid ? "true" : "false"}
+							aria-describedby=${invalid ? `link-error-${index}` : nothing}
+							.value=${live(link.url)}
+							@input=${(event: Event) => this.onLinkInput(index, "url", event)}
+						/>
+					</label>
+					${
+						rows.length > 1
+							? html`<button
+									type="button"
+									class="quiet"
+									data-action="remove-link"
+									aria-label=${t("manager.removeLink", { n: index + 1 })}
+									@click=${() => this.removeLink(index)}
+								>${icon("x", 20)}</button>`
+							: nothing
+					}
+					${invalid ? html`<p id=${`link-error-${index}`} class="error" role="alert">${t("manager.linkInvalid")}</p>` : nothing}
+				</div>`;
+			})}
+			<div class="actions">
+				<button type="button" class="quiet" data-action="add-link" @click=${this.addLink}>
+					${icon("plus", 18)}<span>${t("manager.addLink")}</span>
+				</button>
+			</div>
+		</fieldset>`;
 	}
 
 	/** A chip input for one group, suggesting the values other restaurants already use. */

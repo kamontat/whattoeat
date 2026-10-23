@@ -15,7 +15,7 @@ const make = (id: string, name = id): Restaurant => ({
 	id,
 	name: nameFromText(name),
 	tags: [],
-	link: "",
+	links: [],
 	notes: "",
 	groups: {},
 	kinds: [],
@@ -68,7 +68,7 @@ test("toExportFile wraps restaurants and history in the versioned envelope", () 
 		),
 	).toEqual({
 		app: "whattoeat",
-		version: 6,
+		version: 7,
 		exportedAt: "2026-10-12T10:00:00.000Z",
 		restaurants: [make("a")],
 		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
@@ -118,7 +118,7 @@ test.each([
 	],
 	[
 		"future version",
-		JSON.stringify({ app: "whattoeat", version: 7, restaurants: [] }),
+		JSON.stringify({ app: "whattoeat", version: 8, restaurants: [] }),
 		"import.error.version",
 	],
 	[
@@ -180,7 +180,34 @@ test("a version 5 file reads each one-string name into the language its script i
 	});
 });
 
-test("a version 6 file keeps both names", () => {
+test("a version 6 file turns its single link into one unlabelled link", () => {
+	const { links: _l, ...old } = make("a");
+	const result = parseImport(
+		file(6, [{ ...old, link: "https://maps.example/a" }], { groups: [] }),
+	);
+	expect(result).toMatchObject({
+		ok: true,
+		restaurants: [
+			{ id: "a", links: [{ label: "", url: "https://maps.example/a" }] },
+		],
+	});
+});
+
+test("a version 7 file keeps its labelled links in order", () => {
+	const item = {
+		...make("a"),
+		links: [
+			{ label: "menu", url: "https://x.example/menu" },
+			{ label: "", url: "https://maps.example/a" },
+		],
+	};
+	expect(parseImport(JSON.stringify(toExportFile([item])))).toMatchObject({
+		ok: true,
+		restaurants: [item],
+	});
+});
+
+test("a version 7 file keeps both names", () => {
 	const item = { ...make("a"), name: { en: "Pho", th: "เฝอ" } };
 	expect(parseImport(JSON.stringify(toExportFile([item])))).toMatchObject({
 		ok: true,
@@ -188,7 +215,7 @@ test("a version 6 file keeps both names", () => {
 	});
 });
 
-test("a version 6 file round-trips its groups", () => {
+test("a version 7 file round-trips its groups", () => {
 	const item = { ...make("a"), groups: { g1: ["cheap"] } };
 	const result = parseImport(
 		exportJson([item], [], [price], new Date(), { pretty: false }),
@@ -202,7 +229,7 @@ test("a version 6 file round-trips its groups", () => {
 });
 
 test("a version 4 file moves each location into link or notes and keeps its groups", () => {
-	const { link: _l, ...old } = make("a");
+	const { links: _l, ...old } = make("a");
 	const result = parseImport(
 		file(
 			4,
@@ -216,8 +243,12 @@ test("a version 4 file moves each location into link or notes and keeps its grou
 	expect(result).toMatchObject({
 		ok: true,
 		restaurants: [
-			{ id: "a", link: "https://maps.example/a", notes: "" },
-			{ id: "b", link: "", notes: "Siam, 2F\nlate" },
+			{
+				id: "a",
+				links: [{ label: "", url: "https://maps.example/a" }],
+				notes: "",
+			},
+			{ id: "b", links: [], notes: "Siam, 2F\nlate" },
 		],
 		groups: [price],
 	});
@@ -327,7 +358,7 @@ test("imported entries are normalized like typed input and lose unknown fields",
 	const messy = {
 		...make("a", "  Foo  "),
 		tags: ["", " thai ", "thai"],
-		link: " x ",
+		links: [{ label: " Map ", url: " https://x.example " }],
 		extra: 1,
 	};
 	expect(
@@ -336,7 +367,13 @@ test("imported entries are normalized like typed input and lose unknown fields",
 		),
 	).toEqual({
 		ok: true,
-		restaurants: [{ ...make("a", "Foo"), tags: ["thai"], link: "x" }],
+		restaurants: [
+			{
+				...make("a", "Foo"),
+				tags: ["thai"],
+				links: [{ label: "map", url: "https://x.example" }],
+			},
+		],
 		history: undefined,
 		groups: undefined,
 	});

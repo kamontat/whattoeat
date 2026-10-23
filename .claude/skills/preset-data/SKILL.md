@@ -8,7 +8,7 @@ description: Create a new neighbourhood preset (a bundled restaurant list under 
 A neighbourhood preset is a ready-made restaurant list that people tick on `/settings/presets`
 to fill their own list. Each one is two things that must agree:
 
-- `src/assets/data/presets/<id>.json` — a normal version 6 export file (`app`, `version`,
+- `src/assets/data/presets/<id>.json` — a normal version 7 export file (`app`, `version`,
   `exportedAt`, `restaurants`, `history: []`, `groups: []`), so the app's own `parseImport`
   validates it.
 - An entry in `src/assets/data/presets/index.json` — names in English and Thai, city,
@@ -93,7 +93,7 @@ Put the draft in the scratchpad or `/tmp`, not in the repo. Shape:
   "restaurants": [
     {
       "name": { "en": "Sushiro", "th": "ซูชิโร่" },
-      "link": "https://sushiro.co.th/",
+      "links": [{ "label": "website", "url": "https://sushiro.co.th/" }],
       "location": "Major Ratchayothin, 1F",
       "notes": "Room 110-112. 10:00-22:00.",
       "kinds": ["food"],
@@ -129,7 +129,7 @@ side:
 | `name` | `{ "en": "Kuay Teow Ruea Suea Na Yok", "th": "ก๋วยเตี๋ยวเรือเสือหน้าหยก" }`. The brand only: no ` - Place` suffix (the area group and notes tell branches apart) and no Thai in `en`. `th` is the name Thais write, only when the brand has one you have seen; never transliterate. Every branch of a brand uses the same spelling in both languages. The app shows `en` when `th` is empty. |
 | `location` (draft only) | `Place, Floor` (`Central Ladprao, G`, `Union Mall, 3F`, `Major Ratchayothin, B`). A street shop: the soi or road. Becomes the first line of `notes`. |
 | `notes` | After the place line, short sentences: what to order or what it is, price hint (`Budget.`, `Mid price.`, `From ฿799.`), opening hours `10:00-22:00.`, a landmark if the floor is big. |
-| `link` | Required `https://` URL, the first that exists: the brand's official website, else its official social page (Facebook, Instagram, LINE), else a Google Maps search `https://www.google.com/maps/search/?api=1&query=<name and place, URL-encoded>`. Only URLs you have seen; never guess a domain. The app opens it from the restaurant's name. |
+| `links` | Every link you can find, each `{ "label", "url" }` with an `https://` URL: always a `map` link (a Google Maps search `https://www.google.com/maps/search/?api=1&query=<name and place, URL-encoded>` unless you have the branch's own maps link), then the brand's official pages. Only URLs you have seen; never guess a domain or handle. Labels are the app's preset labels, matched without regard to case: `map`; `facebook`, `instagram`, `line` (line.me, lin.ee), `tiktok` and `x` (x.com, twitter.com) for each social account; `website` for the official site's homepage only, one per restaurant, never its branch or about pages; `menu` for a menu page; `delivery` for the brand's own ordering page or a Grab / LINE MAN page it links to; and `main` only when one page clearly beats the rest. The app opens the link with the highest priority from the restaurant's name (main > map > facebook > instagram > line > tiktok > x > website > menu > delivery) and shows every link as an icon in that order. An update replaces the whole list. |
 | `kinds` | Any of `food`, `drinks`, `dessert`. A café with cakes is `["drinks", "dessert"]`. |
 | `cuisine` | One lowercase value, two if truly mixed. Reuse what exists: `thai`, `japanese`, `korean`, `chinese`, `western`, `italian`, `international`, `isan`, `northern thai`, `taiwanese`, `vietnamese`… Leave out for drinks-only places and chains with no clear cuisine. |
 | `area` | Exactly one, lowercase, the mall or street — and listed in the index entry's `areas`. |

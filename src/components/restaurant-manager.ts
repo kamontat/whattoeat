@@ -185,9 +185,17 @@ export class RestaurantManager extends LitElement {
 					gap: 1.5rem;
 				}
 
+				/*
+				 * A form taller than the screen scrolls inside the panel, not off its bottom. The scroll
+				 * carries on to the page at either end, so a panel that starts lower down still reaches
+				 * its stuck place and shows its last field.
+				 */
 				.edit-panel {
 					position: sticky;
 					top: 1rem;
+					box-sizing: border-box;
+					max-height: calc(100dvh - 2rem);
+					overflow-y: auto;
 				}
 
 				/* The side panel is the sticky part on wide screens; the top row scrolls away. */
@@ -236,7 +244,7 @@ export class RestaurantManager extends LitElement {
 	private nameError: "manager.nameRequired" | undefined;
 
 	@state()
-	private linkError: "manager.linkInvalid" | undefined;
+	private linkErrors: readonly number[] = [];
 
 	/** Stored entries the last load could not read. */
 	@state()
@@ -419,7 +427,7 @@ export class RestaurantManager extends LitElement {
 			editingId: this.editingId,
 			confirmingId: this.confirmingId,
 			nameError: this.nameError,
-			linkError: this.linkError,
+			linkErrors: this.linkErrors,
 		};
 	}
 
@@ -427,7 +435,7 @@ export class RestaurantManager extends LitElement {
 		this.form = EMPTY_FORM;
 		this.editingId = undefined;
 		this.nameError = undefined;
-		this.linkError = undefined;
+		this.linkErrors = [];
 		for (const form of this.forms) form.clearText();
 	}
 
@@ -435,16 +443,20 @@ export class RestaurantManager extends LitElement {
 		const { en, th } = event.detail.name;
 		if (en !== this.form.name.en || th !== this.form.name.th)
 			this.nameError = undefined;
-		if (event.detail.link !== this.form.link) this.linkError = undefined;
+		if (event.detail.links !== this.form.links) this.linkErrors = [];
 		this.form = event.detail;
 	};
 
 	private readonly onFormSubmit = (event: CustomEvent<FormState>): void => {
 		const input = event.detail;
-		const link = input.link.trim();
 		if (isBlankName(input.name)) this.nameError = "manager.nameRequired";
-		if (link !== "" && !isLink(link)) this.linkError = "manager.linkInvalid";
-		if (this.nameError !== undefined || this.linkError !== undefined) return;
+		// A blank row is dropped on save; any other row needs an http(s) URL.
+		this.linkErrors = input.links.flatMap((link, index) => {
+			const url = link.url.trim();
+			if (url === "" && link.label.trim() === "") return [];
+			return isLink(url) ? [] : [index];
+		});
+		if (this.nameError !== undefined || this.linkErrors.length > 0) return;
 		const editingId = this.editingId;
 		const name = localize({
 			en: input.name.en.trim(),
@@ -473,7 +485,7 @@ export class RestaurantManager extends LitElement {
 		this.editingId = item.id;
 		this.editingUpdatedAt = item.updatedAt;
 		this.nameError = undefined;
-		this.linkError = undefined;
+		this.linkErrors = [];
 		this.form = formFromRestaurant(item);
 	}
 

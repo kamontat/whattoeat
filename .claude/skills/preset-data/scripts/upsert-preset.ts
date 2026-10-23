@@ -4,7 +4,7 @@
  *   bun .claude/skills/preset-data/scripts/upsert-preset.ts <preset-id> <draft.json>
  *
  * The draft is `{ "restaurants": [...] }`. Each item is one of:
- *   - new:    { id?, name, location, kinds, area, notes?, link?, cuisine?, tags? }
+ *   - new:    { id?, name, location, kinds, area, notes?, links?, cuisine?, tags? }
  *             (an unused id is kept; `location` becomes the first line of `notes`)
  *   - update: { id, ...fields to change }  (or no id, matched by English or Thai name,
  *             case-insensitive, and by area when the draft gives one); `location` is not
@@ -14,7 +14,8 @@
  * `name` is a string (the English name) or `{ en?, th? }`; an update changes only the
  * languages it gives. Every restaurant needs a name in at least one language.
  *
- * `link` must be an http(s) URL or empty.
+ * `links` is a list of `{ label, url }`, each url an http(s) URL and each label one of
+ * LINK_LABELS (any case); an update replaces the whole list.
  * New restaurants get 8-character ids unique across every preset file and today's timestamps.
  * Changed ones get a new `updatedAt`. Tags and group values are cleaned the way the app does.
  * When the preset already has an index entry, its `updatedAt` is set to today if anything
@@ -23,15 +24,29 @@
 
 const DIR = "src/assets/data/presets";
 const KINDS = ["food", "drinks", "dessert"] as const;
+/** The app's preset link labels (src/lib/restaurant.ts), highest priority first. */
+const LINK_LABELS = [
+	"main",
+	"map",
+	"facebook",
+	"instagram",
+	"line",
+	"tiktok",
+	"x",
+	"website",
+	"menu",
+	"delivery",
+];
 const ID_ALPHABET =
 	"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 type Name = { en: string; th: string };
+type Link = { label: string; url: string };
 
 type Restaurant = {
 	id: string;
 	name: Name;
-	link: string;
+	links: Link[];
 	notes: string;
 	kinds: string[];
 	groups: Record<string, string[]>;
@@ -46,7 +61,7 @@ type Draft = {
 	name?: string | Partial<Name>;
 	location?: string;
 	notes?: string;
-	link?: string;
+	links?: { label: string; url: string }[];
 	kinds?: string[];
 	cuisine?: string | string[];
 	area?: string;
@@ -146,12 +161,16 @@ const findIndex = (item: Draft): number => {
 	);
 };
 
-const checkLink = (link: string | undefined, label: string): string => {
-	const value = link?.trim() ?? "";
-	if (value !== "" && !/^https?:\/\//.test(value))
-		fail(`${label}: link must start with https:// or http:// (put places and floors in notes)`);
-	return value;
-};
+const checkLinks = (links: Draft["links"], label: string): Link[] =>
+	(links ?? []).map((link) => {
+		const url = link.url?.trim() ?? "";
+		if (!/^https?:\/\//.test(url))
+			fail(`${label}: each link url must start with https:// or http:// (put places and floors in notes)`);
+		const kind = link.label?.trim().toLowerCase() ?? "";
+		if (!LINK_LABELS.includes(kind))
+			fail(`${label}: link label "${link.label ?? ""}" must be one of ${LINK_LABELS.join(", ")}`);
+		return { label: kind, url };
+	});
 
 const checkKinds = (kinds: string[], label: string): string[] => {
 	const bad = kinds.filter((kind) => !(KINDS as readonly string[]).includes(kind));
@@ -192,7 +211,7 @@ for (const item of draft.restaurants as Draft[]) {
 		list.push({
 			id,
 			name: { en: given.en ?? "", th: given.th ?? "" },
-			link: checkLink(item.link, label),
+			links: checkLinks(item.links, label),
 			notes: [(item.location as string).trim(), item.notes?.trim() ?? ""]
 				.filter((line) => line !== "")
 				.join("\n"),
@@ -213,7 +232,7 @@ for (const item of draft.restaurants as Draft[]) {
 		fail(`${label}: a restaurant needs a name in English or Thai`);
 	if (item.location !== undefined)
 		fail(`${label}: location only applies to new restaurants; give the whole new notes instead`);
-	if (item.link !== undefined) next.link = checkLink(item.link, label);
+	if (item.links !== undefined) next.links = checkLinks(item.links, label);
 	if (item.notes !== undefined) next.notes = item.notes.trim();
 	if (item.kinds !== undefined) next.kinds = checkKinds(item.kinds, label);
 	if (item.tags !== undefined) next.tags = cleanList(item.tags);
@@ -247,7 +266,7 @@ await Bun.write(
 	`${JSON.stringify(
 		{
 			app: "whattoeat",
-			version: 6,
+			version: 7,
 			exportedAt: now,
 			restaurants: list,
 			history: [],

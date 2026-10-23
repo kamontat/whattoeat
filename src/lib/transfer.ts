@@ -13,15 +13,24 @@ import {
 } from "#lib/history";
 import { cleanStored, isRestaurant, type Restaurant } from "#lib/restaurant";
 
-export const EXPORT_VERSION = 6;
+export const EXPORT_VERSION = 7;
 
 /**
  * Version 1 files predate history; they still import, with no history. Version 2 files call
  * each visit's time `lockedAt`. Versions 1–3 have no group list and keep area and cuisine as
  * single strings. Versions 1–4 keep a free-text `location` where version 5 has a `link`.
- * Versions 1–5 keep each name as one string where version 6 has one per language.
+ * Versions 1–5 keep each name as one string where version 6 has one per language. Versions
+ * 5–6 keep one unlabelled `link` where version 7 has a list of labelled `links`.
  */
-const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3, 4, 5, EXPORT_VERSION];
+const READABLE_VERSIONS: readonly unknown[] = [
+	1,
+	2,
+	3,
+	4,
+	5,
+	6,
+	EXPORT_VERSION,
+];
 
 export type ExportFile = {
 	app: "whattoeat";

@@ -12,7 +12,7 @@ const make = (id: string): Restaurant => ({
 	id,
 	name: nameFromText(id),
 	tags: [],
-	link: "",
+	links: [],
 	notes: "",
 	groups: {},
 	kinds: [],

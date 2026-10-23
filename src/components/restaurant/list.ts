@@ -6,8 +6,8 @@ import { getLang, LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import {
 	displayName,
-	isLink,
 	metaLine,
+	openLinks,
 	type Restaurant,
 } from "#lib/restaurant";
 import { type MatchRange, searchByName } from "#lib/search";
@@ -174,6 +174,7 @@ export class RestaurantList extends LitElement {
 		const name = displayName(item);
 		const meta = metaLine(item);
 		const metaId = `meta-${item.id}`;
+		const [link] = openLinks(item);
 		return html`<li data-id=${item.id}>
 			<button
 				type="button"
@@ -191,10 +192,10 @@ export class RestaurantList extends LitElement {
 				<span class="trail">${icon("chevron", 20)}</span>
 			</button>
 			${
-				isLink(item.link)
+				link !== undefined
 					? html`<a
 							class="open-link"
-							href=${item.link}
+							href=${link.url}
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label=${t("manager.openLink", { name })}
