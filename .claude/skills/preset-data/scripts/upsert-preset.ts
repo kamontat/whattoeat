@@ -25,7 +25,18 @@
 const DIR = "src/assets/data/presets";
 const KINDS = ["food", "drinks", "dessert"] as const;
 /** The app's preset link labels (src/lib/restaurant.ts), highest priority first. */
-const LINK_LABELS = ["main", "map", "social", "website", "menu", "delivery"];
+const LINK_LABELS = [
+	"main",
+	"map",
+	"facebook",
+	"instagram",
+	"line",
+	"tiktok",
+	"x",
+	"website",
+	"menu",
+	"delivery",
+];
 const ID_ALPHABET =
 	"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
