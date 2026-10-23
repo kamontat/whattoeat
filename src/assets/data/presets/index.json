@@ -33,7 +33,7 @@
 				"en": "Ladprao",
 				"th": "ลาดพร้าว"
 			},
-			"count": 136,
+			"count": 135,
 			"updatedAt": "2026-10-23",
 			"places": [
 				"Central Ladprao",
@@ -71,7 +71,7 @@
 				"en": "Siam",
 				"th": "สยาม"
 			},
-			"count": 87,
+			"count": 85,
 			"updatedAt": "2026-10-23",
 			"places": [
 				"Siam Paragon",
@@ -107,7 +107,7 @@
 				"en": "Samyan",
 				"th": "สามย่าน"
 			},
-			"count": 56,
+			"count": 53,
 			"updatedAt": "2026-10-23",
 			"places": ["Samyan Mitrtown"],
 			"areas": ["samyan mitrtown"]

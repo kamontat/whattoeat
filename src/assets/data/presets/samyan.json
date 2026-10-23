@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T16:17:13.860Z",
+	"exportedAt": "2026-10-23T16:22:21.555Z",
 	"restaurants": [
 		{
 			"id": "l5lAJ4bc",
@@ -833,28 +833,6 @@
 			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
-			"id": "8r2UdLIY",
-			"name": {
-				"en": "Din's",
-				"th": "ดินส์"
-			},
-			"links": [
-				{
-					"label": "map",
-					"url": "https://www.google.com/maps/search/?api=1&query=Din%27s%20Samyan%20Mitrtown"
-				}
-			],
-			"notes": "Samyan Mitrtown, G\nNeo-Taiwanese: xiaolongbao, pan-fried buns and noodles. Mid price. 10:00-22:00.",
-			"kinds": ["food"],
-			"groups": {
-				"cuisine": ["taiwanese"],
-				"area": ["samyan mitrtown"]
-			},
-			"tags": ["dim sum", "noodles"],
-			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
-		},
-		{
 			"id": "0lrajJ2N",
 			"name": {
 				"en": "Get Fresh",
@@ -1517,32 +1495,6 @@
 			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
 		{
-			"id": "sjJpvlQO",
-			"name": {
-				"en": "Gogida",
-				"th": "โกกีดา"
-			},
-			"links": [
-				{
-					"label": "map",
-					"url": "https://www.google.com/maps/search/?api=1&query=Gogida%20Samyan%20Mitrtown"
-				},
-				{
-					"label": "social",
-					"url": "https://www.facebook.com/gogidathailand/"
-				}
-			],
-			"notes": "Samyan Mitrtown, 4F\nKorean BBQ. Pork buffet from ฿299. Mid price. 10:00-22:00.",
-			"kinds": ["food"],
-			"groups": {
-				"cuisine": ["korean"],
-				"area": ["samyan mitrtown"]
-			},
-			"tags": ["bbq", "buffet"],
-			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
-		},
-		{
 			"id": "eky1u29v",
 			"name": {
 				"en": "K-StrEAT",
@@ -1565,55 +1517,6 @@
 				"area": ["samyan mitrtown"]
 			},
 			"tags": ["food court"],
-			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
-		},
-		{
-			"id": "MfEyLl09",
-			"name": {
-				"en": "Makai",
-				"th": "มาคาอิ"
-			},
-			"links": [
-				{
-					"label": "map",
-					"url": "https://www.google.com/maps/search/?api=1&query=Makai%20Samyan%20Mitrtown"
-				},
-				{
-					"label": "social",
-					"url": "https://www.facebook.com/MakaiAcaiBar"
-				},
-				{
-					"label": "social",
-					"url": "https://www.facebook.com/MAKAISamyan/"
-				},
-				{
-					"label": "social",
-					"url": "https://www.instagram.com/makai_acai_bar/"
-				},
-				{
-					"label": "social",
-					"url": "https://lin.ee/UGNnll3"
-				},
-				{
-					"label": "website",
-					"url": "https://makaiacaibar.com/"
-				},
-				{
-					"label": "menu",
-					"url": "https://makaiacaibar.com/our-menu/"
-				},
-				{
-					"label": "delivery",
-					"url": "https://makaiacaibar.com/order-delivery/"
-				}
-			],
-			"notes": "Samyan Mitrtown, 4F\nAçaí bowls, oat pancakes and superfood drinks. Mid price. 10:00-22:00.",
-			"kinds": ["food", "dessert"],
-			"groups": {
-				"area": ["samyan mitrtown"]
-			},
-			"tags": ["healthy"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
 			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},

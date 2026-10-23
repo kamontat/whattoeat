@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T16:17:13.860Z",
+	"exportedAt": "2026-10-23T16:22:21.587Z",
 	"restaurants": [
 		{
 			"id": "uu7b9Kul",
@@ -638,39 +638,6 @@
 				"area": ["central ladprao"]
 			},
 			"tags": ["cheesecake"],
-			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
-		},
-		{
-			"id": "fJ4aALBS",
-			"name": {
-				"en": "bonnana",
-				"th": "บอนนาน่า"
-			},
-			"links": [
-				{
-					"label": "map",
-					"url": "https://www.google.com/maps/search/?api=1&query=bonnana%20Central%20Ladprao"
-				},
-				{
-					"label": "social",
-					"url": "https://www.tiktok.com/@bonnana.house"
-				},
-				{
-					"label": "social",
-					"url": "https://www.instagram.com/bonnana.house/"
-				},
-				{
-					"label": "social",
-					"url": "https://www.facebook.com/p/Bonnana-%E0%B8%9A%E0%B8%AD%E0%B8%99%E0%B8%99%E0%B8%B2%E0%B8%99%E0%B9%88%E0%B8%B2-61561041122452/"
-				}
-			],
-			"notes": "Central Ladprao, 3F\nCakes. Near B2S. Closed until Jan 2027 per Wongnai.",
-			"kinds": ["dessert"],
-			"groups": {
-				"area": ["central ladprao"]
-			},
-			"tags": ["bakery", "cake", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
 			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
@@ -2205,9 +2172,9 @@
 			"groups": {
 				"area": ["central ladprao"]
 			},
-			"tags": ["bakery"],
+			"tags": ["bakery", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T16:22:21.587Z"
 		},
 		{
 			"id": "xChq60Wi",

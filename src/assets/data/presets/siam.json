@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T16:17:13.860Z",
+	"exportedAt": "2026-10-23T16:22:21.572Z",
 	"restaurants": [
 		{
 			"id": "s6jL5NcS",
@@ -120,36 +120,6 @@
 				"area": ["siam paragon"]
 			},
 			"tags": ["sukiyaki", "shabu", "wagyu"],
-			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
-		},
-		{
-			"id": "7dFDD1ZM",
-			"name": {
-				"en": "Nabezo Premium",
-				"th": ""
-			},
-			"links": [
-				{
-					"label": "map",
-					"url": "https://www.google.com/maps/search/?api=1&query=Nabezo%20Premium%20Siam%20Paragon"
-				},
-				{
-					"label": "social",
-					"url": "https://www.facebook.com/NabezoPremium/"
-				},
-				{
-					"label": "social",
-					"url": "https://www.instagram.com/nabezo_premium/"
-				}
-			],
-			"notes": "Siam Paragon, G\nPremium shabu and sukiyaki buffet with Omi wagyu. 11:00-22:00.",
-			"kinds": ["food"],
-			"groups": {
-				"cuisine": ["japanese"],
-				"area": ["siam paragon"]
-			},
-			"tags": ["shabu", "sukiyaki", "buffet"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
 			"updatedAt": "2026-10-23T16:17:13.860Z"
 		},
@@ -2273,27 +2243,6 @@
 			"tags": ["tea"],
 			"createdAt": "2026-10-23T10:24:08.798Z",
 			"updatedAt": "2026-10-23T16:17:13.860Z"
-		},
-		{
-			"id": "nxlkZOpu",
-			"name": {
-				"en": "BEANS",
-				"th": ""
-			},
-			"links": [
-				{
-					"label": "map",
-					"url": "https://www.google.com/maps/search/?api=1&query=BEANS%20Siam%20Discovery"
-				}
-			],
-			"notes": "Siam Discovery, 2F\nCoffee bar in the design and lifestyle floor. Mid price. 10:00-22:00.",
-			"kinds": ["drinks"],
-			"groups": {
-				"area": ["siam discovery"]
-			},
-			"tags": ["coffee", "cafe"],
-			"createdAt": "2026-10-23T10:24:08.798Z",
-			"updatedAt": "2026-10-23T10:24:08.798Z"
 		},
 		{
 			"id": "MiVEAwfZ",
