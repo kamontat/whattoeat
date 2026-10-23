@@ -1596,8 +1596,10 @@ test("wide: the sticky edit panel fits the screen and scrolls when the form is l
 		.join("\n");
 	const wide = css.slice(css.indexOf("@media (min-width: 48rem)"));
 	expect(wide).toMatch(
-		/\.edit-panel\s*\{[^}]*position:\s*sticky[^}]*max-height:\s*calc\(100dvh - 2rem\)[^}]*overflow-y:\s*auto/,
+		/\.edit-panel\s*\{[^}]*position:\s*sticky[^}]*box-sizing:\s*border-box[^}]*max-height:\s*calc\(100dvh - 2rem\)[^}]*overflow-y:\s*auto/,
 	);
+	// The scroll must pass on to the page, or a panel starting lower down never shows its end.
+	expect(wide).not.toMatch(/\.edit-panel\s*\{[^}]*overscroll-behavior/);
 });
 
 test("search: the Search key with one match opens that restaurant", async () => {
