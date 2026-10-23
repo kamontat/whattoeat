@@ -20,7 +20,7 @@ import {
 } from "#lib/groups";
 import { addVisit, isHistoryMemoryOnly } from "#lib/history";
 import { getLang, LangController, t } from "#lib/i18n";
-import { icon } from "#lib/icons";
+import { type IconName, icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
 import {
 	loadPickCount,
@@ -31,6 +31,8 @@ import {
 } from "#lib/random";
 import {
 	displayName,
+	type Link,
+	type LinkLabel,
 	linkLabel,
 	metaLine,
 	openLinks,
@@ -156,27 +158,29 @@ export class RandomPicker extends LitElement {
 				color: var(--color-muted);
 			}
 
-			/* Two or more links: each by its label, in a wrapping row under the notes. */
+			/* Two or more links: a wrapping row of icons under the notes, each named by its label. */
 			.result .links {
 				display: flex;
 				flex-wrap: wrap;
-				gap: 0.25rem 1rem;
-				margin: 0;
+				gap: 0.25rem;
+				margin: 0 -0.5rem;
 				padding: 0;
 				list-style: none;
-				font-size: 0.875rem;
 			}
 
 			.result .links a {
 				display: inline-flex;
 				align-items: center;
-				gap: 0.25rem;
-				min-height: 2rem;
-				color: var(--color-link);
+				justify-content: center;
+				width: var(--tap);
+				height: var(--tap);
+				border-radius: var(--radius-sm);
+				color: var(--color-muted);
 			}
 
-			.result .links a .icon {
-				color: var(--color-muted);
+			.result .links a:hover {
+				background: var(--color-surface-2);
+				color: var(--color-link);
 			}
 
 			.notes {
@@ -522,6 +526,16 @@ export class RandomPicker extends LitElement {
 		return html`<p class="visited-label" tabindex="-1">${t("picker.visited", { time })}</p>`;
 	}
 
+	/** One link as an icon; the label is its accessible name and tooltip. */
+	private renderLink(link: Link) {
+		const name = linkLabel(link);
+		return html`<li>
+			<a href=${link.url} target="_blank" rel="noopener noreferrer" aria-label=${name} title=${name}>
+				${icon(LINK_ICONS[link.label as LinkLabel] ?? "external", 22)}
+			</a>
+		</li>`;
+	}
+
 	private renderResult(item: Restaurant) {
 		const links = openLinks(item);
 		const [first] = links;
@@ -537,10 +551,7 @@ export class RandomPicker extends LitElement {
 				${
 					links.length > 1
 						? html`<ul class="links" aria-label=${t("picker.links", { name: displayName(item) })}>
-								${links.map(
-									(link) =>
-										html`<li><a href=${link.url} target="_blank" rel="noopener noreferrer">${linkLabel(link)}${icon("external", 14)}</a></li>`,
-								)}
+								${links.map((link) => this.renderLink(link))}
 							</ul>`
 						: nothing
 				}
@@ -549,4 +560,16 @@ export class RandomPicker extends LitElement {
 			</article>
 		`;
 	}
-}
+} /** The icon for each preset link label; any other label shows the leave-the-app icon. */
+const LINK_ICONS: Partial<Record<LinkLabel, IconName>> = {
+	main: "star",
+	map: "pin",
+	facebook: "facebook",
+	instagram: "instagram",
+	line: "line",
+	tiktok: "tiktok",
+	x: "x-logo",
+	website: "globe",
+	menu: "book",
+	delivery: "bag",
+};

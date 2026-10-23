@@ -270,7 +270,18 @@ test("a link label suggests the preset labels in the current language", async ()
 	const list = $<HTMLDataListElement>(el, `#${input.getAttribute("list")}`);
 	expect(
 		[...(list?.querySelectorAll("option") ?? [])].map((option) => option.value),
-	).toEqual(["Main", "Map", "Social", "Website", "Menu", "Delivery"]);
+	).toEqual([
+		"Main",
+		"Map",
+		"Facebook",
+		"Instagram",
+		"LINE",
+		"TikTok",
+		"X",
+		"Website",
+		"Menu",
+		"Delivery",
+	]);
 	setLang("th");
 	await el.updateComplete;
 	expect(list?.querySelector("option")?.value).toBe("หลัก");

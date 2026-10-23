@@ -25,12 +25,50 @@ export type GroupValues = Record<string, string[]>;
 export const LINK_LABELS = [
 	"main",
 	"map",
-	"social",
+	"facebook",
+	"instagram",
+	"line",
+	"tiktok",
+	"x",
 	"website",
 	"menu",
 	"delivery",
 ] as const;
 export type LinkLabel = (typeof LINK_LABELS)[number];
+
+/** Sites whose links name themselves, by host (subdomains included). */
+const SITE_LABELS: readonly [string, LinkLabel][] = [
+	["facebook.com", "facebook"],
+	["fb.com", "facebook"],
+	["fb.me", "facebook"],
+	["instagram.com", "instagram"],
+	["line.me", "line"],
+	["lin.ee", "line"],
+	["tiktok.com", "tiktok"],
+	["x.com", "x"],
+	["twitter.com", "x"],
+	["maps.app.goo.gl", "map"],
+];
+
+/** The label a link's site gives it, like `facebook` for facebook.com; `undefined` for any other site. */
+export const siteLabel = (url: string): LinkLabel | undefined => {
+	let parsed: URL;
+	try {
+		parsed = new URL(url);
+	} catch {
+		return undefined;
+	}
+	const host = parsed.hostname.toLowerCase();
+	if (
+		/(^|\.)google\.[a-z.]+$/.test(host) &&
+		parsed.pathname.startsWith("/maps")
+	)
+		return "map";
+	if (/^maps\.google\.[a-z.]+$/.test(host)) return "map";
+	return SITE_LABELS.find(
+		([site]) => host === site || host.endsWith(`.${site}`),
+	)?.[1];
+};
 
 /** A web page for a place: a map, its own site or a social page, with an optional label. */
 export type Link = {
@@ -174,10 +212,18 @@ export const normalizeInput = (
 ): CleanInput => ({
 	name: { en: input.name.en.trim(), th: input.name.th.trim() },
 	links: input.links
-		.map((link) => ({
-			label: canonicalLabel(link.label),
-			url: link.url.trim(),
-		}))
+		.map((link) => {
+			const url = link.url.trim();
+			const label = canonicalLabel(link.label);
+			// A blank label, or the old catch-all `social`, takes the name of the link's site.
+			return {
+				label:
+					label === "" || label === "social"
+						? (siteLabel(url) ?? label)
+						: label,
+				url,
+			};
+		})
 		.filter((link) => link.url !== ""),
 	notes: input.notes.trim(),
 	kinds: cleanKinds(input.kinds),

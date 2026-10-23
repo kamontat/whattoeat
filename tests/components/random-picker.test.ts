@@ -175,7 +175,7 @@ test("a non-http link leaves the name as plain text and is not shown", async () 
 	);
 });
 
-test("several links: the name opens the first and every link is listed by its label", async () => {
+test("several links: the name opens the top-priority link and every link is an icon named by its label", async () => {
 	addRestaurant({
 		...base,
 		name: { en: "Jay Fai", th: "" },
@@ -190,17 +190,25 @@ test("several links: the name opens the first and every link is listed by its la
 	await el.updateComplete;
 	expect(
 		el.shadowRoot!.querySelector(".result h2 a")?.getAttribute("href"),
-	).toBe("https://jayfai.example/menu");
+	).toBe("https://www.instagram.com/jayfai");
 	const links = [
 		...el.shadowRoot!.querySelectorAll<HTMLAnchorElement>(".result .links a"),
 	];
-	expect(links.map((a) => a.textContent?.trim())).toEqual([
+	expect(links.map((a) => a.getAttribute("aria-label"))).toEqual([
+		"Instagram",
 		"Menu",
-		"instagram.com",
 	]);
+	expect(links.map((a) => a.getAttribute("title"))).toEqual([
+		"Instagram",
+		"Menu",
+	]);
+	expect(links.map((a) => a.textContent?.trim())).toEqual(["", ""]);
+	expect(
+		links.map((a) => a.querySelector("svg")?.getAttribute("data-icon")),
+	).toEqual(["instagram", "book"]);
 	expect(links.map((a) => a.getAttribute("href"))).toEqual([
-		"https://jayfai.example/menu",
 		"https://www.instagram.com/jayfai",
+		"https://jayfai.example/menu",
 	]);
 	for (const a of links) {
 		expect(a.getAttribute("target")).toBe("_blank");
@@ -208,13 +216,14 @@ test("several links: the name opens the first and every link is listed by its la
 	}
 });
 
-test("the name opens the link with the highest priority: main, map, social, then website", async () => {
+test("the name opens the link with the highest priority: main, map, social sites, then website", async () => {
 	addRestaurant({
 		...base,
 		name: { en: "Pho", th: "" },
 		links: [
 			{ label: "website", url: "https://pho.example" },
-			{ label: "social", url: "https://ig.example/pho" },
+			{ label: "facebook", url: "https://www.facebook.com/pho" },
+			{ label: "Grab", url: "https://grab.example/pho" },
 			{ label: "map", url: "https://maps.example/pho" },
 		],
 	});
@@ -225,10 +234,16 @@ test("the name opens the link with the highest priority: main, map, social, then
 		el.shadowRoot!.querySelector(".result h2 a")?.getAttribute("href"),
 	).toBe("https://maps.example/pho");
 	expect(
-		[...el.shadowRoot!.querySelectorAll(".result .links a")].map((a) =>
-			a.textContent?.trim(),
-		),
-	).toEqual(["Map", "Social", "Website"]);
+		[...el.shadowRoot!.querySelectorAll(".result .links a")].map((a) => [
+			a.getAttribute("aria-label"),
+			a.querySelector("svg")?.getAttribute("data-icon"),
+		]),
+	).toEqual([
+		["Map", "pin"],
+		["Facebook", "facebook"],
+		["Website", "globe"],
+		["grab", "external"],
+	]);
 });
 
 test("shows two different restaurants to choose from", async () => {

@@ -21,6 +21,10 @@ test.each([...ICON_NAMES])(
 	},
 );
 
+test("icon names its shape in data-icon", () => {
+	expect(mount(icon("globe")).getAttribute("data-icon")).toBe("globe");
+});
+
 test("icon takes a size", () => {
 	expect(mount(icon("x", 18)).getAttribute("height")).toBe("18");
 });

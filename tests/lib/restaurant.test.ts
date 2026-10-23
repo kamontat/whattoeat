@@ -423,6 +423,7 @@ test("linkLabel names a preset label in the current language, else the label, el
 	setLang("th");
 	expect(linkLabel({ label: "map", url: "https://maps.example" })).toBe("แผนที่");
 	setLang("en");
+	expect(linkLabel({ label: "line", url: "https://lin.ee/abc" })).toBe("LINE");
 	expect(linkLabel({ label: "Grab", url: "https://x.example/grab" })).toBe(
 		"Grab",
 	);
@@ -434,7 +435,8 @@ test("linkLabel names a preset label in the current language, else the label, el
 
 test("canonicalLabel ignores case: a preset label in either language becomes its key, any other is normalized", () => {
 	expect(canonicalLabel(" Map ")).toBe("map");
-	expect(canonicalLabel("SOCIAL")).toBe("social");
+	expect(canonicalLabel("FaceBook")).toBe("facebook");
+	expect(canonicalLabel("TikTok")).toBe("tiktok");
 	expect(canonicalLabel("เว็บไซต์")).toBe("website");
 	expect(canonicalLabel(" Grab  Food ")).toBe("grab food");
 	expect(canonicalLabel("GRAB food")).toBe(canonicalLabel("grab Food"));
@@ -458,6 +460,49 @@ test("normalizeInput stores a preset label as its key", () => {
 	]);
 });
 
+test("normalizeInput names a blank or old social label after its site", () => {
+	const links = (label: string, urls: string[]) =>
+		normalizeInput({
+			name: { en: "Pho", th: "" },
+			tags: [],
+			links: urls.map((url) => ({ label, url })),
+			notes: "",
+		}).links.map((link) => link.label);
+	expect(
+		links("", [
+			"https://www.facebook.com/pho",
+			"https://m.facebook.com/pho",
+			"https://instagram.com/pho",
+			"https://lin.ee/pho",
+			"https://page.line.me/pho",
+			"https://www.tiktok.com/@pho",
+			"https://x.com/pho",
+			"https://twitter.com/pho",
+			"https://www.google.com/maps/search/?api=1&query=pho",
+			"https://maps.app.goo.gl/abc",
+			"https://pho.example",
+		]),
+	).toEqual([
+		"facebook",
+		"facebook",
+		"instagram",
+		"line",
+		"line",
+		"tiktok",
+		"x",
+		"x",
+		"map",
+		"map",
+		"",
+	]);
+	expect(
+		links("social", ["https://www.instagram.com/pho", "https://pho.example"]),
+	).toEqual(["instagram", "social"]);
+	expect(links("Menu", ["https://www.facebook.com/pho/menu"])).toEqual([
+		"menu",
+	]);
+});
+
 test("openLinks keeps only http(s) links", () => {
 	expect(
 		openLinks({
@@ -470,7 +515,7 @@ test("openLinks keeps only http(s) links", () => {
 	).toEqual([{ label: "map", url: "https://maps.example" }]);
 });
 
-test("openLinks orders main, map, social, website, menu, delivery, then the rest as given", () => {
+test("openLinks orders main, map, the social sites, website, menu, delivery, then the rest as given", () => {
 	const link = (label: string) => ({
 		label,
 		url: `https://x.example/${label}`,
@@ -484,7 +529,11 @@ test("openLinks orders main, map, social, website, menu, delivery, then the rest
 				link("delivery"),
 				link("menu"),
 				link("website"),
-				link("social"),
+				link("x"),
+				link("tiktok"),
+				link("line"),
+				link("instagram"),
+				link("facebook"),
 				link("map"),
 				link("main"),
 			],
@@ -492,7 +541,11 @@ test("openLinks orders main, map, social, website, menu, delivery, then the rest
 	).toEqual([
 		"main",
 		"map",
-		"social",
+		"facebook",
+		"instagram",
+		"line",
+		"tiktok",
+		"x",
 		"website",
 		"menu",
 		"delivery",
