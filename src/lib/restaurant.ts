@@ -18,12 +18,19 @@ export const RESERVED_GROUP_IDS: readonly string[] = [
 /** Values by group id: "cuisine", "area" or a custom group's id. A key exists only when it has values. */
 export type GroupValues = Record<string, string[]>;
 
+/** A web page for a place: a map, its own site or a social page, with an optional label. */
+export type Link = {
+	/** What the link is, like "Menu"; empty shows the link's host. */
+	label: string;
+	url: string;
+};
+
 export type Restaurant = {
 	id: string;
 	/** The name in English and Thai; either may be empty, never both. */
 	name: Localized;
-	/** A web page for the place: a map, its own site or a social page. Empty when there is none. */
-	link: string;
+	/** Web pages for the place, in the order shown; the first opens from the name. */
+	links: Link[];
 	notes: string;
 	kinds: Kind[];
 	/** Plain tags: shown, not filtered. */
@@ -35,15 +42,17 @@ export type Restaurant = {
 
 /**
  * A restaurant as stored or imported: the old shape with `area` and `cuisine` strings and a
- * `location` instead of a `link`, the new shape with `groups`, or a mix. Kinds may be missing
- * or unknown.
+ * `location` or a single `link` instead of `links`, the new shape with `groups`, or a mix.
+ * Kinds may be missing or unknown.
  */
 export type StoredRestaurant = Omit<
 	Restaurant,
-	"name" | "kinds" | "groups" | "link"
+	"name" | "kinds" | "groups" | "links"
 > & {
 	/** Versions 1–5 keep the name as one string. */
 	name: string | Localized;
+	links?: Link[];
+	/** Versions 5–6 keep one unlabelled link. */
 	link?: string;
 	location?: string;
 	area?: string;
@@ -55,7 +64,7 @@ export type StoredRestaurant = Omit<
 export type RestaurantInput = {
 	name: Localized;
 	tags: readonly string[];
-	link: string;
+	links: readonly Link[];
 	notes: string;
 	kinds?: readonly string[];
 	groups?: Readonly<Record<string, readonly string[]>>;
@@ -132,26 +141,33 @@ export const normalizeInput = (
 	customIds: readonly string[] = [],
 ): CleanInput => ({
 	name: { en: input.name.en.trim(), th: input.name.th.trim() },
-	link: input.link.trim(),
+	links: input.links
+		.map((link) => ({ label: link.label.trim(), url: link.url.trim() }))
+		.filter((link) => link.url !== ""),
 	notes: input.notes.trim(),
 	kinds: cleanKinds(input.kinds),
 	...cleanGroups(input.groups ?? {}, input.tags, customIds),
 });
 
+const unlabelled = (url: string): Link[] =>
+	url === "" ? [] : [{ label: "", url }];
+
 /**
- * An old free-text `location` becomes the link when it is one and there is no link yet;
- * otherwise it goes on the first line of the notes so nothing is lost.
+ * An old single `link` becomes one unlabelled link when there are no `links`. An old free-text
+ * `location` becomes a link when it is one and there is no link yet; otherwise it goes on the
+ * first line of the notes so nothing is lost.
  */
 const moveLocation = (
 	item: StoredRestaurant,
-): Pick<Restaurant, "link" | "notes"> => {
-	const link = (item.link ?? "").trim();
+): Pick<Restaurant, "links" | "notes"> => {
+	const links = item.links ?? unlabelled((item.link ?? "").trim());
 	const location = (item.location ?? "").trim();
-	if (location === "" || location === link) return { link, notes: item.notes };
-	if (link === "" && isLink(location))
-		return { link: location, notes: item.notes };
+	if (location === "" || links.some((link) => link.url.trim() === location))
+		return { links, notes: item.notes };
+	if (links.length === 0 && isLink(location))
+		return { links: unlabelled(location), notes: item.notes };
 	const notes = item.notes.trim();
-	return { link, notes: notes === "" ? location : `${location}\n${notes}` };
+	return { links, notes: notes === "" ? location : `${location}\n${notes}` };
 };
 
 /**
@@ -240,6 +256,14 @@ const isName = (value: unknown): boolean => {
 const isOptionalString = (value: unknown): boolean =>
 	value === undefined || isString(value);
 
+const isLinkList = (value: unknown): boolean =>
+	Array.isArray(value) &&
+	value.every((link: unknown) => {
+		if (typeof link !== "object" || link === null) return false;
+		const { label, url } = link as Partial<Record<keyof Link, unknown>>;
+		return isString(label) && isString(url);
+	});
+
 /** A plain object whose own values are each an array of strings. */
 const isGroupValues = (value: unknown): boolean =>
 	typeof value === "object" &&
@@ -253,7 +277,7 @@ const isGroupValues = (value: unknown): boolean =>
 export const isRestaurant = (value: unknown): value is StoredRestaurant => {
 	if (typeof value !== "object" || value === null) return false;
 	const item = value as Partial<
-		Record<keyof Restaurant | "location" | "area" | "cuisine", unknown>
+		Record<keyof Restaurant | "link" | "location" | "area" | "cuisine", unknown>
 	>;
 	const id = item.id;
 	const tags = item.tags;
@@ -263,6 +287,7 @@ export const isRestaurant = (value: unknown): value is StoredRestaurant => {
 		isName(item.name) &&
 		Array.isArray(tags) &&
 		tags.every(isString) &&
+		(item.links === undefined || isLinkList(item.links)) &&
 		isOptionalString(item.link) &&
 		isOptionalString(item.location) &&
 		isString(item.notes) &&
@@ -278,6 +303,21 @@ export const isRestaurant = (value: unknown): value is StoredRestaurant => {
 
 /** Only http(s) URLs are rendered as links; anything else (including `javascript:`) stays text. */
 export const isLink = (text: string): boolean => /^https?:\/\//i.test(text);
+
+/** The links that open: http(s) only. */
+export const openLinks = (item: Pick<Restaurant, "links">): Link[] =>
+	item.links.filter((link) => isLink(link.url));
+
+/** What a link is called: its label, else its host without `www.`, else the URL itself. */
+export const linkLabel = (link: Link): string => {
+	const label = link.label.trim();
+	if (label !== "") return label;
+	try {
+		return new URL(link.url).hostname.replace(/^www\./, "");
+	} catch {
+		return link.url;
+	}
+};
 
 /** The values a restaurant has in one group; `kind` is its kinds and `tags` its plain tags. */
 export const groupValues = (item: Restaurant, group: string): string[] => {

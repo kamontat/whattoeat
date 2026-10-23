@@ -25,7 +25,7 @@ const make = (
 	id,
 	name: nameFromText(id),
 	tags: [],
-	link: "",
+	links: [],
 	notes: "",
 	groups,
 	kinds: [],

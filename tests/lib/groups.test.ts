@@ -36,7 +36,7 @@ const make = (id: string, groups: Restaurant["groups"] = {}): Restaurant => ({
 	id,
 	name: nameFromText(id),
 	tags: [],
-	link: "",
+	links: [],
 	notes: "",
 	groups,
 	kinds: [],

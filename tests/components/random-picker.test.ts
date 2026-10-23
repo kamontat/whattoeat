@@ -14,7 +14,7 @@ import {
 	saveRestaurants,
 } from "#lib/store";
 
-const base = { tags: [], link: "", notes: "" };
+const base = { tags: [], links: [], notes: "" };
 
 beforeEach(() => {
 	localStorage.clear();
@@ -134,7 +134,7 @@ test("clicking the button shows a restaurant with its details", async () => {
 	addRestaurant({
 		name: { en: "Jay Fai", th: "" },
 		tags: ["street", "crab"],
-		link: "https://maps.example/jayfai",
+		links: [{ label: "", url: "https://maps.example/jayfai" }],
 		notes: "Queue early",
 	});
 	const el = await mount();
@@ -152,6 +152,7 @@ test("clicking the button shows a restaurant with its details", async () => {
 	expect(link?.getAttribute("href")).toBe("https://maps.example/jayfai");
 	expect(link?.getAttribute("target")).toBe("_blank");
 	expect(link?.getAttribute("rel")).toBe("noopener noreferrer");
+	expect(el.shadowRoot!.querySelector(".result .links")).toBeNull();
 	expect(el.shadowRoot!.querySelector(".result .notes")?.textContent).toBe(
 		"Queue early",
 	);
@@ -162,7 +163,7 @@ test("a non-http link leaves the name as plain text and is not shown", async () 
 	addRestaurant({
 		...base,
 		name: { en: "Sneaky", th: "" },
-		link: "javascript:alert(1)",
+		links: [{ label: "Hack", url: "javascript:alert(1)" }],
 	});
 	const el = await mount();
 	pickButton(el)!.click();
@@ -172,6 +173,39 @@ test("a non-http link leaves the name as plain text and is not shown", async () 
 	expect(el.shadowRoot!.querySelector(".result")?.textContent).not.toContain(
 		"javascript:",
 	);
+});
+
+test("several links: the name opens the first and every link is listed by its label", async () => {
+	addRestaurant({
+		...base,
+		name: { en: "Jay Fai", th: "" },
+		links: [
+			{ label: "Menu", url: "https://jayfai.example/menu" },
+			{ label: "", url: "javascript:alert(1)" },
+			{ label: "", url: "https://www.instagram.com/jayfai" },
+		],
+	});
+	const el = await mount();
+	pickButton(el)!.click();
+	await el.updateComplete;
+	expect(
+		el.shadowRoot!.querySelector(".result h2 a")?.getAttribute("href"),
+	).toBe("https://jayfai.example/menu");
+	const links = [
+		...el.shadowRoot!.querySelectorAll<HTMLAnchorElement>(".result .links a"),
+	];
+	expect(links.map((a) => a.textContent?.trim())).toEqual([
+		"Menu",
+		"instagram.com",
+	]);
+	expect(links.map((a) => a.getAttribute("href"))).toEqual([
+		"https://jayfai.example/menu",
+		"https://www.instagram.com/jayfai",
+	]);
+	for (const a of links) {
+		expect(a.getAttribute("target")).toBe("_blank");
+		expect(a.getAttribute("rel")).toBe("noopener noreferrer");
+	}
 });
 
 test("shows two different restaurants to choose from", async () => {
@@ -608,7 +642,7 @@ test("warns about stored entries that could not be read until a save drops them"
 	addRestaurant({
 		name: { en: "Fresh", th: "" },
 		tags: [],
-		link: "",
+		links: [],
 		notes: "",
 	});
 	await el.updateComplete;
@@ -766,7 +800,7 @@ test("a picked card shows the type line under the name and keeps Eat here in its
 		...base,
 		name: { en: "Cafe", th: "" },
 		tags: ["latte"],
-		link: "https://maps.example/cafe",
+		links: [{ label: "", url: "https://maps.example/cafe" }],
 		kinds: ["drinks"],
 	});
 	const el = await mount();

@@ -30,7 +30,7 @@ afterEach(() => {
 const make = (name: string): Restaurant => ({
 	id: name,
 	name: nameFromText(name),
-	link: "",
+	links: [],
 	notes: "",
 	kinds: [],
 	tags: [],

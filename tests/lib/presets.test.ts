@@ -104,8 +104,11 @@ for (const entry of index.presets) {
 			await Bun.file(`${DIR}/${entry.id}.json`).text(),
 		);
 		if (!result.ok) throw new Error(result.error);
-		for (const item of result.restaurants)
-			expect(item.link, item.id).toMatch(/^https:\/\//);
+		for (const item of result.restaurants) {
+			expect(item.links.length, item.id).toBeGreaterThan(0);
+			for (const link of item.links)
+				expect(link.url, item.id).toMatch(/^https:\/\//);
+		}
 	});
 
 	test(`${entry.id}: the only verification marker is "unverified"`, async () => {

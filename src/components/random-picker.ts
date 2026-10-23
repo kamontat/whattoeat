@@ -31,8 +31,9 @@ import {
 } from "#lib/random";
 import {
 	displayName,
-	isLink,
+	linkLabel,
 	metaLine,
+	openLinks,
 	type Restaurant,
 } from "#lib/restaurant";
 import {
@@ -152,6 +153,29 @@ export class RandomPicker extends LitElement {
 			.result h2 a .icon {
 				margin-inline-start: 0.375rem;
 				vertical-align: -0.0625em;
+				color: var(--color-muted);
+			}
+
+			/* Two or more links: each by its label, in a wrapping row under the notes. */
+			.result .links {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.25rem 1rem;
+				margin: 0;
+				padding: 0;
+				list-style: none;
+				font-size: 0.875rem;
+			}
+
+			.result .links a {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.25rem;
+				min-height: 2rem;
+				color: var(--color-link);
+			}
+
+			.result .links a .icon {
 				color: var(--color-muted);
 			}
 
@@ -499,15 +523,27 @@ export class RandomPicker extends LitElement {
 	}
 
 	private renderResult(item: Restaurant) {
+		const links = openLinks(item);
+		const [first] = links;
 		return html`
 			<article class="card result ${this.visited?.id === item.id ? "visited" : ""}">
 				<h2>${
-					isLink(item.link)
-						? html`<a href=${item.link} target="_blank" rel="noopener noreferrer">${displayName(item)}${icon("external", 16)}</a>`
+					first !== undefined
+						? html`<a href=${first.url} target="_blank" rel="noopener noreferrer">${displayName(item)}${icon("external", 16)}</a>`
 						: displayName(item)
 				}</h2>
 				${metaLine(item) ? html`<p class="meta">${metaLine(item)}</p>` : nothing}
 				${item.notes ? html`<p class="notes">${item.notes}</p>` : nothing}
+				${
+					links.length > 1
+						? html`<ul class="links" aria-label=${t("picker.links", { name: displayName(item) })}>
+								${links.map(
+									(link) =>
+										html`<li><a href=${link.url} target="_blank" rel="noopener noreferrer">${linkLabel(link)}${icon("external", 14)}</a></li>`,
+								)}
+							</ul>`
+						: nothing
+				}
 				${restaurantChips(item, this.defs)}
 				<div class="foot">${this.renderVisit(item)}</div>
 			</article>
