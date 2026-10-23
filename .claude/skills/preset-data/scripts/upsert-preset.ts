@@ -7,7 +7,8 @@
  *   - new:    { id?, name, location, kinds, area, notes?, link?, cuisine?, tags? }
  *             (an unused id is kept; `location` becomes the first line of `notes`)
  *   - update: { id, ...fields to change }  (or no id, matched by English or Thai name,
- *             case-insensitive); `location` is not accepted here, give the whole new `notes`
+ *             case-insensitive, and by area when the draft gives one); `location` is not
+ *             accepted here, give the whole new `notes`
  *   - remove: { id, remove: true }
  *
  * `name` is a string (the English name) or `{ en?, th? }`; an update changes only the
@@ -134,10 +135,14 @@ const findIndex = (item: Draft): number => {
 		.map((text) => text.toLocaleLowerCase())
 		.filter((key) => key !== "");
 	if (keys.length === 0) return -1;
-	return list.findIndex((r) =>
-		[r.name.en, r.name.th].some((text) =>
-			keys.includes(text.trim().toLocaleLowerCase()),
-		),
+	// Branches of one brand share a name, so the area tells them apart when given.
+	const area = item.area === undefined ? undefined : clean(item.area);
+	return list.findIndex(
+		(r) =>
+			(area === undefined || r.groups.area?.[0] === area) &&
+			[r.name.en, r.name.th].some((text) =>
+				keys.includes(text.trim().toLocaleLowerCase()),
+			),
 	);
 };
 
@@ -228,9 +233,11 @@ for (const item of draft.restaurants as Draft[]) {
 for (const lang of ["en", "th"] as const) {
 	const names = new Map<string, string>();
 	for (const item of list) {
-		const key = item.name[lang].trim().toLocaleLowerCase();
-		if (key === "") continue;
-		if (names.has(key)) fail(`two restaurants are named "${item.name[lang]}"`);
+		const name = item.name[lang].trim().toLocaleLowerCase();
+		if (name === "") continue;
+		const key = `${name}|${item.groups.area?.[0] ?? ""}`;
+		if (names.has(key))
+			fail(`two restaurants in ${item.groups.area?.[0]} are named "${item.name[lang]}"`);
 		names.set(key, item.id);
 	}
 }
