@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
+import { nameFromText } from "#lib/restaurant";
 import "#components/random-picker";
 import { RandomPicker } from "#components/random-picker";
 import { FILTER_KEY } from "#lib/filter";
@@ -123,7 +124,7 @@ test("the empty home card links Start with a neighbourhood to ./settings/presets
 });
 
 test("the home card is unchanged when restaurants exist", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
 	expect(root(el).querySelector(".card.empty")).toBeNull();
 	expect(root(el).querySelector('a[href="./settings/presets"]')).toBeNull();
@@ -131,7 +132,7 @@ test("the home card is unchanged when restaurants exist", async () => {
 
 test("clicking the button shows a restaurant with its details", async () => {
 	addRestaurant({
-		name: "Jay Fai",
+		name: { en: "Jay Fai", th: "" },
 		tags: ["street", "crab"],
 		link: "https://maps.example/jayfai",
 		notes: "Queue early",
@@ -158,7 +159,11 @@ test("clicking the button shows a restaurant with its details", async () => {
 });
 
 test("a non-http link leaves the name as plain text and is not shown", async () => {
-	addRestaurant({ ...base, name: "Sneaky", link: "javascript:alert(1)" });
+	addRestaurant({
+		...base,
+		name: { en: "Sneaky", th: "" },
+		link: "javascript:alert(1)",
+	});
 	const el = await mount();
 	pickButton(el)!.click();
 	await el.updateComplete;
@@ -170,9 +175,9 @@ test("a non-http link leaves the name as plain text and is not shown", async () 
 });
 
 test("shows two different restaurants to choose from", async () => {
-	addRestaurant({ ...base, name: "A" });
-	addRestaurant({ ...base, name: "B" });
-	addRestaurant({ ...base, name: "C" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
+	addRestaurant({ ...base, name: { en: "B", th: "" } });
+	addRestaurant({ ...base, name: { en: "C", th: "" } });
 	const el = await mount();
 	for (let i = 0; i < 10; i++) {
 		pickButton(el)!.click();
@@ -184,7 +189,8 @@ test("shows two different restaurants to choose from", async () => {
 });
 
 test("picking again with four restaurants shows two new ones", async () => {
-	for (const name of ["A", "B", "C", "D"]) addRestaurant({ ...base, name });
+	for (const name of ["A", "B", "C", "D"])
+		addRestaurant({ ...base, name: nameFromText(name) });
 	const el = await mount();
 	pickButton(el)!.click();
 	await el.updateComplete;
@@ -196,20 +202,20 @@ test("picking again with four restaurants shows two new ones", async () => {
 
 test("updates when restaurants are added after mount", async () => {
 	const el = await mount();
-	addRestaurant({ ...base, name: "New" });
+	addRestaurant({ ...base, name: { en: "New", th: "" } });
 	await el.updateComplete;
 	expect(pickButton(el)).not.toBeNull();
 });
 
 test("drops a deleted restaurant from the result and clears it when none are left", async () => {
-	addRestaurant({ ...base, name: "A" });
-	addRestaurant({ ...base, name: "B" });
-	const list = addRestaurant({ ...base, name: "C" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
+	addRestaurant({ ...base, name: { en: "B", th: "" } });
+	const list = addRestaurant({ ...base, name: { en: "C", th: "" } });
 	const el = await mount();
 	pickButton(el)!.click();
 	await el.updateComplete;
 	const [first = "", second = ""] = pickedNames(el);
-	const idOf = (name: string) => list.find((r) => r.name === name)!.id;
+	const idOf = (name: string) => list.find((r) => r.name.en === name)!.id;
 	removeRestaurant(idOf(first));
 	await el.updateComplete;
 	expect(pickedNames(el)).toEqual([second]);
@@ -221,7 +227,7 @@ test("drops a deleted restaurant from the result and clears it when none are lef
 });
 
 test("re-renders in Thai when the language changes", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
 	setLang("th");
 	await el.updateComplete;
@@ -232,7 +238,7 @@ test.each([
 	["empty", false],
 	["with restaurants", true],
 ])("has a visible page heading when %s", async (_label, seed) => {
-	if (seed) addRestaurant({ ...base, name: "A" });
+	if (seed) addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
 	const heading = el.shadowRoot!.querySelector("h1");
 	expect(heading?.textContent?.trim()).toBe("What to Eat");
@@ -241,15 +247,19 @@ test.each([
 });
 
 test("no filter pills when no restaurant has a type, cuisine or area", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["thai"] });
+	addRestaurant({ ...base, name: { en: "A", th: "" }, tags: ["thai"] });
 	const el = await mount();
 	expect(barRoot(el).querySelector("button.pill")).toBeNull();
 });
 
 test("picks only from restaurants that match the filter", async () => {
-	addRestaurant({ ...base, name: "A", kinds: ["food"] });
-	addRestaurant({ ...base, name: "B", kinds: ["drinks"] });
-	addRestaurant({ ...base, name: "C", kinds: ["food", "dessert"] });
+	addRestaurant({ ...base, name: { en: "A", th: "" }, kinds: ["food"] });
+	addRestaurant({ ...base, name: { en: "B", th: "" }, kinds: ["drinks"] });
+	addRestaurant({
+		...base,
+		name: { en: "C", th: "" },
+		kinds: ["food", "dessert"],
+	});
 	const el = await mount();
 	await cycle(el, "food", "kind");
 	await cycle(el, "dessert", "kind");
@@ -262,8 +272,16 @@ test("picks only from restaurants that match the filter", async () => {
 });
 
 test("an active filter is counted on its pill and Clear all resets it", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
-	addRestaurant({ ...base, name: "B", groups: { area: ["spicy"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["thai"] },
+	});
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		groups: { area: ["spicy"] },
+	});
 	const el = await mount();
 	expect(pill(el, "area")?.querySelector(".badge")).toBeNull();
 	await cycle(el, "thai");
@@ -282,8 +300,12 @@ test("an active filter is counted on its pill and Clear all resets it", async ()
 });
 
 test("a filter that matches nothing disables the button and says so", async () => {
-	addRestaurant({ ...base, name: "A", kinds: ["food"] });
-	addRestaurant({ ...base, name: "B", kinds: ["drinks", "dessert"] });
+	addRestaurant({ ...base, name: { en: "A", th: "" }, kinds: ["food"] });
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		kinds: ["drinks", "dessert"],
+	});
 	const el = await mount();
 	await cycle(el, "drinks", "kind");
 	await cycle(el, "dessert", "kind");
@@ -298,7 +320,11 @@ test("a filter that matches nothing disables the button and says so", async () =
 });
 
 test("the filter is remembered across visits", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["thai"] },
+	});
 	const first = await mount();
 	await cycle(first, "thai");
 	first.remove();
@@ -307,7 +333,11 @@ test("the filter is remembered across visits", async () => {
 });
 
 test("saved filter values no longer used by any restaurant are dropped", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["thai"] },
+	});
 	localStorage.setItem(
 		FILTER_KEY,
 		JSON.stringify({ area: { include: ["thai", "gone"], exclude: ["old"] } }),
@@ -321,7 +351,11 @@ test("saved filter values no longer used by any restaurant are dropped", async (
 });
 
 test("a filter saved in another tab is picked up without dropping values not yet loaded", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thia"] },
+	});
 	localStorage.setItem(
 		FILTER_KEY,
 		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
@@ -344,7 +378,11 @@ test("a filter saved in another tab is picked up without dropping values not yet
 });
 
 test("a value renamed in another tab keeps the picked card on screen", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thia"] },
+	});
 	localStorage.setItem(
 		FILTER_KEY,
 		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
@@ -368,8 +406,16 @@ test("a value renamed in another tab keeps the picked card on screen", async () 
 });
 
 test("the result keeps only picks that still match the filter", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
-	addRestaurant({ ...base, name: "B", groups: { area: ["noodle"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["thai"] },
+	});
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		groups: { area: ["noodle"] },
+	});
 	const el = await mount();
 	pickButton(el)!.click();
 	await el.updateComplete;
@@ -380,7 +426,11 @@ test("the result keeps only picks that still match the filter", async () => {
 });
 
 test("filter labels render in Thai", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["thai"] },
+	});
 	const el = await mount();
 	setLang("th");
 	await settle(el);
@@ -392,19 +442,19 @@ test("filter labels render in Thai", async () => {
 test("the filter shows type, cuisine and area groups, only those in use, and never tags", async () => {
 	addRestaurant({
 		...base,
-		name: "A",
+		name: { en: "A", th: "" },
 		kinds: ["dessert", "food"],
 		groups: { cuisine: ["Thai"], area: ["Siam"] },
 	});
 	addRestaurant({
 		...base,
-		name: "B",
+		name: { en: "B", th: "" },
 		kinds: ["drinks"],
 		groups: { area: ["ari"] },
 	});
 	addRestaurant({
 		...base,
-		name: "C",
+		name: { en: "C", th: "" },
 		tags: ["spicy"],
 		groups: { area: ["siam"] },
 	});
@@ -419,25 +469,25 @@ test("the filter shows type, cuisine and area groups, only those in use, and nev
 test("values in one group match any, every group must match", async () => {
 	addRestaurant({
 		...base,
-		name: "Noodle",
+		name: { en: "Noodle", th: "" },
 		kinds: ["food"],
 		groups: { area: ["siam"] },
 	});
 	addRestaurant({
 		...base,
-		name: "Cafe",
+		name: { en: "Cafe", th: "" },
 		kinds: ["drinks"],
 		groups: { area: ["siam"] },
 	});
 	addRestaurant({
 		...base,
-		name: "Far",
+		name: { en: "Far", th: "" },
 		kinds: ["food"],
 		groups: { area: ["ari"] },
 	});
 	addRestaurant({
 		...base,
-		name: "Bingsu",
+		name: { en: "Bingsu", th: "" },
 		kinds: ["dessert"],
 		groups: { area: ["siam"] },
 	});
@@ -456,7 +506,7 @@ test("values in one group match any, every group must match", async () => {
 test("a picked card shows its type, cuisine and area", async () => {
 	addRestaurant({
 		...base,
-		name: "Cafe",
+		name: { en: "Cafe", th: "" },
 		kinds: ["drinks", "dessert"],
 		groups: { cuisine: ["japanese"], area: ["ari"] },
 	});
@@ -471,7 +521,7 @@ test("a picked card shows its type, cuisine and area", async () => {
 test("group titles and types render in Thai", async () => {
 	addRestaurant({
 		...base,
-		name: "A",
+		name: { en: "A", th: "" },
 		kinds: ["dessert"],
 		groups: { cuisine: ["thai"] },
 	});
@@ -486,22 +536,34 @@ const countText = (el: HTMLElement) =>
 	root(el).querySelector(".count")?.textContent?.trim();
 
 test("shows how many restaurants there are", async () => {
-	addRestaurant({ ...base, name: "A" });
-	addRestaurant({ ...base, name: "B" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
+	addRestaurant({ ...base, name: { en: "B", th: "" } });
 	const el = await mount();
 	expect(countText(el)).toBe("2 restaurants");
 });
 
 test("uses the singular for one restaurant", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
 	expect(countText(el)).toBe("1 restaurant");
 });
 
 test("with a filter, shows how many of all restaurants match", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
-	addRestaurant({ ...base, name: "B", groups: { area: ["noodle"] } });
-	addRestaurant({ ...base, name: "C", groups: { area: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["thai"] },
+	});
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		groups: { area: ["noodle"] },
+	});
+	addRestaurant({
+		...base,
+		name: { en: "C", th: "" },
+		groups: { area: ["thai"] },
+	});
 	const el = await mount();
 	await cycle(el, "thai");
 	expect(countText(el)).toBe("2 of 3 restaurants match");
@@ -512,16 +574,20 @@ test("with a filter, shows how many of all restaurants match", async () => {
 });
 
 test("the count follows restaurants added after mount", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
-	addRestaurant({ ...base, name: "B" });
+	addRestaurant({ ...base, name: { en: "B", th: "" } });
 	await el.updateComplete;
 	expect(countText(el)).toBe("2 restaurants");
 });
 
 test("the count renders in Thai", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
-	addRestaurant({ ...base, name: "B" });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["thai"] },
+	});
+	addRestaurant({ ...base, name: { en: "B", th: "" } });
 	const el = await mount();
 	setLang("th");
 	await el.updateComplete;
@@ -539,7 +605,12 @@ test("warns about stored entries that could not be read until a save drops them"
 	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
 		"2 saved restaurants could not be read and were skipped. They will be removed the next time the list changes.",
 	);
-	addRestaurant({ name: "Fresh", tags: [], link: "", notes: "" });
+	addRestaurant({
+		name: { en: "Fresh", th: "" },
+		tags: [],
+		link: "",
+		notes: "",
+	});
 	await el.updateComplete;
 	expect(el.shadowRoot!.querySelector(".skipped")).toBeNull();
 });
@@ -563,8 +634,8 @@ const pickOnce = async (
 };
 
 test("each picked card has an Eat here button", async () => {
-	addRestaurant({ ...base, name: "A" });
-	addRestaurant({ ...base, name: "B" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
+	addRestaurant({ ...base, name: { en: "B", th: "" } });
 	const el = await mount();
 	expect(visitButtons(el)).toHaveLength(0);
 	await pickOnce(el);
@@ -575,8 +646,8 @@ test("each picked card has an Eat here button", async () => {
 });
 
 test("Eat here saves a visit and marks only that card", async () => {
-	addRestaurant({ ...base, name: "A" });
-	addRestaurant({ ...base, name: "B" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
+	addRestaurant({ ...base, name: { en: "B", th: "" } });
 	const el = await mount();
 	await pickOnce(el);
 	const chosen = pickedNames(el)[1];
@@ -600,8 +671,8 @@ test("Eat here saves a visit and marks only that card", async () => {
 });
 
 test("a double press saves one visit", async () => {
-	addRestaurant({ ...base, name: "A" });
-	addRestaurant({ ...base, name: "B" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
+	addRestaurant({ ...base, name: { en: "B", th: "" } });
 	const el = await mount();
 	await pickOnce(el);
 	const [first, second] = visitButtons(el);
@@ -612,7 +683,7 @@ test("a double press saves one visit", async () => {
 });
 
 test("focus moves to the visited label", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
 	await pickOnce(el);
 	visitButtons(el)[0]!.click();
@@ -624,7 +695,8 @@ test("focus moves to the visited label", async () => {
 });
 
 test("Pick again brings the Eat here buttons back", async () => {
-	for (const name of ["A", "B", "C", "D"]) addRestaurant({ ...base, name });
+	for (const name of ["A", "B", "C", "D"])
+		addRestaurant({ ...base, name: nameFromText(name) });
 	const el = await mount();
 	await pickOnce(el);
 	visitButtons(el)[0]!.click();
@@ -636,15 +708,15 @@ test("Pick again brings the Eat here buttons back", async () => {
 });
 
 test("deleting the visited restaurant clears the label but keeps the visit", async () => {
-	addRestaurant({ ...base, name: "A" });
-	addRestaurant({ ...base, name: "B" });
-	const list = addRestaurant({ ...base, name: "C" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
+	addRestaurant({ ...base, name: { en: "B", th: "" } });
+	const list = addRestaurant({ ...base, name: { en: "C", th: "" } });
 	const el = await mount();
 	await pickOnce(el);
 	const [first = ""] = pickedNames(el);
 	visitButtons(el)[0]!.click();
 	await el.updateComplete;
-	removeRestaurant(list.find((r) => r.name === first)!.id);
+	removeRestaurant(list.find((r) => r.name.en === first)!.id);
 	await el.updateComplete;
 	expect(root(el).querySelector(".visited-label")).toBeNull();
 	expect(visitButtons(el)).toHaveLength(1);
@@ -652,7 +724,7 @@ test("deleting the visited restaurant clears the label but keeps the visit", asy
 });
 
 test("Eat here renders in Thai", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
 	setLang("th");
 	await pickOnce(el);
@@ -660,7 +732,7 @@ test("Eat here renders in Thai", async () => {
 });
 
 test("warns when the browser could not save the visit", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
 	await pickOnce(el);
 	expect(root(el).querySelector(".warning")).toBeNull();
@@ -692,7 +764,7 @@ test("warns when the browser could not save the visit", async () => {
 test("a picked card shows the type line under the name and keeps Eat here in its footer", async () => {
 	addRestaurant({
 		...base,
-		name: "Cafe",
+		name: { en: "Cafe", th: "" },
 		tags: ["latte"],
 		link: "https://maps.example/cafe",
 		kinds: ["drinks"],
@@ -714,10 +786,14 @@ test("custom groups get filter rows after the built-ins, labelled with their nam
 	saveGroups([{ id: "g1", name: "Price" }]);
 	addRestaurant({
 		...base,
-		name: "A",
+		name: { en: "A", th: "" },
 		groups: { area: ["siam"], g1: ["cheap"] },
 	});
-	addRestaurant({ ...base, name: "B", groups: { g1: ["fancy"] } });
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		groups: { g1: ["fancy"] },
+	});
 	const el = await mount();
 	expect(groupTitles(el)).toEqual(["Area", "Price"]);
 	await cycle(el, "cheap", "g1");
@@ -727,8 +803,16 @@ test("custom groups get filter rows after the built-ins, labelled with their nam
 });
 
 test("a restaurant with several cuisines matches each of them", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai", "lao"] } });
-	addRestaurant({ ...base, name: "B", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai", "lao"] },
+	});
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	const el = await mount();
 	await cycle(el, "lao", "cuisine");
 	expect(root(el).querySelector(".count")?.textContent).toContain("1 of 2");
@@ -736,7 +820,11 @@ test("a restaurant with several cuisines matches each of them", async () => {
 
 test("a filter on a deleted group is dropped", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	addRestaurant({ ...base, name: "A", groups: { g1: ["cheap"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { g1: ["cheap"] },
+	});
 	localStorage.setItem(
 		FILTER_KEY,
 		JSON.stringify({ g1: { include: ["cheap"], exclude: [] } }),
@@ -753,7 +841,7 @@ test("a picked card shows custom values as labelled chips before tags", async ()
 	saveGroups([{ id: "g1", name: "Price" }]);
 	addRestaurant({
 		...base,
-		name: "A",
+		name: { en: "A", th: "" },
 		tags: ["spicy"],
 		groups: { g1: ["cheap"] },
 	});
@@ -784,7 +872,7 @@ const phone = async () => {
 afterEach(() => setWidth(1024));
 
 test("shows the app name as a visible title with the count under it", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
 	expect(root(el).querySelector("h1.page-title")?.textContent?.trim()).toBe(
 		"What to Eat",
@@ -795,7 +883,11 @@ test("shows the app name as a visible title with the count under it", async () =
 });
 
 test("wide: the filter bar sits under the heading and the pick button in the heading row", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["siam"] },
+	});
 	const el = await mount();
 	expect(root(el).querySelector(".head + filter-bar")).not.toBeNull();
 	expect(barRoot(el).querySelector("app-sheet")).toBeNull();
@@ -805,7 +897,11 @@ test("wide: the filter bar sits under the heading and the pick button in the hea
 });
 
 test("phone: a group pill opens the filter sheet", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["siam"] },
+	});
 	const el = await phone();
 	const sheet = barRoot(el).querySelector("app-sheet")!;
 	expect(sheet.hasAttribute("open")).toBe(false);
@@ -815,7 +911,11 @@ test("phone: a group pill opens the filter sheet", async () => {
 });
 
 test("phone: the sheet's footer button closes it", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["siam"] },
+	});
 	const el = await phone();
 	await openGroup(el, "area");
 	const done = barRoot(el).querySelector<HTMLButtonElement>(
@@ -862,7 +962,7 @@ test("the pinned bar sits fully above the tab bar, with nothing peeking below it
 });
 
 test("phone: the pick button is pinned at the end, once", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await phone();
 	expect(root(el).querySelector(".pinned button.pick")).not.toBeNull();
 	expect(root(el).querySelector(".head button.pick")).toBeNull();
@@ -870,8 +970,12 @@ test("phone: the pick button is pinned at the end, once", async () => {
 });
 
 test("phone: a filter that matches nothing disables the pinned button", async () => {
-	addRestaurant({ ...base, name: "A", kinds: ["food"] });
-	addRestaurant({ ...base, name: "B", kinds: ["drinks", "dessert"] });
+	addRestaurant({ ...base, name: { en: "A", th: "" }, kinds: ["food"] });
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		kinds: ["drinks", "dessert"],
+	});
 	const el = await phone();
 	await cycle(el, "drinks", "kind");
 	await cycle(el, "dessert", "kind");
@@ -883,8 +987,16 @@ test("phone: a filter that matches nothing disables the pinned button", async ()
 });
 
 test("switching layouts keeps the filter", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
-	addRestaurant({ ...base, name: "B", groups: { area: ["asok"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["siam"] },
+	});
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		groups: { area: ["asok"] },
+	});
 	const el = await mount();
 	await cycle(el, "siam");
 	setWidth(390);
@@ -896,8 +1008,8 @@ test("switching layouts keeps the filter", async () => {
 });
 
 test("the picks are announced by name", async () => {
-	addRestaurant({ ...base, name: "A" });
-	addRestaurant({ ...base, name: "B" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
+	addRestaurant({ ...base, name: { en: "B", th: "" } });
 	const el = await mount();
 	const announce = () =>
 		root(el).querySelector('p.announce[role="status"]')?.textContent?.trim();
@@ -908,8 +1020,16 @@ test("the picks are announced by name", async () => {
 });
 
 test("narrowing the filter to one pick does not invent a fresh announcement", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["thai"] } });
-	addRestaurant({ ...base, name: "B", groups: { area: ["noodle"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["thai"] },
+	});
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		groups: { area: ["noodle"] },
+	});
 	const el = await mount();
 	await pickOnce(el);
 	const [a, b] = pickedNames(el);
@@ -924,7 +1044,7 @@ test("narrowing the filter to one pick does not invent a fresh announcement", as
 });
 
 test("a pick from one restaurant is announced alone", async () => {
-	addRestaurant({ ...base, name: "Solo" });
+	addRestaurant({ ...base, name: { en: "Solo", th: "" } });
 	const el = await mount();
 	await pickOnce(el);
 	expect(
@@ -933,7 +1053,7 @@ test("a pick from one restaurant is announced alone", async () => {
 });
 
 test("Eat here is a soft button and the result area is not a live region", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
 	await pickOnce(el);
 	expect(
@@ -952,7 +1072,11 @@ test("the empty state links to Restaurants as a button-styled link", async () =>
 });
 
 test("Clear all is a quiet button", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["siam"] },
+	});
 	const el = await mount();
 	await cycle(el, "siam");
 	const clear = barRoot(el).querySelector<HTMLButtonElement>(
@@ -970,7 +1094,7 @@ const stepperValue = (el: HTMLElement) =>
 	stepper(el).querySelector(".stepper-value")?.textContent?.trim();
 
 test("the pick count stepper is a labelled group that starts at 2", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const el = await mount();
 	expect(stepper(el).getAttribute("role")).toBe("group");
 	expect(stepper(el).getAttribute("aria-label")).toBe("Restaurants per pick");
@@ -984,7 +1108,7 @@ test("the pick count stepper is a labelled group that starts at 2", async () => 
 });
 
 test("the stepper sits beside the pick button: in the heading when wide, in the pinned bar on phones", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	const wide = await mount();
 	expect(root(wide).querySelector(".head-actions .stepper")).not.toBeNull();
 	document.body.innerHTML = "";
@@ -995,7 +1119,7 @@ test("the stepper sits beside the pick button: in the heading when wide, in the 
 
 test("More and Fewer change the count, save it, and the next press shows that many", async () => {
 	for (const name of ["A", "B", "C", "D", "E", "F"])
-		addRestaurant({ ...base, name });
+		addRestaurant({ ...base, name: nameFromText(name) });
 	const el = await mount();
 	stepButton(el, "more").click();
 	await settle(el);
@@ -1011,7 +1135,7 @@ test("More and Fewer change the count, save it, and the next press shows that ma
 });
 
 test("the stepper stops at 1 and at 5", async () => {
-	addRestaurant({ ...base, name: "A" });
+	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	savePickCount(1);
 	const low = await mount();
 	expect(stepButton(low, "fewer").disabled).toBe(true);
@@ -1025,7 +1149,8 @@ test("the stepper stops at 1 and at 5", async () => {
 });
 
 test("a press shows two restaurants by default", async () => {
-	for (const name of ["A", "B", "C", "D"]) addRestaurant({ ...base, name });
+	for (const name of ["A", "B", "C", "D"])
+		addRestaurant({ ...base, name: nameFromText(name) });
 	const el = await mount();
 	await pickOnce(el);
 	expect(new Set(pickedNames(el)).size).toBe(2);
@@ -1033,7 +1158,7 @@ test("a press shows two restaurants by default", async () => {
 
 test("a press shows as many restaurants as the stored pick count", async () => {
 	for (const name of ["A", "B", "C", "D", "E", "F"])
-		addRestaurant({ ...base, name });
+		addRestaurant({ ...base, name: nameFromText(name) });
 	savePickCount(4);
 	const el = await mount();
 	await pickOnce(el);
@@ -1041,7 +1166,8 @@ test("a press shows as many restaurants as the stored pick count", async () => {
 });
 
 test("three picks are announced as a list", async () => {
-	for (const name of ["A", "B", "C"]) addRestaurant({ ...base, name });
+	for (const name of ["A", "B", "C"])
+		addRestaurant({ ...base, name: nameFromText(name) });
 	savePickCount(3);
 	const el = await mount();
 	await pickOnce(el);

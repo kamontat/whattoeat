@@ -16,7 +16,7 @@ import {
 } from "#lib/store";
 
 const input = {
-	name: " Jay Fai ",
+	name: { en: " Jay Fai ", th: "" },
 	tags: ["street", " street "],
 	link: "Bangkok",
 	notes: "",
@@ -70,7 +70,7 @@ test("counts skipped entries until the next save drops them", () => {
 	);
 	loadRestaurants();
 	expect(skippedCount()).toBe(2);
-	addRestaurant({ ...input, name: "Next" });
+	addRestaurant({ ...input, name: { en: "Next", th: "" } });
 	loadRestaurants();
 	expect(skippedCount()).toBe(0);
 	expect(localStorage.getItem("whattoeat:restaurants:invalid")).toBeNull();
@@ -81,7 +81,7 @@ test("addRestaurant normalizes, stamps and saves", () => {
 	const list = addRestaurant(input, now);
 	expect(list).toHaveLength(1);
 	expect(list[0]).toMatchObject({
-		name: "Jay Fai",
+		name: { en: "Jay Fai", th: "" },
 		tags: ["street"],
 		link: "Bangkok",
 		notes: "",
@@ -95,12 +95,14 @@ test("addRestaurant normalizes, stamps and saves", () => {
 
 test("addRestaurant gives every restaurant its own id", () => {
 	addRestaurant(input);
-	const list = addRestaurant({ ...input, name: "Other" });
+	const list = addRestaurant({ ...input, name: { en: "Other", th: "" } });
 	expect(new Set(list.map((item) => item.id)).size).toBe(2);
 });
 
 test("addRestaurant throws on a blank name and saves nothing", () => {
-	expect(() => addRestaurant({ ...input, name: "   " })).toThrow();
+	expect(() =>
+		addRestaurant({ ...input, name: { en: "   ", th: "" } }),
+	).toThrow();
 	expect(loadRestaurants()).toEqual([]);
 });
 
@@ -111,7 +113,7 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 	const list = updateRestaurant(
 		first!.id,
 		{
-			name: "Jay Fai 2",
+			name: { en: "Jay Fai 2", th: "" },
 			tags: [],
 			link: "",
 			notes: "star",
@@ -122,7 +124,7 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 	);
 	expect(list[0]).toEqual({
 		id: first!.id,
-		name: "Jay Fai 2",
+		name: { en: "Jay Fai 2", th: "" },
 		tags: [],
 		link: "",
 		notes: "star",
@@ -136,8 +138,8 @@ test("updateRestaurant changes fields and updatedAt only", () => {
 
 test("addRestaurant allows a name already in the list", () => {
 	addRestaurant(input);
-	addRestaurant({ ...input, name: " jay FAI " });
-	expect(loadRestaurants().map((item) => item.name)).toEqual([
+	addRestaurant({ ...input, name: { en: " jay FAI ", th: "" } });
+	expect(loadRestaurants().map((item) => item.name.en)).toEqual([
 		"Jay Fai",
 		"jay FAI",
 	]);
@@ -145,22 +147,24 @@ test("addRestaurant allows a name already in the list", () => {
 
 test("updateRestaurant allows renaming to another restaurant's name", () => {
 	addRestaurant(input);
-	const list = addRestaurant({ ...input, name: "Other" });
-	updateRestaurant(list[1]!.id, { ...input, name: "Jay Fai" });
-	expect(loadRestaurants()[1]!.name).toBe("Jay Fai");
+	const list = addRestaurant({ ...input, name: { en: "Other", th: "" } });
+	updateRestaurant(list[1]!.id, { ...input, name: { en: "Jay Fai", th: "" } });
+	expect(loadRestaurants()[1]!.name.en).toBe("Jay Fai");
 });
 
 test("updateRestaurant throws on a blank name", () => {
 	const [first] = addRestaurant(input);
-	expect(() => updateRestaurant(first!.id, { ...input, name: "" })).toThrow();
-	expect(loadRestaurants()[0]!.name).toBe("Jay Fai");
+	expect(() =>
+		updateRestaurant(first!.id, { ...input, name: { en: "", th: "" } }),
+	).toThrow();
+	expect(loadRestaurants()[0]!.name.en).toBe("Jay Fai");
 });
 
 test("removeRestaurant removes by id", () => {
 	const [first] = addRestaurant(input);
-	addRestaurant({ ...input, name: "Other" });
+	addRestaurant({ ...input, name: { en: "Other", th: "" } });
 	const list = removeRestaurant(first!.id);
-	expect(list.map((item) => item.name)).toEqual(["Other"]);
+	expect(list.map((item) => item.name.en)).toEqual(["Other"]);
 	expect(loadRestaurants()).toEqual(list);
 });
 
@@ -268,7 +272,12 @@ test("restaurants stored before groups load with old area and cuisine moved into
 	localStorage.setItem(STORAGE_KEY, JSON.stringify([old]));
 	const { area: _a, cuisine: _c, ...rest } = old;
 	expect(loadRestaurants()).toEqual([
-		{ ...rest, groups: { area: ["siam"] }, kinds: [] },
+		{
+			...rest,
+			name: { en: "Old", th: "" },
+			groups: { area: ["siam"] },
+			kinds: [],
+		},
 	]);
 	expect(skippedCount()).toBe(0);
 });
@@ -367,7 +376,7 @@ test("resetStorage also forgets history kept in memory", () => {
 		configurable: true,
 	});
 	try {
-		addVisit({ id: "r1", name: "A" });
+		addVisit({ id: "r1", name: { en: "A", th: "" } });
 		expect(loadHistory()).toHaveLength(1);
 		resetStorage();
 	} finally {

@@ -1,9 +1,6 @@
-import { getLang } from "#lib/i18n";
+import type { Localized } from "#lib/i18n";
 import type { Restaurant } from "#lib/restaurant";
 import { parseImport } from "#lib/transfer";
-
-/** A display name in both languages. */
-export type Localized = { en: string; th: string };
 
 /** One bundled neighbourhood preset, as listed in `data/presets/index.json`. */
 export type PresetEntry = {
@@ -86,8 +83,6 @@ export const indexUrl = (base: string): string =>
 
 export const presetFileUrl = (base: string, id: string): string =>
 	`${base}data/presets/${id}.json`;
-
-export const localize = (text: Localized): string => text[getLang()];
 
 const isAddedPreset = (value: unknown): value is AddedPreset => {
 	if (typeof value !== "object" || value === null) return false;

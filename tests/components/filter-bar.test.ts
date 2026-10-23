@@ -3,7 +3,7 @@ import "#components/filter-bar";
 import type { FilterBar } from "#components/filter-bar";
 import type { Filter } from "#lib/filter";
 import { setLang } from "#lib/i18n";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 
 type HappyWindow = Window & {
 	happyDOM: { setViewport(viewport: { width: number; height: number }): void };
@@ -28,7 +28,7 @@ afterEach(() => {
 
 const make = (name: string, extra: Partial<Restaurant> = {}): Restaurant => ({
 	id: name,
-	name,
+	name: nameFromText(name),
 	link: "",
 	notes: "",
 	kinds: [],

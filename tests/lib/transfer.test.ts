@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import type { HistoryEntry } from "#lib/history";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 import type { ImportError } from "#lib/transfer";
 import {
 	exportFileName,
@@ -13,7 +13,7 @@ import {
 
 const make = (id: string, name = id): Restaurant => ({
 	id,
-	name,
+	name: nameFromText(name),
 	tags: [],
 	link: "",
 	notes: "",
@@ -68,7 +68,7 @@ test("toExportFile wraps restaurants and history in the versioned envelope", () 
 		),
 	).toEqual({
 		app: "whattoeat",
-		version: 5,
+		version: 6,
 		exportedAt: "2026-10-12T10:00:00.000Z",
 		restaurants: [make("a")],
 		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
@@ -118,7 +118,7 @@ test.each([
 	],
 	[
 		"future version",
-		JSON.stringify({ app: "whattoeat", version: 6, restaurants: [] }),
+		JSON.stringify({ app: "whattoeat", version: 7, restaurants: [] }),
 		"import.error.version",
 	],
 	[
@@ -160,7 +160,35 @@ const file = (version: number, restaurants: unknown[], extra: object = {}) =>
 		...extra,
 	});
 
-test("a version 5 file round-trips its groups", () => {
+test("a version 5 file reads each one-string name into the language its script is in", () => {
+	const result = parseImport(
+		file(
+			5,
+			[
+				{ ...make("a"), name: "Som Tam Nua" },
+				{ ...make("b"), name: "ส้มตำนัว" },
+			],
+			{ groups: [] },
+		),
+	);
+	expect(result).toMatchObject({
+		ok: true,
+		restaurants: [
+			{ id: "a", name: { en: "Som Tam Nua", th: "" } },
+			{ id: "b", name: { en: "", th: "ส้มตำนัว" } },
+		],
+	});
+});
+
+test("a version 6 file keeps both names", () => {
+	const item = { ...make("a"), name: { en: "Pho", th: "เฝอ" } };
+	expect(parseImport(JSON.stringify(toExportFile([item])))).toMatchObject({
+		ok: true,
+		restaurants: [item],
+	});
+});
+
+test("a version 6 file round-trips its groups", () => {
 	const item = { ...make("a"), groups: { g1: ["cheap"] } };
 	const result = parseImport(
 		exportJson([item], [], [price], new Date(), { pretty: false }),
@@ -280,7 +308,7 @@ test("merge keeps an incoming name already used by another id", () => {
 test("import keeps repeated names within one file", () => {
 	const list = [make("a", "Somtam"), make("b", "Somtam"), make("c", "Somtam")];
 	const result = parseImport(JSON.stringify(toExportFile(list)));
-	expect(result.ok && result.restaurants.map((item) => item.name)).toEqual([
+	expect(result.ok && result.restaurants.map((item) => item.name.en)).toEqual([
 		"Somtam",
 		"Somtam",
 		"Somtam",

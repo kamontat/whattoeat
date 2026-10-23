@@ -6,10 +6,20 @@ import {
 	initLang,
 	LANG_EVENT,
 	LANG_KEY,
+	localize,
 	setLang,
 	t,
 	th,
 } from "#lib/i18n";
+
+test("localize gives the current language and falls back to the other when it is blank", () => {
+	setLang("th");
+	expect(localize({ en: "Pho", th: "เฝอ" })).toBe("เฝอ");
+	expect(localize({ en: "Pho", th: " " })).toBe("Pho");
+	setLang("en");
+	expect(localize({ en: "Pho", th: "เฝอ" })).toBe("Pho");
+	expect(localize({ en: "", th: "เฝอ" })).toBe("เฝอ");
+});
 
 test("initLang applies the current language to the page before any render", () => {
 	setLang("th");

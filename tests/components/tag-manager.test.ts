@@ -219,11 +219,15 @@ test("the subtitle counts the picked group's values and restaurants", async () =
 	saveGroups([{ id: "g1", name: "Price" }]);
 	addRestaurant({
 		...base,
-		name: "A",
+		name: { en: "A", th: "" },
 		tags: ["spicy"],
 		groups: { cuisine: ["thai", "lao"] },
 	});
-	addRestaurant({ ...base, name: "B", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	const el = await mount();
 	expect($(el, "p.count")?.textContent?.trim()).toBe(
 		"2 values · 2 restaurants",
@@ -252,8 +256,16 @@ test("Cuisine is picked first and the pick is remembered for the session", async
 // Values
 
 test("values show how many restaurants use them, most used first", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
-	addRestaurant({ ...base, name: "B", groups: { cuisine: ["thai", "lao"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		groups: { cuisine: ["thai", "lao"] },
+	});
 	const el = await mount();
 	expect(
 		rows(el).map((li) => [
@@ -269,7 +281,7 @@ test("values show how many restaurants use them, most used first", async () => {
 });
 
 test("Type values are read-only, with the usual subtitle and no note", async () => {
-	addRestaurant({ ...base, name: "A", kinds: ["food"] });
+	addRestaurant({ ...base, name: { en: "A", th: "" }, kinds: ["food"] });
 	const el = await mount();
 	await pick(el, "kind");
 	expect(list(el)!.shadowRoot!.querySelector("button")).toBeNull();
@@ -380,7 +392,11 @@ test("moving a group reorders at once and keeps the form open", async () => {
 
 test("deleting a group turns its values into tags, drops its filter and picks Cuisine", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	addRestaurant({ ...base, name: "A", groups: { g1: ["cheap"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { g1: ["cheap"] },
+	});
 	localStorage.setItem(
 		FILTER_KEY,
 		JSON.stringify({ g1: { include: ["cheap"], exclude: [] } }),
@@ -406,8 +422,16 @@ test("deleting a group turns its values into tags, drops its filter and picks Cu
 // Values: edit
 
 test("editing a value renames it everywhere and in the saved filter", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thia"] } });
-	addRestaurant({ ...base, name: "B", groups: { cuisine: ["thia", "lao"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thia"] },
+	});
+	addRestaurant({
+		...base,
+		name: { en: "B", th: "" },
+		groups: { cuisine: ["thia", "lao"] },
+	});
 	localStorage.setItem(
 		FILTER_KEY,
 		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
@@ -434,7 +458,11 @@ test("editing a value renames it everywhere and in the saved filter", async () =
 });
 
 test("editing a value to blank text or text with a comma shows an error and changes nothing", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	const el = await mount();
 	let form = await openValue(el, "cuisine", "thai");
 	await typeIn(el, inForm(form, "#name"), "  ");
@@ -451,7 +479,11 @@ test("editing a value to blank text or text with a comma shows an error and chan
 
 test("editing a value's group moves it", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	addRestaurant({ ...base, name: "A", groups: { area: ["cheap"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["cheap"] },
+	});
 	const el = await mount();
 	const form = await openValue(el, "area", "cheap");
 	const select = inForm<HTMLSelectElement>(form, "select");
@@ -475,7 +507,11 @@ test("editing a value's group moves it", async () => {
 test("renaming onto an existing value asks to merge, and merging keeps one copy", async () => {
 	// The group must exist before the restaurant, or its values are saved as plain tags.
 	saveGroups([{ id: "g1", name: "Dish" }]);
-	addRestaurant({ ...base, name: "A", groups: { g1: ["noodles", "noodle"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { g1: ["noodles", "noodle"] },
+	});
 	const el = await mount();
 	let form = await openValue(el, "g1", "noodles");
 	await typeIn(el, inForm(form, "#name"), "noodle");
@@ -489,8 +525,8 @@ test("renaming onto an existing value asks to merge, and merging keeps one copy"
 });
 
 test("deleting a value asks first, then removes it everywhere", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["spicy", "hot"] });
-	addRestaurant({ ...base, name: "B", tags: ["spicy"] });
+	addRestaurant({ ...base, name: { en: "A", th: "" }, tags: ["spicy", "hot"] });
+	addRestaurant({ ...base, name: { en: "B", th: "" }, tags: ["spicy"] });
 	const el = await mount();
 	let form = await openValue(el, "tags", "spicy");
 	await clickOn(el, inForm(form, '[data-action="delete"]'));
@@ -508,7 +544,11 @@ test("deleting a value asks first, then removes it everywhere", async () => {
 
 test("cancel and the panel's close drop the form and return focus to its opener", async () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	const el = await mount();
 	const form = await openValue(el, "cuisine", "thai");
 	await clickOn(el, inForm(form, '[data-action="cancel"]'));
@@ -532,7 +572,7 @@ const seedSearch = () => {
 	saveGroups([{ id: "g1", name: "Jam" }]);
 	addRestaurant({
 		...base,
-		name: "A",
+		name: { en: "A", th: "" },
 		tags: ["jazz"],
 		groups: { cuisine: ["japanese"] },
 	});
@@ -559,7 +599,7 @@ test("search finds groups and values across groups and highlights them", async (
 });
 
 test("search: Type values are read-only results", async () => {
-	addRestaurant({ ...base, name: "A", kinds: ["food"] });
+	addRestaurant({ ...base, name: { en: "A", th: "" }, kinds: ["food"] });
 	const el = await mount();
 	await openSearch(el);
 	await typeSearch(el, "foo");
@@ -620,7 +660,11 @@ test("no match offers to clear the search", async () => {
 // One form slot
 
 test("opening another form replaces the open one", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	const el = await mount();
 	const form = await openValue(el, "cuisine", "thai");
 	await typeIn(el, inForm(form, "#name"), "thai food");
@@ -634,7 +678,7 @@ test("opening another form replaces the open one", async () => {
 test("picking another group leaves the open form alone", async () => {
 	addRestaurant({
 		...base,
-		name: "A",
+		name: { en: "A", th: "" },
 		groups: { cuisine: ["thai"], area: ["ari"] },
 	});
 	const el = await mount();
@@ -649,7 +693,11 @@ test("picking another group leaves the open form alone", async () => {
 // Focus and resize
 
 test("focus follows a value whose text has a double quote or backslash", async () => {
-	addRestaurant({ ...base, name: "A", tags: ['say "hi"', "a\\b"] });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		tags: ['say "hi"', "a\\b"],
+	});
 	const el = await mount();
 	for (const value of ['say "hi"', "a\\b"]) {
 		const form = await openValue(el, "tags", value);
@@ -662,7 +710,11 @@ test("focus follows a value whose text has a double quote or backslash", async (
 });
 
 test("wide: opening a value focuses the form's name field", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	const el = await mount();
 	const form = await openValue(el, "cuisine", "thai");
 	await settle(el);
@@ -675,7 +727,11 @@ test("wide: opening a value focuses the form's name field", async () => {
 
 test("phone: opening a value focuses the sheet's heading", async () => {
 	setWidth(390);
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	const el = await mount();
 	await openValue(el, "cuisine", "thai");
 	await settle(el);
@@ -706,7 +762,11 @@ test("phone: Edit group and add open their forms in the sheet", async () => {
 });
 
 test("phone: deleting the selected value closes its sheet and focuses the picked pill", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	setWidth(390);
 	const el = await mount();
 	let form = await openValue(el, "cuisine", "thai");
@@ -741,7 +801,11 @@ const withAsyncDialogClose = async (run: () => Promise<void>) => {
 };
 
 test("phone: deleting a value while its sheet's close event is still in flight still lands focus on the picked pill", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai", "lao"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai", "lao"] },
+	});
 	setWidth(390);
 	const el = await mount();
 	await withAsyncDialogClose(async () => {
@@ -756,7 +820,11 @@ test("phone: deleting a value while its sheet's close event is still in flight s
 });
 
 test("narrow to wide with a value's sheet open moves focus into the panel", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	setWidth(390);
 	const el = await mount();
 	await openValue(el, "cuisine", "thai");
@@ -768,7 +836,11 @@ test("narrow to wide with a value's sheet open moves focus into the panel", asyn
 });
 
 test("wide to narrow with a value selected returns focus to its row, not body, when the sheet closes", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	const el = await mount();
 	await openValue(el, "cuisine", "thai");
 	setWidth(390);
@@ -781,7 +853,11 @@ test("wide to narrow with a value selected returns focus to its row, not body, w
 });
 
 test("small to large with a form open keeps its typed name", async () => {
-	addRestaurant({ ...base, name: "A", groups: { cuisine: ["thai"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { cuisine: ["thai"] },
+	});
 	setWidth(900);
 	const el = await mount();
 	const form = await openValue(el, "cuisine", "thai");
@@ -828,7 +904,11 @@ test("phone to wide and back keeps a group form's typed name", async () => {
 test("follows restaurant and group changes from elsewhere", async () => {
 	const el = await mount();
 	saveGroups([{ id: "g1", name: "Price" }]);
-	addRestaurant({ ...base, name: "A", groups: { g1: ["cheap"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { g1: ["cheap"] },
+	});
 	await el.updateComplete;
 	expect(pickerIds(el)).toContain("g1");
 	await pick(el, "g1");
@@ -838,12 +918,16 @@ test("follows restaurant and group changes from elsewhere", async () => {
 test("another tab removing the selected value closes the form", async () => {
 	const [item] = addRestaurant({
 		...base,
-		name: "A",
+		name: { en: "A", th: "" },
 		groups: { cuisine: ["thai"] },
 	});
 	const el = await mount();
 	await openValue(el, "cuisine", "thai");
-	updateRestaurant(item!.id, { ...base, name: "A", groups: {} });
+	updateRestaurant(item!.id, {
+		...base,
+		name: { en: "A", th: "" },
+		groups: {},
+	});
 	await el.updateComplete;
 	expect(valueForm(el)).toBeNull();
 	expect($(el, "#edit-panel")).toBeNull();
@@ -929,7 +1013,7 @@ test("warns when the browser refuses to save restaurants or groups", async () =>
 		);
 	});
 	await withFullStorage(async () => {
-		addRestaurant({ ...base, name: "Lost" });
+		addRestaurant({ ...base, name: { en: "Lost", th: "" } });
 		await el.updateComplete;
 		expect($(el, ".warning")?.textContent?.trim()).toBe(
 			"Your browser is not saving changes. They will be lost when you leave this page.",
@@ -960,7 +1044,7 @@ test("base prefixes the back link and the restaurants link", async () => {
 });
 
 test("editing a plain tag renames it in the restaurants page filter too", async () => {
-	addRestaurant({ ...base, name: "A", tags: ["spicey"] });
+	addRestaurant({ ...base, name: { en: "A", th: "" }, tags: ["spicey"] });
 	localStorage.setItem(
 		LIST_FILTER_KEY,
 		JSON.stringify({ tags: { include: ["spicey"], exclude: [] } }),
@@ -976,7 +1060,11 @@ test("editing a plain tag renames it in the restaurants page filter too", async 
 });
 
 test("moving a value into plain tags keeps it in the restaurants page filter only", async () => {
-	addRestaurant({ ...base, name: "A", groups: { area: ["siam"] } });
+	addRestaurant({
+		...base,
+		name: { en: "A", th: "" },
+		groups: { area: ["siam"] },
+	});
 	const filter = JSON.stringify({ area: { include: [], exclude: ["siam"] } });
 	localStorage.setItem(FILTER_KEY, filter);
 	localStorage.setItem(LIST_FILTER_KEY, filter);
@@ -998,7 +1086,7 @@ test("deleting a value or a group drops it from the restaurants page filter too"
 	saveGroups([{ id: "g1", name: "Price" }]);
 	addRestaurant({
 		...base,
-		name: "A",
+		name: { en: "A", th: "" },
 		groups: { g1: ["cheap"], area: ["ari"] },
 	});
 	localStorage.setItem(

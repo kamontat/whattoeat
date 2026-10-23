@@ -1,11 +1,11 @@
 {
 	"app": "whattoeat",
-	"version": 5,
+	"version": 6,
 	"exportedAt": "2026-10-17T09:12:44.542Z",
 	"restaurants": [
 		{
 			"id": "Djgb6jqO",
-			"name": "MK Restaurants - The Mall Ngamwongwan",
+			"name": { "en": "MK Restaurants - The Mall Ngamwongwan", "th": "" },
 			"link": "",
 			"notes": "The Mall Ngamwongwan, 3F\nSuki, roast duck. Family-friendly.",
 			"kinds": ["food"],
@@ -19,7 +19,10 @@
 		},
 		{
 			"id": "IRKsiEYE",
-			"name": "Fuji Japanese Restaurant - The Mall Ngamwongwan",
+			"name": {
+				"en": "Fuji Japanese Restaurant - The Mall Ngamwongwan",
+				"th": ""
+			},
 			"link": "",
 			"notes": "The Mall Ngamwongwan, 3F\nSushi, sashimi, set meals. Mid price.",
 			"kinds": ["food"],
@@ -33,7 +36,7 @@
 		},
 		{
 			"id": "kFp0cBwb",
-			"name": "Bar B Q Plaza - The Mall Ngamwongwan",
+			"name": { "en": "Bar B Q Plaza - The Mall Ngamwongwan", "th": "" },
 			"link": "",
 			"notes": "The Mall Ngamwongwan, 3F\nGON grill sets. Mid price.",
 			"kinds": ["food"],
@@ -46,7 +49,7 @@
 		},
 		{
 			"id": "Qilky3ef",
-			"name": "Swensen's - The Mall Ngamwongwan",
+			"name": { "en": "Swensen's - The Mall Ngamwongwan", "th": "" },
 			"link": "",
 			"notes": "The Mall Ngamwongwan, 2F\nIce cream sundaes.",
 			"kinds": ["dessert"],
@@ -59,7 +62,7 @@
 		},
 		{
 			"id": "ZyNWSYs1",
-			"name": "Starbucks - The Mall Ngamwongwan",
+			"name": { "en": "Starbucks - The Mall Ngamwongwan", "th": "" },
 			"link": "",
 			"notes": "The Mall Ngamwongwan, G",
 			"kinds": ["drinks"],
@@ -72,7 +75,10 @@
 		},
 		{
 			"id": "oSrzAY7X",
-			"name": "Ohkajhu (สวนผัก โอ้กะจู๋) - The Mall Ngamwongwan",
+			"name": {
+				"en": "Ohkajhu (สวนผัก โอ้กะจู๋) - The Mall Ngamwongwan",
+				"th": ""
+			},
 			"link": "",
 			"notes": "The Mall Ngamwongwan, 4F\nOrganic salads, steaks and rice bowls. Mid price.",
 			"kinds": ["food"],
@@ -85,7 +91,7 @@
 		},
 		{
 			"id": "ME1TlxZM",
-			"name": "Yayoi (ยาโยอิ) - The Mall Ngamwongwan",
+			"name": { "en": "Yayoi (ยาโยอิ) - The Mall Ngamwongwan", "th": "" },
 			"link": "",
 			"notes": "The Mall Ngamwongwan, 3F\nJapanese set meals. Budget to mid price.",
 			"kinds": ["food"],
@@ -99,7 +105,10 @@
 		},
 		{
 			"id": "9BDFW066",
-			"name": "After You Dessert Cafe - The Mall Ngamwongwan",
+			"name": {
+				"en": "After You Dessert Cafe - The Mall Ngamwongwan",
+				"th": ""
+			},
 			"link": "",
 			"notes": "The Mall Ngamwongwan, 2F\nShibuya honey toast, bingsu.",
 			"kinds": ["drinks", "dessert"],
@@ -112,7 +121,7 @@
 		},
 		{
 			"id": "E9qY98XD",
-			"name": "KFC - The Mall Ngamwongwan",
+			"name": { "en": "KFC - The Mall Ngamwongwan", "th": "" },
 			"link": "",
 			"notes": "The Mall Ngamwongwan, G\nBudget.",
 			"kinds": ["food"],
@@ -125,7 +134,7 @@
 		},
 		{
 			"id": "CsJX4YHC",
-			"name": "Sizzler - The Mall Ngamwongwan",
+			"name": { "en": "Sizzler - The Mall Ngamwongwan", "th": "" },
 			"link": "",
 			"notes": "The Mall Ngamwongwan, 3F\nSteaks with salad bar. Mid price.",
 			"kinds": ["food"],
@@ -139,7 +148,7 @@
 		},
 		{
 			"id": "ZjkMlZvW",
-			"name": "Shabushi (ชาบูชิ) - The Mall Ngamwongwan",
+			"name": { "en": "Shabushi (ชาบูชิ) - The Mall Ngamwongwan", "th": "" },
 			"link": "",
 			"notes": "The Mall Ngamwongwan, 4F\nConveyor shabu and sushi buffet.",
 			"kinds": ["food"],
@@ -153,7 +162,7 @@
 		},
 		{
 			"id": "RYLXV2Ui",
-			"name": "Tim Ho Wan - The Mall Ngamwongwan",
+			"name": { "en": "Tim Ho Wan - The Mall Ngamwongwan", "th": "" },
 			"link": "",
 			"notes": "The Mall Ngamwongwan, 1F\nHong Kong dim sum, baked BBQ pork buns. Mid price.",
 			"kinds": ["food"],

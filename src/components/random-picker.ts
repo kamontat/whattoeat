@@ -29,7 +29,12 @@ import {
 	pickOptions,
 	savePickCount,
 } from "#lib/random";
-import { isLink, metaLine, type Restaurant } from "#lib/restaurant";
+import {
+	displayName,
+	isLink,
+	metaLine,
+	type Restaurant,
+} from "#lib/restaurant";
 import {
 	loadRestaurants,
 	onRestaurantsChanged,
@@ -450,7 +455,7 @@ export class RandomPicker extends LitElement {
 
 	/** Screen readers hear the new picks by name rather than every whole tile. */
 	private pickAnnouncement(): string {
-		const names = this.picked.map((item) => item.name);
+		const names = this.picked.map(displayName);
 		if (names.length === 0) return "";
 		return t("picker.announce", {
 			names: new Intl.ListFormat(getLang(), { type: "conjunction" }).format(
@@ -498,8 +503,8 @@ export class RandomPicker extends LitElement {
 			<article class="card result ${this.visited?.id === item.id ? "visited" : ""}">
 				<h2>${
 					isLink(item.link)
-						? html`<a href=${item.link} target="_blank" rel="noopener noreferrer">${item.name}${icon("external", 16)}</a>`
-						: item.name
+						? html`<a href=${item.link} target="_blank" rel="noopener noreferrer">${displayName(item)}${icon("external", 16)}</a>`
+						: displayName(item)
 				}</h2>
 				${metaLine(item) ? html`<p class="meta">${metaLine(item)}</p>` : nothing}
 				${item.notes ? html`<p class="notes">${item.notes}</p>` : nothing}

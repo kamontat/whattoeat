@@ -10,17 +10,41 @@ import {
 
 const named = (...names: string[]) => names.map((name) => ({ name }));
 
+test("searchByName matches a restaurant by either name and says which one matched", () => {
+	setLang("en");
+	const pho = { name: { en: "Pho Bar", th: "เฝอ" } };
+	const thaiOnly = { name: { en: "", th: "ร้านส้มตำ" } };
+	expect(searchByName([pho, thaiOnly], "pho")).toEqual([
+		{ item: pho, text: "Pho Bar", ranges: [{ start: 0, end: 3 }] },
+	]);
+	expect(searchByName([pho, thaiOnly], "เฝอ")).toEqual([
+		{ item: pho, text: "เฝอ", ranges: [{ start: 0, end: 3 }] },
+	]);
+	expect(searchByName([pho, thaiOnly], "")).toEqual([
+		{ item: pho, text: "Pho Bar", ranges: [] },
+		{ item: thaiOnly, text: "ร้านส้มตำ", ranges: [] },
+	]);
+});
+
 test("searchByName keeps every item, unhighlighted, when the query has no words", () => {
 	expect(searchByName(named("Pho", "Bun"), "  ")).toEqual([
-		{ item: { name: "Pho" }, ranges: [] },
-		{ item: { name: "Bun" }, ranges: [] },
+		{ item: { name: "Pho" }, text: "Pho", ranges: [] },
+		{ item: { name: "Bun" }, text: "Bun", ranges: [] },
 	]);
 });
 
 test("searchByName keeps matching items in order with what to highlight", () => {
 	expect(searchByName(named("Ramen Bar", "Pho", "Bar Bun"), "bar")).toEqual([
-		{ item: { name: "Ramen Bar" }, ranges: [{ start: 6, end: 9 }] },
-		{ item: { name: "Bar Bun" }, ranges: [{ start: 0, end: 3 }] },
+		{
+			item: { name: "Ramen Bar" },
+			text: "Ramen Bar",
+			ranges: [{ start: 6, end: 9 }],
+		},
+		{
+			item: { name: "Bar Bun" },
+			text: "Bar Bun",
+			ranges: [{ start: 0, end: 3 }],
+		},
 	]);
 });
 

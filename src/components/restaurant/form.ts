@@ -5,9 +5,17 @@ import { repeat } from "lit/directives/repeat.js";
 import "#components/tag-input";
 import type { TagInput } from "#components/tag-input";
 import { type GroupDef, groupLabel } from "#lib/groups";
-import { LangController, type MessageKey, t } from "#lib/i18n";
+import {
+	getLang,
+	type Lang,
+	LangController,
+	type Localized,
+	type MessageKey,
+	t,
+} from "#lib/i18n";
 import { icon } from "#lib/icons";
 import {
+	displayName,
 	KINDS,
 	type Kind,
 	type Restaurant,
@@ -17,7 +25,7 @@ import {
 import { uiStyles } from "#styles/ui";
 
 export type FormState = {
-	name: string;
+	name: Localized;
 	link: string;
 	notes: string;
 	kinds: Kind[];
@@ -27,7 +35,7 @@ export type FormState = {
 };
 
 export const EMPTY_FORM: FormState = {
-	name: "",
+	name: { en: "", th: "" },
 	link: "",
 	notes: "",
 	kinds: [],
@@ -60,6 +68,11 @@ export const formFromRestaurant = (item: Restaurant): FormState => ({
 	tags: item.tags,
 	groups: { ...item.groups },
 });
+
+const NAME_LABELS: Record<Lang, MessageKey> = {
+	en: "field.nameEn",
+	th: "field.nameTh",
+};
 
 const HINTS: Record<string, MessageKey> = {
 	cuisine: "field.cuisineHint",
@@ -223,8 +236,9 @@ export class RestaurantForm extends LitElement {
 		for (const input of this.tagInputs) input.clearText();
 	}
 
+	/** Focus the name field of the current language, which comes first. */
 	focusName(): void {
-		this.renderRoot.querySelector<HTMLElement>("#name")?.focus();
+		this.renderRoot.querySelector<HTMLElement>(`#name-${getLang()}`)?.focus();
 	}
 
 	/** Swapping the prompt's buttons removes the focused one, so move focus to its replacement. */
@@ -263,9 +277,15 @@ export class RestaurantForm extends LitElement {
 
 	private readonly onInput = (event: Event): void => {
 		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
-		const field = target.name as "name" | "link" | "notes";
+		const field = target.name as "link" | "notes";
 		this.change({ ...this.current, [field]: target.value });
 	};
+
+	private onNameInput(lang: Lang, event: Event): void {
+		const form = this.current;
+		const value = (event.target as HTMLInputElement).value;
+		this.change({ ...form, name: { ...form.name, [lang]: value } });
+	}
 
 	/** Tick or untick one kind, keeping kinds in their fixed order. */
 	private readonly onKindChange = (event: Event): void => {
@@ -316,19 +336,21 @@ export class RestaurantForm extends LitElement {
 		const editing = this.view.editingId !== undefined;
 		return html`
 			<form id="restaurant-form" novalidate @submit=${this.submit}>
-				<label>
-					${t("field.name")}
-					<input
-						id="name"
-						name="name"
-						autocomplete="off"
-						required
-						aria-invalid=${nameError ? "true" : "false"}
-						aria-describedby=${nameError ? "name-error" : nothing}
-						.value=${live(form.name)}
-						@input=${this.onInput}
-					/>
-				</label>
+				${this.nameLangs().map(
+					(lang) => html`<label>
+						${t(NAME_LABELS[lang])}
+						<input
+							id=${`name-${lang}`}
+							name=${`name-${lang}`}
+							lang=${lang}
+							autocomplete="off"
+							aria-invalid=${nameError ? "true" : "false"}
+							aria-describedby=${nameError ? "name-error" : nothing}
+							.value=${live(form.name[lang])}
+							@input=${(event: Event) => this.onNameInput(lang, event)}
+						/>
+					</label>`,
+				)}
 				${nameError ? html`<p id="name-error" class="error" role="alert">${t(nameError)}</p>` : nothing}
 				<fieldset class="kinds">
 					<legend>${t("group.kind")}</legend>
@@ -388,11 +410,17 @@ export class RestaurantForm extends LitElement {
 		`;
 	}
 
+	/** Name fields in order: the current language first. */
+	private nameLangs(): Lang[] {
+		return getLang() === "th" ? ["th", "en"] : ["en", "th"];
+	}
+
 	/** Delete lives at the end of the edit form, behind an inline confirmation. */
 	private renderDelete() {
 		const id = this.view.editingId;
 		if (id === undefined) return nothing;
-		const name = this.restaurants.find((item) => item.id === id)?.name ?? "";
+		const item = this.restaurants.find((entry) => entry.id === id);
+		const name = item === undefined ? "" : displayName(item);
 		return html`<div class="delete-zone">
 			${
 				this.view.confirmingId === id

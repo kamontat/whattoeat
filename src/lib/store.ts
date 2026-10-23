@@ -3,6 +3,7 @@ import { forgetHistoryMemory } from "#lib/history";
 import {
 	type CleanInput,
 	cleanStored,
+	isBlankName,
 	isRestaurant,
 	newId,
 	normalizeInput,
@@ -88,7 +89,7 @@ export const resetStorage = (): void => {
 
 const requireName = (input: RestaurantInput): CleanInput => {
 	const clean = normalizeInput(input, customGroupIds(loadGroups()));
-	if (clean.name === "") throw new Error("Restaurant name is required");
+	if (isBlankName(clean.name)) throw new Error("Restaurant name is required");
 	return clean;
 };
 

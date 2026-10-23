@@ -4,7 +4,13 @@ import { live } from "lit/directives/live.js";
 import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
-import { countText, noMatch, searchByName, searchWords } from "#lib/search";
+import {
+	countText,
+	type Named,
+	noMatch,
+	searchByName,
+	searchWords,
+} from "#lib/search";
 import { uiStyles } from "#styles/ui";
 
 /**
@@ -125,7 +131,7 @@ export class RestaurantSearch extends LitElement {
 
 	/** The items to count and pick from. */
 	@property({ attribute: false })
-	restaurants: readonly { name: string }[] = [];
+	restaurants: readonly Named[] = [];
 
 	/** Restaurant-flavoured defaults when `undefined`; a page's own wording otherwise. */
 	@property({ attribute: false })

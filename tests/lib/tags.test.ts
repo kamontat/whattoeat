@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import { type Filter, LIST_FILTER } from "#lib/filter";
 import type { GroupDef } from "#lib/groups";
 import { setLang } from "#lib/i18n";
-import { groupValues, type Restaurant } from "#lib/restaurant";
+import { groupValues, nameFromText, type Restaurant } from "#lib/restaurant";
 import {
 	editValue,
 	loadPick,
@@ -20,7 +20,7 @@ const make = (
 	extra: Partial<Restaurant> = {},
 ): Restaurant => ({
 	id,
-	name: id,
+	name: nameFromText(id),
 	tags: [],
 	link: "",
 	notes: "",

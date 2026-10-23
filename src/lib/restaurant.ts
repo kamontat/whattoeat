@@ -1,4 +1,4 @@
-import { t } from "#lib/i18n";
+import { type Localized, localize, t } from "#lib/i18n";
 
 /** What a place serves. A restaurant can be several, like a cafe with drinks and dessert. */
 export const KINDS = ["food", "drinks", "dessert"] as const;
@@ -20,7 +20,8 @@ export type GroupValues = Record<string, string[]>;
 
 export type Restaurant = {
 	id: string;
-	name: string;
+	/** The name in English and Thai; either may be empty, never both. */
+	name: Localized;
 	/** A web page for the place: a map, its own site or a social page. Empty when there is none. */
 	link: string;
 	notes: string;
@@ -37,7 +38,12 @@ export type Restaurant = {
  * `location` instead of a `link`, the new shape with `groups`, or a mix. Kinds may be missing
  * or unknown.
  */
-export type StoredRestaurant = Omit<Restaurant, "kinds" | "groups" | "link"> & {
+export type StoredRestaurant = Omit<
+	Restaurant,
+	"name" | "kinds" | "groups" | "link"
+> & {
+	/** Versions 1–5 keep the name as one string. */
+	name: string | Localized;
 	link?: string;
 	location?: string;
 	area?: string;
@@ -47,13 +53,29 @@ export type StoredRestaurant = Omit<Restaurant, "kinds" | "groups" | "link"> & {
 };
 
 export type RestaurantInput = {
-	name: string;
+	name: Localized;
 	tags: readonly string[];
 	link: string;
 	notes: string;
 	kinds?: readonly string[];
 	groups?: Readonly<Record<string, readonly string[]>>;
 };
+
+/** Thai text with no Latin letter is a Thai name; anything else, mixed names included, is English. */
+export const nameFromText = (text: string): Localized => {
+	const name = text.trim();
+	return /\p{Script=Thai}/u.test(name) && !/\p{Script=Latin}/u.test(name)
+		? { en: "", th: name }
+		: { en: name, th: "" };
+};
+
+/** True when neither language has a name. */
+export const isBlankName = (name: Localized): boolean =>
+	name.en.trim() === "" && name.th.trim() === "";
+
+/** The name to show: the current language's, or the other one's when it is empty. */
+export const displayName = (item: { name: Localized }): string =>
+	localize(item.name);
 
 /** Canonical form of a tag: NFC, trimmed, single spaces, lowercase. Tags compare by this form only. */
 export const normalizeTag = (text: string): string =>
@@ -109,7 +131,7 @@ export const normalizeInput = (
 	input: RestaurantInput,
 	customIds: readonly string[] = [],
 ): CleanInput => ({
-	name: input.name.trim(),
+	name: { en: input.name.en.trim(), th: input.name.th.trim() },
 	link: input.link.trim(),
 	notes: input.notes.trim(),
 	kinds: cleanKinds(input.kinds),
@@ -154,7 +176,8 @@ export const cleanStored = (
 		id: item.id,
 		...normalizeInput(
 			{
-				name: item.name,
+				name:
+					typeof item.name === "string" ? nameFromText(item.name) : item.name,
 				...moveLocation(item),
 				tags: item.tags,
 				...(item.kinds !== undefined ? { kinds: item.kinds } : {}),
@@ -202,6 +225,18 @@ export const newId = (
 	}
 };
 
+/** A non-blank string (the old shape), or a name in both languages with at least one filled. */
+const isName = (value: unknown): boolean => {
+	if (isString(value)) return value.trim() !== "";
+	if (typeof value !== "object" || value === null) return false;
+	const name = value as Partial<Record<keyof Localized, unknown>>;
+	return (
+		isString(name.en) &&
+		isString(name.th) &&
+		!isBlankName({ en: name.en, th: name.th })
+	);
+};
+
 const isOptionalString = (value: unknown): boolean =>
 	value === undefined || isString(value);
 
@@ -221,13 +256,11 @@ export const isRestaurant = (value: unknown): value is StoredRestaurant => {
 		Record<keyof Restaurant | "location" | "area" | "cuisine", unknown>
 	>;
 	const id = item.id;
-	const name = item.name;
 	const tags = item.tags;
 	return (
 		isString(id) &&
 		id !== "" &&
-		isString(name) &&
-		name.trim() !== "" &&
+		isName(item.name) &&
 		Array.isArray(tags) &&
 		tags.every(isString) &&
 		isOptionalString(item.link) &&

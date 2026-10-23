@@ -92,7 +92,8 @@ export const en = {
 	"filter.noValue": "Nothing matches “{query}”.",
 	"filter.show.one": "Show 1 restaurant",
 	"filter.show.other": "Show {count} restaurants",
-	"field.name": "Name",
+	"field.nameEn": "English name",
+	"field.nameTh": "Thai name",
 	"field.tags": "Tags",
 	"field.tagsHint": "Press Enter or comma to add, e.g. thai, noodle",
 	"tagInput.remove": "Remove {tag}",
@@ -109,7 +110,7 @@ export const en = {
 	"manager.delete": "Delete",
 	"manager.confirmDelete": "Confirm delete",
 	"manager.empty": "No restaurants yet. Add your first one.",
-	"manager.nameRequired": "Name is required.",
+	"manager.nameRequired": "Enter a name in English or Thai.",
 	"manager.linkInvalid": "Enter a link that starts with https:// or http://.",
 	"manager.openLink": "Open {name}'s link",
 	"manager.addTitle": "New restaurant",
@@ -361,7 +362,8 @@ export const th: Record<MessageKey, string> = {
 	"filter.noValue": "ไม่พบ “{query}”",
 	"filter.show.one": "ดู 1 ร้าน",
 	"filter.show.other": "ดู {count} ร้าน",
-	"field.name": "ชื่อร้าน",
+	"field.nameEn": "ชื่อภาษาอังกฤษ",
+	"field.nameTh": "ชื่อภาษาไทย",
 	"field.tags": "แท็ก",
 	"field.tagsHint": "กด Enter หรือจุลภาคเพื่อเพิ่ม เช่น ไทย, ก๋วยเตี๋ยว",
 	"tagInput.remove": "ลบ {tag}",
@@ -378,7 +380,7 @@ export const th: Record<MessageKey, string> = {
 	"manager.delete": "ลบ",
 	"manager.confirmDelete": "ยืนยันการลบ",
 	"manager.empty": "ยังไม่มีร้านอาหาร เพิ่มร้านแรกได้เลย",
-	"manager.nameRequired": "กรุณาใส่ชื่อร้าน",
+	"manager.nameRequired": "กรุณาใส่ชื่อร้านภาษาไทยหรืออังกฤษ",
 	"manager.linkInvalid": "กรุณาใส่ลิงก์ที่ขึ้นต้นด้วย https:// หรือ http://",
 	"manager.openLink": "เปิดลิงก์ของ {name}",
 	"manager.addTitle": "ร้านใหม่",
@@ -599,6 +601,17 @@ export const t = (
 	dictionaries[getLang()][key].replace(/\{(\w+)\}/g, (match, name: string) =>
 		String(params[name] ?? match),
 	);
+
+/** Text in both languages; either may be empty. */
+export type Localized = Record<Lang, string>;
+
+/** The text in the current language, or in the other one when that is blank. */
+export const localize = (text: Localized): string => {
+	const lang = getLang();
+	const own = text[lang];
+	if (own.trim() !== "") return own;
+	return text[lang === "en" ? "th" : "en"];
+};
 
 /** Re-render the host component whenever the language changes. */
 export class LangController implements ReactiveController {
