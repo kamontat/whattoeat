@@ -33,8 +33,8 @@
 				"en": "Ladprao",
 				"th": "ลาดพร้าว"
 			},
-			"count": 144,
-			"updatedAt": "2026-10-16",
+			"count": 136,
+			"updatedAt": "2026-10-23",
 			"places": [
 				"Central Ladprao",
 				"Union Mall",
@@ -58,8 +58,8 @@
 				"en": "Ratchayothin",
 				"th": "รัชโยธิน"
 			},
-			"count": 55,
-			"updatedAt": "2026-10-17",
+			"count": 53,
+			"updatedAt": "2026-10-23",
 			"places": ["Major Ratchayothin", "Avenue Ratchayothin", "SCB Park"],
 			"areas": ["major ratchayothin", "avenue ratchayothin", "ratchada"]
 		},
@@ -72,7 +72,7 @@
 				"th": "สยาม"
 			},
 			"count": 29,
-			"updatedAt": "2026-10-17",
+			"updatedAt": "2026-10-23",
 			"places": ["Siam Paragon", "Siam Center", "Siam Square One"],
 			"areas": ["siam paragon", "siam center", "siam square one"]
 		},
@@ -85,7 +85,7 @@
 				"th": "งามวงศ์วาน"
 			},
 			"count": 12,
-			"updatedAt": "2026-10-17",
+			"updatedAt": "2026-10-23",
 			"places": ["The Mall Ngamwongwan"],
 			"areas": ["the mall ngamwongwan"]
 		}

@@ -83,3 +83,52 @@ test("every city and district id has en and th names", () => {
 		expect(name?.th, id).toBeTruthy();
 	}
 });
+
+const THAI = /[฀-๿]/;
+
+for (const entry of index.presets) {
+	test(`${entry.id}: names are split by language, without the place`, async () => {
+		const result = parseImport(
+			await Bun.file(`${DIR}/${entry.id}.json`).text(),
+		);
+		if (!result.ok) throw new Error(result.error);
+		for (const item of result.restaurants) {
+			expect(item.name.en, item.id).not.toMatch(THAI);
+			expect(item.name.en, item.id).not.toMatch(/ - [^-]+$/);
+			expect(item.name.th, item.id).not.toMatch(/ - [^-]+$/);
+		}
+	});
+
+	test(`${entry.id}: every restaurant has an http(s) link`, async () => {
+		const result = parseImport(
+			await Bun.file(`${DIR}/${entry.id}.json`).text(),
+		);
+		if (!result.ok) throw new Error(result.error);
+		for (const item of result.restaurants)
+			expect(item.link, item.id).toMatch(/^https:\/\//);
+	});
+
+	test(`${entry.id}: the only verification marker is "unverified"`, async () => {
+		const result = parseImport(
+			await Bun.file(`${DIR}/${entry.id}.json`).text(),
+		);
+		if (!result.ok) throw new Error(result.error);
+		for (const item of result.restaurants)
+			for (const tag of item.tags)
+				expect(tag, item.id).not.toMatch(
+					/^(unverified .+|likely open|open \d+)$/,
+				);
+	});
+
+	test(`${entry.id}: no restaurant is listed twice in one area`, async () => {
+		const result = parseImport(
+			await Bun.file(`${DIR}/${entry.id}.json`).text(),
+		);
+		if (!result.ok) throw new Error(result.error);
+		const keys = result.restaurants.map(
+			(item) =>
+				`${item.name.en.toLowerCase()}|${groupValues(item, "area").join()}`,
+		);
+		expect(keys.filter((key, at) => keys.indexOf(key) !== at)).toEqual([]);
+	});
+}
