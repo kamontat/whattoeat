@@ -185,9 +185,13 @@ export class RestaurantManager extends LitElement {
 					gap: 1.5rem;
 				}
 
+				/* A form taller than the screen scrolls inside the panel, not off its bottom. */
 				.edit-panel {
 					position: sticky;
 					top: 1rem;
+					max-height: calc(100dvh - 2rem);
+					overflow-y: auto;
+					overscroll-behavior: contain;
 				}
 
 				/* The side panel is the sticky part on wide screens; the top row scrolls away. */

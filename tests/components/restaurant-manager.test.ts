@@ -1588,6 +1588,18 @@ test("phone: the title row and the search row stay stuck to the top while the li
 	);
 });
 
+test("wide: the sticky edit panel fits the screen and scrolls when the form is longer", () => {
+	const css = (RestaurantManager.styles as unknown[])
+		.slice(1)
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+	const wide = css.slice(css.indexOf("@media (min-width: 48rem)"));
+	expect(wide).toMatch(
+		/\.edit-panel\s*\{[^}]*position:\s*sticky[^}]*max-height:\s*calc\(100dvh - 2rem\)[^}]*overflow-y:\s*auto/,
+	);
+});
+
 test("search: the Search key with one match opens that restaurant", async () => {
 	seedSearch();
 	const el = await mount();
