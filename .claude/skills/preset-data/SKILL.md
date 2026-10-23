@@ -8,7 +8,7 @@ description: Create a new neighbourhood preset (a bundled restaurant list under 
 A neighbourhood preset is a ready-made restaurant list that people tick on `/settings/presets`
 to fill their own list. Each one is two things that must agree:
 
-- `src/assets/data/presets/<id>.json` — a normal version 5 export file (`app`, `version`,
+- `src/assets/data/presets/<id>.json` — a normal version 6 export file (`app`, `version`,
   `exportedAt`, `restaurants`, `history: []`, `groups: []`), so the app's own `parseImport`
   validates it.
 - An entry in `src/assets/data/presets/index.json` — names in English and Thai, city,
@@ -106,8 +106,10 @@ Put the draft in the scratchpad or `/tmp`, not in the repo. Shape:
 }
 ```
 
-- An item without `id` whose name matches an existing restaurant (case-insensitive) updates
-  it; otherwise it is new. An item with an `id` already in the file updates only the fields
+- A draft `name` is a string (the English name) or `{ "en": ..., "th": ... }`; the file
+  always stores both. An update changes only the languages the draft gives.
+- An item without `id` whose English or Thai name matches an existing restaurant
+  (case-insensitive) updates it; otherwise it is new. An item with an `id` already in the file updates only the fields
   it lists; a full item with an unused `id` is added under that id.
 - `location` exists only in the draft: on a new item the script makes it the first line of
   `notes`, the way the app stores a place and floor. To change an existing restaurant's place
@@ -123,7 +125,7 @@ side:
 
 | Field | Convention |
 | --- | --- |
-| `name` | `Brand (Thai name) - Place`, e.g. `Kuay Teow Ruea Suea Na Yok (ก๋วยเตี๋ยวเรือเสือหน้าหยก) - Central Ladprao`. Thai name in brackets only when the brand has one. The ` - Place` suffix tells branches apart when two presets are added together. |
+| `name` | `en`: `Brand (Thai name) - Place`, e.g. `Kuay Teow Ruea Suea Na Yok (ก๋วยเตี๋ยวเรือเสือหน้าหยก) - Central Ladprao`. Thai name in brackets only when the brand has one. The ` - Place` suffix tells branches apart when two presets are added together. `th` is empty in today's files; the app shows `en` when `th` is empty. |
 | `location` (draft only) | `Place, Floor` (`Central Ladprao, G`, `Union Mall, 3F`, `Major Ratchayothin, B`). A street shop: the soi or road. Becomes the first line of `notes`. |
 | `notes` | After the place line, short sentences: what to order or what it is, price hint (`Budget.`, `Mid price.`, `From ฿799.`), opening hours `10:00-22:00.`, a landmark if the floor is big. |
 | `link` | Optional `https://` URL: the place's Google Maps page, website or social page. The app opens it from the restaurant's name. Leave it out rather than guess; never put a place or floor here. |

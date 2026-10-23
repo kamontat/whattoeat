@@ -6,9 +6,12 @@
  * The draft is `{ "restaurants": [...] }`. Each item is one of:
  *   - new:    { id?, name, location, kinds, area, notes?, link?, cuisine?, tags? }
  *             (an unused id is kept; `location` becomes the first line of `notes`)
- *   - update: { id, ...fields to change }  (or no id, matched by name, case-insensitive);
- *             `location` is not accepted here, give the whole new `notes` instead
+ *   - update: { id, ...fields to change }  (or no id, matched by English or Thai name,
+ *             case-insensitive); `location` is not accepted here, give the whole new `notes`
  *   - remove: { id, remove: true }
+ *
+ * `name` is a string (the English name) or `{ en?, th? }`; an update changes only the
+ * languages it gives. Every restaurant needs a name in at least one language.
  *
  * `link` must be an http(s) URL or empty.
  * New restaurants get 8-character ids unique across every preset file and today's timestamps.
@@ -22,9 +25,11 @@ const KINDS = ["food", "drinks", "dessert"] as const;
 const ID_ALPHABET =
 	"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
+type Name = { en: string; th: string };
+
 type Restaurant = {
 	id: string;
-	name: string;
+	name: Name;
 	link: string;
 	notes: string;
 	kinds: string[];
@@ -37,7 +42,7 @@ type Restaurant = {
 type Draft = {
 	id?: string;
 	remove?: boolean;
-	name?: string;
+	name?: string | Partial<Name>;
 	location?: string;
 	notes?: string;
 	link?: string;
@@ -66,6 +71,20 @@ const clean = (text: string): string =>
 const cleanList = (values: readonly string[]): string[] => [
 	...new Set(values.map(clean).filter((value) => value !== "")),
 ];
+
+/** The languages a draft name gives, trimmed; a string is the English name. */
+const draftName = (name: Draft["name"]): Partial<Name> => {
+	if (name === undefined) return {};
+	if (typeof name === "string") return { en: name.trim() };
+	const given: Partial<Name> = {};
+	if (name.en !== undefined) given.en = name.en.trim();
+	if (name.th !== undefined) given.th = name.th.trim();
+	return given;
+};
+
+const nameLabel = (name: Partial<Name>): string | undefined =>
+	[name.en, name.th].filter((text) => text !== undefined && text !== "").join(" / ") ||
+	undefined;
 
 const asList = (value: string | string[] | undefined): string[] =>
 	value === undefined ? [] : Array.isArray(value) ? value : [value];
@@ -111,9 +130,15 @@ let removed = 0;
 
 const findIndex = (item: Draft): number => {
 	if (item.id !== undefined) return list.findIndex((r) => r.id === item.id);
-	if (item.name === undefined) return -1;
-	const key = item.name.trim().toLocaleLowerCase();
-	return list.findIndex((r) => r.name.trim().toLocaleLowerCase() === key);
+	const keys = Object.values(draftName(item.name))
+		.map((text) => text.toLocaleLowerCase())
+		.filter((key) => key !== "");
+	if (keys.length === 0) return -1;
+	return list.findIndex((r) =>
+		[r.name.en, r.name.th].some((text) =>
+			keys.includes(text.trim().toLocaleLowerCase()),
+		),
+	);
 };
 
 const checkLink = (link: string | undefined, label: string): string => {
@@ -132,7 +157,8 @@ const checkKinds = (kinds: string[], label: string): string[] => {
 
 for (const item of draft.restaurants as Draft[]) {
 	const at = findIndex(item);
-	const label = item.name ?? item.id ?? "(unnamed)";
+	const given = draftName(item.name);
+	const label = nameLabel(given) ?? item.id ?? "(unnamed)";
 
 	if (item.remove) {
 		if (at === -1) fail(`${label}: nothing to remove`);
@@ -142,7 +168,7 @@ for (const item of draft.restaurants as Draft[]) {
 	}
 
 	if (at === -1) {
-		if (!item.name?.trim() || !item.location?.trim() || !item.area?.trim())
+		if (!nameLabel(given) || !item.location?.trim() || !item.area?.trim())
 			fail(
 				item.id === undefined
 					? `${label}: a new restaurant needs name, location and area`
@@ -160,7 +186,7 @@ for (const item of draft.restaurants as Draft[]) {
 		taken.add(id);
 		list.push({
 			id,
-			name: (item.name as string).trim(),
+			name: { en: given.en ?? "", th: given.th ?? "" },
 			link: checkLink(item.link, label),
 			notes: [(item.location as string).trim(), item.notes?.trim() ?? ""]
 				.filter((line) => line !== "")
@@ -177,7 +203,9 @@ for (const item of draft.restaurants as Draft[]) {
 
 	const before = list[at] as Restaurant;
 	const next: Restaurant = structuredClone(before);
-	if (item.name !== undefined) next.name = item.name.trim();
+	next.name = { ...next.name, ...given };
+	if (next.name.en === "" && next.name.th === "")
+		fail(`${label}: a restaurant needs a name in English or Thai`);
 	if (item.location !== undefined)
 		fail(`${label}: location only applies to new restaurants; give the whole new notes instead`);
 	if (item.link !== undefined) next.link = checkLink(item.link, label);
@@ -197,11 +225,14 @@ for (const item of draft.restaurants as Draft[]) {
 	}
 }
 
-const names = new Map<string, string>();
-for (const item of list) {
-	const key = item.name.trim().toLocaleLowerCase();
-	if (names.has(key)) fail(`two restaurants are named "${item.name}"`);
-	names.set(key, item.id);
+for (const lang of ["en", "th"] as const) {
+	const names = new Map<string, string>();
+	for (const item of list) {
+		const key = item.name[lang].trim().toLocaleLowerCase();
+		if (key === "") continue;
+		if (names.has(key)) fail(`two restaurants are named "${item.name[lang]}"`);
+		names.set(key, item.id);
+	}
 }
 
 await Bun.write(
@@ -209,7 +240,7 @@ await Bun.write(
 	`${JSON.stringify(
 		{
 			app: "whattoeat",
-			version: 5,
+			version: 6,
 			exportedAt: now,
 			restaurants: list,
 			history: [],
