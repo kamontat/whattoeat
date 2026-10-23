@@ -265,3 +265,25 @@ test("the field edge meets 3:1 contrast against the page", () => {
 		/\.field\s*\{[^}]*border:\s*1px solid var\(--color-control\)/,
 	);
 });
+
+const cssOf = (styles: unknown): string =>
+	[styles]
+		.flat(Number.POSITIVE_INFINITY)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("\n");
+
+test("the suggestion list stacks above the form's pinned Save row", async () => {
+	const { RestaurantForm } = await import("#components/restaurant/form");
+	const zOf = (css: string, selector: RegExp): number =>
+		Number(css.match(selector)?.[1]);
+	const list = zOf(
+		cssOf(TagInput.styles),
+		/\[role="listbox"\]\s*\{[^}]*z-index:\s*(\d+)/,
+	);
+	const pinned = zOf(
+		cssOf(RestaurantForm.styles),
+		/\.actions\.form-actions\s*\{[^}]*z-index:\s*(\d+)/,
+	);
+	expect(pinned).toBeGreaterThan(0);
+	expect(list).toBeGreaterThan(pinned);
+});
