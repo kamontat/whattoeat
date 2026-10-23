@@ -1,6 +1,6 @@
 {
 	"app": "whattoeat",
-	"version": 6,
+	"version": 7,
 	"exportedAt": "2026-10-23T10:24:30.196Z",
 	"restaurants": [
 		{
@@ -9,7 +9,12 @@
 				"en": "MK Restaurants",
 				"th": "เอ็มเค"
 			},
-			"link": "https://www.mkrestaurant.com/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://www.mkrestaurant.com/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, 5F\nSuki, roast duck. Family-friendly.",
 			"kinds": ["food"],
 			"groups": {
@@ -26,7 +31,12 @@
 				"en": "Fuji Japanese Restaurant",
 				"th": "ฟูจิ"
 			},
-			"link": "https://www.fuji.co.th/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://www.fuji.co.th/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, 5F\nSushi, sashimi, set meals. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -43,7 +53,12 @@
 				"en": "Bar B Q Plaza",
 				"th": "บาร์บีคิวพลาซ่า"
 			},
-			"link": "https://barbqplaza.com/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://barbqplaza.com/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, 5F\nGON grill sets. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -59,7 +74,12 @@
 				"en": "Swensen's",
 				"th": "สเวนเซ่นส์"
 			},
-			"link": "https://www.swensens1112.com/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://www.swensens1112.com/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, G\nIce cream sundaes.",
 			"kinds": ["dessert"],
 			"groups": {
@@ -75,7 +95,12 @@
 				"en": "Starbucks",
 				"th": "สตาร์บัคส์"
 			},
-			"link": "https://www.starbucks.co.th/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://www.starbucks.co.th/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, G",
 			"kinds": ["drinks"],
 			"groups": {
@@ -91,7 +116,12 @@
 				"en": "Ohkajhu",
 				"th": "โอ้กะจู๋"
 			},
-			"link": "https://www.okjgroup.com/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://www.okjgroup.com/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, 5F\nOrganic salads, steaks and rice bowls. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -107,7 +137,12 @@
 				"en": "Yayoi",
 				"th": "ยาโยอิ"
 			},
-			"link": "https://yayoirestaurants.com/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://yayoirestaurants.com/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, 5F\nJapanese set meals. Budget to mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -124,7 +159,12 @@
 				"en": "After You",
 				"th": "อาฟเตอร์ ยู"
 			},
-			"link": "https://www.afteryoudessertcafe.com/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://www.afteryoudessertcafe.com/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, G\nShibuya honey toast, bingsu. Greenhouse zone.",
 			"kinds": ["drinks", "dessert"],
 			"groups": {
@@ -140,7 +180,12 @@
 				"en": "KFC",
 				"th": "เคเอฟซี"
 			},
-			"link": "https://www.kfc.co.th/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://www.kfc.co.th/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, G\nBudget.",
 			"kinds": ["food"],
 			"groups": {
@@ -156,7 +201,12 @@
 				"en": "Sizzler",
 				"th": "ซิซซ์เล่อร์"
 			},
-			"link": "https://www.sizzler.co.th/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://www.sizzler.co.th/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, 5F\nSteaks with salad bar. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -173,7 +223,12 @@
 				"en": "Shabushi",
 				"th": "ชาบูชิ"
 			},
-			"link": "https://www.oishifood.com/restaurant/shabushi/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://www.oishifood.com/restaurant/shabushi/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, 5F\nConveyor shabu and sushi buffet.",
 			"kinds": ["food"],
 			"groups": {
@@ -190,7 +245,12 @@
 				"en": "Tim Ho Wan",
 				"th": ""
 			},
-			"link": "https://www.timhowan.com/",
+			"links": [
+				{
+					"label": "",
+					"url": "https://www.timhowan.com/"
+				}
+			],
 			"notes": "The Mall Ngamwongwan, 1F\nHong Kong dim sum, baked BBQ pork buns. Mid price.",
 			"kinds": ["food"],
 			"groups": {
