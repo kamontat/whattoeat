@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T16:38:05.588Z",
+	"exportedAt": "2026-10-23T17:02:02.138Z",
 	"restaurants": [
 		{
 			"id": "s1b53yJp",
@@ -201,6 +201,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Kuay%20Teow%20Ruea%20Phra%20Nakhon%20Major%20Ratchayothin"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/pranakornboatnoodleatvictorymonument/"
 				}
 			],
 			"notes": "Major Ratchayothin, 3F\nRoom 308. 10:30-21:30. Budget.",
@@ -211,7 +215,7 @@
 			},
 			"tags": ["noodles", "boat noodles", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.138Z"
 		},
 		{
 			"id": "ULMwFV37",
@@ -691,6 +695,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Yod%20Cha%20Major%20Ratchayothin"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/yodchacnx/"
+				},
+				{
+					"label": "tiktok",
+					"url": "https://www.tiktok.com/@yodchaofficial"
 				}
 			],
 			"notes": "Major Ratchayothin, 2F\n10:30-20:30. Opposite Eve&Boy.",
@@ -700,7 +712,7 @@
 			},
 			"tags": ["thai tea", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.138Z"
 		},
 		{
 			"id": "AbbE2IvO",
@@ -1317,6 +1329,22 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=White%20Story%20The%20Avenue%20Ratchayothin"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/thewhitestory"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/thewhitestory/"
+				},
+				{
+					"label": "line",
+					"url": "https://lin.ee/s471tia"
+				},
+				{
+					"label": "website",
+					"url": "https://www.whitestorydaily.com/TH/home.html"
 				}
 			],
 			"notes": "The Avenue Ratchayothin\n9:00-21:00. In front of Villa Market. Budget.",
@@ -1327,7 +1355,7 @@
 			},
 			"tags": ["bakery", "cake", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.138Z"
 		},
 		{
 			"id": "7v9C7tUh",

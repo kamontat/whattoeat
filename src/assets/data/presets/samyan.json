@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T16:38:05.588Z",
+	"exportedAt": "2026-10-23T17:02:02.154Z",
 	"restaurants": [
 		{
 			"id": "l5lAJ4bc",
@@ -471,6 +471,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Phra%20Nakorn%20Noodle%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/pranakornboatnoodleatvictorymonument/"
 				}
 			],
 			"notes": "Samyan Mitrtown, B1\nSmall-bowl boat noodles. Budget.",
@@ -481,7 +485,7 @@
 			},
 			"tags": ["boat noodles", "unverified"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T17:02:02.154Z"
 		},
 		{
 			"id": "EB5bM1xg",
@@ -527,6 +531,22 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Shinkanzen%20Sushi%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/shinkanzensushi/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/shinkanzensushi/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/pgl8133g"
+				},
+				{
+					"label": "tiktok",
+					"url": "https://www.tiktok.com/@shinkanzensushi"
 				}
 			],
 			"notes": "Samyan Mitrtown, B1\nCheap fresh sushi from about ฿13 a piece. Budget.",
@@ -537,7 +557,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T17:02:02.154Z"
 		},
 		{
 			"id": "suHka9Mz",
@@ -983,6 +1003,18 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Ssamthing%20Together%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/SSamthingTogether/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/ssamthingtogether/"
+				},
+				{
+					"label": "tiktok",
+					"url": "https://www.tiktok.com/@ssamthing_together"
 				}
 			],
 			"notes": "Samyan Mitrtown, G\nKorean BBQ with set and à la carte menus. Mid price. 10:00-22:00.",
@@ -993,7 +1025,7 @@
 			},
 			"tags": ["bbq"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T17:02:02.154Z"
 		},
 		{
 			"id": "JBZlo584",
@@ -1382,27 +1414,6 @@
 			"updatedAt": "2026-10-23T16:38:05.588Z"
 		},
 		{
-			"id": "8Nia2sfp",
-			"name": {
-				"en": "Yi Fang",
-				"th": "อี้ ฟาง"
-			},
-			"links": [
-				{
-					"label": "map",
-					"url": "https://www.google.com/maps/search/?api=1&query=Yi%20Fang%20Samyan%20Mitrtown"
-				}
-			],
-			"notes": "Samyan Mitrtown, 2F\nTaiwanese fruit tea and brown-sugar drinks. Budget.",
-			"kinds": ["drinks"],
-			"groups": {
-				"area": ["samyan mitrtown"]
-			},
-			"tags": ["bubble tea", "tea", "unverified"],
-			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
-		},
-		{
 			"id": "hz7fuMWv",
 			"name": {
 				"en": "AKA",
@@ -1724,6 +1735,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=The%20Spicy%20House%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/TheSpicyHouseThailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/thespicyhouse.th/"
 				}
 			],
 			"notes": "Samyan Mitrtown, 4F\nSichuan-style Chinese. Pick your own ingredients and pay by weight. Mid price. 10:00-22:00.",
@@ -1734,7 +1753,7 @@
 			},
 			"tags": ["mala"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T17:02:02.154Z"
 		},
 		{
 			"id": "ditG4kDm",
@@ -1746,6 +1765,22 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Tummour%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/tummouroriginal/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/tummour_official/"
+				},
+				{
+					"label": "line",
+					"url": "https://line.me/ti/p/%40aiq4603n"
+				},
+				{
+					"label": "website",
+					"url": "https://tummouroriginal.com/"
 				}
 			],
 			"notes": "Samyan Mitrtown, 4F\nSpicy som tam and Isan dishes. Budget to mid price. 10:00-22:00.",
@@ -1756,7 +1791,7 @@
 			},
 			"tags": ["som tam"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T17:02:02.154Z"
 		},
 		{
 			"id": "3HjqzHYr",
@@ -1768,6 +1803,26 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=You%20%26%20I%20Samyan%20Mitrtown"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/youandisuki/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/youandisuki/"
+				},
+				{
+					"label": "line",
+					"url": "https://lin.ee/9Mj3OEp"
+				},
+				{
+					"label": "website",
+					"url": "https://www.youandisuki.co.th/"
+				},
+				{
+					"label": "menu",
+					"url": "https://www.youandisuki.co.th/menu.html"
 				}
 			],
 			"notes": "Samyan Mitrtown, 4F\nPremium suki buffet, one pot per person, from ฿498. Mid to high price. North zone.",
@@ -1778,7 +1833,7 @@
 			},
 			"tags": ["suki", "buffet"],
 			"createdAt": "2026-10-23T10:23:58.348Z",
-			"updatedAt": "2026-10-23T10:23:58.348Z"
+			"updatedAt": "2026-10-23T17:02:02.154Z"
 		}
 	],
 	"history": [],
