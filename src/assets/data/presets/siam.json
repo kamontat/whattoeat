@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T16:38:05.588Z",
+	"exportedAt": "2026-10-23T17:02:02.170Z",
 	"restaurants": [
 		{
 			"id": "s6jL5NcS",
@@ -1177,6 +1177,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Soba%20House%20Konjiki%20Hototogisu%20Siam%20Paragon"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/sobahousethailland/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/sobahouse.thailand/"
 				}
 			],
 			"notes": "Siam Paragon, 4F\nMichelin-starred Tokyo shoyu ramen. Mid price. 10:00-22:00.",
@@ -1187,7 +1195,7 @@
 			},
 			"tags": ["ramen"],
 			"createdAt": "2026-10-23T10:24:08.798Z",
-			"updatedAt": "2026-10-23T10:24:08.798Z"
+			"updatedAt": "2026-10-23T17:02:02.170Z"
 		},
 		{
 			"id": "1aosDg9m",
@@ -1305,6 +1313,18 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Sapparos%20Siam%20Paragon"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/Sapparos.ThaiFlavors/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/sapparosbychefzetrong/"
+				},
+				{
+					"label": "line",
+					"url": "https://lin.ee/F6bAOaJ"
 				}
 			],
 			"notes": "Siam Paragon, 5F\nThai food from royal-kitchen recipes. Mid to high price. 10:00-24:00.",
@@ -1315,7 +1335,7 @@
 			},
 			"tags": ["curry"],
 			"createdAt": "2026-10-23T10:24:08.798Z",
-			"updatedAt": "2026-10-23T10:24:08.798Z"
+			"updatedAt": "2026-10-23T17:02:02.170Z"
 		},
 		{
 			"id": "SumoVVrH",
@@ -2058,6 +2078,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Don%20Siam%20Center"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/DON.Donburi.Restaurants/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/donbysushiden/"
 				}
 			],
 			"notes": "Siam Center, 2F\nJapanese rice bowls, from ฿99. Budget. 10:00-22:00.",
@@ -2068,7 +2096,7 @@
 			},
 			"tags": ["rice bowl"],
 			"createdAt": "2026-10-23T10:24:08.798Z",
-			"updatedAt": "2026-10-23T10:24:08.798Z"
+			"updatedAt": "2026-10-23T17:02:02.170Z"
 		},
 		{
 			"id": "0qVfh99C",

@@ -1,7 +1,7 @@
 {
 	"app": "whattoeat",
 	"version": 7,
-	"exportedAt": "2026-10-23T16:38:05.588Z",
+	"exportedAt": "2026-10-23T17:02:02.185Z",
 	"restaurants": [
 		{
 			"id": "uu7b9Kul",
@@ -13,6 +13,30 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=SHAMEN%20by%20SEKI%20Central%20Ladprao"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/ShamenThailand/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/shamenthailand/"
+				},
+				{
+					"label": "line",
+					"url": "https://line.me/R/ti/p/@887qocus"
+				},
+				{
+					"label": "tiktok",
+					"url": "https://www.tiktok.com/@shamenthailand"
+				},
+				{
+					"label": "x",
+					"url": "https://x.com/shamen_by_SEKI"
+				},
+				{
+					"label": "website",
+					"url": "https://shamenbyseki.com/"
 				}
 			],
 			"notes": "Central Ladprao, 4F\nShabu and ramen in one pot, sets ~429 THB. Opened Sep 2026.",
@@ -23,7 +47,7 @@
 			},
 			"tags": ["shabu", "ramen", "noodles"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "BQ8YaL1Y",
@@ -436,6 +460,18 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Lao%20Yuan%20Central%20Ladprao"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/laoyuanByTummour/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/laoyuanofficial/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.1376delivery.com/7/lao-yuan/category/221/new-menu"
 				}
 			],
 			"notes": "Central Ladprao, G\nSom tam, Vietnamese dishes. Budget.",
@@ -446,7 +482,7 @@
 			},
 			"tags": ["som tam", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "86rkZzSD",
@@ -2577,6 +2613,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Yang%20Guo%20Fu%20Malatang%20Union%20Mall"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/p/%E0%B8%AB%E0%B8%A1%E0%B8%B2%E0%B8%A5%E0%B9%88%E0%B8%B2%E0%B8%AB%E0%B8%A2%E0%B8%B2%E0%B8%87%E0%B8%81%E0%B8%B1%E0%B9%8B%E0%B8%A7%E0%B8%9D%E0%B8%B9-malatangth-61558431771143/"
 				}
 			],
 			"notes": "Union Mall, 1F\n~48 THB per 100 g. Budget.",
@@ -2587,7 +2627,7 @@
 			},
 			"tags": ["mala", "malatang", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "zCKUoEc8",
@@ -2715,6 +2755,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Haan%20Jao%20Nuea%20Union%20Mall"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/hanjaonua1bkk/"
 				}
 			],
 			"notes": "Union Mall, 4F\nKaeng khae with beef, northern grilled pork.",
@@ -2725,7 +2769,7 @@
 			},
 			"tags": [],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "XO72c1Ai",
@@ -2737,6 +2781,22 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Shinkanzen%20Sushi%20Union%20Mall"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/shinkanzensushi/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/shinkanzensushi/"
+				},
+				{
+					"label": "line",
+					"url": "https://page.line.me/pgl8133g"
+				},
+				{
+					"label": "tiktok",
+					"url": "https://www.tiktok.com/@shinkanzensushi"
 				}
 			],
 			"notes": "Union Mall, 4F\nBudget sushi.",
@@ -2747,7 +2807,7 @@
 			},
 			"tags": ["sushi"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "ihtK4WSJ",
@@ -3007,6 +3067,18 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Lao%20Yuan%20Union%20Mall"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/laoyuanByTummour/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/laoyuanofficial/"
+				},
+				{
+					"label": "delivery",
+					"url": "https://www.1376delivery.com/7/lao-yuan/category/221/new-menu"
 				}
 			],
 			"notes": "Union Mall, G\nPho, som tam, Vietnamese kuay jap.",
@@ -3017,7 +3089,7 @@
 			},
 			"tags": ["som tam", "noodles", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "YrSEBjNp",
@@ -3253,6 +3325,18 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=Good%20Noodle%20Bkk%20Union%20Mall"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/GoodNoodleBKK/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/goodnoodlebkk/"
+				},
+				{
+					"label": "x",
+					"url": "https://x.com/GoodNoodleBKK"
 				}
 			],
 			"notes": "Union Mall, B\nWall of Asian cup noodles, cook yourself.",
@@ -3262,7 +3346,7 @@
 			},
 			"tags": ["noodles", "instant noodles", "street food", "unverified"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "AXIqGYgM",
@@ -3353,6 +3437,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=All%20Tea%20House%20Union%20Mall"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/p/All-Tea-House-61560454436295/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/allteahouse/"
 				}
 			],
 			"notes": "Union Mall\nYokMek cream-topped tea ~120 THB.",
@@ -3362,7 +3454,7 @@
 			},
 			"tags": ["bubble tea"],
 			"createdAt": "2026-10-13T00:00:00.000Z",
-			"updatedAt": "2026-10-23T16:17:13.860Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "YZZfZoGK",
@@ -4130,6 +4222,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B9%81%E0%B8%8B%E0%B9%88%E0%B8%9A%E0%B8%8B%E0%B8%B9%E0%B9%89%E0%B8%94%E0%B8%94%E0%B8%94%20%E0%B8%AB%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/zabzooddd/"
 				}
 			],
 			"notes": "Next to Union Mall, MRT Phahon Yothin exit 4. Daily 10:30–23:00.",
@@ -4140,7 +4236,7 @@
 			},
 			"tags": ["som tam"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "bgnEk4q6",
@@ -4182,6 +4278,14 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=The%20Fat%20Cow%20Lat%20Phrao%20Soi%2015"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/TheFatCowBKK/"
+				},
+				{
+					"label": "instagram",
+					"url": "https://www.instagram.com/thefatcowlp/"
 				}
 			],
 			"notes": "Lat Phrao Rd, corner of Soi 15. 12:00–24:00.",
@@ -4192,7 +4296,7 @@
 			},
 			"tags": ["bar", "steak"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "NALdHtvL",
@@ -4320,6 +4424,10 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%81%E0%B9%8B%E0%B8%A7%E0%B8%A2%E0%B9%80%E0%B8%95%E0%B8%B5%E0%B9%8B%E0%B8%A2%E0%B8%A7%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%A1%E0%B8%B0%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%88%E0%B9%8A%E0%B9%81%E0%B8%94%E0%B8%87%20%E0%B8%AB%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/p/%E0%B8%81%E0%B9%8B%E0%B8%A7%E0%B8%A2%E0%B9%80%E0%B8%95%E0%B8%B5%E0%B9%8B%E0%B8%A2%E0%B8%A7%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%A1%E0%B8%B0%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%88%E0%B9%8A%E0%B9%81%E0%B8%94%E0%B8%87-%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B8%AB%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B9%80%E0%B8%8B%E0%B9%87%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B1%E0%B8%A5%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7-100069312240078/"
 				}
 			],
 			"notes": "Central Ladprao, entrance\nChicken and bitter melon noodle stall beside the mall entrance. 10:00–22:00.",
@@ -4330,7 +4438,7 @@
 			},
 			"tags": ["noodles", "street food"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.117Z"
 		},
 		{
 			"id": "q6PCQKcE",
@@ -4342,9 +4450,13 @@
 				{
 					"label": "map",
 					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%9B%E0%B8%B2%E0%B9%80%E0%B8%95%E0%B9%8A%E0%B8%B0%20%E0%B8%AB%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/Patherestaurant/"
 				}
 			],
-			"notes": "Corner of the junction, opens 17:00. Tel 02-644-4321.",
+			"notes": "Corner of the junction, opens 17:00.",
 			"kinds": ["food", "drinks"],
 			"groups": {
 				"cuisine": ["thai"],
@@ -4352,7 +4464,7 @@
 			},
 			"tags": ["bar", "live music", "unverified"],
 			"createdAt": "2026-10-14T03:15:02.481Z",
-			"updatedAt": "2026-10-23T10:02:27.445Z"
+			"updatedAt": "2026-10-23T17:02:02.185Z"
 		}
 	],
 	"history": [],
