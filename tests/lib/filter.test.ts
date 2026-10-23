@@ -18,11 +18,11 @@ import {
 	setTagState,
 	tagState,
 } from "#lib/filter";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 
 const make = (name: string, extra: Partial<Restaurant> = {}): Restaurant => ({
 	id: name,
-	name,
+	name: nameFromText(name),
 	tags: [],
 	link: "",
 	notes: "",
@@ -39,7 +39,7 @@ const list = [
 	make("C", { kinds: ["food", "dessert"] }),
 	make("D"),
 ];
-const names = (items: Restaurant[]) => items.map((item) => item.name);
+const names = (items: Restaurant[]) => items.map((item) => item.name.en);
 const kinds = (include: string[], exclude: string[] = []): Filter => ({
 	...EMPTY_FILTER,
 	kind: { include, exclude },

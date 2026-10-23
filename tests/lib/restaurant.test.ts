@@ -2,10 +2,12 @@ import { expect, test } from "bun:test";
 import { setLang } from "#lib/i18n";
 import {
 	cleanStored,
+	displayName,
 	groupValues,
 	isLink,
 	isRestaurant,
 	metaLine,
+	nameFromText,
 	newId,
 	normalizeInput,
 	normalizeTag,
@@ -18,7 +20,7 @@ import {
 
 const valid: Restaurant = {
 	id: "a1",
-	name: "Som Tam Nua",
+	name: { en: "Som Tam Nua", th: "" },
 	tags: ["thai", "spicy"],
 	link: "https://maps.example/siam",
 	notes: "",
@@ -27,6 +29,58 @@ const valid: Restaurant = {
 	createdAt: "2026-10-12T00:00:00.000Z",
 	updatedAt: "2026-10-12T00:00:00.000Z",
 };
+
+test("nameFromText puts Thai text with no Latin letters in th and anything else in en", () => {
+	expect(nameFromText(" Som Tam ")).toEqual({ en: "Som Tam", th: "" });
+	expect(nameFromText("ส้มตำ")).toEqual({ en: "", th: "ส้มตำ" });
+	expect(nameFromText("ส้มตำ 2")).toEqual({ en: "", th: "ส้มตำ 2" });
+	expect(nameFromText("Sushiro (ซูชิโร่) - Siam")).toEqual({
+		en: "Sushiro (ซูชิโร่) - Siam",
+		th: "",
+	});
+	expect(nameFromText("")).toEqual({ en: "", th: "" });
+});
+
+test("displayName uses the current language, falling back to the other", () => {
+	setLang("th");
+	expect(displayName({ name: { en: "Pho", th: "เฝอ" } })).toBe("เฝอ");
+	expect(displayName({ name: { en: "Pho", th: "" } })).toBe("Pho");
+	setLang("en");
+	expect(displayName({ name: { en: "", th: "เฝอ" } })).toBe("เฝอ");
+});
+
+test("cleanStored reads an old string name into the language its script is in", () => {
+	expect(cleanStored({ ...valid, name: "Som Tam Nua" }).name).toEqual({
+		en: "Som Tam Nua",
+		th: "",
+	});
+	expect(cleanStored({ ...valid, name: "ส้มตำนัว" }).name).toEqual({
+		en: "",
+		th: "ส้มตำนัว",
+	});
+});
+
+test("normalizeInput trims both names", () => {
+	expect(
+		normalizeInput({
+			name: { en: " Pho ", th: " เฝอ " },
+			tags: [],
+			link: "",
+			notes: "",
+		}).name,
+	).toEqual({ en: "Pho", th: "เฝอ" });
+});
+
+test.each([
+	["an old string name", "Pho", true],
+	["an English name only", { en: "Pho", th: "" }, true],
+	["a Thai name only", { en: "", th: "เฝอ" }, true],
+	["both names blank", { en: " ", th: "" }, false],
+	["a name missing a language", { en: "Pho" }, false],
+	["a numeric name", { en: 1, th: "" }, false],
+])("isRestaurant with %s is %p", (_label, name, expected) => {
+	expect(isRestaurant({ ...valid, name })).toBe(expected);
+});
 
 test("parseTags trims, drops empties and de-duplicates in order", () => {
 	expect(parseTags(" thai, ,noodle ,thai,")).toEqual(["thai", "noodle"]);
@@ -74,13 +128,13 @@ test("tagsByUsage returns [] for no restaurants", () => {
 test("normalizeInput trims every field and cleans tags", () => {
 	expect(
 		normalizeInput({
-			name: "  Jay Fai ",
+			name: { en: "  Jay Fai ", th: "" },
 			tags: [" street ", "", "street"],
 			link: " Bangkok ",
 			notes: " ok ",
 		}),
 	).toEqual({
-		name: "Jay Fai",
+		name: { en: "Jay Fai", th: "" },
 		tags: ["street"],
 		link: "Bangkok",
 		notes: "ok",
@@ -93,7 +147,7 @@ test("normalizeInput cleans group values like tags, drops empty groups and keeps
 	expect(
 		normalizeInput(
 			{
-				name: "Cafe",
+				name: { en: "Cafe", th: "" },
 				tags: [],
 				link: "",
 				notes: "",
@@ -116,7 +170,7 @@ test("normalizeInput moves values of unknown groups into tags", () => {
 	expect(
 		normalizeInput(
 			{
-				name: "Cafe",
+				name: { en: "Cafe", th: "" },
 				tags: ["spicy"],
 				link: "",
 				notes: "",
@@ -173,7 +227,7 @@ test("cleanStored keeps known custom groups and moves unknown ones into tags", (
 test("cleanStored keeps only known fields and trims text", () => {
 	expect(
 		cleanStored({ ...valid, name: " Som ", extra: 1 } as StoredRestaurant),
-	).toEqual({ ...valid, name: "Som" });
+	).toEqual({ ...valid, name: { en: "Som", th: "" } });
 });
 
 test("isRestaurant accepts the old shape with a location and no link", () => {

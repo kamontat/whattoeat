@@ -7,12 +7,12 @@ import {
 	saveHistory,
 } from "#lib/history";
 import { setLang } from "#lib/i18n";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 import { saveRestaurants } from "#lib/store";
 
 const restaurant = (id: string, name: string): Restaurant => ({
 	id,
-	name,
+	name: nameFromText(name),
 	tags: [],
 	link: "",
 	notes: "",

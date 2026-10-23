@@ -9,7 +9,7 @@ import {
 } from "#components/restaurant/form";
 import type { TagInput } from "#components/tag-input";
 import { setLang } from "#lib/i18n";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 
 beforeEach(() => {
 	setLang("en");
@@ -21,7 +21,7 @@ afterEach(() => {
 
 const make = (id: string, name: string, extra = {}): Restaurant => ({
 	id,
-	name,
+	name: nameFromText(name),
 	link: "",
 	notes: "",
 	kinds: [],
@@ -114,7 +114,8 @@ test("draws the view's values", async () => {
 		groups: { cuisine: ["thai"] },
 	});
 	const el = await mount(editView(item));
-	expect($<HTMLInputElement>(el, "#name")?.value).toBe("Old");
+	expect($<HTMLInputElement>(el, "#name-en")?.value).toBe("Old");
+	expect($<HTMLInputElement>(el, "#name-th")?.value).toBe("");
 	expect($<HTMLInputElement>(el, "#link")?.value).toBe("Here");
 	expect($<HTMLTextAreaElement>(el, "#notes")?.value).toBe("n");
 	expect(
@@ -142,7 +143,7 @@ test("asks for name, type, groups, link, then tags and notes", async () => {
 	});
 	const order = [
 		...el.shadowRoot!.querySelectorAll(
-			"#name, fieldset.kinds, tag-input, #link, #notes",
+			"#name-en, #name-th, fieldset.kinds, tag-input, #link, #notes",
 		),
 	].map(
 		(node) =>
@@ -151,7 +152,8 @@ test("asks for name, type, groups, link, then tags and notes", async () => {
 			node.className,
 	);
 	expect(order).toEqual([
-		"name",
+		"name-en",
+		"name-th",
 		"kinds",
 		"cuisine",
 		"area",
@@ -168,7 +170,8 @@ test("reports every edit as a whole new form state", async () => {
 	const el = await mount();
 	own(el);
 	const changes = listen<FormState>(el, "form-change");
-	type(el, "#name", "Cafe");
+	type(el, "#name-en", "Cafe");
+	type(el, "#name-th", "คาเฟ่");
 	type(el, "#link", "Ari");
 	type(el, "#notes", "late");
 	await el.updateComplete;
@@ -179,7 +182,7 @@ test("reports every edit as a whole new form state", async () => {
 	await typeInto(el, "cuisine", "thai,");
 	await el.updateComplete;
 	expect(changes.at(-1)).toEqual({
-		name: "Cafe",
+		name: { en: "Cafe", th: "คาเฟ่" },
 		link: "Ari",
 		notes: "late",
 		kinds: ["food", "dessert"],
@@ -192,15 +195,16 @@ test("edits made before the owner hands back a new view build on each other", as
 	const el = await mount();
 	const changes = listen<FormState>(el, "form-change");
 	const submits = listen<FormState>(el, "form-submit");
-	type(el, "#name", "Cafe");
+	type(el, "#name-th", "คาเฟ่");
 	type(el, "#notes", "late");
 	submit(el);
-	expect(changes.at(-1)).toMatchObject({ name: "Cafe", notes: "late" });
-	expect(submits[0]).toMatchObject({ name: "Cafe", notes: "late" });
+	const name = { en: "", th: "คาเฟ่" };
+	expect(changes.at(-1)).toMatchObject({ name, notes: "late" });
+	expect(submits[0]).toMatchObject({ name, notes: "late" });
 });
 
 test("submit commits text left in every box", async () => {
-	const el = await mount(addView({ name: "Cafe" }), {
+	const el = await mount(addView({ name: { en: "Cafe", th: "" } }), {
 		defs: [{ id: "g1", name: "Price" }],
 	});
 	const submits = listen<FormState>(el, "form-submit");
@@ -211,7 +215,7 @@ test("submit commits text left in every box", async () => {
 	expect(submits).toEqual([
 		{
 			...EMPTY_FORM,
-			name: "Cafe",
+			name: { en: "Cafe", th: "" },
 			tags: ["spicy"],
 			groups: { cuisine: ["thai", "japanese"], area: [], g1: ["cheap"] },
 		},
@@ -219,17 +223,34 @@ test("submit commits text left in every box", async () => {
 });
 
 test("values of a group no longer drawn stay in the submitted form for the owner to demote", async () => {
-	const el = await mount(addView({ name: "Cafe", groups: { gone: ["x"] } }));
+	const el = await mount(
+		addView({ name: { en: "Cafe", th: "" }, groups: { gone: ["x"] } }),
+	);
 	const submits = listen<FormState>(el, "form-submit");
 	submit(el);
 	expect(submits[0]?.groups).toEqual({ gone: ["x"], cuisine: [], area: [] });
 });
 
-test("shows the view's name error on the name field", async () => {
+test("shows the view's name error on both name fields", async () => {
 	const el = await mount({ ...addView(), nameError: "manager.nameRequired" });
-	expect($(el, "#name-error")?.textContent?.trim()).toBe("Name is required.");
-	expect($(el, "#name")?.getAttribute("aria-invalid")).toBe("true");
-	expect($(el, "#name")?.getAttribute("aria-describedby")).toBe("name-error");
+	expect($(el, "#name-error")?.textContent?.trim()).toBe(
+		"Enter a name in English or Thai.",
+	);
+	for (const id of ["#name-en", "#name-th"]) {
+		expect($(el, id)?.getAttribute("aria-invalid")).toBe("true");
+		expect($(el, id)?.getAttribute("aria-describedby")).toBe("name-error");
+	}
+});
+
+test("the name field for the current language comes first", async () => {
+	setLang("th");
+	const el = await mount();
+	const ids = [...el.shadowRoot!.querySelectorAll("#name-en, #name-th")].map(
+		(node) => node.id,
+	);
+	expect(ids).toEqual(["name-th", "name-en"]);
+	expect($(el, "label:has(#name-th)")?.textContent?.trim()).toBe("ชื่อภาษาไทย");
+	expect($(el, "label:has(#name-en)")?.textContent?.trim()).toBe("ชื่อภาษาอังกฤษ");
 });
 
 test("the link field is a URL box and shows the view's link error", async () => {
@@ -314,10 +335,14 @@ test("clearText drops text typed but not yet a chip", async () => {
 	).toBe("");
 });
 
-test("focusName focuses the name field", async () => {
+test("focusName focuses the name field of the current language", async () => {
 	const el = await mount();
 	el.focusName();
-	expect(el.shadowRoot!.activeElement?.id).toBe("name");
+	expect(el.shadowRoot!.activeElement?.id).toBe("name-en");
+	setLang("th");
+	await el.updateComplete;
+	el.focusName();
+	expect(el.shadowRoot!.activeElement?.id).toBe("name-th");
 });
 
 test("labels render in Thai", async () => {

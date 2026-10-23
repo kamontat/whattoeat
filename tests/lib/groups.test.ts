@@ -30,11 +30,11 @@ import {
 	valueLabel,
 } from "#lib/groups";
 import { setLang } from "#lib/i18n";
-import { groupValues, type Restaurant } from "#lib/restaurant";
+import { groupValues, nameFromText, type Restaurant } from "#lib/restaurant";
 
 const make = (id: string, groups: Restaurant["groups"] = {}): Restaurant => ({
 	id,
-	name: id,
+	name: nameFromText(id),
 	tags: [],
 	link: "",
 	notes: "",

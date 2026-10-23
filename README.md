@@ -11,7 +11,7 @@ app (see [Install on a phone](#install-on-a-phone)).
 | Page           | What it does                                   |
 | -------------- | ---------------------------------------------- |
 | `/`            | Two random options; press Eat here to save a visit to History |
-| `/restaurants` | Add, edit and delete restaurants; search them by name |
+| `/restaurants` | Add, edit and delete restaurants with an English and a Thai name; search them by either |
 | `/history`     | Visits grouped by day, stats per restaurant, delete a visit |
 | `/settings`    | Language and theme; link to tags; export or import JSON as a file or by copy and paste, with replace or merge; neighbourhood presets; clear history by age; delete all data; about |
 | `/settings/presets` | Tick neighbourhoods and add them to the list or replace it, with undo |
@@ -95,7 +95,7 @@ is sent to a server.
 
 | Key                     | Holds                                                      |
 | ----------------------- | ---------------------------------------------------------- |
-| `whattoeat:restaurants` | The restaurant list (JSON array)                           |
+| `whattoeat:restaurants` | The restaurant list (JSON array); each name is `{ en, th }` |
 | `whattoeat:history`     | Visits from **Eat here**, newest first (JSON array)        |
 | `whattoeat:lang`        | The chosen language, `en` or `th`                          |
 | `whattoeat:theme`       | The chosen theme, `auto`, `light` or `dark`                |
@@ -107,7 +107,7 @@ warning with how many were skipped. The next change to the list saves only the v
 so the skipped ones are gone after that. To keep one, copy the value from the browser's
 developer tools (Application, then Local Storage) before changing the list; fixed entries can
 be re-imported from **Settings** by pasting them inside an export
-(`{ "app": "whattoeat", "version": 4, "restaurants": [...], "history": [], "groups": [] }`).
+(`{ "app": "whattoeat", "version": 6, "restaurants": [...], "history": [], "groups": [] }`).
 
 Planned future work lives in [TODO.md](TODO.md).
 

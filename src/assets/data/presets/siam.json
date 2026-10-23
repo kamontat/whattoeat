@@ -1,11 +1,11 @@
 {
 	"app": "whattoeat",
-	"version": 5,
+	"version": 6,
 	"exportedAt": "2026-10-17T09:17:11.246Z",
 	"restaurants": [
 		{
 			"id": "ouEbWrQ2",
-			"name": "Nara Thai Cuisine - Siam Paragon",
+			"name": { "en": "Nara Thai Cuisine - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nRefined Thai classics, Michelin-listed. Gourmet Garden zone. Mid price.",
 			"kinds": ["food"],
@@ -19,7 +19,7 @@
 		},
 		{
 			"id": "46H7oRvv",
-			"name": "Taling Pling (ตะลิ่งปลิ่ง) - Siam Paragon",
+			"name": { "en": "Taling Pling (ตะลิ่งปลิ่ง) - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nHome-style Thai dishes, good for groups. Mid price.",
 			"kinds": ["food"],
@@ -33,7 +33,7 @@
 		},
 		{
 			"id": "AGtDtzyp",
-			"name": "Tonchin Ramen - Siam Paragon",
+			"name": { "en": "Tonchin Ramen - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nTokyo tonkotsu ramen, Michelin-recognised. 10:00-22:00.",
 			"kinds": ["food"],
@@ -47,7 +47,7 @@
 		},
 		{
 			"id": "VbQWhvjY",
-			"name": "Suki Masa - Siam Paragon",
+			"name": { "en": "Suki Masa - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nKansai-style sukiyaki and shabu with A5 wagyu. Expensive.",
 			"kinds": ["food"],
@@ -61,7 +61,7 @@
 		},
 		{
 			"id": "2DeZfDvl",
-			"name": "Nabezo Premium - Siam Paragon",
+			"name": { "en": "Nabezo Premium - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nPremium shabu and sukiyaki buffet with Omi wagyu. 11:00-22:00.",
 			"kinds": ["food"],
@@ -75,7 +75,7 @@
 		},
 		{
 			"id": "FD8S1Kvt",
-			"name": "JUMBO Seafood - Siam Paragon",
+			"name": { "en": "JUMBO Seafood - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nSingapore chilli crab and black pepper crab. Expensive.",
 			"kinds": ["food"],
@@ -89,7 +89,7 @@
 		},
 		{
 			"id": "TW3wvQ3l",
-			"name": "Sushiro (ซูชิโร่) - Siam Paragon",
+			"name": { "en": "Sushiro (ซูชิโร่) - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, 4F\nConveyor-belt sushi. Budget to mid price.",
 			"kinds": ["food"],
@@ -103,7 +103,7 @@
 		},
 		{
 			"id": "BMGxFLJz",
-			"name": "Maple Tree House - Siam Paragon",
+			"name": { "en": "Maple Tree House - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nKorean BBQ, grilled at the table. Mid to high price.",
 			"kinds": ["food"],
@@ -117,7 +117,7 @@
 		},
 		{
 			"id": "GM7bAi3O",
-			"name": "Another Hound Cafe - Siam Paragon",
+			"name": { "en": "Another Hound Cafe - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nItalian-Thai fusion from Greyhound; Spaghetti Cha Cha Cha. Mid price.",
 			"kinds": ["food", "drinks"],
@@ -131,7 +131,7 @@
 		},
 		{
 			"id": "bVpjC9XK",
-			"name": "Coffee Beans by Dao - Siam Paragon",
+			"name": { "en": "Coffee Beans by Dao - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nThai and Western dishes plus a big cake counter. Mid price.",
 			"kinds": ["food", "drinks", "dessert"],
@@ -145,7 +145,7 @@
 		},
 		{
 			"id": "o7rPeGXk",
-			"name": "TWG Tea - Siam Paragon",
+			"name": { "en": "TWG Tea - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nTea salon with macarons and afternoon tea sets. Expensive.",
 			"kinds": ["drinks", "dessert"],
@@ -158,7 +158,7 @@
 		},
 		{
 			"id": "gycLBA3p",
-			"name": "Karun Thai Tea - Siam Paragon",
+			"name": { "en": "Karun Thai Tea - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nThai tea drinks. Budget.",
 			"kinds": ["drinks"],
@@ -171,7 +171,7 @@
 		},
 		{
 			"id": "59VSh8mG",
-			"name": "Veganerie - Siam Paragon",
+			"name": { "en": "Veganerie - Siam Paragon", "th": "" },
 			"link": "",
 			"notes": "Siam Paragon, G\nVegan cafe: cakes, waffles and plant-based mains. Mid price.",
 			"kinds": ["food", "drinks", "dessert"],
@@ -185,7 +185,7 @@
 		},
 		{
 			"id": "23QE0DwF",
-			"name": "Gyukatsu Kyoto Katsugyu - Siam Center",
+			"name": { "en": "Gyukatsu Kyoto Katsugyu - Siam Center", "th": "" },
 			"link": "",
 			"notes": "Siam Center, 2F\nBreaded beef cutlet you sear on a stone. Food Factory. 11:00-22:00.",
 			"kinds": ["food"],
@@ -199,7 +199,7 @@
 		},
 		{
 			"id": "eID5odBV",
-			"name": "Tonkatsu Wako - Siam Center",
+			"name": { "en": "Tonkatsu Wako - Siam Center", "th": "" },
 			"link": "",
 			"notes": "Siam Center, 2F\nCrispy tonkatsu sets with free-flow cabbage. Food Factory. 11:00-22:00.",
 			"kinds": ["food"],
@@ -213,7 +213,7 @@
 		},
 		{
 			"id": "AGOffpHN",
-			"name": "Baan Ying (บ้านหญิง) - Siam Center",
+			"name": { "en": "Baan Ying (บ้านหญิง) - Siam Center", "th": "" },
 			"link": "",
 			"notes": "Siam Center, 2F\nThai comfort food and desserts. Food Factory. Budget to mid price.",
 			"kinds": ["food", "dessert"],
@@ -227,7 +227,7 @@
 		},
 		{
 			"id": "dY9YKvzF",
-			"name": "Pasta Ama - Siam Center",
+			"name": { "en": "Pasta Ama - Siam Center", "th": "" },
 			"link": "",
 			"notes": "Siam Center, 2F\nFresh pasta. Food Factory. Mid price.",
 			"kinds": ["food"],
@@ -241,7 +241,7 @@
 		},
 		{
 			"id": "4N0hmXPJ",
-			"name": "Hachiban Ramen (ฮะจิบัง ราเมน) - Siam Center",
+			"name": { "en": "Hachiban Ramen (ฮะจิบัง ราเมน) - Siam Center", "th": "" },
 			"link": "",
 			"notes": "Siam Center, 2F\nCheap and quick ramen sets. Food Factory. Budget.",
 			"kinds": ["food"],
@@ -255,7 +255,7 @@
 		},
 		{
 			"id": "mxutPWrQ",
-			"name": "Zhangliang Mala Tang - Siam Center",
+			"name": { "en": "Zhangliang Mala Tang - Siam Center", "th": "" },
 			"link": "",
 			"notes": "Siam Center, 2F\nPick-your-own mala soup, priced by weight. Food Factory. Budget.",
 			"kinds": ["food"],
@@ -269,7 +269,7 @@
 		},
 		{
 			"id": "Z3xM1Q7z",
-			"name": "Bonchon Chicken - Siam Center",
+			"name": { "en": "Bonchon Chicken - Siam Center", "th": "" },
 			"link": "",
 			"notes": "Siam Center, 2F\nKorean fried chicken. Food Factory. Budget.",
 			"kinds": ["food"],
@@ -283,7 +283,7 @@
 		},
 		{
 			"id": "5oNyUpbq",
-			"name": "Hasul Korean Restaurant - Siam Center",
+			"name": { "en": "Hasul Korean Restaurant - Siam Center", "th": "" },
 			"link": "",
 			"notes": "Siam Center, 2F\nKorean home cooking: stews, bibimbap, side dishes. Food Factory. Budget to mid price.",
 			"kinds": ["food"],
@@ -297,7 +297,10 @@
 		},
 		{
 			"id": "meANdYrs",
-			"name": "Tajimaya Shabu (ทะจิมะยะ ชาบู) - Siam Square One",
+			"name": {
+				"en": "Tajimaya Shabu (ทะจิมะยะ ชาบู) - Siam Square One",
+				"th": ""
+			},
 			"link": "",
 			"notes": "Siam Square One, 5F\nWagyu shabu buffet, moved here from Isetan. 11:00-21:00.",
 			"kinds": ["food"],
@@ -311,7 +314,7 @@
 		},
 		{
 			"id": "1pnaxR0d",
-			"name": "Hongdae BBQ Buffet (ฮงแด) - Siam Square One",
+			"name": { "en": "Hongdae BBQ Buffet (ฮงแด) - Siam Square One", "th": "" },
 			"link": "",
 			"notes": "Siam Square One, 5F\nKorean BBQ buffet from ฿299. 11:00-22:00.",
 			"kinds": ["food"],
@@ -325,7 +328,7 @@
 		},
 		{
 			"id": "eGWrdLGZ",
-			"name": "Kouen Sushi Bar - Siam Square One",
+			"name": { "en": "Kouen Sushi Bar - Siam Square One", "th": "" },
 			"link": "",
 			"notes": "Siam Square One, 5F\nSushi and Japanese fusion, buffet sets. 11:00-22:00.",
 			"kinds": ["food"],
@@ -339,7 +342,7 @@
 		},
 		{
 			"id": "8LBGVwbE",
-			"name": "Jaguemsong (จากึมซอง) - Siam Square One",
+			"name": { "en": "Jaguemsong (จากึมซอง) - Siam Square One", "th": "" },
 			"link": "",
 			"notes": "Siam Square One, 5F\nKorean-Chinese: jajangmyeon, jjamppong, tangsuyuk. Budget to mid price.",
 			"kinds": ["food"],
@@ -353,7 +356,7 @@
 		},
 		{
 			"id": "BFeM9M5C",
-			"name": "Ramen Kagetsu Arashi - Siam Square One",
+			"name": { "en": "Ramen Kagetsu Arashi - Siam Square One", "th": "" },
 			"link": "",
 			"notes": "Siam Square One, 4F\nGarlicky tonkotsu ramen. Budget. 10:00-21:00.",
 			"kinds": ["food"],
@@ -367,7 +370,7 @@
 		},
 		{
 			"id": "xCqu1VnC",
-			"name": "Ohkajoo (โอ้กะจู๋) - Siam Square One",
+			"name": { "en": "Ohkajoo (โอ้กะจู๋) - Siam Square One", "th": "" },
 			"link": "",
 			"notes": "Siam Square One, 3F\nSalads, steaks and organic veg from their own farm. Mid price.",
 			"kinds": ["food"],
@@ -381,7 +384,7 @@
 		},
 		{
 			"id": "dR27VRp6",
-			"name": "After You Dessert Cafe - Siam Square One",
+			"name": { "en": "After You Dessert Cafe - Siam Square One", "th": "" },
 			"link": "",
 			"notes": "Siam Square One, G\nShibuya honey toast and kakigori. Mid price.",
 			"kinds": ["drinks", "dessert"],
@@ -394,7 +397,7 @@
 		},
 		{
 			"id": "Xpt3g3As",
-			"name": "Amai Soft Serve - Siam Square One",
+			"name": { "en": "Amai Soft Serve - Siam Square One", "th": "" },
 			"link": "",
 			"notes": "Siam Square One, 1F\nYogurt soft serve with weekly flavours. Budget.",
 			"kinds": ["dessert"],

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/restaurant/list";
 import { RestaurantList } from "#components/restaurant/list";
 import { setLang } from "#lib/i18n";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 
 beforeEach(() => {
 	setLang("en");
@@ -14,7 +14,7 @@ afterEach(() => {
 
 const make = (id: string, name: string, extra = {}): Restaurant => ({
 	id,
-	name,
+	name: nameFromText(name),
 	link: "",
 	notes: "",
 	kinds: [],
@@ -61,6 +61,27 @@ test("rows are sorted by name in the current language", async () => {
 		make("3", "curry"),
 	]);
 	expect(names(el)).toEqual(["Bun", "curry", "pho"]);
+});
+
+test("rows show the name in the current language, or the other when it has none", async () => {
+	const pho = make("1", "Pho", { name: { en: "Pho", th: "เฝอ" } });
+	const curry = make("2", "Curry");
+	const el = await mount([pho, curry]);
+	expect(names(el)).toEqual(["Curry", "Pho"]);
+	setLang("th");
+	el.requestUpdate();
+	await el.updateComplete;
+	expect(names(el)).toEqual(["เฝอ", "Curry"]);
+	expect(
+		$(el, 'li[data-id="1"] [data-action="edit"]')?.getAttribute("aria-label"),
+	).toContain("เฝอ");
+});
+
+test("a search that matches only the other language's name shows that name highlighted", async () => {
+	const pho = make("1", "Pho", { name: { en: "Pho", th: "เฝอ" } });
+	const el = await mount([pho], { query: "เฝอ" });
+	expect(names(el)).toEqual(["เฝอ"]);
+	expect($(el, ".name mark")?.textContent).toBe("เฝอ");
 });
 
 test("with no restaurants it shows the empty card, whose Add asks to add one", async () => {

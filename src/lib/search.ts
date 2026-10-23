@@ -1,10 +1,25 @@
-import { t } from "#lib/i18n";
+import { type Localized, localize, t } from "#lib/i18n";
 
 /** A part of a name that matched, as UTF-16 offsets into the original string. */
 export type MatchRange = { start: number; end: number };
 
-/** An item the query keeps, with what to highlight in its name. */
-export type SearchResult<T> = { item: T; ranges: MatchRange[] };
+/** Something searched by name: one string, or a name in both languages. */
+export type Named = { name: string | Localized };
+
+/** An item the query keeps, the name that matched, and what to highlight in it. */
+export type SearchResult<T> = { item: T; text: string; ranges: MatchRange[] };
+
+/** The names to try, the one shown in the current language first. */
+const namesOf = ({ name }: Named): string[] => {
+	if (typeof name === "string") return [name];
+	const shown = localize(name);
+	return [
+		shown,
+		...Object.values(name).filter(
+			(text) => text !== shown && text.trim() !== "",
+		),
+	];
+};
 
 /**
  * Lower-cased text with Latin accents (U+0300–U+036F after NFD) removed, one character at a
@@ -69,32 +84,32 @@ export const matchName = (
 	return merged;
 };
 
-/** The items whose name has every word of `query`, in the given order; no words keeps them all. */
-export const searchByName = <T extends { name: string }>(
+/**
+ * The items with a name that has every word of `query`, in the given order; no words keeps
+ * them all. A name in both languages matches on either, the shown one first.
+ */
+export const searchByName = <T extends Named>(
 	items: readonly T[],
 	query: string,
 ): SearchResult<T>[] => {
 	const words = searchWords(query);
 	return items.flatMap((item) => {
-		const ranges = matchName(item.name, words);
-		return ranges === undefined ? [] : [{ item, ranges }];
+		for (const text of namesOf(item)) {
+			const ranges = matchName(text, words);
+			if (ranges !== undefined) return [{ item, text, ranges }];
+		}
+		return [];
 	});
 };
 
 /** Searching for words that no item's name has (the list shows its no-match card instead). */
-export const noMatch = (
-	items: readonly { name: string }[],
-	query: string,
-): boolean =>
+export const noMatch = (items: readonly Named[], query: string): boolean =>
 	items.length > 0 &&
 	searchWords(query).length > 0 &&
 	searchByName(items, query).length === 0;
 
 /** How many restaurants there are, or how many of them the query keeps when it has words. */
-export const countText = (
-	items: readonly { name: string }[],
-	query: string,
-): string => {
+export const countText = (items: readonly Named[], query: string): string => {
 	const total = items.length;
 	if (searchWords(query).length > 0)
 		return t("search.count", {

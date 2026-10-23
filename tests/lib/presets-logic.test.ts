@@ -13,12 +13,12 @@ import {
 	replaceWithPresets,
 	saveAddedPresets,
 } from "#lib/presets";
-import { isLink, type Restaurant } from "#lib/restaurant";
+import { isLink, nameFromText, type Restaurant } from "#lib/restaurant";
 import { EXPORT_VERSION, toExportFile } from "#lib/transfer";
 
 const make = (id: string, name = id): Restaurant => ({
 	id,
-	name,
+	name: nameFromText(name),
 	tags: [],
 	link: "",
 	groups: {},
@@ -119,7 +119,7 @@ test("addPresets keeps an existing restaurant untouched when a preset has the sa
 	const saved = [make("a", "Old Name")];
 	const files = [file(entry(), make("a", "New Name"), make("b", "B"))];
 	const result = addPresets(saved, files, []);
-	expect(result.list.find((item) => item.id === "a")?.name).toBe("Old Name");
+	expect(result.list.find((item) => item.id === "a")?.name.en).toBe("Old Name");
 	expect(result.newCount).toBe(1);
 });
 

@@ -6,11 +6,11 @@ import {
 	pickOptions,
 	savePickCount,
 } from "#lib/random";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 
 const make = (id: string): Restaurant => ({
 	id,
-	name: id,
+	name: nameFromText(id),
 	tags: [],
 	link: "",
 	notes: "",

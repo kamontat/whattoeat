@@ -1,9 +1,9 @@
-import { newId, type Restaurant } from "#lib/restaurant";
+import { displayName, newId, type Restaurant } from "#lib/restaurant";
 
 export const HISTORY_KEY = "whattoeat:history";
 export const HISTORY_EVENT = "whattoeat:history-changed";
 
-/** One "Eat here" press: which restaurant, its name at that moment, and when. */
+/** One "Eat here" press: which restaurant, its name as shown at that moment, and when. */
 export type HistoryEntry = {
 	id: string;
 	restaurantId: string;
@@ -102,7 +102,7 @@ export const addVisit = (
 	const entry: HistoryEntry = {
 		id: newId(existing.map((item) => item.id)),
 		restaurantId: restaurant.id,
-		name: restaurant.name,
+		name: displayName(restaurant),
 		visitedAt: now.toISOString(),
 	};
 	saveHistory(newestFirst([entry, ...existing]));
@@ -185,7 +185,7 @@ export const summarize = (
 		const current = restaurants.find((item) => item.id === entry.restaurantId);
 		rows.set(entry.restaurantId, {
 			restaurantId: entry.restaurantId,
-			name: current?.name ?? entry.name,
+			name: current === undefined ? entry.name : displayName(current),
 			count: 1,
 			lastVisitedAt: entry.visitedAt,
 			deleted: current === undefined,

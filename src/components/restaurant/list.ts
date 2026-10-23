@@ -4,13 +4,20 @@ import { repeat } from "lit/directives/repeat.js";
 import { highlight } from "#lib/highlight";
 import { getLang, LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
-import { isLink, metaLine, type Restaurant } from "#lib/restaurant";
+import {
+	displayName,
+	isLink,
+	metaLine,
+	type Restaurant,
+} from "#lib/restaurant";
 import { type MatchRange, searchByName } from "#lib/search";
 import { uiStyles } from "#styles/ui";
 
-/** Restaurants in list order: by name, in the current language's collation. */
+/** Restaurants in list order: by the name shown, in the current language's collation. */
 export const sortByName = (restaurants: readonly Restaurant[]): Restaurant[] =>
-	[...restaurants].sort((a, b) => a.name.localeCompare(b.name, getLang()));
+	[...restaurants].sort((a, b) =>
+		displayName(a).localeCompare(displayName(b), getLang()),
+	);
 
 /**
  * The restaurant list, narrowed to what `query` matches. It only reports what is tapped:
@@ -139,7 +146,7 @@ export class RestaurantList extends LitElement {
 		return html`<ul class="group list">${repeat(
 			results,
 			({ item }) => item.id,
-			({ item, ranges }) => this.renderRow(item, ranges),
+			({ item, text, ranges }) => this.renderRow(item, text, ranges),
 		)}</ul>`;
 	}
 
@@ -158,7 +165,13 @@ export class RestaurantList extends LitElement {
 		</div>`;
 	}
 
-	private renderRow(item: Restaurant, ranges: readonly MatchRange[]) {
+	/** `text` is the name to show: the one the search matched, or the shown one. */
+	private renderRow(
+		item: Restaurant,
+		text: string,
+		ranges: readonly MatchRange[],
+	) {
+		const name = displayName(item);
 		const meta = metaLine(item);
 		const metaId = `meta-${item.id}`;
 		return html`<li data-id=${item.id}>
@@ -167,12 +180,12 @@ export class RestaurantList extends LitElement {
 				class="item row"
 				data-action="edit"
 				aria-current=${this.currentId === item.id ? "true" : nothing}
-				aria-label=${t("manager.editTitle", { name: item.name })}
+				aria-label=${t("manager.editTitle", { name })}
 				aria-describedby=${meta ? metaId : nothing}
 				@click=${() => this.emit("restaurant-edit", item)}
 			>
 				<span class="grow">
-					<b class="name">${highlight(item.name, ranges)}</b>
+					<b class="name">${highlight(text, ranges)}</b>
 					${meta ? html`<small class="meta" id=${metaId}>${meta}</small>` : nothing}
 				</span>
 				<span class="trail">${icon("chevron", 20)}</span>
@@ -184,7 +197,7 @@ export class RestaurantList extends LitElement {
 							href=${item.link}
 							target="_blank"
 							rel="noopener noreferrer"
-							aria-label=${t("manager.openLink", { name: item.name })}
+							aria-label=${t("manager.openLink", { name })}
 						>${icon("external", 20)}</a>`
 					: nothing
 			}

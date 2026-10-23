@@ -3,16 +3,21 @@ import { customElement, property, state } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import "#components/app-toast";
 import type { AppToast } from "#components/app-toast";
-import { getLang, LangController, type MessageKey, t } from "#lib/i18n";
+import {
+	getLang,
+	LangController,
+	type Localized,
+	localize,
+	type MessageKey,
+	t,
+} from "#lib/i18n";
 import { icon } from "#lib/icons";
 import {
 	type AddedPreset,
 	addPresets,
 	fetchIndex,
 	fetchPresetFiles,
-	type Localized,
 	loadAddedPresets,
-	localize,
 	type PresetEntry,
 	type PresetFile,
 	type PresetIndex,

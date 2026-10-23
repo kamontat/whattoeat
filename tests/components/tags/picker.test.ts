@@ -3,7 +3,7 @@ import "#components/tags/picker";
 import type { TagPicker } from "#components/tags/picker";
 import type { GroupDef } from "#lib/groups";
 import { setLang } from "#lib/i18n";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 import { type TagGroup, tagGroups } from "#lib/tags";
 
 beforeEach(() => {
@@ -20,7 +20,7 @@ const make = (
 	extra: Partial<Restaurant> = {},
 ): Restaurant => ({
 	id,
-	name: id,
+	name: nameFromText(id),
 	tags: [],
 	link: "",
 	notes: "",

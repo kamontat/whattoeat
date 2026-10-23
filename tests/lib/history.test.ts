@@ -16,7 +16,7 @@ import {
 	saveHistory,
 	summarize,
 } from "#lib/history";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 
 const entry = (
 	id: string,
@@ -27,7 +27,7 @@ const entry = (
 
 const restaurant = (id: string, name: string): Restaurant => ({
 	id,
-	name,
+	name: nameFromText(name),
 	tags: [],
 	link: "",
 	notes: "",

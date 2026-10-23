@@ -32,10 +32,16 @@ import {
 	loadGroups,
 	onGroupsChanged,
 } from "#lib/groups";
-import { LangController, t } from "#lib/i18n";
+import { LangController, localize, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import { MediaController, WIDE } from "#lib/media";
-import { isLink, type Restaurant } from "#lib/restaurant";
+import {
+	displayName,
+	isBlankName,
+	isLink,
+	nameFromText,
+	type Restaurant,
+} from "#lib/restaurant";
 import { countText, searchByName, searchWords } from "#lib/search";
 import {
 	addRestaurant,
@@ -426,7 +432,9 @@ export class RestaurantManager extends LitElement {
 	}
 
 	private readonly onFormChange = (event: CustomEvent<FormState>): void => {
-		if (event.detail.name !== this.form.name) this.nameError = undefined;
+		const { en, th } = event.detail.name;
+		if (en !== this.form.name.en || th !== this.form.name.th)
+			this.nameError = undefined;
 		if (event.detail.link !== this.form.link) this.linkError = undefined;
 		this.form = event.detail;
 	};
@@ -434,11 +442,14 @@ export class RestaurantManager extends LitElement {
 	private readonly onFormSubmit = (event: CustomEvent<FormState>): void => {
 		const input = event.detail;
 		const link = input.link.trim();
-		if (input.name.trim() === "") this.nameError = "manager.nameRequired";
+		if (isBlankName(input.name)) this.nameError = "manager.nameRequired";
 		if (link !== "" && !isLink(link)) this.linkError = "manager.linkInvalid";
 		if (this.nameError !== undefined || this.linkError !== undefined) return;
 		const editingId = this.editingId;
-		const name = input.name.trim();
+		const name = localize({
+			en: input.name.en.trim(),
+			th: input.name.th.trim(),
+		});
 		const wasSearching = this.searching;
 		// Reset before saving so the store's change callback already sees a clean form.
 		this.resetForm();
@@ -512,7 +523,7 @@ export class RestaurantManager extends LitElement {
 			return;
 		}
 		this.openAdd();
-		this.form = { ...this.form, name };
+		this.form = { ...this.form, name: nameFromText(name) };
 	};
 
 	private readonly onSearchChange = (
@@ -592,7 +603,8 @@ export class RestaurantManager extends LitElement {
 
 	private readonly onDeleteConfirm = (event: CustomEvent<string>): void => {
 		const id = event.detail;
-		const name = this.restaurants.find((item) => item.id === id)?.name ?? "";
+		const item = this.restaurants.find((entry) => entry.id === id);
+		const name = item === undefined ? "" : displayName(item);
 		this.confirmingId = undefined;
 		this.sheetOpen = false;
 		this.closePanel();
@@ -615,7 +627,7 @@ export class RestaurantManager extends LitElement {
 		const formTitle =
 			editing === undefined
 				? t("manager.addTitle")
-				: t("manager.editTitle", { name: editing.name });
+				: t("manager.editTitle", { name: displayName(editing) });
 		const addLabel = t("manager.addLabel");
 		const add = html`<button
 			type="button"

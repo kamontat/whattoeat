@@ -3,7 +3,7 @@ import "#components/tags/group-form";
 import type { GroupDraft, TagGroupForm } from "#components/tags/group-form";
 import type { GroupDef } from "#lib/groups";
 import { setLang, t } from "#lib/i18n";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 
 beforeEach(() => {
 	setLang("en");
@@ -19,7 +19,7 @@ const make = (
 	extra: Partial<Restaurant> = {},
 ): Restaurant => ({
 	id,
-	name: id,
+	name: nameFromText(id),
 	tags: [],
 	link: "",
 	notes: "",

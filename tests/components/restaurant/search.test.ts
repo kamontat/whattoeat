@@ -2,7 +2,8 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/restaurant/search";
 import { RestaurantSearch } from "#components/restaurant/search";
 import { setLang } from "#lib/i18n";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
+import type { Named } from "#lib/search";
 import { uiStyles } from "#styles/ui";
 
 type HappyWindow = Window & {
@@ -28,7 +29,7 @@ afterEach(() => {
 
 const make = (name: string): Restaurant => ({
 	id: name,
-	name,
+	name: nameFromText(name),
 	link: "",
 	notes: "",
 	kinds: [],
@@ -44,7 +45,7 @@ const SEED = ["Bankara Ramen", "Café Tartine", "Jay Fai", "Ramen Champion"].map
 
 type Change = { searching: boolean; query: string };
 
-const mount = async (restaurants: readonly { name: string }[] = SEED) => {
+const mount = async (restaurants: readonly Named[] = SEED) => {
 	const el = document.createElement("restaurant-search");
 	el.restaurants = restaurants;
 	document.body.append(el);
@@ -187,7 +188,7 @@ test("the Search key with one match picks it; with several it puts the keyboard 
 	await typeSearch(el, "champion");
 	const picks = listen<Restaurant>(el, "search-pick");
 	expect(key(field(el), "Enter").defaultPrevented).toBe(true);
-	expect(picks.map((item) => item.name)).toEqual(["Ramen Champion"]);
+	expect(picks.map((item) => item.name.en)).toEqual(["Ramen Champion"]);
 	await typeSearch(el, "ram");
 	field(el).focus();
 	key(field(el), "Enter");

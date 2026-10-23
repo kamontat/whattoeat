@@ -10,12 +10,12 @@ import {
 	PRESETS_KEY,
 	type PresetIndex,
 } from "#lib/presets";
-import type { Restaurant } from "#lib/restaurant";
+import { nameFromText, type Restaurant } from "#lib/restaurant";
 import { isMemoryOnly, loadRestaurants, saveRestaurants } from "#lib/store";
 
 const make = (id: string, name = id): Restaurant => ({
 	id,
-	name,
+	name: nameFromText(name),
 	tags: [],
 	link: "",
 	groups: {},
@@ -756,7 +756,7 @@ test('Add merges, records the presets, clears the selection, and shows "Added {k
 		]);
 		// Saved first, then the new ids in file order, "shared" only once.
 		expect(storedIds()).toEqual(["s1", "l1", "l2", "shared", "r1"]);
-		expect(loadRestaurants().find((item) => item.id === "l1")?.name).toBe(
+		expect(loadRestaurants().find((item) => item.id === "l1")?.name.en).toBe(
 			"My edited L1",
 		);
 		expect(storedPresets()).toEqual([
