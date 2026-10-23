@@ -209,7 +209,7 @@ test("a label with no URL is an error; a blank row is dropped", async () => {
 	type(el, "#link-url-0", "https://cafe.example/menu");
 	await submit(el);
 	expect(loadRestaurants()).toMatchObject([
-		{ links: [{ label: "Menu", url: "https://cafe.example/menu" }] },
+		{ links: [{ label: "menu", url: "https://cafe.example/menu" }] },
 	]);
 });
 
@@ -338,7 +338,7 @@ test("edit fills the form and save updates the restaurant", async () => {
 		{
 			name: { en: "New", th: "" },
 			tags: ["a", "b"],
-			links: [{ label: "Site", url: "https://here.example" }],
+			links: [{ label: "site", url: "https://here.example" }],
 			notes: "n",
 		},
 	]);

@@ -18,7 +18,9 @@ import {
 	displayName,
 	KINDS,
 	type Kind,
+	LINK_LABELS,
 	type Link,
+	labelText,
 	type Restaurant,
 	VALUE_GROUPS,
 	valuesByUsage,
@@ -64,7 +66,8 @@ export const EMPTY_VIEW: FormView = {
 
 export const formFromRestaurant = (item: Restaurant): FormState => ({
 	name: item.name,
-	links: item.links.map((link) => ({ ...link })),
+	// A preset label shows in the current language; saving turns it back into its key.
+	links: item.links.map((link) => ({ ...link, label: labelText(link.label) })),
 	notes: item.notes,
 	kinds: item.kinds,
 	tags: item.tags,
@@ -539,6 +542,9 @@ export class RestaurantForm extends LitElement {
 		const rows = linkRows(form);
 		return html`<fieldset class="links">
 			<legend>${t("field.links")}</legend>
+			<datalist id="link-labels">
+				${LINK_LABELS.map((label) => html`<option value=${labelText(label)}></option>`)}
+			</datalist>
 			${rows.map((link, index) => {
 				const invalid = this.view.linkErrors.includes(index);
 				return html`<div class="link-row">
@@ -547,6 +553,7 @@ export class RestaurantForm extends LitElement {
 						<input
 							id=${`link-label-${index}`}
 							autocomplete="off"
+							list="link-labels"
 							placeholder=${t("field.linkLabelHint")}
 							.value=${live(link.label)}
 							@input=${(event: Event) => this.onLinkInput(index, "label", event)}

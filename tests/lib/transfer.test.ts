@@ -197,7 +197,7 @@ test("a version 7 file keeps its labelled links in order", () => {
 	const item = {
 		...make("a"),
 		links: [
-			{ label: "Menu", url: "https://x.example/menu" },
+			{ label: "menu", url: "https://x.example/menu" },
 			{ label: "", url: "https://maps.example/a" },
 		],
 	};
@@ -371,7 +371,7 @@ test("imported entries are normalized like typed input and lose unknown fields",
 			{
 				...make("a", "Foo"),
 				tags: ["thai"],
-				links: [{ label: "Map", url: "https://x.example" }],
+				links: [{ label: "map", url: "https://x.example" }],
 			},
 		],
 		history: undefined,

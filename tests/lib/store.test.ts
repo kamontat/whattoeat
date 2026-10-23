@@ -83,7 +83,7 @@ test("addRestaurant normalizes, stamps and saves", () => {
 	expect(list[0]).toMatchObject({
 		name: { en: "Jay Fai", th: "" },
 		tags: ["street"],
-		links: [{ label: "Map", url: "https://maps.example/jayfai" }],
+		links: [{ label: "map", url: "https://maps.example/jayfai" }],
 		notes: "",
 		groups: {},
 		createdAt: now.toISOString(),

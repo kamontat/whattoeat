@@ -208,6 +208,29 @@ test("several links: the name opens the first and every link is listed by its la
 	}
 });
 
+test("the name opens the link with the highest priority: main, map, social, then website", async () => {
+	addRestaurant({
+		...base,
+		name: { en: "Pho", th: "" },
+		links: [
+			{ label: "website", url: "https://pho.example" },
+			{ label: "social", url: "https://ig.example/pho" },
+			{ label: "map", url: "https://maps.example/pho" },
+		],
+	});
+	const el = await mount();
+	pickButton(el)!.click();
+	await el.updateComplete;
+	expect(
+		el.shadowRoot!.querySelector(".result h2 a")?.getAttribute("href"),
+	).toBe("https://maps.example/pho");
+	expect(
+		[...el.shadowRoot!.querySelectorAll(".result .links a")].map((a) =>
+			a.textContent?.trim(),
+		),
+	).toEqual(["Map", "Social", "Website"]);
+});
+
 test("shows two different restaurants to choose from", async () => {
 	addRestaurant({ ...base, name: { en: "A", th: "" } });
 	addRestaurant({ ...base, name: { en: "B", th: "" } });

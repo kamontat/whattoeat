@@ -13,7 +13,12 @@ import {
 	replaceWithPresets,
 	saveAddedPresets,
 } from "#lib/presets";
-import { isLink, nameFromText, type Restaurant } from "#lib/restaurant";
+import {
+	isLink,
+	LINK_LABELS,
+	nameFromText,
+	type Restaurant,
+} from "#lib/restaurant";
 import { EXPORT_VERSION, toExportFile } from "#lib/transfer";
 
 const make = (id: string, name = id): Restaurant => ({
@@ -80,7 +85,7 @@ test("parseIndex accepts the bundled index", async () => {
 	expect(parseIndex(data)).toEqual(data);
 });
 
-test("every bundled preset file is the current export version, with labelled links and no old location or link", async () => {
+test("every bundled preset file is the current export version, with preset-labelled links and no old location or link", async () => {
 	const index = await Bun.file("src/assets/data/presets/index.json").json();
 	for (const { id } of index.presets as { id: string }[]) {
 		const data = await Bun.file(`src/assets/data/presets/${id}.json`).json();
@@ -89,7 +94,7 @@ test("every bundled preset file is the current export version, with labelled lin
 			expect(item).not.toHaveProperty("location");
 			expect(item).not.toHaveProperty("link");
 			for (const link of item.links) {
-				expect(typeof link.label).toBe("string");
+				expect(LINK_LABELS).toContain(link.label);
 				expect(isLink(link.url)).toBe(true);
 			}
 		}

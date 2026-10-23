@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { setLang } from "#lib/i18n";
 import {
+	canonicalLabel,
 	cleanStored,
 	displayName,
 	groupValues,
@@ -24,7 +25,7 @@ const valid: Restaurant = {
 	id: "a1",
 	name: { en: "Som Tam Nua", th: "" },
 	tags: ["thai", "spicy"],
-	links: [{ label: "Map", url: "https://maps.example/siam" }],
+	links: [{ label: "map", url: "https://maps.example/siam" }],
 	notes: "",
 	groups: { area: ["siam"], cuisine: ["thai"] },
 	kinds: ["food"],
@@ -143,7 +144,7 @@ test("normalizeInput trims every field and cleans tags", () => {
 		name: { en: "Jay Fai", th: "" },
 		tags: ["street"],
 		links: [
-			{ label: "Map", url: "https://maps.example/jayfai" },
+			{ label: "map", url: "https://maps.example/jayfai" },
 			{ label: "", url: "https://ig.example/jayfai" },
 		],
 		notes: "ok",
@@ -416,14 +417,45 @@ test("isRestaurant accepts labelled links and the old single link", () => {
 	expect(isRestaurant({ ...rest, link: "https://maps.example" })).toBe(true);
 });
 
-test("linkLabel is the label, else the host without www", () => {
-	expect(linkLabel({ label: "Menu", url: "https://x.example/menu" })).toBe(
-		"Menu",
+test("linkLabel names a preset label in the current language, else the label, else the host without www", () => {
+	setLang("en");
+	expect(linkLabel({ label: "map", url: "https://maps.example" })).toBe("Map");
+	setLang("th");
+	expect(linkLabel({ label: "map", url: "https://maps.example" })).toBe("แผนที่");
+	setLang("en");
+	expect(linkLabel({ label: "Grab", url: "https://x.example/grab" })).toBe(
+		"Grab",
 	);
 	expect(
 		linkLabel({ label: " ", url: "https://www.instagram.com/jayfai/" }),
 	).toBe("instagram.com");
 	expect(linkLabel({ label: "", url: "not a url" })).toBe("not a url");
+});
+
+test("canonicalLabel ignores case: a preset label in either language becomes its key, any other is normalized", () => {
+	expect(canonicalLabel(" Map ")).toBe("map");
+	expect(canonicalLabel("SOCIAL")).toBe("social");
+	expect(canonicalLabel("เว็บไซต์")).toBe("website");
+	expect(canonicalLabel(" Grab  Food ")).toBe("grab food");
+	expect(canonicalLabel("GRAB food")).toBe(canonicalLabel("grab Food"));
+	expect(canonicalLabel("  ")).toBe("");
+});
+
+test("normalizeInput stores a preset label as its key", () => {
+	expect(
+		normalizeInput({
+			name: { en: "Pho", th: "" },
+			tags: [],
+			links: [
+				{ label: "Main", url: "https://pho.example" },
+				{ label: "แผนที่", url: "https://maps.example/pho" },
+			],
+			notes: "",
+		}).links,
+	).toEqual([
+		{ label: "main", url: "https://pho.example" },
+		{ label: "map", url: "https://maps.example/pho" },
+	]);
 });
 
 test("openLinks keeps only http(s) links", () => {
@@ -432,8 +464,42 @@ test("openLinks keeps only http(s) links", () => {
 			...valid,
 			links: [
 				{ label: "", url: "javascript:alert(1)" },
-				{ label: "Map", url: "https://maps.example" },
+				{ label: "map", url: "https://maps.example" },
 			],
 		}),
-	).toEqual([{ label: "Map", url: "https://maps.example" }]);
+	).toEqual([{ label: "map", url: "https://maps.example" }]);
+});
+
+test("openLinks orders main, map, social, website, menu, delivery, then the rest as given", () => {
+	const link = (label: string) => ({
+		label,
+		url: `https://x.example/${label}`,
+	});
+	expect(
+		openLinks({
+			...valid,
+			links: [
+				link("Grab"),
+				link(""),
+				link("delivery"),
+				link("menu"),
+				link("website"),
+				link("social"),
+				link("map"),
+				link("main"),
+			],
+		}).map((item) => item.label),
+	).toEqual([
+		"main",
+		"map",
+		"social",
+		"website",
+		"menu",
+		"delivery",
+		"Grab",
+		"",
+	]);
+	expect(
+		openLinks({ ...valid, links: [link("website"), link("map")] })[0]?.label,
+	).toBe("map");
 });

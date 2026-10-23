@@ -108,7 +108,7 @@ const own = (el: RestaurantForm): void => {
 test("draws the view's values", async () => {
 	const item = make("1", "Old", {
 		links: [
-			{ label: "Menu", url: "https://x.example/menu" },
+			{ label: "menu", url: "https://x.example/menu" },
 			{ label: "", url: "https://maps.example/old" },
 		],
 		notes: "n",
@@ -262,6 +262,18 @@ test("the name field for the current language comes first", async () => {
 	expect(ids).toEqual(["name-th", "name-en"]);
 	expect($(el, "label:has(#name-th)")?.textContent?.trim()).toBe("ชื่อภาษาไทย");
 	expect($(el, "label:has(#name-en)")?.textContent?.trim()).toBe("ชื่อภาษาอังกฤษ");
+});
+
+test("a link label suggests the preset labels in the current language", async () => {
+	const el = await mount();
+	const input = $<HTMLInputElement>(el, "#link-label-0")!;
+	const list = $<HTMLDataListElement>(el, `#${input.getAttribute("list")}`);
+	expect(
+		[...(list?.querySelectorAll("option") ?? [])].map((option) => option.value),
+	).toEqual(["Main", "Map", "Social", "Website", "Menu", "Delivery"]);
+	setLang("th");
+	await el.updateComplete;
+	expect(list?.querySelector("option")?.value).toBe("หลัก");
 });
 
 test("a new form shows one blank link row with no Remove", async () => {

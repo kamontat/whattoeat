@@ -1,4 +1,4 @@
-import { type Localized, localize, t } from "#lib/i18n";
+import { en, type Localized, localize, t, th } from "#lib/i18n";
 
 /** What a place serves. A restaurant can be several, like a cafe with drinks and dessert. */
 export const KINDS = ["food", "drinks", "dessert"] as const;
@@ -18,11 +18,43 @@ export const RESERVED_GROUP_IDS: readonly string[] = [
 /** Values by group id: "cuisine", "area" or a custom group's id. A key exists only when it has values. */
 export type GroupValues = Record<string, string[]>;
 
+/**
+ * Preset link labels, highest priority first: the name opens the first of these a restaurant
+ * has, and any other label comes after them. Stored as the key, shown in the current language.
+ */
+export const LINK_LABELS = [
+	"main",
+	"map",
+	"social",
+	"website",
+	"menu",
+	"delivery",
+] as const;
+export type LinkLabel = (typeof LINK_LABELS)[number];
+
 /** A web page for a place: a map, its own site or a social page, with an optional label. */
 export type Link = {
-	/** What the link is, like "Menu"; empty shows the link's host. */
+	/** A `LINK_LABELS` key, or free text; empty shows the link's host. */
 	label: string;
 	url: string;
+};
+
+const isLinkLabel = (label: string): label is LinkLabel =>
+	(LINK_LABELS as readonly string[]).includes(label);
+
+/**
+ * Labels compare like tags, ignoring case and extra spaces: a preset typed as its key or its name in
+ * either language becomes the key, and any other label is kept in that normalized form. */
+export const canonicalLabel = (text: string): string => {
+	const key = normalizeTag(text);
+	return (
+		LINK_LABELS.find(
+			(preset) =>
+				preset === key ||
+				normalizeTag(en[`link.${preset}`]) === key ||
+				normalizeTag(th[`link.${preset}`]) === key,
+		) ?? key
+	);
 };
 
 export type Restaurant = {
@@ -142,7 +174,10 @@ export const normalizeInput = (
 ): CleanInput => ({
 	name: { en: input.name.en.trim(), th: input.name.th.trim() },
 	links: input.links
-		.map((link) => ({ label: link.label.trim(), url: link.url.trim() }))
+		.map((link) => ({
+			label: canonicalLabel(link.label),
+			url: link.url.trim(),
+		}))
 		.filter((link) => link.url !== ""),
 	notes: input.notes.trim(),
 	kinds: cleanKinds(input.kinds),
@@ -304,13 +339,24 @@ export const isRestaurant = (value: unknown): value is StoredRestaurant => {
 /** Only http(s) URLs are rendered as links; anything else (including `javascript:`) stays text. */
 export const isLink = (text: string): boolean => /^https?:\/\//i.test(text);
 
-/** The links that open: http(s) only. */
+const linkRank = (link: Link): number => {
+	const at = (LINK_LABELS as readonly string[]).indexOf(link.label);
+	return at === -1 ? LINK_LABELS.length : at;
+};
+
+/** The links that open (http(s) only), by `LINK_LABELS` priority; others keep their order after them. */
 export const openLinks = (item: Pick<Restaurant, "links">): Link[] =>
-	item.links.filter((link) => isLink(link.url));
+	item.links
+		.filter((link) => isLink(link.url))
+		.sort((a, b) => linkRank(a) - linkRank(b));
+
+/** A label to show or type: a preset's name in the current language, else the label as stored. */
+export const labelText = (label: string): string =>
+	isLinkLabel(label) ? t(`link.${label}`) : label;
 
 /** What a link is called: its label, else its host without `www.`, else the URL itself. */
 export const linkLabel = (link: Link): string => {
-	const label = link.label.trim();
+	const label = labelText(link.label.trim());
 	if (label !== "") return label;
 	try {
 		return new URL(link.url).hostname.replace(/^www\./, "");
