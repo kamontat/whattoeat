@@ -58,8 +58,8 @@ Branches open and close often. Be honest about how sure you are, because the use
 these lists to decide where to eat tonight:
 
 - Seen on an official directory or a listing updated in the last year: no marker tag.
-- Found but not confirmed for the current year: tag `unverified <year>` (e.g.
-  `unverified 2026`).
+- Found but not confirmed for the current year, or unsure of the branch's place or floor:
+  tag `unverified` (no year; the index entry's `updatedAt` dates it).
 - Recently opened, confirmed: `open <year>` is fine when it helps.
 
 Never invent restaurants to reach a number. A preset of 25 real places beats 80 guesses.
@@ -92,7 +92,8 @@ Put the draft in the scratchpad or `/tmp`, not in the repo. Shape:
 {
   "restaurants": [
     {
-      "name": "Sushiro (ซูชิโร่) - Major Ratchayothin",
+      "name": { "en": "Sushiro", "th": "ซูชิโร่" },
+      "link": "https://sushiro.co.th/",
       "location": "Major Ratchayothin, 1F",
       "notes": "Room 110-112. 10:00-22:00.",
       "kinds": ["food"],
@@ -109,7 +110,7 @@ Put the draft in the scratchpad or `/tmp`, not in the repo. Shape:
 - A draft `name` is a string (the English name) or `{ "en": ..., "th": ... }`; the file
   always stores both. An update changes only the languages the draft gives.
 - An item without `id` whose English or Thai name matches an existing restaurant
-  (case-insensitive) updates it; otherwise it is new. An item with an `id` already in the file updates only the fields
+  (case-insensitive, and in the same area when the draft gives `area`) updates it; otherwise it is new. An item with an `id` already in the file updates only the fields
   it lists; a full item with an unused `id` is added under that id.
 - `location` exists only in the draft: on a new item the script makes it the first line of
   `notes`, the way the app stores a place and floor. To change an existing restaurant's place
@@ -125,10 +126,10 @@ side:
 
 | Field | Convention |
 | --- | --- |
-| `name` | `en`: `Brand (Thai name) - Place`, e.g. `Kuay Teow Ruea Suea Na Yok (ก๋วยเตี๋ยวเรือเสือหน้าหยก) - Central Ladprao`. Thai name in brackets only when the brand has one. The ` - Place` suffix tells branches apart when two presets are added together. `th` is empty in today's files; the app shows `en` when `th` is empty. |
+| `name` | `{ "en": "Kuay Teow Ruea Suea Na Yok", "th": "ก๋วยเตี๋ยวเรือเสือหน้าหยก" }`. The brand only: no ` - Place` suffix (the area group and notes tell branches apart) and no Thai in `en`. `th` is the name Thais write, only when the brand has one you have seen; never transliterate. Every branch of a brand uses the same spelling in both languages. The app shows `en` when `th` is empty. |
 | `location` (draft only) | `Place, Floor` (`Central Ladprao, G`, `Union Mall, 3F`, `Major Ratchayothin, B`). A street shop: the soi or road. Becomes the first line of `notes`. |
 | `notes` | After the place line, short sentences: what to order or what it is, price hint (`Budget.`, `Mid price.`, `From ฿799.`), opening hours `10:00-22:00.`, a landmark if the floor is big. |
-| `link` | Optional `https://` URL: the place's Google Maps page, website or social page. The app opens it from the restaurant's name. Leave it out rather than guess; never put a place or floor here. |
+| `link` | Required `https://` URL, the first that exists: the brand's official website, else its official social page (Facebook, Instagram, LINE), else a Google Maps search `https://www.google.com/maps/search/?api=1&query=<name and place, URL-encoded>`. Only URLs you have seen; never guess a domain. The app opens it from the restaurant's name. |
 | `kinds` | Any of `food`, `drinks`, `dessert`. A café with cakes is `["drinks", "dessert"]`. |
 | `cuisine` | One lowercase value, two if truly mixed. Reuse what exists: `thai`, `japanese`, `korean`, `chinese`, `western`, `italian`, `international`, `isan`, `northern thai`, `taiwanese`, `vietnamese`… Leave out for drinks-only places and chains with no clear cuisine. |
 | `area` | Exactly one, lowercase, the mall or street — and listed in the index entry's `areas`. |
@@ -170,7 +171,11 @@ would expect, new ones at the end.
   and Add skips ids already saved. Changing an existing restaurant's id makes it a duplicate
   for everyone who added the preset. Fix a restaurant in place; never delete and re-add it.
 - **Same brand, two presets** (a chain in both Central Ladprao and Major Ratchayothin) is fine
-  — each branch is its own restaurant with its own id and ` - Place` suffix.
+  — each branch is its own restaurant with its own id and area, under the same name.
+- **Duplicates.** Two items with the same brand in the same area are one place: keep the
+  older id and fold the other's notes into it. Tags are the same: one word per idea
+  (`bbq` not `grill`, `bingsu` not `kakigori`, `tonkatsu` not `katsu`), and a cuisine goes in
+  `cuisine`, not `tags` (an Isan place is cuisine `isan`, tag `som tam`).
 - **Counts drift** if you edit a file without rerunning `bun run presets:index`; the test
   catches it.
 - **The page changes shape as presets grow.** A new city adds a chip, and the search field

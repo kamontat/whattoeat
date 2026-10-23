@@ -2,13 +2,16 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-23: Restaurant names in English and Thai
+## 2026-10-23: Restaurant names in English and Thai, and a Samyan Mitrtown preset
 
 ### BREAKING CHANGES
 
 - A restaurant's `name` is now `{ en, th }` instead of a string, and the export format goes
   from version 5 to 6. Saved lists and version 1–5 files convert on read; code that reads
   `name` as a string must use `displayName` (or `localize`) instead.
+- Every bundled preset restaurant has a new random 8-character id. A preset added before this
+  change is not recognised as added, and adding it again creates duplicates; delete those
+  restaurants and add the preset again.
 
 ### Features
 
@@ -17,6 +20,9 @@ What changed in this project and why, newest first.
   the current language's name and fall back to the other when it is empty.
 - Search on the Restaurants page matches either name; a row found only by its other-language
   name shows that name, highlighted.
+- A new Samyan preset (Samyan Mitrtown, Pathum Wan) with 56 places, including the 24-hour zone
+  and the Samyan Food Legends and K-StrEAT food halls.
+- The Siam preset grows from 29 to 87 places and adds Siam Discovery.
 
 ### Improvements
 
@@ -25,13 +31,27 @@ What changed in this project and why, newest first.
   languages given and matches existing restaurants by either name.
 - `Localized` and `localize` moved from `#lib/presets` to `#lib/i18n`, and `localize` now
   falls back to the other language when the current one is blank.
+- Preset names are the brand only, with the Thai name in `th` and no ` - <place>` suffix; a
+  brand uses one spelling, Thai name and link in every preset.
+- Every preset restaurant has a link: the brand's website, else its social page, else a Google
+  Maps search. Floors and hours were corrected from official directories (most of The Mall
+  Ngamwongwan is on 5F).
+- Presets drop 8 duplicates and 2 closed Teenoi branches, merge tags that meant the same thing
+  (`grill` and `bbq`, `kakigori` and `bingsu`) and move cuisine words from tags to cuisine.
+  Places not confirmed open in 2025-2026 carry a plain `unverified` tag.
+- The preset-data upsert script matches and dedupes restaurants by name and area, since
+  branches of a brand now share a name.
 
 ### Decisions
 
 - An old one-string name becomes Thai only when it is all Thai script with no Latin letters.
   Preset names like `Sushiro (ซูชิโร่) - Siam Paragon` stay English: some brackets hold a
   description rather than a name, so splitting them automatically would guess. Thai preset
-  names come in a later change.
+  names were then split by hand later the same day.
+- Preset ids were regenerated rather than kept, because the app is not public yet and some
+  ids were readable slugs (`lifeladprao-05`).
+- Where no brand website or social page could be confirmed, the link is a Google Maps search
+  rather than a guessed URL.
 - History keeps each visit's name as one string, the name shown when Eat here was pressed;
   a restaurant that still exists shows its current name in the current language.
 

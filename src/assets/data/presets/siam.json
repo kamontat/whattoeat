@@ -1,12 +1,15 @@
 {
 	"app": "whattoeat",
 	"version": 6,
-	"exportedAt": "2026-10-17T09:17:11.246Z",
+	"exportedAt": "2026-10-23T10:24:30.196Z",
 	"restaurants": [
 		{
-			"id": "ouEbWrQ2",
-			"name": { "en": "Nara Thai Cuisine - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "s6jL5NcS",
+			"name": {
+				"en": "Nara Thai Cuisine",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Nara%20Thai%20Cuisine%20Siam%20Paragon",
 			"notes": "Siam Paragon, G\nRefined Thai classics, Michelin-listed. Gourmet Garden zone. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -15,12 +18,15 @@
 			},
 			"tags": ["curry"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "46H7oRvv",
-			"name": { "en": "Taling Pling (ตะลิ่งปลิ่ง) - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "U8fD7Va0",
+			"name": {
+				"en": "Taling Pling",
+				"th": "ตะลิ่งปลิ่ง"
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Taling%20Pling%20Siam%20Paragon",
 			"notes": "Siam Paragon, G\nHome-style Thai dishes, good for groups. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -29,12 +35,15 @@
 			},
 			"tags": ["curry"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "AGtDtzyp",
-			"name": { "en": "Tonchin Ramen - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "au7lSX8P",
+			"name": {
+				"en": "Tonchin Ramen",
+				"th": ""
+			},
+			"link": "https://www.facebook.com/tonchinth/",
 			"notes": "Siam Paragon, G\nTokyo tonkotsu ramen, Michelin-recognised. 10:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -43,12 +52,15 @@
 			},
 			"tags": ["ramen", "noodles"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "VbQWhvjY",
-			"name": { "en": "Suki Masa - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "6p2G2kXa",
+			"name": {
+				"en": "Suki Masa",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Suki%20Masa%20Siam%20Paragon",
 			"notes": "Siam Paragon, G\nKansai-style sukiyaki and shabu with A5 wagyu. Expensive.",
 			"kinds": ["food"],
 			"groups": {
@@ -57,12 +69,15 @@
 			},
 			"tags": ["sukiyaki", "shabu", "wagyu"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "2DeZfDvl",
-			"name": { "en": "Nabezo Premium - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "7dFDD1ZM",
+			"name": {
+				"en": "Nabezo Premium",
+				"th": ""
+			},
+			"link": "https://www.facebook.com/NabezoPremium/",
 			"notes": "Siam Paragon, G\nPremium shabu and sukiyaki buffet with Omi wagyu. 11:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -71,12 +86,15 @@
 			},
 			"tags": ["shabu", "sukiyaki", "buffet"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "FD8S1Kvt",
-			"name": { "en": "JUMBO Seafood - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "pGfpxQ1n",
+			"name": {
+				"en": "JUMBO Seafood",
+				"th": ""
+			},
+			"link": "https://www.jumboseafood.com.sg/",
 			"notes": "Siam Paragon, G\nSingapore chilli crab and black pepper crab. Expensive.",
 			"kinds": ["food"],
 			"groups": {
@@ -85,12 +103,15 @@
 			},
 			"tags": ["seafood", "crab"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "TW3wvQ3l",
-			"name": { "en": "Sushiro (ซูชิโร่) - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "K6gk5m1z",
+			"name": {
+				"en": "Sushiro",
+				"th": "ซูชิโร่"
+			},
+			"link": "https://sushiro.co.th/",
 			"notes": "Siam Paragon, 4F\nConveyor-belt sushi. Budget to mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -99,26 +120,32 @@
 			},
 			"tags": ["sushi", "conveyor"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "BMGxFLJz",
-			"name": { "en": "Maple Tree House - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "7RoavUXj",
+			"name": {
+				"en": "Maple Tree House",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Maple%20Tree%20House%20Siam%20Paragon",
 			"notes": "Siam Paragon, G\nKorean BBQ, grilled at the table. Mid to high price.",
 			"kinds": ["food"],
 			"groups": {
 				"cuisine": ["korean"],
 				"area": ["siam paragon"]
 			},
-			"tags": ["bbq", "grill"],
+			"tags": ["bbq"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "GM7bAi3O",
-			"name": { "en": "Another Hound Cafe - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "KSfAtApO",
+			"name": {
+				"en": "Another Hound Cafe",
+				"th": ""
+			},
+			"link": "https://www.greyhoundcafe.co.th/",
 			"notes": "Siam Paragon, G\nItalian-Thai fusion from Greyhound; Spaghetti Cha Cha Cha. Mid price.",
 			"kinds": ["food", "drinks"],
 			"groups": {
@@ -127,12 +154,15 @@
 			},
 			"tags": ["pasta"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "bVpjC9XK",
-			"name": { "en": "Coffee Beans by Dao - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "5pwZROs4",
+			"name": {
+				"en": "Coffee Beans by Dao",
+				"th": ""
+			},
+			"link": "https://www.coffeebeans.co.th/",
 			"notes": "Siam Paragon, G\nThai and Western dishes plus a big cake counter. Mid price.",
 			"kinds": ["food", "drinks", "dessert"],
 			"groups": {
@@ -141,12 +171,15 @@
 			},
 			"tags": ["cake", "cafe"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "o7rPeGXk",
-			"name": { "en": "TWG Tea - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "7Jfw7ljH",
+			"name": {
+				"en": "TWG Tea",
+				"th": ""
+			},
+			"link": "https://twgtea.com/",
 			"notes": "Siam Paragon, G\nTea salon with macarons and afternoon tea sets. Expensive.",
 			"kinds": ["drinks", "dessert"],
 			"groups": {
@@ -154,53 +187,65 @@
 			},
 			"tags": ["tea", "cafe"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "gycLBA3p",
-			"name": { "en": "Karun Thai Tea - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "SIbDP3S7",
+			"name": {
+				"en": "Karun Thai Tea",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Karun%20Thai%20Tea%20Siam%20Paragon",
 			"notes": "Siam Paragon, G\nThai tea drinks. Budget.",
 			"kinds": ["drinks"],
 			"groups": {
 				"area": ["siam paragon"]
 			},
-			"tags": ["thai tea", "tea"],
+			"tags": ["thai tea"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "59VSh8mG",
-			"name": { "en": "Veganerie - Siam Paragon", "th": "" },
-			"link": "",
+			"id": "CfibphYI",
+			"name": {
+				"en": "Veganerie",
+				"th": ""
+			},
+			"link": "https://www.veganerie.co.th/",
 			"notes": "Siam Paragon, G\nVegan cafe: cakes, waffles and plant-based mains. Mid price.",
 			"kinds": ["food", "drinks", "dessert"],
 			"groups": {
 				"cuisine": ["international"],
 				"area": ["siam paragon"]
 			},
-			"tags": ["vegan", "cafe", "cake"],
+			"tags": ["vegetarian", "cafe", "cake"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "23QE0DwF",
-			"name": { "en": "Gyukatsu Kyoto Katsugyu - Siam Center", "th": "" },
-			"link": "",
+			"id": "0orTnlhy",
+			"name": {
+				"en": "Gyukatsu Kyoto Katsugyu",
+				"th": ""
+			},
+			"link": "https://www.facebook.com/GyukatsuKyotoKatsugyuThailand",
 			"notes": "Siam Center, 2F\nBreaded beef cutlet you sear on a stone. Food Factory. 11:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
 				"cuisine": ["japanese"],
 				"area": ["siam center"]
 			},
-			"tags": ["gyukatsu", "beef"],
+			"tags": ["gyukatsu"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "eID5odBV",
-			"name": { "en": "Tonkatsu Wako - Siam Center", "th": "" },
-			"link": "",
+			"id": "WDF76DFq",
+			"name": {
+				"en": "Tonkatsu Wako",
+				"th": "วาโก ทงคัทสึ"
+			},
+			"link": "https://www.facebook.com/tonkatsuwakoth/",
 			"notes": "Siam Center, 2F\nCrispy tonkatsu sets with free-flow cabbage. Food Factory. 11:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -209,26 +254,32 @@
 			},
 			"tags": ["tonkatsu"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "AGOffpHN",
-			"name": { "en": "Baan Ying (บ้านหญิง) - Siam Center", "th": "" },
-			"link": "",
+			"id": "HVT4HQRJ",
+			"name": {
+				"en": "Baan Ying",
+				"th": "บ้านหญิง"
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Baan%20Ying%20Siam%20Center",
 			"notes": "Siam Center, 2F\nThai comfort food and desserts. Food Factory. Budget to mid price.",
 			"kinds": ["food", "dessert"],
 			"groups": {
 				"cuisine": ["thai"],
 				"area": ["siam center"]
 			},
-			"tags": ["rice"],
+			"tags": ["rice dish"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "dY9YKvzF",
-			"name": { "en": "Pasta Ama - Siam Center", "th": "" },
-			"link": "",
+			"id": "MDi57Kqz",
+			"name": {
+				"en": "Pasta Ama",
+				"th": "พาสต้าอาม่า"
+			},
+			"link": "https://www.tiktok.com/@pastaama_",
 			"notes": "Siam Center, 2F\nFresh pasta. Food Factory. Mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -237,12 +288,15 @@
 			},
 			"tags": ["pasta"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "4N0hmXPJ",
-			"name": { "en": "Hachiban Ramen (ฮะจิบัง ราเมน) - Siam Center", "th": "" },
-			"link": "",
+			"id": "VDJJVyr4",
+			"name": {
+				"en": "Hachiban Ramen",
+				"th": "ฮะจิบัง ราเมน"
+			},
+			"link": "https://www.hachiban.co.th/",
 			"notes": "Siam Center, 2F\nCheap and quick ramen sets. Food Factory. Budget.",
 			"kinds": ["food"],
 			"groups": {
@@ -251,12 +305,15 @@
 			},
 			"tags": ["ramen", "noodles"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "mxutPWrQ",
-			"name": { "en": "Zhangliang Mala Tang - Siam Center", "th": "" },
-			"link": "",
+			"id": "ffs6tHWI",
+			"name": {
+				"en": "Zhangliang Malatang",
+				"th": "จางเลี่ยง หม่าล่าทั่ง"
+			},
+			"link": "https://www.facebook.com/p/%E6%B3%B0%E5%9B%BD%E5%BC%A0%E4%BA%AE%E9%BA%BB%E8%BE%A3%E7%83%AB-Zhangliang-Malatang-Thailand-61553121875809/",
 			"notes": "Siam Center, 2F\nPick-your-own mala soup, priced by weight. Food Factory. Budget.",
 			"kinds": ["food"],
 			"groups": {
@@ -265,12 +322,15 @@
 			},
 			"tags": ["mala", "malatang"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "Z3xM1Q7z",
-			"name": { "en": "Bonchon Chicken - Siam Center", "th": "" },
-			"link": "",
+			"id": "QN2qN02q",
+			"name": {
+				"en": "Bonchon",
+				"th": "บอนชอน"
+			},
+			"link": "https://www.facebook.com/bonchonthailand",
 			"notes": "Siam Center, 2F\nKorean fried chicken. Food Factory. Budget.",
 			"kinds": ["food"],
 			"groups": {
@@ -279,12 +339,15 @@
 			},
 			"tags": ["fried chicken", "fast food"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "5oNyUpbq",
-			"name": { "en": "Hasul Korean Restaurant - Siam Center", "th": "" },
-			"link": "",
+			"id": "W7bV7WUd",
+			"name": {
+				"en": "Hasul Korean Restaurant",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Hasul%20Korean%20Restaurant%20Siam%20Center",
 			"notes": "Siam Center, 2F\nKorean home cooking: stews, bibimbap, side dishes. Food Factory. Budget to mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -293,15 +356,15 @@
 			},
 			"tags": ["stew"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "meANdYrs",
+			"id": "ZCuBnAws",
 			"name": {
-				"en": "Tajimaya Shabu (ทะจิมะยะ ชาบู) - Siam Square One",
-				"th": ""
+				"en": "Tajimaya Shabu",
+				"th": "ทะจิมะยะ ชาบู"
 			},
-			"link": "",
+			"link": "https://www.facebook.com/TajimayaShabuSQ1TH/",
 			"notes": "Siam Square One, 5F\nWagyu shabu buffet, moved here from Isetan. 11:00-21:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -310,12 +373,15 @@
 			},
 			"tags": ["shabu", "buffet", "wagyu"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "1pnaxR0d",
-			"name": { "en": "Hongdae BBQ Buffet (ฮงแด) - Siam Square One", "th": "" },
-			"link": "",
+			"id": "0ql7f0nt",
+			"name": {
+				"en": "Hongdae BBQ Buffet",
+				"th": "ฮงแด"
+			},
+			"link": "https://www.facebook.com/hongdaebuffet/",
 			"notes": "Siam Square One, 5F\nKorean BBQ buffet from ฿299. 11:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -324,12 +390,15 @@
 			},
 			"tags": ["bbq", "buffet"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "eGWrdLGZ",
-			"name": { "en": "Kouen Sushi Bar - Siam Square One", "th": "" },
-			"link": "",
+			"id": "ZJW5bzz8",
+			"name": {
+				"en": "Kouen Sushi Bar",
+				"th": ""
+			},
+			"link": "https://www.facebook.com/kouensushibar/",
 			"notes": "Siam Square One, 5F\nSushi and Japanese fusion, buffet sets. 11:00-22:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -338,12 +407,15 @@
 			},
 			"tags": ["sushi", "buffet"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "8LBGVwbE",
-			"name": { "en": "Jaguemsong (จากึมซอง) - Siam Square One", "th": "" },
-			"link": "",
+			"id": "Tb2F8Vri",
+			"name": {
+				"en": "Jaguemsong",
+				"th": "จากึมซอง"
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Jaguemsong%20Siam%20Square%20One",
 			"notes": "Siam Square One, 5F\nKorean-Chinese: jajangmyeon, jjamppong, tangsuyuk. Budget to mid price.",
 			"kinds": ["food"],
 			"groups": {
@@ -352,12 +424,15 @@
 			},
 			"tags": ["noodles", "jajangmyeon"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "BFeM9M5C",
-			"name": { "en": "Ramen Kagetsu Arashi - Siam Square One", "th": "" },
-			"link": "",
+			"id": "lPPo0HtG",
+			"name": {
+				"en": "Ramen Kagetsu Arashi",
+				"th": "คาเกทสึ อาราชิ"
+			},
+			"link": "https://www.facebook.com/Ramenkagetsuarashithailand/",
 			"notes": "Siam Square One, 4F\nGarlicky tonkotsu ramen. Budget. 10:00-21:00.",
 			"kinds": ["food"],
 			"groups": {
@@ -366,47 +441,1032 @@
 			},
 			"tags": ["ramen", "noodles"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "xCqu1VnC",
-			"name": { "en": "Ohkajoo (โอ้กะจู๋) - Siam Square One", "th": "" },
-			"link": "",
+			"id": "4R7sPdY2",
+			"name": {
+				"en": "Ohkajhu",
+				"th": "โอ้กะจู๋"
+			},
+			"link": "https://www.okjgroup.com/",
 			"notes": "Siam Square One, 3F\nSalads, steaks and organic veg from their own farm. Mid price.",
 			"kinds": ["food"],
 			"groups": {
 				"cuisine": ["thai", "western"],
 				"area": ["siam square one"]
 			},
-			"tags": ["healthy", "salad"],
+			"tags": ["healthy", "salad", "unverified"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "dR27VRp6",
-			"name": { "en": "After You Dessert Cafe - Siam Square One", "th": "" },
-			"link": "",
+			"id": "B0NqQ7ft",
+			"name": {
+				"en": "After You",
+				"th": "อาฟเตอร์ ยู"
+			},
+			"link": "https://www.afteryoudessertcafe.com/",
 			"notes": "Siam Square One, G\nShibuya honey toast and kakigori. Mid price.",
 			"kinds": ["drinks", "dessert"],
 			"groups": {
 				"area": ["siam square one"]
 			},
-			"tags": ["bingsu", "toast", "unverified 2026"],
+			"tags": ["bingsu", "toast", "unverified"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
 		},
 		{
-			"id": "Xpt3g3As",
-			"name": { "en": "Amai Soft Serve - Siam Square One", "th": "" },
-			"link": "",
+			"id": "kV6w8BA0",
+			"name": {
+				"en": "Amai Soft Serve",
+				"th": "อามาอิ ซอฟท์เสริฟ"
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Amai%20Soft%20Serve%20Siam%20Square%20One",
 			"notes": "Siam Square One, 1F\nYogurt soft serve with weekly flavours. Budget.",
 			"kinds": ["dessert"],
 			"groups": {
 				"area": ["siam square one"]
 			},
-			"tags": ["ice cream", "unverified 2026"],
+			"tags": ["ice cream", "unverified"],
 			"createdAt": "2026-10-17T09:17:11.246Z",
-			"updatedAt": "2026-10-17T09:17:11.246Z"
+			"updatedAt": "2026-10-23T10:02:27.445Z"
+		},
+		{
+			"id": "bkVD85Q9",
+			"name": {
+				"en": "IPPUDO",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=IPPUDO%20Siam%20Paragon",
+			"notes": "Siam Paragon, G\nHakata tonkotsu ramen with thin noodles. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["ramen"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "AWsw8YcS",
+			"name": {
+				"en": "Four Seasons",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Four%20Seasons%20Siam%20Paragon",
+			"notes": "Siam Paragon, G\nChinese restaurant known for Peking duck. Mid to high price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["duck", "dim sum"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "eQLVVz86",
+			"name": {
+				"en": "MK Gold",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=MK%20Gold%20Siam%20Paragon",
+			"notes": "Siam Paragon, G\nPremium MK suki hotpot with roast duck and dim sum. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["suki"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "oGYvI8F3",
+			"name": {
+				"en": "Song Fa Bak Kut Teh",
+				"th": "ซงฟา"
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Song%20Fa%20Bak%20Kut%20Teh%20Siam%20Paragon",
+			"notes": "Siam Paragon, G\nSingapore peppery pork rib soup with rice. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["singaporean"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["soup", "rice dish"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "sf5iaC5Z",
+			"name": {
+				"en": "Burn Busaba",
+				"th": "เบิร์นบุษบา"
+			},
+			"link": "https://www.facebook.com/burnbusaba/",
+			"notes": "Siam Paragon, G\nPremium Isan food in a colourful room. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["isan"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["som tam", "grilled chicken"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "XvXB6lE0",
+			"name": {
+				"en": "Khao-Sō-i",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Khao-S%C5%8D-i%20Siam%20Paragon",
+			"notes": "Siam Paragon, G\nFresh-noodle khao soi bar from Chiang Mai. Budget to mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["northern thai"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["noodles", "curry"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "aQ3hURhD",
+			"name": {
+				"en": "ThongSmith",
+				"th": "ทองสมิทธ์"
+			},
+			"link": "https://www.facebook.com/p/Thongsmith-Central-Ladprao-%E0%B9%80%E0%B8%8B%E0%B9%87%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B1%E0%B8%A5-%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%A7-100063629375894/",
+			"notes": "Siam Paragon, G\nPremium boat noodles. Budget to mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["boat noodles"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "6vxWpd2A",
+			"name": {
+				"en": "Teraoka Gyoza",
+				"th": "เทราโอกะ เกี๊ยวซ่า"
+			},
+			"link": "https://www.facebook.com/teraokagyoza/",
+			"notes": "Siam Paragon, G\nGyoza from Tokyo's Gyoza Stadium champion. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["gyoza"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "zaRXluWE",
+			"name": {
+				"en": "Soba House Konjiki Hototogisu",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Soba%20House%20Konjiki%20Hototogisu%20Siam%20Paragon",
+			"notes": "Siam Paragon, 4F\nMichelin-starred Tokyo shoyu ramen. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["ramen"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "1aosDg9m",
+			"name": {
+				"en": "Luk Kai Thong",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Luk%20Kai%20Thong%20Siam%20Paragon",
+			"notes": "Siam Paragon, 4F\nRoyal Thai dishes by chef Saeng. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["curry"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "xAjkmr2n",
+			"name": {
+				"en": "Gordon Ramsay Street Burger",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Gordon%20Ramsay%20Street%20Burger%20Siam%20Paragon",
+			"notes": "Siam Paragon, 5A\nGordon Ramsay's burger bar in the Nextopia zone. Expensive. 10:00-24:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["american"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["burger"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "ty62Kqzb",
+			"name": {
+				"en": "L'Antica Pizzeria da Michele",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=L%27Antica%20Pizzeria%20da%20Michele%20Siam%20Paragon",
+			"notes": "Siam Paragon, 5F\nNaples pizzeria since 1870, margherita and marinara. Mid price. 11:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["italian"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["pizza"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "VrKPgQpl",
+			"name": {
+				"en": "Sapparos",
+				"th": "สรรพรส"
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Sapparos%20Siam%20Paragon",
+			"notes": "Siam Paragon, 5F\nThai food from royal-kitchen recipes. Mid to high price. 10:00-24:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["curry"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "SumoVVrH",
+			"name": {
+				"en": "Shabu Baru",
+				"th": "ชาบู บารุ"
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Shabu%20Baru%20Siam%20Paragon",
+			"notes": "Siam Paragon, 5F\nJapanese shabu with an individual pot each. Mid price. 10:00-24:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["shabu"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "agStMbdd",
+			"name": {
+				"en": "Ded Ka Prao",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Ded%20Ka%20Prao%20Siam%20Paragon",
+			"notes": "Siam Paragon, 5A\nMade-to-order pad kra pao rice, no MSG. Budget. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["rice dish"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "ZC9syV20",
+			"name": {
+				"en": "Kyo Roll En",
+				"th": "เกียวโรลเอ็น"
+			},
+			"link": "https://www.kyorollen.com/find-us/",
+			"notes": "Siam Paragon, 5F\nUji matcha roll cakes, parfaits and drinks. Mid price. 10:00-24:00.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["matcha", "cake"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "5qjFIcSL",
+			"name": {
+				"en": "Mandarin Oriental Shop",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Mandarin%20Oriental%20Shop%20Siam%20Paragon",
+			"notes": "Siam Paragon, G\nMandarin Oriental hotel pastries, cakes and macarons. Expensive. 10:00-22:00.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"cuisine": ["french"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["cake", "bakery"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "idyLjstz",
+			"name": {
+				"en": "Swensen's",
+				"th": "สเวนเซ่นส์"
+			},
+			"link": "https://www.swensens1112.com/",
+			"notes": "Siam Paragon, G\nIce cream sundaes. Budget to mid price. 10:00-22:00.",
+			"kinds": ["dessert"],
+			"groups": {
+				"area": ["siam paragon"]
+			},
+			"tags": ["ice cream"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "l5kE2NHL",
+			"name": {
+				"en": "Bacha Coffee",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Bacha%20Coffee%20Siam%20Paragon",
+			"notes": "Siam Paragon, G\nMoroccan coffee house, 100% arabica. Expensive.",
+			"kinds": ["drinks"],
+			"groups": {
+				"area": ["siam paragon"]
+			},
+			"tags": ["coffee"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "jE3nanLB",
+			"name": {
+				"en": "Henri Charpentier",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Henri%20Charpentier%20Siam%20Paragon",
+			"notes": "Siam Paragon, G\nJapanese-French patisserie, financiers and cakes. Mid to high price. 10:00-22:00.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam paragon"]
+			},
+			"tags": ["cake"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "sYLwpjUI",
+			"name": {
+				"en": "Greyhound Cafe",
+				"th": ""
+			},
+			"link": "https://www.greyhoundcafe.co.th/branch/central-lardprao/",
+			"notes": "Siam Center, 1F\nThai and fusion comfort food. Mid price. 11:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam center"]
+			},
+			"tags": ["pasta", "noodles"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "wnvvLviS",
+			"name": {
+				"en": "After You",
+				"th": "อาฟเตอร์ ยู"
+			},
+			"link": "https://www.afteryoudessertcafe.com/en/branches/",
+			"notes": "Siam Center, 1F\nDessert cafe, Shibuya honey toast and kakigori. Mid price. 10:00-22:00.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"area": ["siam center"]
+			},
+			"tags": ["bingsu", "toast"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "qIRW8bqv",
+			"name": {
+				"en": "Gong Cha",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Gong%20Cha%20Siam%20Center",
+			"notes": "Siam Center, M\nTaiwanese tea with milk foam and pearls. Budget. 10:00-22:00.",
+			"kinds": ["drinks"],
+			"groups": {
+				"area": ["siam center"]
+			},
+			"tags": ["bubble tea"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "yi6oKlQZ",
+			"name": {
+				"en": "CPS Coffee",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=CPS%20Coffee%20Siam%20Center",
+			"notes": "Siam Center, G\nSpecialty coffee bar by CPS Chaps. Mid price. 10:00-22:00.",
+			"kinds": ["drinks"],
+			"groups": {
+				"area": ["siam center"]
+			},
+			"tags": ["coffee"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "eiIwg0Bm",
+			"name": {
+				"en": "Bar B Q Plaza",
+				"th": "บาร์บีคิวพลาซ่า"
+			},
+			"link": "https://barbqplaza.com/branch/",
+			"notes": "Siam Center, 2F\nThai-style tabletop grill, set meals. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam center"]
+			},
+			"tags": ["bbq"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "mIC92qMh",
+			"name": {
+				"en": "Mo-Mo-Paradise",
+				"th": "โมโม พาราไดซ์"
+			},
+			"link": "https://mo-mo-paradiseth.com/branches/",
+			"notes": "Siam Center, 2F\nJapanese shabu and sukiyaki buffet. Mid price. Mon-Fri 11:00-22:00, Sat-Sun 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam center"]
+			},
+			"tags": ["shabu", "sukiyaki", "buffet"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "itJHhtaD",
+			"name": {
+				"en": "Palsaik",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Palsaik%20Siam%20Center",
+			"notes": "Siam Center, 2F\nKorean BBQ with eight-flavour pork belly. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["korean"],
+				"area": ["siam center"]
+			},
+			"tags": ["bbq"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "ssNWVpB1",
+			"name": {
+				"en": "Yakiniku Like",
+				"th": ""
+			},
+			"link": "https://dining-innovation.com.sg/yakinikulike/country/thailand",
+			"notes": "Siam Center, 2F\nSolo yakiniku grill sets. Budget to mid price. 11:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam center"]
+			},
+			"tags": ["yakiniku"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "kygeG6V7",
+			"name": {
+				"en": "Shabushi",
+				"th": "ชาบูชิ"
+			},
+			"link": "https://www.oishifood.com/restaurant/shabushi/",
+			"notes": "Siam Center, 2F\nConveyor shabu and sushi buffet. Mid price. 10:00-21:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam center"]
+			},
+			"tags": ["shabu", "buffet", "conveyor"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "vatp3gYr",
+			"name": {
+				"en": "Tonkotsu Kazan Ramen",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Tonkotsu%20Kazan%20Ramen%20Siam%20Center",
+			"notes": "Siam Center, 2F\nRich pork-bone ramen served in a hot stone bowl. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam center"]
+			},
+			"tags": ["ramen"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "wd67EgxJ",
+			"name": {
+				"en": "Niku Niku Oh!! Kome",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Niku%20Niku%20Oh%21%21%20Kome%20Siam%20Center",
+			"notes": "Siam Center, 2F\nFreshly grilled Japanese hamburg steak with rice. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam center"]
+			},
+			"tags": ["steak", "rice dish"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "8qpwKILN",
+			"name": {
+				"en": "Maji Curry",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Maji%20Curry%20Siam%20Center",
+			"notes": "Siam Center, 2F\nJapanese curry rice on a hot plate. Budget to mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam center"]
+			},
+			"tags": ["curry", "rice dish"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "jWUZmNY4",
+			"name": {
+				"en": "EASY! buddy",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Easy%20Buddy%20Siam%20Center",
+			"notes": "Siam Center, 2F\nPad kra pao and other one-plate Thai rice. Budget. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam center"]
+			},
+			"tags": ["rice dish"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "u9wvm24P",
+			"name": {
+				"en": "Spicy Cat La Meow",
+				"th": "ล่าเมียว"
+			},
+			"link": "https://www.lameow.com/",
+			"notes": "Siam Center, 2F\nBuild-your-own Sichuan mala hotpot bowl. Budget to mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["siam center"]
+			},
+			"tags": ["mala", "hotpot"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "VSa02GM5",
+			"name": {
+				"en": "YONNY",
+				"th": "ปลาต้มผักกาดดอง"
+			},
+			"link": "https://yonny.co.th/",
+			"notes": "Siam Center, 2F\nChinese fish in pickled cabbage soup, numbing and spicy. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["siam center"]
+			},
+			"tags": ["seafood", "soup"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "UXetbfje",
+			"name": {
+				"en": "Don",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Don%20Siam%20Center",
+			"notes": "Siam Center, 2F\nJapanese rice bowls, from ฿99. Budget. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam center"]
+			},
+			"tags": ["rice bowl"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "0qVfh99C",
+			"name": {
+				"en": "BHC Chicken",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=BHC%20Chicken%20Siam%20Center",
+			"notes": "Siam Center, 2F\nKorean fried chicken with seasoned powder. Budget to mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["korean"],
+				"area": ["siam center"]
+			},
+			"tags": ["fried chicken"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "GPfsA9GU",
+			"name": {
+				"en": "% Arabica",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=%25%20Arabica%20Siam%20Discovery",
+			"notes": "Siam Discovery, G\nKyoto specialty coffee. Mid price. 10:00-22:00.",
+			"kinds": ["drinks"],
+			"groups": {
+				"area": ["siam discovery"]
+			},
+			"tags": ["coffee"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "pvW9xP0g",
+			"name": {
+				"en": "Au Bon Pain",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Au%20Bon%20Pain%20Siam%20Discovery",
+			"notes": "Siam Discovery, M\nBakery cafe with sandwiches, soups and pastries. Budget to mid price. 10:00-22:00.",
+			"kinds": ["food", "drinks"],
+			"groups": {
+				"cuisine": ["american"],
+				"area": ["siam discovery"]
+			},
+			"tags": ["bakery", "cafe"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "XPIU63ZN",
+			"name": {
+				"en": "JIAN CHA Tea",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=JIAN%20CHA%20Tea%20Siam%20Discovery",
+			"notes": "Siam Discovery, M\nPremium Chinese-style tea drinks. Budget. 10:00-22:00.",
+			"kinds": ["drinks"],
+			"groups": {
+				"area": ["siam discovery"]
+			},
+			"tags": ["tea"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "nxlkZOpu",
+			"name": {
+				"en": "BEANS",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=BEANS%20Siam%20Discovery",
+			"notes": "Siam Discovery, 2F\nCoffee bar in the design and lifestyle floor. Mid price. 10:00-22:00.",
+			"kinds": ["drinks"],
+			"groups": {
+				"area": ["siam discovery"]
+			},
+			"tags": ["coffee", "cafe"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "MiVEAwfZ",
+			"name": {
+				"en": "Starbucks",
+				"th": "สตาร์บัคส์"
+			},
+			"link": "https://www.starbucks.co.th/",
+			"notes": "Siam Discovery, 2F\nCoffee chain. Mid price. 10:00-22:00.",
+			"kinds": ["drinks"],
+			"groups": {
+				"area": ["siam discovery"]
+			},
+			"tags": ["coffee"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "fP9jfQpn",
+			"name": {
+				"en": "Kagonoya",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Kagonoya%20Siam%20Discovery",
+			"notes": "Siam Discovery, 3F\nOsaka-style shabu shabu. Mid price. 11:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam discovery"]
+			},
+			"tags": ["shabu"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "HG59OtS4",
+			"name": {
+				"en": "Have A Zeed",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Have%20A%20Zeed%20Siam%20Discovery",
+			"notes": "Siam Discovery, 3F\nModern Thai-Isan comfort food since 2011. Mid price. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["isan"],
+				"area": ["siam discovery"]
+			},
+			"tags": ["som tam"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "DMx9Pqzi",
+			"name": {
+				"en": "Kungthong Seafood",
+				"th": ""
+			},
+			"link": "https://www.google.com/maps/search/?api=1&query=Kungthong%20Seafood%20Siam%20Discovery",
+			"notes": "Siam Discovery, 3F\nThai seafood, crab and prawn dishes. Mid to high price. 11:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam discovery"]
+			},
+			"tags": ["seafood"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "Wwhy5TFy",
+			"name": {
+				"en": "Bar B Q Plaza",
+				"th": "บาร์บีคิวพลาซ่า"
+			},
+			"link": "https://www.barbqplaza.com/th/branch",
+			"notes": "Siam Square One, 5F\nThai-style tabletop grill, set meals. Mid price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam square one"]
+			},
+			"tags": ["bbq"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "7KpucAWB",
+			"name": {
+				"en": "Akiyoshi",
+				"th": "อะคิโยชิ"
+			},
+			"link": "https://akiyoshi.co.th/",
+			"notes": "Siam Square One, 5F\nJapanese shabu and sukiyaki, buffet or a la carte. Mid to high price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam square one"]
+			},
+			"tags": ["shabu", "sukiyaki", "buffet"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "NNZgTAnW",
+			"name": {
+				"en": "Somboon Seafood",
+				"th": "สมบูรณ์โภชนา"
+			},
+			"link": "https://www.somboonseafood.com/",
+			"notes": "Siam Square One, 4F\nFamous for curry crab stir-fry. Mid to high price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam square one"]
+			},
+			"tags": ["seafood", "curry"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "0kF7naKh",
+			"name": {
+				"en": "White Flower Factory",
+				"th": "ครัวดอกไม้ขาว"
+			},
+			"link": "https://whiteflowerbkk.net/th/",
+			"notes": "Siam Square One, 4F\nThai and European dishes plus cakes. Mid price. 10:30-22:00.",
+			"kinds": ["food", "dessert"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam square one"]
+			},
+			"tags": ["cake"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "U4plXfsS",
+			"name": {
+				"en": "Ootoya",
+				"th": "โอโตยะ"
+			},
+			"link": "https://www.ootoya.co.th/branches.php",
+			"notes": "Siam Square One, 4F\nJapanese teishoku set meals. Mid price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam square one"]
+			},
+			"tags": ["teishoku"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "UedIBzHP",
+			"name": {
+				"en": "Yayoi",
+				"th": "ยาโยอิ"
+			},
+			"link": "https://www.yayoirestaurants.com/branch",
+			"notes": "Siam Square One, 4F\nJapanese set meals and ramen. Budget to mid price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam square one"]
+			},
+			"tags": ["teishoku", "ramen"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "hrHHOHsc",
+			"name": {
+				"en": "Hachiban Ramen",
+				"th": "ฮะจิบัง ราเมน"
+			},
+			"link": "https://www.hachiban.co.th/",
+			"notes": "Siam Square One, 4F\nJapanese ramen and gyoza chain. Budget. 10:00-22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam square one"]
+			},
+			"tags": ["ramen"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "CSQ126XC",
+			"name": {
+				"en": "Gyu-Kaku",
+				"th": "กิว คาขุ"
+			},
+			"link": "https://www.facebook.com/GyukakuTH/",
+			"notes": "Siam Square One, 4F\nJapanese yakiniku grill, buffet available. Mid to high price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam square one"]
+			},
+			"tags": ["yakiniku", "buffet", "unverified"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "JcyAcOrw",
+			"name": {
+				"en": "Karayama",
+				"th": "คารายามะ"
+			},
+			"link": "https://www.facebook.com/Karayama-Thailand-454784181583843/",
+			"notes": "Siam Square One, 4F\nJapanese karaage fried chicken sets. Budget to mid price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam square one"]
+			},
+			"tags": ["fried chicken", "teishoku", "unverified"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "hFetLf0R",
+			"name": {
+				"en": "Pukeepick",
+				"th": "ปูขี่พริก"
+			},
+			"link": "https://www.facebook.com/pukeepick/",
+			"notes": "Siam Square One, 4F\nSpicy Thai crab and seafood salads. Mid price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam square one"]
+			},
+			"tags": ["seafood", "unverified"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "wbSYwPtY",
+			"name": {
+				"en": "MK Restaurants",
+				"th": "เอ็มเค"
+			},
+			"link": "https://www.mkrestaurant.com/",
+			"notes": "Siam Square One, 5F\nThai suki hotpot with roast duck and dim sum. Mid price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["siam square one"]
+			},
+			"tags": ["suki", "unverified"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:08.798Z"
+		},
+		{
+			"id": "iYW6od5y",
+			"name": {
+				"en": "Pepper Lunch",
+				"th": "เป๊ปเปอร์ ลันช์"
+			},
+			"link": "https://www.facebook.com/pepperlunchthailand/",
+			"notes": "Siam Square One, 5F\nDIY sizzling beef pepper rice on a hot plate. Budget to mid price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["siam square one"]
+			},
+			"tags": ["rice dish", "steak", "unverified"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
+		},
+		{
+			"id": "0V9IykuV",
+			"name": {
+				"en": "KOI Thé",
+				"th": "โคอิ เตะ"
+			},
+			"link": "https://koithe.com/",
+			"notes": "Siam Square One, 3F\nTaiwanese bubble tea with golden bubbles. Budget.",
+			"kinds": ["drinks"],
+			"groups": {
+				"area": ["siam square one"]
+			},
+			"tags": ["bubble tea", "unverified"],
+			"createdAt": "2026-10-23T10:24:08.798Z",
+			"updatedAt": "2026-10-23T10:24:30.196Z"
 		}
 	],
 	"history": [],
