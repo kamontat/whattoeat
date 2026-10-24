@@ -8,6 +8,10 @@
 		"nonthaburi": {
 			"en": "Nonthaburi",
 			"th": "นนทบุรี"
+		},
+		"chonburi": {
+			"en": "Chonburi",
+			"th": "ชลบุรี"
 		}
 	},
 	"districts": {
@@ -22,6 +26,10 @@
 		"mueang-nonthaburi": {
 			"en": "Mueang Nonthaburi",
 			"th": "เมืองนนทบุรี"
+		},
+		"phanat-nikhom": {
+			"en": "Phanat Nikhom",
+			"th": "พนัสนิคม"
 		}
 	},
 	"presets": [
@@ -111,6 +119,27 @@
 			"updatedAt": "2026-10-23",
 			"places": ["Samyan Mitrtown"],
 			"areas": ["samyan mitrtown"]
+		},
+		{
+			"id": "phanat-nikhom",
+			"city": "chonburi",
+			"district": "phanat-nikhom",
+			"name": {
+				"en": "Phanat Nikhom",
+				"th": "พนัสนิคม"
+			},
+			"count": 30,
+			"updatedAt": "2026-10-24",
+			"places": [
+				"Lotus's Phanat Nikhom",
+				"Phanat Nikhom Town",
+				"Sukprayoon Road"
+			],
+			"areas": [
+				"lotus's phanat nikhom",
+				"phanat nikhom town",
+				"sukprayoon road"
+			]
 		}
 	]
 }
