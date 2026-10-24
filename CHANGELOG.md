@@ -2,7 +2,13 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-24: Official links for the last map-only preset restaurants
+## 2026-10-24: A Phanat Nikhom preset and official links for the last map-only restaurants
+
+### Features
+
+- A Phanat Nikhom preset lists 30 places in the town centre of Phanat Nikhom, Chonburi: 10 at
+  Lotus's Phanat Nikhom, 13 in the old town around the market and clock tower, and 7 on
+  Sukprayoon Road. It adds Chonburi as a new city and Phanat Nikhom as a new district.
 
 ### Improvements
 
@@ -21,6 +27,9 @@ What changed in this project and why, newest first.
   branch. A wrong page sends people to the wrong shop, which is worse than no page.
 - Pages on a parent company's site (Ssamthing Together on Maguro Group's site, Lotus's Eats on
   Lotus's corporate site) are not used as `website`, which is for a brand's own homepage only.
+- The Phanat Nikhom preset covers only the town centre. Lotus's is the only large store there,
+  so cafés and shops further out (Overcome, Yoo Barn, GMT+7 and others) were left out. 18 of
+  its places are tagged `unverified`, mostly chain branches with no dated recent review.
 
 ## 2026-10-23: Labelled links, names in English and Thai, and a Samyan Mitrtown preset
 

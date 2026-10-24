@@ -1,0 +1,694 @@
+{
+	"app": "whattoeat",
+	"version": 7,
+	"exportedAt": "2026-10-24T07:35:28.123Z",
+	"restaurants": [
+		{
+			"id": "PS2xQzwI",
+			"name": {
+				"en": "MK Restaurants",
+				"th": "เอ็มเค"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=MK+Restaurants+Lotus%27s+Phanat+Nikhom"
+				}
+			],
+			"notes": "Lotus's Phanat Nikhom\nSuki hot pot, roast duck and crispy pork; crab rolls (hoi jo) praised. Mid price. Opens 10:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["lotus's phanat nikhom"]
+			},
+			"tags": ["shabu", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "dY8xvrTx",
+			"name": {
+				"en": "Swensen's",
+				"th": "สเวนเซ่นส์"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Swensen%27s+Lotus%27s+Phanat+Nikhom"
+				}
+			],
+			"notes": "Lotus's Phanat Nikhom\nIce cream sundaes and desserts. Mid price. 09:00-21:00.",
+			"kinds": ["dessert"],
+			"groups": {
+				"cuisine": ["western"],
+				"area": ["lotus's phanat nikhom"]
+			},
+			"tags": ["ice cream", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "y2B0gYCz",
+			"name": {
+				"en": "Sukiya",
+				"th": "สุคิยะ"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Sukiya+Lotus%27s+Phanat+Nikhom"
+				}
+			],
+			"notes": "Lotus's Phanat Nikhom\nJapanese gyudon, yakiniku beef bento and salmon rice bowls. Budget to mid price. Until about 20:30.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["japanese"],
+				"area": ["lotus's phanat nikhom"]
+			},
+			"tags": ["rice bowl", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "VfxRTm6A",
+			"name": {
+				"en": "KFC",
+				"th": "เคเอฟซี"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=KFC+Lotus%27s+Phanat+Nikhom"
+				}
+			],
+			"notes": "Lotus's Phanat Nikhom\nFried chicken buckets and burgers. Budget. Until about 20:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["western"],
+				"area": ["lotus's phanat nikhom"]
+			},
+			"tags": ["fast food", "fried chicken", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "GIUBBnxg",
+			"name": {
+				"en": "The Pizza Company",
+				"th": "เดอะ พิซซ่า คอมปะนี"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=The+Pizza+Company+Lotus%27s+Phanat+Nikhom"
+				}
+			],
+			"notes": "Lotus's Phanat Nikhom\nPizza, spaghetti and fried chicken. Mid price. Until about 21:30.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["western"],
+				"area": ["lotus's phanat nikhom"]
+			},
+			"tags": ["pizza", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "ZjcG0Tuc",
+			"name": {
+				"en": "Mister Donut",
+				"th": "มิสเตอร์ โดนัท"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Mister+Donut+Lotus%27s+Phanat+Nikhom"
+				}
+			],
+			"notes": "Lotus's Phanat Nikhom\nDonuts and pon de ring with coffee. Budget.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"area": ["lotus's phanat nikhom"]
+			},
+			"tags": ["donuts", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "M7CpRz6Y",
+			"name": {
+				"en": "Mixue",
+				"th": "มี่เสวี่ย"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Mixue+Lotus%27s+Phanat+Nikhom"
+				}
+			],
+			"notes": "Lotus's Phanat Nikhom\nCheap soft-serve cones, lemon teas and pearl milk tea. Budget. 09:00-20:00.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"area": ["lotus's phanat nikhom"]
+			},
+			"tags": ["ice cream", "bubble tea"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "Cynd2a7D",
+			"name": {
+				"en": "Hi Pork",
+				"th": "ไฮพอร์ค"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Hi+Pork+Lotus%27s+Phanat+Nikhom"
+				}
+			],
+			"notes": "Lotus's Phanat Nikhom\nPork rice dishes and grilled pork (chashu praised). Budget to mid price.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["lotus's phanat nikhom"]
+			},
+			"tags": ["bbq", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "cALK6hIT",
+			"name": {
+				"en": "Southern Coffee",
+				"th": ""
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Southern+Coffee+Lotus%27s+Phanat+Nikhom"
+				}
+			],
+			"notes": "Lotus's Phanat Nikhom, at the entrance\nCoffee and iced drinks at the mall entrance. Budget. Until about 21:00.",
+			"kinds": ["drinks"],
+			"groups": {
+				"area": ["lotus's phanat nikhom"]
+			},
+			"tags": ["coffee", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "ZhgZ08TA",
+			"name": {
+				"en": "Tam Thad Sarakham",
+				"th": "ตำถาดสารคาม"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%95%E0%B8%B3%E0%B8%96%E0%B8%B2%E0%B8%94%E0%B8%AA%E0%B8%B2%E0%B8%A3%E0%B8%84%E0%B8%B2%E0%B8%A1+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "Soi Tummawat 1, beside Lotus's\nIsan som tam platters, spicy cockle soup and fried chicken wings. Mid price. Until 20:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["isan"],
+				"area": ["lotus's phanat nikhom"]
+			},
+			"tags": ["som tam"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "h1DG2ZNx",
+			"name": {
+				"en": "Radna Phanat Nikhom",
+				"th": "ราดหน้าพนัสนิคม"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B8%B2%E0%B8%94%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "Near the five-way junction (Ha Yaek), town centre\nLocal institution: rad na, kuay tiew hor (rice-sheet rolls with chives or bamboo shoot) with chilli sauce, fish maw soup. Budget. Until 21:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["noodles"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "IkKYVw9C",
+			"name": {
+				"en": "Nai Hai Beef Noodle",
+				"th": "เกาเหลาเนื้อนายไฮ้"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B9%80%E0%B8%81%E0%B8%B2%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B2%E0%B9%80%E0%B8%99%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%99%E0%B8%B2%E0%B8%A2%E0%B9%84%E0%B8%AE%E0%B9%89+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/Noodle.Chonburi"
+				}
+			],
+			"notes": "Wat Roman Catholic Rd, next to Watthananusat School, near the post office\nSince 1966. Mixed beef soup (fresh and stewed beef), beef noodles and beef laab. Budget. About 06:00-15:30.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["noodles", "beef"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "P04mi3il",
+			"name": {
+				"en": "Loet Rot Duck Noodle",
+				"th": "ก๋วยเตี๋ยวเป็ดเลิศรส"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%81%E0%B9%8B%E0%B8%A7%E0%B8%A2%E0%B9%80%E0%B8%95%E0%B8%B5%E0%B9%8B%E0%B8%A2%E0%B8%A7%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%94%E0%B9%80%E0%B8%A5%E0%B8%B4%E0%B8%A8%E0%B8%A3%E0%B8%AA+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/loetrotducknoodle/"
+				}
+			],
+			"notes": "Sri Kunchon Rd, Talat Mai (new market)\n55-year-old wooden shophouse: braised duck noodles and duck soup. Budget. About 09:30-15:30; busy at noon.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["noodles", "duck"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "CdRkFZeB",
+			"name": {
+				"en": "Khao Man Kai Phanat",
+				"th": "ข้าวมันไก่พนัส"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%A1%E0%B8%B1%E0%B8%99%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "Ko Kaeo Rd, beside the city shrine at the basketry market entrance\n60-year-old Hainanese chicken rice famed for its dipping sauce. Budget. Early: about 05:00-13:00. Cash only.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["chicken rice", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "nTM7F3g2",
+			"name": {
+				"en": "Feichi Chicken Rice",
+				"th": "เฟยฉี ข้าวมันไก่"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B9%80%E0%B8%9F%E0%B8%A2%E0%B8%89%E0%B8%B5+%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%A1%E0%B8%B1%E0%B8%99%E0%B9%84%E0%B8%81%E0%B9%88+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "Sai Klang Rd, just past Bangkok Bank\nNewer Hainanese chicken rice; boiled chicken and sauce praised. Budget. 07:00-12:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["chicken rice", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "Fw4B3YhR",
+			"name": {
+				"en": "Wutthichai Pai Kuk Te",
+				"th": "วุฒิชัยไป่กุกเต"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A7%E0%B8%B8%E0%B8%92%E0%B8%B4%E0%B8%8A%E0%B8%B1%E0%B8%A2%E0%B9%84%E0%B8%9B%E0%B9%88%E0%B8%81%E0%B8%B8%E0%B8%81%E0%B9%80%E0%B8%95+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "Opposite Mu Ban Phanat Nikhom 1, at the bend near the Talat Mai turn\nFamous Chonburi pork-rib soup that moved here in June 2025: soft rib soup, minced pork, egg noodles. Budget. About 09:00-16:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["noodles", "pork ribs"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "5kXFG7jZ",
+			"name": {
+				"en": "Mu Long Ruea Boat Noodles",
+				"th": "หมูล่องเรือ ก๋วยเตี๋ยวเรือ"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%AB%E0%B8%A1%E0%B8%B9%E0%B8%A5%E0%B9%88%E0%B8%AD%E0%B8%87%E0%B9%80%E0%B8%A3%E0%B8%B7%E0%B8%AD+%E0%B8%81%E0%B9%8B%E0%B8%A7%E0%B8%A2%E0%B9%80%E0%B8%95%E0%B8%B5%E0%B9%8B%E0%B8%A2%E0%B8%A7%E0%B9%80%E0%B8%A3%E0%B8%B7%E0%B8%AD+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "Thetsaban Phatthana Rd, near the five-way junction\nBoat noodles. Budget. 09:00-20:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["noodles", "boat noodles", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "wgvP2vD1",
+			"name": {
+				"en": "Hoi Tod Boran Phanat Nikhom",
+				"th": "หอยทอดโบราณ พนัสนิคม"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%AB%E0%B8%AD%E0%B8%A2%E0%B8%97%E0%B8%AD%E0%B8%94%E0%B9%82%E0%B8%9A%E0%B8%A3%E0%B8%B2%E0%B8%93+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/p/%E0%B8%AB%E0%B8%AD%E0%B8%A2%E0%B8%97%E0%B8%AD%E0%B8%94%E0%B9%82%E0%B8%9A%E0%B8%A3%E0%B8%B2%E0%B8%93-%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1-100064660183889/"
+				}
+			],
+			"notes": "In-Asa Rd, opposite Ngam Chang printing house\nOld-style soft mussel omelette, pad thai and kuay tiew hor. Budget. Until about 22:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["street food", "pad thai", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "EyZHquv2",
+			"name": {
+				"en": "Laab Ubon Na Wat Ko",
+				"th": "ลาบอุบล หน้าวัดเกาะ"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A5%E0%B8%B2%E0%B8%9A%E0%B8%AD%E0%B8%B8%E0%B8%9A%E0%B8%A5+%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B9%80%E0%B8%81%E0%B8%B2%E0%B8%B0+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "In front of Wat Ko\nIsan: grilled pork neck, sun-dried pork, raw shrimp in fish sauce, black crab salad. Mid price. Small team, call ahead.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["isan"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["som tam", "laab", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "QNF6GXNu",
+			"name": {
+				"en": "Shrimp by Kamolchanok",
+				"th": "ชริม by Kamolchanok"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%8A%E0%B8%A3%E0%B8%B4%E0%B8%A1+by+Kamolchanok+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/shrimpbykamolchanok/"
+				}
+			],
+			"notes": "2/3 Thetsaban Phatthana Rd\nGarden café with Thai food: khao soi, banana-blossom fish cakes, khao chae, cakes and specialty coffee. Mid price. 10:00-20:00, closed Wed.",
+			"kinds": ["food", "drinks", "dessert"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["cafe"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "DLI7p7CI",
+			"name": {
+				"en": "Prarot Roasters",
+				"th": "พระรถโรสเตอร์"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Prarot+Roasters+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "Clock tower roundabout, town market\nCoffee roaster: good beans, ceremonial matcha, homemade bread. Budget to mid price. 07:00-18:00.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["cafe", "coffee"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "K7cKTgly",
+			"name": {
+				"en": "Ma Yoo",
+				"th": "ม่ายู้"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A1%E0%B9%88%E0%B8%B2%E0%B8%A2%E0%B8%B9%E0%B9%89+%E0%B8%82%E0%B8%99%E0%B8%A1%E0%B8%AB%E0%B8%A7%E0%B8%B2%E0%B8%99+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/MayooDessertPhanatnikhom/"
+				}
+			],
+			"notes": "Thep Prasit Rd, clock tower roundabout\nHong Kong-style dessert house: Chinese bingsu, bua loi, ice cream, egg tarts, milk tea. Budget. 11:30-20:30, closed Tue.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["bingsu"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "EYQZzhFg",
+			"name": {
+				"en": "BLK.BOBA",
+				"th": "บีแอลเคโบบา"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=BLK.BOBA+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "136 Sri Kunchon Rd\nChonburi bubble tea chain: brown sugar milk tea with handmade pearls, adjustable sweetness. Budget. 09:00-20:00.",
+			"kinds": ["drinks"],
+			"groups": {
+				"area": ["phanat nikhom town"]
+			},
+			"tags": ["bubble tea", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "oeCx91R5",
+			"name": {
+				"en": "Khao Man Kai Ban Phanat Nikhom",
+				"th": "ข้าวมันไก่บ้าน พนัสนิคม"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%A1%E0%B8%B1%E0%B8%99%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%9A%E0%B9%89%E0%B8%B2%E0%B8%99+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "Sukprayoon Rd, before Phanat Phitthayakhan School\nFree-range chicken rice, fried chicken. Budget. 06:00-15:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["sukprayoon road"]
+			},
+			"tags": ["chicken rice", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "gGzeMR7b",
+			"name": {
+				"en": "Jongdee Khao Tom Pla",
+				"th": "จงดี ข้าวต้มปลา"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%88%E0%B8%87%E0%B8%94%E0%B8%B5+%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%95%E0%B9%89%E0%B8%A1%E0%B8%9B%E0%B8%A5%E0%B8%B2+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/p/%E0%B8%88%E0%B8%87%E0%B8%94%E0%B8%B5%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%95%E0%B9%89%E0%B8%A1%E0%B8%9B%E0%B8%A5%E0%B8%B2-%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1-100048039437815/"
+				}
+			],
+			"notes": "33/19 Sukprayoon Rd, toward Phanat Nikhom Hospital\nEvening fish rice soup with fish skin, roe and fish maw; hot pots. Budget to mid price. From 16:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["sukprayoon road"]
+			},
+			"tags": ["rice soup", "late night"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "vPQzkRUl",
+			"name": {
+				"en": "I-Din Coffee",
+				"th": "ไอ-ดินคอฟฟี่"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B9%84%E0%B8%AD-%E0%B8%94%E0%B8%B4%E0%B8%99%E0%B8%84%E0%B8%AD%E0%B8%9F%E0%B8%9F%E0%B8%B5%E0%B9%88+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/iDinCoffeePhanat/"
+				}
+			],
+			"notes": "Sukprayoon Rd, Kut Ngong\nLong-running local garden coffee shop with lawn seating and bakery; espresso, cocoa, strawberry soda. Budget. 09:00-22:00.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"area": ["sukprayoon road"]
+			},
+			"tags": ["cafe", "coffee", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "WpARmUlR",
+			"name": {
+				"en": "Noodles Soi 12",
+				"th": "ก๋วยเตี๋ยวซอย 12"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%81%E0%B9%8B%E0%B8%A7%E0%B8%A2%E0%B9%80%E0%B8%95%E0%B8%B5%E0%B9%8B%E0%B8%A2%E0%B8%A7%E0%B8%8B%E0%B8%AD%E0%B8%A2+12+%E0%B8%81%E0%B8%B8%E0%B8%8E%E0%B9%82%E0%B8%87%E0%B9%89%E0%B8%87+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "Soi Chan Amnuai, about 300 m in (Kut Ngong)\nBranch of the Ban Suan dried-squid broth noodles: tom yum wonton, pork noodles. Budget. From 07:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["chinese"],
+				"area": ["sukprayoon road"]
+			},
+			"tags": ["noodles", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "RWvsRxQ5",
+			"name": {
+				"en": "Craftper",
+				"th": "คราฟท์เปอร์"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=Craftper+Phanat+Nikhom"
+				}
+			],
+			"notes": "Soi behind Phanat Phitthayakhan School, Kut Ngong\nHome café with homemade bakes and one-plate meals: matcha Oreo, banoffee, americano; garden seats, cats. Budget. About 08:00-18:00, closed Wed.",
+			"kinds": ["food", "drinks", "dessert"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["sukprayoon road"]
+			},
+			"tags": ["cafe"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "cQ5GAlDS",
+			"name": {
+				"en": "HALO Cafe",
+				"th": "เฮโล"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=HALO+cafe+house+Phanat+Nikhom"
+				},
+				{
+					"label": "facebook",
+					"url": "https://www.facebook.com/halo.cafehouse/"
+				}
+			],
+			"notes": "40 Moo 6 Kut Ngong, behind Phanat Phitthayakhan School\nSmall Japanese-style wooden café: coffee, drinks and cookies, outdoor seats. Budget. 07:30-17:30.",
+			"kinds": ["drinks", "dessert"],
+			"groups": {
+				"area": ["sukprayoon road"]
+			},
+			"tags": ["cafe", "coffee"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		},
+		{
+			"id": "6X60iNN8",
+			"name": {
+				"en": "Khanom Jeen Mae Muai",
+				"th": "ขนมจีนแม่หมวย"
+			},
+			"links": [
+				{
+					"label": "map",
+					"url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%82%E0%B8%99%E0%B8%A1%E0%B8%88%E0%B8%B5%E0%B8%99%E0%B9%81%E0%B8%A1%E0%B9%88%E0%B8%AB%E0%B8%A1%E0%B8%A7%E0%B8%A2+%E0%B8%9E%E0%B8%99%E0%B8%B1%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%84%E0%B8%A1"
+				}
+			],
+			"notes": "177 Moo 1 Kut Ngong\nKhanom jeen rice noodles with curries. Budget. Tue-Sun 12:00-23:00.",
+			"kinds": ["food"],
+			"groups": {
+				"cuisine": ["thai"],
+				"area": ["sukprayoon road"]
+			},
+			"tags": ["noodles", "unverified"],
+			"createdAt": "2026-10-24T07:35:28.123Z",
+			"updatedAt": "2026-10-24T07:35:28.123Z"
+		}
+	],
+	"history": [],
+	"groups": []
+}
