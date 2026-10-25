@@ -104,9 +104,6 @@ const click = async (el: ProfileManager, selector: string): Promise<void> => {
 	await el.updateComplete;
 };
 
-const promptText = (el: ProfileManager): string | undefined =>
-	$(el, ".confirm [role='alert']")?.textContent?.replace(/\s+/g, " ").trim();
-
 test("lists every profile with its count and marks the active one", async () => {
 	const personal = loadProfiles()[0]!;
 	const family = createProfile("Family");
@@ -130,7 +127,7 @@ test("lists every profile with its count and marks the active one", async () => 
 	);
 	expect(personalRow.querySelector("b")?.textContent?.trim()).toBe("Personal");
 	expect(personalRow.querySelector("small")?.textContent?.trim()).toBe(
-		"2 restaurants",
+		"2 restaurants · 0 history entries",
 	);
 	expect(personalRow.getAttribute("aria-current")).toBeNull();
 	expect(personalRow.querySelector(".trail")).toBeNull();
@@ -138,10 +135,24 @@ test("lists every profile with its count and marks the active one", async () => 
 	const familyRow = row(el, family)!;
 	expect(familyRow.querySelector(".lead")?.textContent?.trim()).toBe("F");
 	expect(familyRow.querySelector("small")?.textContent?.trim()).toBe(
-		"3 restaurants",
+		"3 restaurants · 0 history entries",
 	);
 	expect(familyRow.getAttribute("aria-current")).toBe("true");
 	expect(familyRow.querySelector(".trail")).not.toBeNull();
+});
+
+test("a row's subtitle counts restaurants and history, joined by a middle dot", async () => {
+	const personal = loadProfiles()[0]!;
+	localStorage.setItem(profileKey("restaurants", personal.id), "[{}]");
+	localStorage.setItem(profileKey("history", personal.id), "[{},{}]");
+	const el = await mount();
+	const sub = () =>
+		row(el, personal)?.querySelector("small")?.textContent?.trim();
+	expect(sub()).toBe("1 restaurant · 2 history entries");
+
+	setLang("th");
+	await el.updateComplete;
+	expect(sub()).toBe("1 ร้าน · ประวัติ 2 รายการ");
 });
 
 test("each row has icon-only rename, copy and delete buttons named for that profile", async () => {
@@ -402,7 +413,7 @@ test("Copy adds a copy after the list, keeps the active profile and says so", as
 	]);
 	const copy = list[2]!;
 	expect(row(el, copy)?.querySelector("small")?.textContent?.trim()).toBe(
-		"3 restaurants",
+		"3 restaurants · 0 history entries",
 	);
 	expect(activeProfile().id).toBe(personal.id);
 	expect(row(el, personal)?.getAttribute("aria-current")).toBe("true");
@@ -443,31 +454,30 @@ test("Copy that cannot be saved shows the storage warning and adds nothing", asy
 	);
 });
 
-test("Delete on another profile asks without the switch sentence and keeps the active one", async () => {
+test("Delete swaps that row's icons for Delete and Cancel, with no prompt text", async () => {
 	const personal = loadProfiles()[0]!;
 	const family = createProfile("Family");
-	localStorage.setItem(
-		profileKey("restaurants", family.id),
-		JSON.stringify([{}, {}, {}]),
-	);
-	localStorage.setItem(
-		profileKey("history", family.id),
-		JSON.stringify([{}, {}]),
-	);
 	switchProfile(personal.id);
 	const el = await mount();
 
 	await click(el, rowAction("delete", family));
-	expect(promptText(el)).toBe(
-		"Delete Family? This removes its 3 restaurants and 2 history entries.",
-	);
-	// The confirm stands in for that row's buttons only.
-	expect($(el, rowAction("delete", family))).toBeNull();
+
+	const familyLine = row(el, family)!.closest(".profile")!;
+	const confirm = familyLine.querySelector<HTMLButtonElement>(
+		'.row-actions [data-action="delete-confirm"]',
+	)!;
+	const cancel = familyLine.querySelector<HTMLButtonElement>(
+		'.row-actions [data-action="delete-cancel"]',
+	)!;
+	expect(confirm.textContent?.trim()).toBe("Delete");
+	expect(confirm.getAttribute("aria-label")).toBe("Delete Family");
+	expect(cancel.textContent?.trim()).toBe("Cancel");
+	// The two buttons stand in for that row's icons only, and nothing else is shown.
+	expect(familyLine.querySelector('[data-action="rename"]')).toBeNull();
 	expect($(el, rowAction("delete", personal))).not.toBeNull();
-	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
-		"delete-confirm",
-	);
-	// Nothing happened yet.
+	expect($(el, ".confirm")).toBeNull();
+	expect($(el, "[role='alert']")).toBeNull();
+	expect(el.shadowRoot!.activeElement).toBe(confirm);
 	expect(loadProfiles()).toHaveLength(2);
 
 	await click(el, '[data-action="delete-confirm"]');
@@ -475,65 +485,21 @@ test("Delete on another profile asks without the switch sentence and keeps the a
 	expect(loadProfiles()).toEqual([personal]);
 	expect(activeProfile().id).toBe(personal.id);
 	expect(await toastText(el)).toBe("Deleted Family.");
-	expect(promptText(el)).toBeUndefined();
+	expect($(el, '[data-action="delete-confirm"]')).toBeNull();
 });
 
-test("Delete on the active profile asks with the switch sentence, then switches", async () => {
+test("deleting the active profile switches to the first remaining one", async () => {
 	const personal = loadProfiles()[0]!;
 	const family = createProfile("Family");
-	localStorage.setItem(
-		profileKey("restaurants", family.id),
-		JSON.stringify([{}, {}, {}]),
-	);
-	localStorage.setItem(
-		profileKey("history", family.id),
-		JSON.stringify([{}, {}]),
-	);
 	const el = await mount();
 
 	await click(el, rowAction("delete", family));
-	expect(promptText(el)).toBe(
-		"Delete Family? This removes its 3 restaurants and 2 history entries. You'll switch to Personal.",
-	);
-
 	await click(el, '[data-action="delete-confirm"]');
 
 	expect(loadProfiles()).toEqual([personal]);
 	expect(activeProfile().id).toBe(personal.id);
 	expect(row(el, personal)?.getAttribute("aria-current")).toBe("true");
 	expect(await toastText(el)).toBe("Deleted Family.");
-});
-
-test("the delete prompt reads correctly for one restaurant and one history entry", async () => {
-	const family = createProfile("Family");
-	localStorage.setItem(
-		profileKey("restaurants", family.id),
-		JSON.stringify([{}]),
-	);
-	localStorage.setItem(profileKey("history", family.id), JSON.stringify([{}]));
-	const el = await mount();
-
-	await click(el, rowAction("delete", family));
-	expect(promptText(el)).toBe(
-		"Delete Family? This removes its 1 restaurant and 1 history entry. You'll switch to Personal.",
-	);
-
-	setLang("th");
-	await el.updateComplete;
-	expect(promptText(el)).toBe(
-		"ลบ Family? 1 ร้านและประวัติ 1 รายการจะหายไป แล้วจะเปลี่ยนไปใช้ Personal",
-	);
-});
-
-test("the Thai delete prompt for another profile has no switch sentence", async () => {
-	const personal = loadProfiles()[0]!;
-	const family = createProfile("Family");
-	switchProfile(personal.id);
-	setLang("th");
-	const el = await mount();
-
-	await click(el, rowAction("delete", family));
-	expect(promptText(el)).toBe("ลบ Family? 0 ร้านและประวัติ 0 รายการจะหายไป");
 });
 
 test("Delete buttons are disabled with one profile", async () => {
@@ -556,7 +522,7 @@ test("Cancel on the Delete confirm leaves the profile in place and refocuses its
 	await click(el, '[data-action="delete-cancel"]');
 	await el.updateComplete;
 
-	expect(promptText(el)).toBeUndefined();
+	expect($(el, '[data-action="delete-confirm"]')).toBeNull();
 	expect(loadProfiles().length).toBe(before);
 	expect(el.shadowRoot!.activeElement).toBe($(el, rowAction("delete", family)));
 });

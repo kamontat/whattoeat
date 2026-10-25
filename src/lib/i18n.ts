@@ -245,9 +245,6 @@ export const en = {
 	"profiles.created": "Created {name}",
 	"profiles.historyCount.one": "1 history entry",
 	"profiles.historyCount.other": "{count} history entries",
-	"profiles.deletePrompt":
-		"Delete {name}? This removes its {restaurants} and {history}.",
-	"profiles.deleteSwitch": "You'll switch to {next}.",
 	"profiles.deleted": "Deleted {name}.",
 	"profiles.renameLabel": "Rename {name}",
 	"profiles.copyLabel": "Copy {name}",
@@ -554,8 +551,6 @@ export const th: Record<MessageKey, string> = {
 	"profiles.created": "สร้าง {name} แล้ว",
 	"profiles.historyCount.one": "ประวัติ 1 รายการ",
 	"profiles.historyCount.other": "ประวัติ {count} รายการ",
-	"profiles.deletePrompt": "ลบ {name}? {restaurants}และ{history}จะหายไป",
-	"profiles.deleteSwitch": "แล้วจะเปลี่ยนไปใช้ {next}",
 	"profiles.deleted": "ลบ {name} แล้ว",
 	"profiles.renameLabel": "เปลี่ยนชื่อ {name}",
 	"profiles.copyLabel": "คัดลอก {name}",

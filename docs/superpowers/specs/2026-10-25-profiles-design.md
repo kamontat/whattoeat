@@ -94,8 +94,8 @@ The page uses the same layout as the Restaurants page:
 - **The profile form** asks for a name. "New profile" creates the profile **empty** (no
   restaurants, default tag groups, no history, default filters and pick count) and switches to
   it. "Rename Family" uses the same form in the same sheet or panel.
-- **One row per profile:** an initial avatar, the name, its restaurant count, and a tick on the
-  active one. Tapping the row switches to it and shows a short "Switched to Family" message.
+- **One row per profile:** an initial avatar, the name, a subtitle "42 restaurants · 12 history
+  entries" (a middle dot between the two counts), and a tick on the active one. Tapping the row switches to it and shows a short "Switched to Family" message.
   Each row has three icon-only buttons with accessible names that include the profile:
   - **Rename** opens the profile form for that profile.
   - **Copy** makes a new profile with everything in that profile **except pick history**
@@ -103,10 +103,11 @@ The page uses the same layout as the Restaurants page:
     `<name> - <n>`, with `n` the smallest number from 1 that makes the name unique ("Family -
     1", then "Family - 2"); when that would pass 24 characters the original name is shortened
     to fit. The current profile stays active, and a message says "Copied Family to Family - 1".
-  - **Delete** removes that profile after **one confirm step**: "Delete Family? This removes
-    its 42 restaurants and 12 history entries." Deleting the active profile adds "You'll switch
-    to Personal." and then switches to the first remaining profile; deleting another profile
-    leaves the active one as it is. Delete is disabled while only one profile exists.
+  - **Delete** removes that profile after **one confirm step**: that row's icons are replaced,
+    on the same line, by a "Delete" and a "Cancel" button, with no prompt text (the row's own
+    subtitle already says what goes). Deleting the active profile switches to the first
+    remaining profile; deleting another profile leaves the active one as it is. Delete is
+    disabled while only one profile exists.
 - **Names.** Required, trimmed, unique (case-insensitive), at most 24 characters. Errors show
   inline under the field ("Give it a name.", "Another profile has that name.").
 - The rest of Settings that acts on profile data is grouped under "Data in <name>": presets,

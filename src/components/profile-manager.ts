@@ -34,7 +34,7 @@ type FormMode = "new" | "rename";
  * The `/settings/profiles` page body, laid out like the Restaurants page: one row per profile
  * (tapping one switches to it) with icon-only Rename, Copy and Delete buttons, and an icon-only
  * "+" that opens the profile form in a side panel on wide screens and a sheet on phones. Rename
- * uses the same form. Delete asks once, in a confirm under its row.
+ * uses the same form. Delete asks once: Delete and Cancel take the place of that row's icons.
  *
  * Messages go to the page's `<app-toast>` when one is mounted, otherwise to one rendered in
  * this component's own shadow root.
@@ -121,10 +121,15 @@ export class ProfileManager extends LitElement {
 				color: var(--color-danger);
 			}
 
-			.confirm {
-				display: grid;
-				gap: 0.75rem;
-				padding: 0 var(--pad-x) var(--row-pad-y);
+			/* Delete and Cancel stand in for the icons: text buttons, so not round. */
+			.row-actions.confirming {
+				gap: 0.375rem;
+			}
+
+			.row-actions.confirming button {
+				width: auto;
+				padding: 0 0.875rem;
+				border-radius: var(--radius-sm);
 			}
 
 			.profile-form {
@@ -519,13 +524,13 @@ export class ProfileManager extends LitElement {
 						<span class="lead avatar">${profileInitial(name)}</span>
 						<span class="grow">
 							<b>${name}</b>
-							<small>${profileCountText(counts.restaurants)}</small>
+							<small>${profileCountText(counts.restaurants)} · ${profileHistoryText(counts.history)}</small>
 						</span>
 						${isActive ? html`<span class="trail">${icon("check", 20)}</span>` : nothing}
 					</button>
 					${
 						confirming
-							? nothing
+							? this.renderDeleteConfirm(profile)
 							: html`<div class="row-actions">
 									${this.renderRowAction(profile.id, "rename", "edit", t("profiles.renameLabel", { name }), () => this.openForm("rename", profile))}
 									${this.renderRowAction(profile.id, "copy", "copy", t("profiles.copyLabel", { name }), () => this.onCopy(profile))}
@@ -540,7 +545,6 @@ export class ProfileManager extends LitElement {
 								</div>`
 					}
 				</div>
-				${confirming ? this.renderDeleteConfirm(profile, isActive) : nothing}
 			</li>
 		`;
 	}
@@ -596,35 +600,21 @@ export class ProfileManager extends LitElement {
 		`;
 	}
 
-	private renderDeleteConfirm(profile: Profile, isActive: boolean) {
-		const counts = profileCounts(profile.id);
-		const next = this.profiles.find((item) => item.id !== profile.id);
-		const prompt = t("profiles.deletePrompt", {
-			name: profile.name,
-			restaurants: profileCountText(counts.restaurants),
-			history: profileHistoryText(counts.history),
-		});
-		return html`
-			<div class="confirm">
-				<p role="alert">${prompt}${
-					isActive
-						? ` ${t("profiles.deleteSwitch", { next: next?.name ?? "" })}`
-						: nothing
-				}</p>
-				<div class="actions">
-					<button
-						type="button"
-						class="danger"
-						data-action="delete-confirm"
-						@click=${this.confirmDelete}
-					>
-						${t("profiles.delete")}
-					</button>
-					<button type="button" data-action="delete-cancel" @click=${this.cancelDelete}>
-						${t("settings.cancel")}
-					</button>
-				</div>
-			</div>
-		`;
+	/** Delete and Cancel in place of the row's icons; the row itself says what goes. */
+	private renderDeleteConfirm(profile: Profile) {
+		return html`<div class="row-actions confirming">
+			<button
+				type="button"
+				class="danger"
+				data-action="delete-confirm"
+				aria-label=${t("profiles.deleteLabel", { name: profile.name })}
+				@click=${this.confirmDelete}
+			>
+				${t("profiles.delete")}
+			</button>
+			<button type="button" data-action="delete-cancel" @click=${this.cancelDelete}>
+				${t("settings.cancel")}
+			</button>
+		</div>`;
 	}
 }
