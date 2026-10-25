@@ -423,7 +423,7 @@ test("no match shows the no-match line", async () => {
 	}
 });
 
-test("an applied preset is tickable and badged In your list, whether or not its file changed", async () => {
+test("an applied preset is tickable whether or not its file changed; only the current one is badged", async () => {
 	saveRestaurants([make("r1", "R1"), make("r2", "R2")]);
 	localStorage.setItem(
 		presetsKey(),
@@ -440,10 +440,17 @@ test("an applied preset is tickable and badged In your list, whether or not its 
 			const box = row.querySelector("input") as HTMLInputElement;
 			expect(box.checked).toBe(false);
 			expect(box.disabled).toBe(false);
-			expect(row.querySelector(".badge")?.textContent?.trim()).toBe(
-				"In your list",
-			);
 		}
+		// Current: badged, no Update button.
+		expect($(el, '[data-preset="ladprao"] .badge')?.textContent?.trim()).toBe(
+			"In your list",
+		);
+		expect($(el, '[data-preset="ladprao"] [data-action="update"]')).toBeNull();
+		// Stale: Update button instead of the badge.
+		expect($(el, '[data-preset="ratchayothin"] .badge')).toBeNull();
+		expect(
+			$(el, '[data-preset="ratchayothin"] [data-action="update"]'),
+		).not.toBeNull();
 	} finally {
 		restore();
 	}
@@ -534,10 +541,15 @@ const FILES: Record<string, ReturnType<typeof fileOf>> = {
 };
 
 /**
- * Answer the index fetch with `index` and each preset file from `FILES`; an id in `failing`
- * answers 500. Records every requested URL.
+ * Answer the index fetch with `index` and each preset file from `files` (default `FILES`); an id
+ * in `failing` answers 500, and an id missing from `files` answers 404. Records every requested
+ * URL.
  */
-const stubRoutes = (index: PresetIndex = INDEX_M, failing: string[] = []) => {
+const stubRoutes = (
+	index: PresetIndex = INDEX_M,
+	failing: string[] = [],
+	files: Record<string, ReturnType<typeof fileOf>> = FILES,
+) => {
 	const urls: string[] = [];
 	const spy = spyOn(globalThis, "fetch").mockImplementation(((
 		input: RequestInfo | URL,
@@ -548,7 +560,7 @@ const stubRoutes = (index: PresetIndex = INDEX_M, failing: string[] = []) => {
 		const id = /presets\/([\w-]+)\.json$/.exec(url)?.[1] ?? "";
 		if (failing.includes(id))
 			return Promise.resolve(new Response("nope", { status: 500 }));
-		const file = FILES[id];
+		const file = files[id];
 		if (file === undefined)
 			return Promise.resolve(new Response("missing", { status: 404 }));
 		return jsonResponse(file);
@@ -1248,6 +1260,267 @@ test("while a save is in flight, the row checkboxes are disabled", async () => {
 		expect(
 			($(el, '[data-preset="kaset"] input') as HTMLInputElement).disabled,
 		).toBe(false);
+	} finally {
+		spy.mockRestore();
+	}
+});
+
+// --- Task 3: per-row Update ---
+
+const updateButton = (el: PresetPicker, id: string) =>
+	$(
+		el,
+		`[data-preset="${id}"] [data-action="update"]`,
+	) as HTMLButtonElement | null;
+
+test("a stale applied preset shows an Update button named for it, and no badge", async () => {
+	saveRestaurants([make("r2"), make("l1")]);
+	localStorage.setItem(
+		presetsKey(),
+		JSON.stringify([
+			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r2"] },
+			{ id: "ladprao", updatedAt: "2026-10-16", ids: ["l1"] },
+		]),
+	);
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		const button = updateButton(el, "ratchayothin")!;
+		expect(button.textContent?.trim()).toBe("Update");
+		expect(button.getAttribute("aria-label")).toBe("Update Ratchayothin");
+		expect($(el, '[data-preset="ratchayothin"] .badge')).toBeNull();
+
+		expect($(el, '[data-preset="ladprao"] .badge')?.textContent?.trim()).toBe(
+			"In your list",
+		);
+		expect(updateButton(el, "ladprao")).toBeNull();
+
+		expect($(el, '[data-preset="kaset"] .badge')).toBeNull();
+		expect(updateButton(el, "kaset")).toBeNull();
+	} finally {
+		restore();
+	}
+});
+
+test("a not-used preset never shows Update, even when recorded with an old date", async () => {
+	localStorage.setItem(
+		presetsKey(),
+		JSON.stringify([{ id: "kaset", updatedAt: "2026-10-01", ids: ["gone"] }]),
+	);
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		expect(updateButton(el, "kaset")).toBeNull();
+		expect($(el, '[data-preset="kaset"] .badge')).toBeNull();
+	} finally {
+		restore();
+	}
+});
+
+test("clicking Update does not tick the row or change the selection", async () => {
+	saveRestaurants([make("r1")]);
+	localStorage.setItem(
+		presetsKey(),
+		JSON.stringify([
+			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1"] },
+		]),
+	);
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		const before = applyButton(el)?.textContent?.trim();
+		await press(el, '[data-preset="ratchayothin"] [data-action="update"]');
+		expect(
+			($(el, '[data-preset="ratchayothin"] input') as HTMLInputElement).checked,
+		).toBe(false);
+		expect(
+			($(el, '[data-preset="ladprao"] input') as HTMLInputElement).checked,
+		).toBe(true);
+		expect(applyButton(el)?.textContent?.trim()).toBe(before);
+	} finally {
+		restore();
+	}
+});
+
+test("Update syncs the preset, rewrites its record, and reports the counts with Undo", async () => {
+	const editedR1 = { ...make("r1"), notes: "edited" };
+	saveRestaurants([editedR1, make("r2"), make("mine")]);
+	localStorage.setItem(
+		presetsKey(),
+		JSON.stringify([
+			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1", "r2"] },
+		]),
+	);
+	const fileR1 = make("r1");
+	const files = { ratchayothin: fileOf(fileR1, make("r3")) };
+	const { restore } = stubRoutes(INDEX_M, [], files);
+	try {
+		const el = await mount();
+		await press(el, '[data-preset="ratchayothin"] [data-action="update"]');
+
+		expect(savedIdsNow()).toEqual(["r1", "mine", "r3"]);
+		expect(loadRestaurants().find((item) => item.id === "r1")).toEqual(fileR1);
+		expect(loadAddedPresets()).toEqual([
+			{ id: "ratchayothin", updatedAt: "2026-10-16", ids: ["r1", "r3"] },
+		]);
+		expect(toastText(el)).toBe(
+			"Ratchayothin updated: 1 added, 1 removed, 1 reverted.",
+		);
+		expect(toastAction(el)?.textContent?.trim()).toBe("Undo");
+		expect(
+			$(el, '[data-preset="ratchayothin"] .badge')?.textContent?.trim(),
+		).toBe("In your list");
+		expect($(el, '[data-preset="ratchayothin"] input')).toBe(
+			el.shadowRoot!.activeElement as HTMLInputElement,
+		);
+	} finally {
+		restore();
+	}
+});
+
+test("Undo after Update restores the list and every record exactly", async () => {
+	const editedR1 = { ...make("r1"), notes: "edited" };
+	saveRestaurants([editedR1, make("r2"), make("mine")]);
+	const before = [
+		{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1", "r2"] },
+		{ id: "ladprao", updatedAt: "2026-10-16", ids: ["mine"] },
+	];
+	localStorage.setItem(presetsKey(), JSON.stringify(before));
+	const listBefore = localStorage.getItem(restaurantsKey());
+	const presetsBefore = localStorage.getItem(presetsKey());
+	const files = { ratchayothin: fileOf(make("r1"), make("r3")) };
+	const { restore } = stubRoutes(INDEX_M, [], files);
+	try {
+		const el = await mount();
+		await press(el, '[data-preset="ratchayothin"] [data-action="update"]');
+		expect(savedIdsNow()).toEqual(["r1", "mine", "r3"]);
+
+		await clickUndo(el);
+		// Same records field for field (the store may write keys in its own order).
+		expect(
+			JSON.parse(localStorage.getItem(restaurantsKey()) ?? "null"),
+		).toEqual(JSON.parse(listBefore ?? "null"));
+		expect(localStorage.getItem(presetsKey())).toBe(presetsBefore);
+		await toastOf(el).updateComplete;
+		expect(toastText(el)).toBe("Undone.");
+	} finally {
+		restore();
+	}
+});
+
+test("a failed file load on Update changes nothing and says so", async () => {
+	saveRestaurants([make("r1")]);
+	const presetsBefore = JSON.stringify([
+		{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1"] },
+	]);
+	localStorage.setItem(presetsKey(), presetsBefore);
+	const listBefore = localStorage.getItem(restaurantsKey());
+	const { restore } = stubRoutes(INDEX_M, [], {});
+	try {
+		const el = await mount();
+		await press(el, '[data-preset="ratchayothin"] [data-action="update"]');
+
+		expect(localStorage.getItem(restaurantsKey())).toBe(listBefore);
+		expect(localStorage.getItem(presetsKey())).toBe(presetsBefore);
+		expect(toastText(el)).toBe("Couldn't load Ratchayothin. Nothing changed.");
+		expect(toastAction(el)).toBeNull();
+		const button = updateButton(el, "ratchayothin");
+		expect(button).not.toBeNull();
+		expect(button?.disabled).toBe(false);
+	} finally {
+		restore();
+	}
+});
+
+test("a refused write on Update shows the session-only message and keeps the record", async () => {
+	saveRestaurants([make("r1")]);
+	const presetsBefore = JSON.stringify([
+		{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1"] },
+	]);
+	localStorage.setItem(presetsKey(), presetsBefore);
+	const files = { ratchayothin: fileOf(make("r1"), make("r3")) };
+	const { restore } = stubRoutes(INDEX_M, [], files);
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: (key: string) => real.getItem(key),
+			setItem: (key: string, value: string) => {
+				if (key === restaurantsKey()) throw new Error("QuotaExceededError");
+				real.setItem(key, value);
+			},
+		},
+		configurable: true,
+	});
+	try {
+		const el = await mount();
+		await press(el, '[data-preset="ratchayothin"] [data-action="update"]');
+		expect(toastText(el)).toBe("Ratchayothin updated for this session only");
+		expect(real.getItem(presetsKey())).toBe(presetsBefore);
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		restore();
+		saveRestaurants([]);
+	}
+});
+
+test("the Thai Update message", async () => {
+	setLang("th");
+	const editedR1 = { ...make("r1"), notes: "edited" };
+	saveRestaurants([editedR1, make("r2"), make("mine")]);
+	localStorage.setItem(
+		presetsKey(),
+		JSON.stringify([
+			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1", "r2"] },
+		]),
+	);
+	const files = { ratchayothin: fileOf(make("r1"), make("r3")) };
+	const { restore } = stubRoutes(INDEX_M, [], files);
+	try {
+		const el = await mount();
+		await press(el, '[data-preset="ratchayothin"] [data-action="update"]');
+		expect(toastText(el)).toBe("อัปเดต รัชโยธิน แล้ว: เพิ่ม 1 ลบ 1 คืนค่า 1");
+	} finally {
+		restore();
+	}
+});
+
+test("Update buttons are disabled while a save or update is in flight", async () => {
+	saveRestaurants([make("r1")]);
+	localStorage.setItem(
+		presetsKey(),
+		JSON.stringify([
+			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1"] },
+			{ id: "ladprao", updatedAt: "2026-10-01", ids: ["r1"] },
+		]),
+	);
+	let release: () => void = () => {};
+	const gate = new Promise<void>((resolve) => {
+		release = resolve;
+	});
+	const spy = spyOn(globalThis, "fetch").mockImplementation(((
+		input: RequestInfo | URL,
+	) => {
+		const url = String(input);
+		if (url.endsWith("index.json")) return jsonResponse(INDEX_M);
+		return gate.then(() => jsonResponse(FILES["ratchayothin"]));
+	}) as typeof fetch);
+	try {
+		const el = await mount();
+		expect(updateButton(el, "ratchayothin")).not.toBeNull();
+		expect(updateButton(el, "ladprao")).not.toBeNull();
+
+		updateButton(el, "ratchayothin")!.click();
+		await el.updateComplete;
+		for (const button of $$(el, '[data-action="update"]'))
+			expect((button as HTMLButtonElement).disabled).toBe(true);
+
+		release();
+		await flush(el);
+		await flush(el);
 	} finally {
 		spy.mockRestore();
 	}

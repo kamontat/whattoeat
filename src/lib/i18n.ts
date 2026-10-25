@@ -225,6 +225,12 @@ export const en = {
 	"presets.replacedSessionOnly": "Replaced for this session only",
 	"presets.filesError":
 		"The selected neighbourhoods could not be loaded. Nothing was changed. Try again.",
+	"presets.update": "Update",
+	"presets.updateLabel": "Update {name}",
+	"presets.updated":
+		"{name} updated: {added} added, {removed} removed, {reverted} reverted.",
+	"presets.updatedSessionOnly": "{name} updated for this session only",
+	"presets.updateError": "Couldn't load {name}. Nothing changed.",
 	"profiles.defaultName": "Personal",
 	"profiles.title": "Profiles",
 	"profiles.count.one": "1 restaurant",
@@ -525,6 +531,12 @@ export const th: Record<MessageKey, string> = {
 	"presets.sessionOnly": "เพิ่มไว้เฉพาะครั้งนี้เท่านั้น",
 	"presets.replacedSessionOnly": "แทนที่ไว้เฉพาะครั้งนี้เท่านั้น",
 	"presets.filesError": "ไม่สามารถโหลดย่านที่เลือกได้ ไม่มีการเปลี่ยนแปลงใด ๆ กรุณาลองใหม่",
+	"presets.update": "อัปเดต",
+	"presets.updateLabel": "อัปเดต {name}",
+	"presets.updated":
+		"อัปเดต {name} แล้ว: เพิ่ม {added} ลบ {removed} คืนค่า {reverted}",
+	"presets.updatedSessionOnly": "อัปเดต {name} ไว้เฉพาะครั้งนี้เท่านั้น",
+	"presets.updateError": "ไม่สามารถโหลด {name} ได้ ไม่มีการเปลี่ยนแปลงใด ๆ",
 	"profiles.defaultName": "ส่วนตัว",
 	"profiles.title": "โปรไฟล์",
 	"profiles.count.one": "1 ร้าน",

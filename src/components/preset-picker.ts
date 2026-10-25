@@ -8,7 +8,6 @@ import {
 	LangController,
 	type Localized,
 	localize,
-	type MessageKey,
 	t,
 } from "#lib/i18n";
 import { icon } from "#lib/icons";
@@ -20,10 +19,10 @@ import {
 	type PresetEntry,
 	type PresetFile,
 	type PresetIndex,
-	type PresetState,
 	presetState,
 	replaceWithPresets,
 	saveAddedPresets,
+	updatePreset,
 } from "#lib/presets";
 import { activeProfile } from "#lib/profiles";
 import type { Restaurant } from "#lib/restaurant";
@@ -76,8 +75,6 @@ const splitOnToken = (text: string, token: string): [string, string] => {
 		? [text, ""]
 		: [text.slice(0, at), text.slice(at + token.length)];
 };
-
-type Badge = { label: MessageKey; state: string };
 
 /**
  * The `/settings/presets` page body: fetches the bundled neighbourhood index, then lists its
@@ -174,6 +171,20 @@ export class PresetPicker extends LitElement {
 				color: var(--color-muted);
 				font-size: 0.75rem;
 				font-weight: 600;
+			}
+
+			/*
+			 * The row's label no longer is the row: an Update button sits beside it (.item still
+			 * lays the two out), so .pick takes over the row's own flex layout for the checkbox,
+			 * name and badge.
+			 */
+			.pick {
+				display: flex;
+				flex: 1;
+				align-items: center;
+				gap: 0.75rem;
+				min-height: var(--tap);
+				min-width: 0;
 			}
 
 			mark {
@@ -655,37 +666,97 @@ export class PresetPicker extends LitElement {
 		</p>`;
 	}
 
-	/** An applied preset (current or stale) is badged "In your list"; Task 3 adds an Update button. */
-	private rowBadge(state: PresetState): Badge | undefined {
-		return state === "new"
-			? undefined
-			: { label: "presets.badge.inList", state: "in-list" };
-	}
-
 	private renderRow(entry: PresetEntry, query: string, searching: boolean) {
 		const state = presetState(entry, this.added, this.savedIds);
 		const checked = this.selected.has(entry.id);
-		const badge = this.rowBadge(state);
+		const name = localize(entry.name);
 		return html`
-			<label class="item preset" data-preset=${entry.id}>
-				<input
-					type="checkbox"
-					.checked=${checked}
-					?disabled=${this.busy}
-					@change=${(event: Event) =>
-						this.toggle(entry.id, (event.target as HTMLInputElement).checked)}
-				/>
-				<span class="grow">
-					<b class="name">${localize(entry.name)}</b>
-					<small class="sub">${this.renderSubtitle(entry, query, searching)}</small>
-				</span>
+			<div class="item preset" data-preset=${entry.id}>
+				<label class="pick">
+					<input
+						type="checkbox"
+						.checked=${checked}
+						?disabled=${this.busy}
+						@change=${(event: Event) =>
+							this.toggle(entry.id, (event.target as HTMLInputElement).checked)}
+					/>
+					<span class="grow">
+						<b class="name">${name}</b>
+						<small class="sub">${this.renderSubtitle(entry, query, searching)}</small>
+					</span>
+					${
+						state === "added"
+							? html`<span class="badge" data-state="in-list">${t("presets.badge.inList")}</span>`
+							: nothing
+					}
+				</label>
 				${
-					badge === undefined
-						? nothing
-						: html`<span class="badge" data-state=${badge.state}>${t(badge.label)}</span>`
+					state === "update"
+						? html`<button
+								type="button"
+								class="quiet"
+								data-action="update"
+								aria-label=${t("presets.updateLabel", { name })}
+								?disabled=${this.busy}
+								@click=${() => void this.onUpdateClick(entry)}
+							>${t("presets.update")}</button>`
+						: nothing
 				}
-			</label>
+			</div>
 		`;
+	}
+
+	/**
+	 * Sync one applied preset's current file into the saved list, via `updatePreset` (Task 1).
+	 * Never touches `selected`. Mirrors `save()`'s refused-write handling, but a failed fetch here
+	 * leaves everything untouched (no snapshot, no Undo) since nothing was computed yet.
+	 */
+	private async onUpdateClick(entry: PresetEntry): Promise<void> {
+		if (this.busy) return;
+		const name = localize(entry.name);
+		this.busy = true;
+		let files: PresetFile[];
+		try {
+			files = await fetchPresetFiles(this.base, [entry]);
+		} catch {
+			this.busy = false;
+			this.toast()?.show(t("presets.updateError", { name }));
+			return;
+		}
+		// fetchPresetFiles resolves exactly one file per entry requested.
+		const [file] = files;
+		if (file === undefined) {
+			this.busy = false;
+			return;
+		}
+
+		const before = { list: loadRestaurants(), added: loadAddedPresets() };
+		const result = updatePreset(before.list, file, before.added);
+		let message: string;
+		// Same rule as saving: the presets record follows the list only once the list was stored.
+		if (saveRestaurants(result.list)) {
+			saveAddedPresets(result.added);
+			message = t("presets.updated", {
+				name,
+				added: result.counts.added,
+				removed: result.counts.removed,
+				reverted: result.counts.reverted,
+			});
+		} else {
+			message = t("presets.updatedSessionOnly", { name });
+		}
+		this.snapshot = before;
+		this.busy = false;
+		this.reloadStore();
+		// The button just disappeared from this row; keep focus on it (now its checkbox).
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector(`[data-preset="${entry.id}"] input`),
+		);
+		await this.updateComplete;
+		this.toast()?.show(message, {
+			action: t("presets.undo"),
+			onAction: this.undo,
+		});
 	}
 
 	private renderSubtitle(
