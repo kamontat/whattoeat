@@ -1,4 +1,5 @@
 import type { Localized } from "#lib/i18n";
+import { type AddedPreset, isAddedPreset } from "#lib/preset-record";
 import { profileKey } from "#lib/profiles";
 import type { Restaurant } from "#lib/restaurant";
 import { parseImport } from "#lib/transfer";
@@ -22,8 +23,11 @@ export type PresetIndex = {
 	presets: PresetEntry[];
 };
 
-/** A preset this browser has added: the restaurant ids its file held when it was added. */
-export type AddedPreset = { id: string; updatedAt: string; ids: string[] };
+export {
+	type AddedPreset,
+	isAddedPreset,
+	mergeAddedPresets,
+} from "#lib/preset-record";
 
 export type PresetState = "new" | "added" | "update";
 
@@ -85,18 +89,6 @@ export const indexUrl = (base: string): string =>
 export const presetFileUrl = (base: string, id: string): string =>
 	`${base}data/presets/${id}.json`;
 
-export const isAddedPreset = (value: unknown): value is AddedPreset => {
-	if (typeof value !== "object" || value === null) return false;
-	const item = value as Partial<Record<keyof AddedPreset, unknown>>;
-	return (
-		isString(item.id) &&
-		item.id !== "" &&
-		isString(item.updatedAt) &&
-		Array.isArray(item.ids) &&
-		item.ids.every(isString)
-	);
-};
-
 /** Unreadable entries are skipped; bad JSON or blocked storage gives `[]`. */
 export const loadAddedPresets = (): AddedPreset[] => {
 	let data: unknown;
@@ -117,15 +109,6 @@ export const saveAddedPresets = (list: AddedPreset[]): boolean => {
 	} catch {
 		return false;
 	}
-};
-
-/** `current`, then each `incoming` record whose id `current` has none for. */
-export const mergeAddedPresets = (
-	current: readonly AddedPreset[],
-	incoming: readonly AddedPreset[],
-): AddedPreset[] => {
-	const ids = new Set(current.map((item) => item.id));
-	return [...current, ...incoming.filter((item) => !ids.has(item.id))];
 };
 
 /**

@@ -11,7 +11,7 @@ import {
 	newestFirst,
 	renameLockedAt,
 } from "#lib/history";
-import { type AddedPreset, isAddedPreset } from "#lib/presets";
+import { type AddedPreset, isAddedPreset } from "#lib/preset-record";
 import { cleanStored, isRestaurant, type Restaurant } from "#lib/restaurant";
 
 export const EXPORT_VERSION = 8;
