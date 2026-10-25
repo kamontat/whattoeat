@@ -85,14 +85,28 @@ happen on Settings itself.
 **The profiles page, `/settings/profiles`**, is a new page like `/settings/presets` and
 `/settings/tags`, with the same back link to Settings:
 
-- One row per profile: an initial avatar, the name, its restaurant count, and a tick on the
-  active one. Tapping a row switches to it and shows a short "Switched to Family" message.
-- "+ New profile": asks for a name, creates the profile **empty** (no restaurants, default tag
-  groups, no history, default filters and pick count) and switches to it.
-- "Rename": renames the active profile.
-- "Delete": deletes the active profile after **one confirm step**: "Delete Family? This removes
-  its 42 restaurants and 12 history entries. You'll switch to Personal." Disabled when only one
-  profile is left. After deleting, switch to the first remaining profile.
+The page uses the same layout as the Restaurants page:
+
+- **Adding.** An icon-only "+" button (accessible name "New profile"). On phones it is pinned
+  at the bottom right and opens the profile form in a sheet that slides up from the bottom; on
+  wide screens it sits at the top right beside the title and opens the form in a side panel next
+  to the list.
+- **The profile form** asks for a name. "New profile" creates the profile **empty** (no
+  restaurants, default tag groups, no history, default filters and pick count) and switches to
+  it. "Rename Family" uses the same form in the same sheet or panel.
+- **One row per profile:** an initial avatar, the name, its restaurant count, and a tick on the
+  active one. Tapping the row switches to it and shows a short "Switched to Family" message.
+  Each row has three icon-only buttons with accessible names that include the profile:
+  - **Rename** opens the profile form for that profile.
+  - **Copy** makes a new profile with everything in that profile **except pick history**
+    (restaurants, tag groups, filters, pick count and applied-preset record). The copy is named
+    `<name> - <n>`, with `n` the smallest number from 1 that makes the name unique ("Family -
+    1", then "Family - 2"); when that would pass 24 characters the original name is shortened
+    to fit. The current profile stays active, and a message says "Copied Family to Family - 1".
+  - **Delete** removes that profile after **one confirm step**: "Delete Family? This removes
+    its 42 restaurants and 12 history entries." Deleting the active profile adds "You'll switch
+    to Personal." and then switches to the first remaining profile; deleting another profile
+    leaves the active one as it is. Delete is disabled while only one profile exists.
 - **Names.** Required, trimmed, unique (case-insensitive), at most 24 characters. Errors show
   inline under the field ("Give it a name.", "Another profile has that name.").
 - The rest of Settings that acts on profile data is grouped under "Data in <name>": presets,
@@ -108,7 +122,7 @@ to `/settings/profiles`.
 ### Export, import and reset
 
 - Export and import act on the **active profile only**. Importing into "Family" never touches
-  "Personal". Copying a profile is "export, then create an empty profile and import".
+  "Personal".
 - The export file carries the profile's applied-preset record, so an imported profile keeps
   its "In your list" and "Update" states. This bumps the export format from version 7 to 8,
   with a new `presets` list (the same `{ id, updatedAt, ids }` shape as `whattoeat:presets`).
@@ -126,7 +140,6 @@ to `/settings/profiles`.
 
 ### Non-goals
 
-- No copying or duplicating a profile in the UI.
 - No syncing profiles across devices.
 - No per-profile language or theme.
 - No profile pictures or colours; the initial is the only avatar.
