@@ -121,6 +121,11 @@ export class ProfileManager extends LitElement {
 				color: var(--color-danger);
 			}
 
+			/* A narrow row breaks the subtitle at the dot, never inside a count. */
+			.item small .count {
+				white-space: nowrap;
+			}
+
 			/* Delete and Cancel stand in for the icons: text buttons, so not round. */
 			.row-actions.confirming {
 				gap: 0.375rem;
@@ -524,7 +529,7 @@ export class ProfileManager extends LitElement {
 						<span class="lead avatar">${profileInitial(name)}</span>
 						<span class="grow">
 							<b>${name}</b>
-							<small>${profileCountText(counts.restaurants)} · ${profileHistoryText(counts.history)}</small>
+							<small><span class="count">${profileCountText(counts.restaurants)}</span> · <span class="count">${profileHistoryText(counts.history)}</span></small>
 						</span>
 						${isActive ? html`<span class="trail">${icon("check", 20)}</span>` : nothing}
 					</button>

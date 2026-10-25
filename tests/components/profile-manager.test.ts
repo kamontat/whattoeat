@@ -153,6 +153,12 @@ test("a row's subtitle counts restaurants and history, joined by a middle dot", 
 	setLang("th");
 	await el.updateComplete;
 	expect(sub()).toBe("1 ร้าน · ประวัติ 2 รายการ");
+	// Each count is kept whole, so a narrow row only breaks at the dot.
+	expect(
+		[...row(el, personal)!.querySelectorAll("small .count")].map((span) =>
+			span.textContent?.trim(),
+		),
+	).toEqual(["1 ร้าน", "ประวัติ 2 รายการ"]);
 });
 
 test("each row has icon-only rename, copy and delete buttons named for that profile", async () => {
