@@ -19,9 +19,11 @@ import {
 	type PresetEntry,
 	type PresetFile,
 	type PresetIndex,
+	presetCities,
 	presetState,
 	replaceWithPresets,
 	saveAddedPresets,
+	shownPlaces,
 	updatePreset,
 } from "#lib/presets";
 import { activeProfile } from "#lib/profiles";
@@ -451,7 +453,7 @@ export class PresetPicker extends LitElement {
 		try {
 			const index = await fetchIndex(this.base);
 			this.index = index;
-			this.city = Object.keys(index.cities)[0];
+			this.city = presetCities(index)[0];
 		} catch {
 			this.index = undefined;
 			this.loadError = true;
@@ -654,7 +656,7 @@ export class PresetPicker extends LitElement {
 	}
 
 	private renderChips(index: PresetIndex) {
-		const cityIds = Object.keys(index.cities);
+		const cityIds = presetCities(index);
 		if (cityIds.length < 2) return nothing;
 		return html`<div class="chips">
 			${cityIds.map(
@@ -773,8 +775,8 @@ export class PresetPicker extends LitElement {
 		query: string,
 		searching: boolean,
 	) {
-		const shown = entry.places.slice(0, 2);
-		const rest = entry.places.length - shown.length;
+		const shown = shownPlaces(entry.places, query);
+		const rest = entry.places.length - 2;
 		const parts: (string | TemplateResult)[] = [];
 		shown.forEach((place, index) => {
 			if (index > 0) parts.push(", ");

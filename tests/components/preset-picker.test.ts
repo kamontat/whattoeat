@@ -352,6 +352,67 @@ test("search matches name, district and places in en and th, across all cities w
 	}
 });
 
+test("city chips list only cities that have presets", async () => {
+	const indexWithUnusedCity: PresetIndex = {
+		...INDEX9,
+		cities: { ...INDEX9.cities, phuket: { en: "Phuket", th: "ภูเก็ต" } },
+	};
+	const restore = stubFetch(() => jsonResponse(indexWithUnusedCity));
+	try {
+		const el = await mount();
+		expect($$(el, ".chip").map((chip) => chip.dataset["city"])).toEqual([
+			"bangkok",
+			"chiangmai",
+		]);
+	} finally {
+		restore();
+	}
+});
+
+test("with only one used city the chips are hidden", async () => {
+	const indexWithUnusedCity: PresetIndex = {
+		...INDEX2,
+		cities: { ...INDEX2.cities, phuket: { en: "Phuket", th: "ภูเก็ต" } },
+	};
+	const restore = stubFetch(() => jsonResponse(indexWithUnusedCity));
+	try {
+		const el = await mount();
+		expect($(el, ".chip")).toBeNull();
+	} finally {
+		restore();
+	}
+});
+
+test("search shows a matched place that is past the first two, highlighted, in place of the second", async () => {
+	const restore = stubFetch(() => jsonResponse(INDEX9));
+	try {
+		const el = await mount();
+		await search(el, "lotus");
+		const sub = $(el, '[data-preset="ladprao"] .sub');
+		expect(sub?.textContent?.trim()).toBe(
+			"12 · Central Ladprao, Lotus Ladprao +3",
+		);
+		const mark = $(el, '[data-preset="ladprao"] mark');
+		expect(mark?.textContent).toBe("Lotus");
+	} finally {
+		restore();
+	}
+});
+
+test("search matching one of the first two places leaves the subtitle as it is", async () => {
+	const restore = stubFetch(() => jsonResponse(INDEX9));
+	try {
+		const el = await mount();
+		await search(el, "union");
+		const sub = $(el, '[data-preset="ladprao"] .sub');
+		expect(sub?.textContent?.trim()).toBe(
+			"12 · Central Ladprao, Union Mall +3",
+		);
+	} finally {
+		restore();
+	}
+});
+
 test("chips filter districts by city; switching chip keeps the selection", async () => {
 	const restore = stubFetch(() => jsonResponse(INDEX9));
 	try {
