@@ -94,31 +94,52 @@ const current = (): { list: Profile[]; active: string } => {
 	return { list, active };
 };
 
-/**
- * Move a store's pre-profiles key into the new default profile. `tags-group` lived in
- * sessionStorage and is just dropped, not carried over.
- */
-const migrateLegacy = (id: string): void => {
-	for (const store of PROFILE_STORES) {
-		const legacyKey = `whattoeat:${store}`;
-		if (store === "tags-group") {
-			try {
-				sessionStorage.removeItem(legacyKey);
-			} catch {
-				// Storage blocked: nothing to drop.
-			}
-			continue;
-		}
+/** Remove `keys` from localStorage, ignoring a throw (blocked storage: nothing to remove). */
+const removeKeys = (keys: readonly string[]): void => {
+	for (const key of keys) {
 		try {
-			const raw = localStorage.getItem(legacyKey);
-			if (raw !== null) {
-				localStorage.setItem(profileKey(store, id), raw);
-				localStorage.removeItem(legacyKey);
-			}
+			localStorage.removeItem(key);
 		} catch {
-			// Storage blocked: nothing to migrate.
+			// Storage blocked: nothing to remove.
 		}
 	}
+};
+
+/**
+ * Upgrade a pre-profiles device: copy every legacy store key into the new default profile,
+ * then save the profile list, then drop the legacy keys. All or nothing: when any copy or the
+ * list itself fails to save, the copies already made are removed, every legacy key is kept
+ * and `false` comes back, so the next page load tries again instead of leaving the owner's
+ * restaurants unread under their old key. `tags-group` lived in sessionStorage and is just
+ * dropped, not carried over.
+ */
+const upgrade = (profile: Profile): boolean => {
+	const copied: string[] = [];
+	const legacyKeys: string[] = [];
+	try {
+		for (const store of PROFILE_STORES) {
+			if (store === "tags-group") continue;
+			const legacyKey = `whattoeat:${store}`;
+			const raw = localStorage.getItem(legacyKey);
+			if (raw === null) continue;
+			const key = profileKey(store, profile.id);
+			localStorage.setItem(key, raw);
+			copied.push(key);
+			legacyKeys.push(legacyKey);
+		}
+		localStorage.setItem(PROFILES_KEY, JSON.stringify([profile]));
+		localStorage.setItem(ACTIVE_KEY, profile.id);
+	} catch {
+		removeKeys([...copied, PROFILES_KEY, ACTIVE_KEY]);
+		return false;
+	}
+	removeKeys(legacyKeys);
+	try {
+		sessionStorage.removeItem("whattoeat:tags-group");
+	} catch {
+		// Storage blocked: nothing to drop.
+	}
+	return true;
 };
 
 /**
@@ -150,8 +171,14 @@ export const ensureProfiles = (): void => {
 	}
 
 	const profile: Profile = { id: newId([]), name: t("profiles.defaultName") };
-	migrateLegacy(profile.id);
-	persist([profile], profile.id);
+	if (upgrade(profile)) {
+		memory = undefined;
+		window.dispatchEvent(new CustomEvent(PROFILE_EVENT));
+		return;
+	}
+	// The upgrade failed and stored nothing: this page load runs on an in-memory default
+	// profile, as blocked storage does, and the next load retries.
+	memory = { list: [profile], active: profile.id };
 };
 
 /** Every profile on this device, in creation order. Never empty. */

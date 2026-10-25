@@ -9,10 +9,12 @@ import {
 	createProfile,
 	deleteProfile,
 	ensureProfiles,
+	forgetProfilesMemory,
 	loadProfiles,
 	onProfileSwitchedElsewhere,
 	PROFILE_STORES,
 	PROFILES_KEY,
+	type ProfileStore,
 	profileCounts,
 	profileInitial,
 	profileKey,
@@ -105,6 +107,57 @@ test("upgrade runs once", () => {
 
 	expect(localStorage.getItem("whattoeat:restaurants")).toBe("second-write");
 	expect(localStorage.getItem(key)).toBe("first-write");
+});
+
+test("a failed upgrade keeps the legacy keys and retries on the next load", () => {
+	const legacy: Record<string, string> = {
+		"whattoeat:restaurants": "restaurants-data",
+		"whattoeat:history": "history-data",
+		"whattoeat:groups": "groups-data",
+		"whattoeat:presets": "presets-data",
+	};
+	for (const [key, value] of Object.entries(legacy))
+		localStorage.setItem(key, value);
+
+	// happy-dom binds Storage methods onto each instance, so patch localStorage itself rather
+	// than Storage.prototype.
+	const setItem = localStorage.setItem;
+	const define = (value: Storage["setItem"]): void => {
+		Object.defineProperty(localStorage, "setItem", {
+			value,
+			configurable: true,
+			writable: true,
+		});
+	};
+	define((key: string, value: string) => {
+		if (/^whattoeat:[^:]+:restaurants$/.test(key)) throw new Error("full");
+		setItem.call(localStorage, key, value);
+	});
+	try {
+		ensureProfiles();
+		// This load still works, on an in-memory default profile.
+		expect(loadProfiles()).toHaveLength(1);
+	} finally {
+		define(setItem);
+	}
+
+	for (const [key, value] of Object.entries(legacy))
+		expect(localStorage.getItem(key)).toBe(value);
+	const keys = Object.keys(localStorage);
+	expect(keys.filter((key) => /^whattoeat:[^:]+:/.test(key))).toEqual([]);
+	expect(localStorage.getItem(PROFILES_KEY)).toBeNull();
+
+	// The next page load starts without this one's in-memory fallback.
+	forgetProfilesMemory();
+	ensureProfiles();
+
+	expect(loadProfiles()).toHaveLength(1);
+	expect(localStorage.getItem(PROFILES_KEY)).not.toBeNull();
+	for (const [key, value] of Object.entries(legacy)) {
+		const store = key.slice("whattoeat:".length) as ProfileStore;
+		expect(localStorage.getItem(profileKey(store))).toBe(value);
+		expect(localStorage.getItem(key)).toBeNull();
+	}
 });
 
 test("an active id not in the list falls back to the first profile", () => {
