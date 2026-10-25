@@ -47,12 +47,14 @@ import {
 	skippedCount,
 } from "#lib/store";
 import {
+	compressExport,
 	exportFileName,
 	exportJson,
 	type ImportError,
 	mergeHistory,
 	mergeRestaurants,
 	parseImport,
+	readExportFile,
 } from "#lib/transfer";
 import { uiStyles } from "#styles/ui";
 
@@ -255,7 +257,7 @@ export class DataTransferPanel extends LitElement {
 		input.value = "";
 		let text: string;
 		try {
-			text = await file.text();
+			text = await readExportFile(file);
 		} catch {
 			this.pending = undefined;
 			this.imported = undefined;
@@ -265,7 +267,8 @@ export class DataTransferPanel extends LitElement {
 		this.readImport(text);
 	};
 
-	private readonly exportData = (): void => {
+	/** Download the export gzipped, so a list too large to copy and paste still moves as a small file. */
+	readonly exportData = async (): Promise<void> => {
 		const now = new Date();
 		const json = exportJson(
 			loadRestaurants(),
@@ -274,12 +277,10 @@ export class DataTransferPanel extends LitElement {
 			loadAddedPresets(),
 			now,
 			{
-				pretty: true,
+				pretty: false,
 			},
 		);
-		const url = URL.createObjectURL(
-			new Blob([json], { type: "application/json" }),
-		);
+		const url = URL.createObjectURL(await compressExport(json));
 		const link = document.createElement("a");
 		link.href = url;
 		link.download = exportFileName(now);
@@ -689,7 +690,7 @@ export class DataTransferPanel extends LitElement {
 						<span class="lead">${icon("upload", 22)}</span>
 						<span class="grow"><b>${t("settings.importFile")}</b></span>
 						<span class="trail">${icon("chevron", 20)}</span>
-						<input type="file" accept="application/json,.json" @change=${this.onFile} />
+						<input type="file" accept="application/json,.json,application/gzip,.gz" @change=${this.onFile} />
 					</label>
 					<button type="button" class="item" data-action="paste" @click=${this.pasteData}>
 						<span class="lead">${icon("copy", 22)}</span>

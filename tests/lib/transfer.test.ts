@@ -4,11 +4,13 @@ import type { AddedPreset } from "#lib/presets";
 import { nameFromText, type Restaurant } from "#lib/restaurant";
 import type { ImportError } from "#lib/transfer";
 import {
+	compressExport,
 	exportFileName,
 	exportJson,
 	mergeHistory,
 	mergeRestaurants,
 	parseImport,
+	readExportFile,
 	toExportFile,
 } from "#lib/transfer";
 
@@ -83,8 +85,26 @@ test("toExportFile wraps restaurants and history in the versioned envelope", () 
 
 test("exportFileName uses the local date, zero padded", () => {
 	expect(exportFileName(new Date(2026, 0, 5, 23, 30))).toBe(
-		"whattoeat-2026-01-05.json",
+		"whattoeat-2026-01-05.json.gz",
 	);
+});
+
+test("a compressed export is smaller than its json and reads back to the same text", async () => {
+	const list = Array.from({ length: 50 }, (_, index) =>
+		make(`id-${index}`, `Restaurant ${index}`),
+	);
+	const json = exportJson(list, [], [], [], new Date(), { pretty: false });
+	const file = await compressExport(json);
+	expect(file.type).toBe("application/gzip");
+	expect(file.size).toBeLessThan(json.length / 4);
+	const bytes = new Uint8Array(await file.arrayBuffer());
+	expect([bytes[0], bytes[1]]).toEqual([0x1f, 0x8b]);
+	expect(await readExportFile(file)).toBe(json);
+});
+
+test("a plain json file reads as its text", async () => {
+	const json = JSON.stringify(toExportFile([make("a", "ร้านข้าวมันไก่")]));
+	expect(await readExportFile(new Blob([json]))).toBe(json);
 });
 
 test("an exported file imports back unchanged", () => {

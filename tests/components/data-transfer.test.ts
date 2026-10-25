@@ -34,7 +34,7 @@ import {
 	restaurantsKey,
 	saveRestaurants,
 } from "#lib/store";
-import { toExportFile } from "#lib/transfer";
+import { compressExport, readExportFile, toExportFile } from "#lib/transfer";
 
 const make = (id: string, name = id): Restaurant => ({
 	id,
@@ -92,7 +92,7 @@ test("shows the saved restaurant count and keeps it current", async () => {
 	expect($(el, ".count")?.textContent?.trim()).toBe("Restaurants saved: 2");
 });
 
-test("export downloads a json file of the stored list", async () => {
+test("export downloads a compressed file of the stored list", async () => {
 	addRestaurant({ name: { en: "A", th: "" }, tags: [], links: [], notes: "" });
 	saveHistory([visit("h1", "2026-10-12T09:00:00.000Z")]);
 	const blobs: Blob[] = [];
@@ -112,8 +112,10 @@ test("export downloads a json file of the stored list", async () => {
 	try {
 		const el = await mount();
 		$(el, 'button[data-action="export"]')!.click();
-		expect(downloaded).toMatch(/^whattoeat-\d{4}-\d{2}-\d{2}\.json$/);
-		const file = JSON.parse(await blobs[0]!.text());
+		await flush(el);
+		expect(downloaded).toMatch(/^whattoeat-\d{4}-\d{2}-\d{2}\.json\.gz$/);
+		expect(blobs[0]!.type).toBe("application/gzip");
+		const file = JSON.parse(await readExportFile(blobs[0]!));
 		expect(file).toMatchObject({
 			app: "whattoeat",
 			version: 8,
@@ -143,7 +145,8 @@ test("export keeps the download URL alive long enough for the browser", async ()
 	}) as unknown as typeof setTimeout);
 	try {
 		const el = await mount();
-		$(el, 'button[data-action="export"]')!.click();
+		await el.exportData();
+		expect(create).toHaveBeenCalled();
 		expect(revoke).not.toHaveBeenCalled();
 		expect(Math.max(...delays)).toBeGreaterThanOrEqual(1000);
 	} finally {
@@ -304,6 +307,28 @@ test("choosing a file reads and validates it", async () => {
 	await new Promise((resolve) => setTimeout(resolve, 0));
 	await el.updateComplete;
 	expect($(el, ".found")?.textContent?.trim()).toBe("1 restaurants found.");
+});
+
+test("choosing a compressed file reads and validates it", async () => {
+	addRestaurant({
+		name: { en: "Old", th: "" },
+		tags: [],
+		links: [],
+		notes: "",
+	});
+	const el = await mount();
+	const input =
+		el.shadowRoot!.querySelector<HTMLInputElement>('input[type="file"]')!;
+	expect(input.accept).toContain(".gz");
+	const gz = await compressExport(
+		JSON.stringify(toExportFile([make("x"), make("y")])),
+	);
+	const file = new File([gz], "list.json.gz", { type: "application/gzip" });
+	Object.defineProperty(input, "files", { value: [file], configurable: true });
+	input.dispatchEvent(new Event("change"));
+	await new Promise((resolve) => setTimeout(resolve, 10));
+	await el.updateComplete;
+	expect($(el, ".found")?.textContent?.trim()).toBe("2 restaurants found.");
 });
 
 test("an import the browser refuses to store warns instead of claiming success", async () => {
@@ -932,7 +957,8 @@ test("Download and Copy include the preset record", async () => {
 	try {
 		const el = await mount();
 		$(el, 'button[data-action="export"]')!.click();
-		const downloaded = JSON.parse(await blobs[0]!.text());
+		await flush(el);
+		const downloaded = JSON.parse(await readExportFile(blobs[0]!));
 		expect(downloaded.presets).toEqual([
 			{ id: "siam", updatedAt: "2026-10-01", ids: ["a"] },
 		]);
@@ -1011,7 +1037,7 @@ test("the about section holds the source, changelog and build links", async () =
 test("export and copy are list rows with their labels and icons", async () => {
 	const el = await mount();
 	const exportRow = $(el, 'section.export button.item[data-action="export"]');
-	expect(exportRow?.textContent).toContain("Download JSON");
+	expect(exportRow?.textContent).toContain("Download file");
 	expect(exportRow?.querySelector("svg")?.getAttribute("aria-hidden")).toBe(
 		"true",
 	);
@@ -1027,7 +1053,7 @@ test("the file input is still a real input inside its labelled row", async () =>
 		'section.import label.item input[type="file"]',
 	) as HTMLInputElement | null;
 	expect(input).not.toBeNull();
-	expect(input?.closest("label")?.textContent).toContain("Choose a JSON file");
+	expect(input?.closest("label")?.textContent).toContain("Choose a file");
 	expect(input?.disabled).toBe(false);
 });
 
