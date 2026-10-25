@@ -19,7 +19,12 @@ import {
 	type PresetIndex,
 	saveAddedPresets,
 } from "#lib/presets";
-import { ACTIVE_KEY, PROFILES_KEY } from "#lib/profiles";
+import {
+	ACTIVE_KEY,
+	activeProfile,
+	PROFILES_KEY,
+	profileInitial,
+} from "#lib/profiles";
 import { nameFromText, type Restaurant } from "#lib/restaurant";
 import {
 	addRestaurant,
@@ -914,13 +919,14 @@ test("Download and Copy include the preset record", async () => {
 	}
 });
 
-test("settings is grouped under Appearance, Organise, Export, Import, Reset and About", async () => {
+test("settings is grouped under Profile, This device, Organise, Export, Import, Reset and About", async () => {
 	const el = await mount();
 	const headings = [
 		...el.shadowRoot!.querySelectorAll("section > h2.group-label"),
 	].map((h) => h.textContent?.trim());
 	expect(headings).toEqual([
-		"Appearance",
+		"Profile",
+		"This device",
 		"Organise",
 		"Export",
 		"Import",
@@ -932,6 +938,35 @@ test("settings is grouped under Appearance, Organise, Export, Import, Reset and 
 		expect(id).not.toBeNull();
 		expect(section.querySelector(`#${id}`)?.tagName).toBe("H2");
 	}
+});
+
+test("the first section links to the profiles page with the active profile's name and count", async () => {
+	addRestaurant({ name: { en: "A", th: "" }, tags: [], links: [], notes: "" });
+	addRestaurant({ name: { en: "B", th: "" }, tags: [], links: [], notes: "" });
+	const el = await mount();
+	const sections = [...el.shadowRoot!.querySelectorAll("section")];
+	expect(sections[0]?.className).toBe("profile");
+	expect($(el, "#profile-title")?.textContent?.trim()).toBe("Profile");
+	const row = $(
+		el,
+		'section.profile a.item[data-action="profiles"]',
+	) as HTMLAnchorElement | null;
+	expect(row?.getAttribute("href")).toBe("./settings/profiles");
+	expect(row?.querySelector(".lead.avatar")?.textContent?.trim()).toBe(
+		profileInitial(activeProfile().name),
+	);
+	expect(row?.querySelector("b")?.textContent?.trim()).toBe(
+		activeProfile().name,
+	);
+	expect(row?.querySelector("small")?.textContent?.trim()).toBe(
+		"2 restaurants",
+	);
+	expect(row?.querySelector(".trail svg")).not.toBeNull();
+});
+
+test("the appearance section is titled This device", async () => {
+	const el = await mount();
+	expect($(el, "#appearance-title")?.textContent?.trim()).toBe("This device");
 });
 
 test("the appearance section holds the language and theme switches", async () => {
