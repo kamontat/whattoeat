@@ -388,26 +388,44 @@ export class PresetPicker extends LitElement {
 		const before = { list: loadRestaurants(), added: loadAddedPresets() };
 		const hadRestaurants = before.list.length > 0;
 		const result = replaceWithPresets(files);
+		this.confirming = false;
+		this.selected = new Set();
+		// The apply button (or the confirm card) just went away; keep focus in the pinned area.
+		await this.commit(before, result, () => this.pinnedAction(), {
+			saved: hadRestaurants
+				? t("presets.replaced", { count: result.list.length })
+				: t("presets.added", { count: result.list.length }),
+			sessionOnly: hadRestaurants
+				? t("presets.replacedSessionOnly")
+				: t("presets.sessionOnly"),
+		});
+	}
+
+	/**
+	 * Store `result` as the new saved list and preset records, remember `before` for Undo, and
+	 * announce it with a toast — the part `save()` and `onUpdateClick()` share once each has its
+	 * own `before`/`result` and messages ready. `focus` runs after the next render, once the
+	 * caller's own state changes (ticked selection, confirm card, `busy`) have taken effect too.
+	 */
+	private async commit(
+		before: { list: Restaurant[]; added: AddedPreset[] },
+		result: { list: Restaurant[]; added: AddedPreset[] },
+		focus: () => Element | null | undefined,
+		messages: { saved: string; sessionOnly: string },
+	): Promise<void> {
 		let message: string;
 		// `whattoeat:presets` is written only once the list itself was stored: a refused list
 		// write must not leave records claiming presets the stored list does not hold.
 		if (saveRestaurants(result.list)) {
 			saveAddedPresets(result.added);
-			message = hadRestaurants
-				? t("presets.replaced", { count: result.list.length })
-				: t("presets.added", { count: result.list.length });
+			message = messages.saved;
 		} else {
-			message = hadRestaurants
-				? t("presets.replacedSessionOnly")
-				: t("presets.sessionOnly");
+			message = messages.sessionOnly;
 		}
 		this.snapshot = before;
 		this.busy = false;
-		this.confirming = false;
-		this.selected = new Set();
 		this.reloadStore();
-		// The apply button (or the confirm card) just went away; keep focus in the pinned area.
-		this.focusAfterRender(() => this.pinnedAction());
+		this.focusAfterRender(focus);
 		await this.updateComplete;
 		this.toast()?.show(message, {
 			action: t("presets.undo"),
@@ -708,55 +726,46 @@ export class PresetPicker extends LitElement {
 
 	/**
 	 * Sync one applied preset's current file into the saved list, via `updatePreset` (Task 1).
-	 * Never touches `selected`. Mirrors `save()`'s refused-write handling, but a failed fetch here
-	 * leaves everything untouched (no snapshot, no Undo) since nothing was computed yet.
+	 * Never touches `selected`. A failed fetch leaves everything untouched (no snapshot, no Undo)
+	 * since nothing was computed yet.
 	 */
 	private async onUpdateClick(entry: PresetEntry): Promise<void> {
 		if (this.busy) return;
 		const name = localize(entry.name);
 		this.busy = true;
-		let files: PresetFile[];
+		let file: PresetFile;
 		try {
-			files = await fetchPresetFiles(this.base, [entry]);
+			const files = await fetchPresetFiles(this.base, [entry]);
+			// fetchPresetFiles resolves exactly one file per entry requested; this guard only
+			// exists to satisfy the type (an empty array here would mean that contract broke).
+			const [first] = files;
+			if (first === undefined)
+				throw new Error("no file for the requested preset");
+			file = first;
 		} catch {
 			this.busy = false;
 			this.toast()?.show(t("presets.updateError", { name }));
 			return;
 		}
-		// fetchPresetFiles resolves exactly one file per entry requested.
-		const [file] = files;
-		if (file === undefined) {
-			this.busy = false;
-			return;
-		}
 
 		const before = { list: loadRestaurants(), added: loadAddedPresets() };
 		const result = updatePreset(before.list, file, before.added);
-		let message: string;
-		// Same rule as saving: the presets record follows the list only once the list was stored.
-		if (saveRestaurants(result.list)) {
-			saveAddedPresets(result.added);
-			message = t("presets.updated", {
-				name,
-				added: result.counts.added,
-				removed: result.counts.removed,
-				reverted: result.counts.reverted,
-			});
-		} else {
-			message = t("presets.updatedSessionOnly", { name });
-		}
-		this.snapshot = before;
-		this.busy = false;
-		this.reloadStore();
-		// The button just disappeared from this row; keep focus on it (now its checkbox).
-		this.focusAfterRender(() =>
-			this.renderRoot.querySelector(`[data-preset="${entry.id}"] input`),
+		// The checkbox stays in this row either way; the Update button only disappears once the
+		// record is actually saved, so focus it rather than something that might have moved.
+		await this.commit(
+			before,
+			result,
+			() => this.renderRoot.querySelector(`[data-preset="${entry.id}"] input`),
+			{
+				saved: t("presets.updated", {
+					name,
+					added: result.counts.added,
+					removed: result.counts.removed,
+					reverted: result.counts.reverted,
+				}),
+				sessionOnly: t("presets.updatedSessionOnly", { name }),
+			},
 		);
-		await this.updateComplete;
-		this.toast()?.show(message, {
-			action: t("presets.undo"),
-			onAction: this.undo,
-		});
 	}
 
 	private renderSubtitle(
