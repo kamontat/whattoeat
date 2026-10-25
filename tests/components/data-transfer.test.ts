@@ -109,7 +109,7 @@ test("export downloads a json file of the stored list", async () => {
 		const file = JSON.parse(await blobs[0]!.text());
 		expect(file).toMatchObject({
 			app: "whattoeat",
-			version: 7,
+			version: 8,
 			restaurants: loadRestaurants(),
 			history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 		});
@@ -353,7 +353,7 @@ test("copy puts one-line export json on the clipboard", async () => {
 	expect(copied).not.toContain("\n");
 	expect(JSON.parse(copied)).toMatchObject({
 		app: "whattoeat",
-		version: 7,
+		version: 8,
 		restaurants: loadRestaurants(),
 		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 	});
@@ -770,6 +770,148 @@ test("replace with a version 3 file keeps the current groups", async () => {
 	await el.updateComplete;
 	await click(el, 'button[data-action="replace"]');
 	expect(loadGroups()).toEqual([{ id: "g1", name: "Price" }]);
+});
+
+test("Replace takes the file's preset record", async () => {
+	addRestaurant({
+		name: { en: "Old", th: "" },
+		tags: [],
+		links: [],
+		notes: "",
+	});
+	saveAddedPresets([{ id: "ladprao", updatedAt: "2026-10-01", ids: ["old"] }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify(
+			toExportFile(
+				[make("x", "X")],
+				[],
+				[],
+				[{ id: "siam", updatedAt: "2026-10-23", ids: ["x"] }],
+			),
+		),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="replace"]');
+	expect(loadAddedPresets()).toEqual([
+		{ id: "siam", updatedAt: "2026-10-23", ids: ["x"] },
+	]);
+});
+
+test("Merge adds only presets the profile has no record of", async () => {
+	addRestaurant({
+		name: { en: "Old", th: "" },
+		tags: [],
+		links: [],
+		notes: "",
+	});
+	saveAddedPresets([{ id: "siam", updatedAt: "2026-10-01", ids: ["mine"] }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify(
+			toExportFile(
+				[make("x", "X")],
+				[],
+				[],
+				[
+					{ id: "siam", updatedAt: "2026-10-23", ids: ["x"] },
+					{ id: "ladprao", updatedAt: "2026-10-16", ids: ["y"] },
+				],
+			),
+		),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="merge"]');
+	expect(loadAddedPresets()).toEqual([
+		{ id: "siam", updatedAt: "2026-10-01", ids: ["mine"] },
+		{ id: "ladprao", updatedAt: "2026-10-16", ids: ["y"] },
+	]);
+});
+
+test("Replace with a version 7 file leaves no preset record", async () => {
+	addRestaurant({
+		name: { en: "Old", th: "" },
+		tags: [],
+		links: [],
+		notes: "",
+	});
+	saveAddedPresets([{ id: "siam", updatedAt: "2026-10-01", ids: ["mine"] }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 7,
+			exportedAt: "2026-10-14T00:00:00.000Z",
+			restaurants: [make("x", "X")],
+			history: [],
+			groups: [],
+		}),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="replace"]');
+	expect(loadAddedPresets()).toEqual([]);
+});
+
+test("Merge with a version 7 file keeps the profile's record", async () => {
+	addRestaurant({
+		name: { en: "Old", th: "" },
+		tags: [],
+		links: [],
+		notes: "",
+	});
+	saveAddedPresets([{ id: "siam", updatedAt: "2026-10-01", ids: ["mine"] }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 7,
+			exportedAt: "2026-10-14T00:00:00.000Z",
+			restaurants: [make("x", "X")],
+			history: [],
+			groups: [],
+		}),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="merge"]');
+	expect(loadAddedPresets()).toEqual([
+		{ id: "siam", updatedAt: "2026-10-01", ids: ["mine"] },
+	]);
+});
+
+test("Download and Copy include the preset record", async () => {
+	addRestaurant({ name: { en: "A", th: "" }, tags: [], links: [], notes: "" });
+	saveAddedPresets([{ id: "siam", updatedAt: "2026-10-01", ids: ["a"] }]);
+	const blobs: Blob[] = [];
+	const create = spyOn(URL, "createObjectURL").mockImplementation(
+		(blob: Blob | MediaSource) => {
+			blobs.push(blob as Blob);
+			return "blob:test";
+		},
+	);
+	const anchorClick = spyOn(
+		HTMLAnchorElement.prototype,
+		"click",
+	).mockImplementation(() => {});
+	let copied = "";
+	setClipboard(async (text) => {
+		copied = text;
+	});
+	try {
+		const el = await mount();
+		$(el, 'button[data-action="export"]')!.click();
+		const downloaded = JSON.parse(await blobs[0]!.text());
+		expect(downloaded.presets).toEqual([
+			{ id: "siam", updatedAt: "2026-10-01", ids: ["a"] },
+		]);
+		$(el, 'button[data-action="copy"]')!.click();
+		await flush(el);
+		expect(JSON.parse(copied).presets).toEqual([
+			{ id: "siam", updatedAt: "2026-10-01", ids: ["a"] },
+		]);
+	} finally {
+		create.mockRestore();
+		anchorClick.mockRestore();
+	}
 });
 
 test("settings is grouped under Appearance, Organise, Export, Import, Reset and About", async () => {

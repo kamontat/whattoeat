@@ -85,7 +85,7 @@ export const indexUrl = (base: string): string =>
 export const presetFileUrl = (base: string, id: string): string =>
 	`${base}data/presets/${id}.json`;
 
-const isAddedPreset = (value: unknown): value is AddedPreset => {
+export const isAddedPreset = (value: unknown): value is AddedPreset => {
 	if (typeof value !== "object" || value === null) return false;
 	const item = value as Partial<Record<keyof AddedPreset, unknown>>;
 	return (
@@ -117,6 +117,15 @@ export const saveAddedPresets = (list: AddedPreset[]): boolean => {
 	} catch {
 		return false;
 	}
+};
+
+/** `current`, then each `incoming` record whose id `current` has none for. */
+export const mergeAddedPresets = (
+	current: readonly AddedPreset[],
+	incoming: readonly AddedPreset[],
+): AddedPreset[] => {
+	const ids = new Set(current.map((item) => item.id));
+	return [...current, ...incoming.filter((item) => !ids.has(item.id))];
 };
 
 /**

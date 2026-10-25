@@ -22,8 +22,10 @@ import {
 import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import {
+	type AddedPreset,
 	fetchIndex,
 	loadAddedPresets,
+	mergeAddedPresets,
 	type PresetIndex,
 	presetState,
 	saveAddedPresets,
@@ -129,7 +131,7 @@ export class DataTransferPanel extends LitElement {
 
 	/**
 	 * A checked import waiting for Replace or Merge; `history` is `undefined` for a version 1
-	 * file, `groups` for a version 1–3 file.
+	 * file, `groups` for a version 1–3 file, `presets` for a version 1–7 file.
 	 */
 	@state()
 	private pending:
@@ -137,6 +139,7 @@ export class DataTransferPanel extends LitElement {
 				restaurants: Restaurant[];
 				history: HistoryEntry[] | undefined;
 				groups: GroupDef[] | undefined;
+				presets: AddedPreset[] | undefined;
 		  }
 		| undefined;
 
@@ -214,6 +217,7 @@ export class DataTransferPanel extends LitElement {
 				restaurants: result.restaurants,
 				history: result.history,
 				groups: result.groups,
+				presets: result.presets,
 			};
 			this.error = undefined;
 			const empty =
@@ -260,6 +264,7 @@ export class DataTransferPanel extends LitElement {
 			loadRestaurants(),
 			loadHistory(),
 			loadGroups(),
+			loadAddedPresets(),
 			now,
 			{
 				pretty: true,
@@ -282,6 +287,7 @@ export class DataTransferPanel extends LitElement {
 			restaurants,
 			loadHistory(),
 			loadGroups(),
+			loadAddedPresets(),
 			new Date(),
 			{
 				pretty: false,
@@ -323,7 +329,7 @@ export class DataTransferPanel extends LitElement {
 
 	private apply(mode: "replace" | "merge"): void {
 		if (this.pending === undefined) return;
-		const { restaurants, history, groups } = this.pending;
+		const { restaurants, history, groups, presets } = this.pending;
 		let incoming = restaurants;
 		let persisted = true;
 		// Groups first, so loading restaurants after the save already knows every group id.
@@ -346,6 +352,15 @@ export class DataTransferPanel extends LitElement {
 			const visits =
 				mode === "replace" ? history : mergeHistory(loadHistory(), history);
 			persisted = saveHistory(visits) && persisted;
+		}
+		// A version 1–7 file has no preset record. Replace takes the file's record outright;
+		// merge keeps the profile's own record for a preset both sides have one for.
+		if (mode === "replace") {
+			persisted = saveAddedPresets(presets ?? []) && persisted;
+		} else if (presets !== undefined) {
+			persisted =
+				saveAddedPresets(mergeAddedPresets(loadAddedPresets(), presets)) &&
+				persisted;
 		}
 		this.pending = undefined;
 		this.pasteText = "";
