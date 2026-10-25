@@ -3,6 +3,7 @@ import "#components/app-toast";
 import "#components/profile-manager";
 import type { AppToast } from "#components/app-toast";
 import type { ProfileManager } from "#components/profile-manager";
+import { setLang } from "#lib/i18n";
 import {
 	activeProfile,
 	createProfile,
@@ -196,6 +197,31 @@ test("Delete asks once, then deletes and switches to the first remaining", async
 	).toBeUndefined();
 	expect(activeProfile().id).toBe(personal.id);
 	expect(await toastText(el)).toBe("Deleted Family.");
+});
+
+test("the delete prompt reads correctly for one restaurant and one history entry", async () => {
+	const family = createProfile("Family");
+	localStorage.setItem(
+		profileKey("restaurants", family.id),
+		JSON.stringify([{}]),
+	);
+	localStorage.setItem(profileKey("history", family.id), JSON.stringify([{}]));
+	const el = await mount();
+
+	await click(el, '[data-action="delete"]');
+	expect($(el, '[role="alert"]')?.textContent?.trim()).toBe(
+		"Delete Family? This removes its 1 restaurant and 1 history entry. You'll switch to Personal.",
+	);
+
+	setLang("th");
+	try {
+		await el.updateComplete;
+		expect($(el, '[role="alert"]')?.textContent?.trim()).toBe(
+			"ลบ Family? 1 ร้านและประวัติ 1 รายการจะหายไป แล้วจะเปลี่ยนไปใช้ Personal",
+		);
+	} finally {
+		setLang("en");
+	}
 });
 
 test("Delete is disabled with one profile", async () => {

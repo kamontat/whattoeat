@@ -320,6 +320,12 @@ export const profileCounts = (
 export const profileCountText = (n: number): string =>
 	n === 1 ? t("profiles.count.one") : t("profiles.count.other", { count: n });
 
+/** A profile's history count in words: "1 history entry", "5 history entries". */
+export const profileHistoryText = (n: number): string =>
+	n === 1
+		? t("profiles.historyCount.one")
+		: t("profiles.historyCount.other", { count: n });
+
 /** The first whole character of a trimmed name, upper-cased; `"?"` for a blank name. */
 export const profileInitial = (name: string): string =>
 	Array.from(name.trim())[0]?.toUpperCase() ?? "?";

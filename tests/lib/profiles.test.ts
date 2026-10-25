@@ -17,6 +17,7 @@ import {
 	type ProfileStore,
 	profileCounts,
 	profileCountText,
+	profileHistoryText,
 	profileInitial,
 	profileKey,
 	renameProfile,
@@ -175,6 +176,14 @@ test("profileCountText reads correctly at one and many", () => {
 	setLang("th");
 	expect(profileCountText(1)).toBe("1 ร้าน");
 	expect(profileCountText(5)).toBe("5 ร้าน");
+});
+
+test("profileHistoryText reads correctly at one and many", () => {
+	expect(profileHistoryText(1)).toBe("1 history entry");
+	expect(profileHistoryText(4)).toBe("4 history entries");
+	setLang("th");
+	expect(profileHistoryText(1)).toBe("ประวัติ 1 รายการ");
+	expect(profileHistoryText(4)).toBe("ประวัติ 4 รายการ");
 });
 
 test("profileKey scopes by profile id", () => {

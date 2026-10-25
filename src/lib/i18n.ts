@@ -244,8 +244,10 @@ export const en = {
 	"profiles.newHint": "Starts empty: no restaurants, default tags, no history.",
 	"profiles.switched": "Switched to {name}",
 	"profiles.created": "Created {name}",
+	"profiles.historyCount.one": "1 history entry",
+	"profiles.historyCount.other": "{count} history entries",
 	"profiles.deletePrompt":
-		"Delete {name}? This removes its {restaurants} restaurants and {history} history entries. You'll switch to {next}.",
+		"Delete {name}? This removes its {restaurants} and {history}. You'll switch to {next}.",
 	"profiles.deleted": "Deleted {name}.",
 	"profiles.error.empty": "Give it a name.",
 	"profiles.error.taken": "Another profile has that name.",
@@ -546,8 +548,10 @@ export const th: Record<MessageKey, string> = {
 	"profiles.newHint": "เริ่มว่าง: ไม่มีร้าน แท็กเริ่มต้น ไม่มีประวัติ",
 	"profiles.switched": "เปลี่ยนเป็น {name} แล้ว",
 	"profiles.created": "สร้าง {name} แล้ว",
+	"profiles.historyCount.one": "ประวัติ 1 รายการ",
+	"profiles.historyCount.other": "ประวัติ {count} รายการ",
 	"profiles.deletePrompt":
-		"ลบ {name}? ร้าน {restaurants} ร้านและประวัติ {history} รายการจะหายไป แล้วจะเปลี่ยนไปใช้ {next}",
+		"ลบ {name}? {restaurants}และ{history}จะหายไป แล้วจะเปลี่ยนไปใช้ {next}",
 	"profiles.deleted": "ลบ {name} แล้ว",
 	"profiles.error.empty": "ตั้งชื่อก่อน",
 	"profiles.error.taken": "มีโปรไฟล์ชื่อนี้แล้ว",

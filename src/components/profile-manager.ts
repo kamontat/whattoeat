@@ -16,6 +16,7 @@ import {
 	type Profile,
 	profileCounts,
 	profileCountText,
+	profileHistoryText,
 	profileInitial,
 	renameProfile,
 	switchProfile,
@@ -290,8 +291,8 @@ export class ProfileManager extends LitElement {
 			<div class="group confirm">
 				<p role="alert">${t("profiles.deletePrompt", {
 					name: profile.name,
-					restaurants: counts.restaurants,
-					history: counts.history,
+					restaurants: profileCountText(counts.restaurants),
+					history: profileHistoryText(counts.history),
 					next: next?.name ?? "",
 				})}</p>
 				<div class="actions">
