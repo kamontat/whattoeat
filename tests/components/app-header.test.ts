@@ -2,7 +2,15 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/app-header";
 import type { Page } from "#components/app-header";
 import { setLang } from "#lib/i18n";
-import { ACTIVE_KEY, PROFILES_KEY } from "#lib/profiles";
+import {
+	ACTIVE_KEY,
+	activeProfile,
+	createProfile,
+	loadProfiles,
+	PROFILES_KEY,
+	renameProfile,
+	switchProfile,
+} from "#lib/profiles";
 import { setTheme } from "#lib/theme";
 
 beforeEach(() => {
@@ -94,6 +102,55 @@ test("a theme change in another tab does not reload", async () => {
 	};
 	window.dispatchEvent(new StorageEvent("storage", { key: "whattoeat:theme" }));
 	expect(calls).toBe(0);
+});
+
+test("a profile switched in the same tab updates the avatar without reloading", async () => {
+	const personal = loadProfiles()[0]!;
+	createProfile("Family");
+	const el = await mount();
+	let calls = 0;
+	el.reload = () => {
+		calls += 1;
+	};
+
+	switchProfile(personal.id);
+	await el.updateComplete;
+
+	const nav = el.shadowRoot!.querySelector("nav")!;
+	const settingsLink = [...nav.querySelectorAll("a")].at(-1)!;
+	expect(settingsLink.querySelector(".avatar")?.textContent?.trim()).toBe("P");
+	expect(settingsLink.textContent).toContain("Personal");
+	expect(calls).toBe(0);
+});
+
+test("a profile renamed in the same tab updates the avatar without reloading", async () => {
+	const el = await mount();
+	let calls = 0;
+	el.reload = () => {
+		calls += 1;
+	};
+
+	renameProfile(activeProfile().id, "Mine");
+	await el.updateComplete;
+
+	const nav = el.shadowRoot!.querySelector("nav")!;
+	const settingsLink = [...nav.querySelectorAll("a")].at(-1)!;
+	expect(settingsLink.querySelector(".avatar")?.textContent?.trim()).toBe("M");
+	expect(settingsLink.textContent).toContain("Mine");
+	expect(calls).toBe(0);
+});
+
+test("the same-tab profile listener is removed on disconnect", async () => {
+	const el = await mount();
+	el.remove();
+
+	createProfile("Family");
+	await el.updateComplete;
+
+	const nav = el.shadowRoot!.querySelector("nav")!;
+	const settingsLink = [...nav.querySelectorAll("a")].at(-1)!;
+	expect(settingsLink.querySelector(".avatar")?.textContent?.trim()).toBe("P");
+	expect(settingsLink.textContent).toContain("Personal");
 });
 
 test("marks the current page", async () => {

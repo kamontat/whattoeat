@@ -128,9 +128,11 @@ export class AppHeader extends LitElement {
 			}
 
 			/*
-			 * The Settings tab's avatar in place of the gear icon: always white text on a solid
-			 * circle, regardless of the link's own (muted or primary) text colour above, because
-			 * this rule sets .avatar's own "color" rather than letting it inherit the link's.
+			 * The Settings tab's avatar in place of the gear icon: a solid circle with text that
+			 * stays readable against its own background in both themes, regardless of the link's
+			 * own (muted or primary) text colour above, because this rule sets .avatar's own
+			 * "color" rather than letting it inherit the link's. Same contrast-safe pairing as
+			 * .badge/.badge.skip in filter-bar.ts.
 			 */
 			.avatar {
 				display: flex;
@@ -140,7 +142,7 @@ export class AppHeader extends LitElement {
 				height: 22px;
 				border-radius: 50%;
 				background: var(--color-muted);
-				color: white;
+				color: var(--color-bg);
 				font-size: 0.6875rem;
 				font-weight: 700;
 				line-height: 1;
@@ -148,6 +150,7 @@ export class AppHeader extends LitElement {
 
 			nav a[aria-current="page"] .avatar {
 				background: var(--color-primary);
+				color: var(--color-primary-text);
 			}
 
 			.label {
