@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import "#components/app-header";
 import type { Page } from "#components/app-header";
 import { setLang } from "#lib/i18n";
+import { ACTIVE_KEY, PROFILES_KEY } from "#lib/profiles";
 import { setTheme } from "#lib/theme";
 
 beforeEach(() => {
@@ -43,14 +44,56 @@ test("the main nav links the four tabs with visible labels", async () => {
 		"./history",
 		"./settings",
 	]);
-	expect(links.map((a) => a.textContent?.trim())).toEqual([
+	// The Settings tab shows the active profile instead of a label of its own; see the
+	// dedicated profile tests below.
+	expect(links.slice(0, 3).map((a) => a.textContent?.trim())).toEqual([
 		"Home",
 		"Restaurants",
 		"History",
-		"Settings",
 	]);
-	for (const a of links)
+	for (const a of links.slice(0, 3))
 		expect(a.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+});
+
+test("the settings tab shows the active profile's initial and name", async () => {
+	const el = await mount();
+	const nav = el.shadowRoot!.querySelector("nav")!;
+	const settingsLink = [...nav.querySelectorAll("a")].at(-1)!;
+	expect(settingsLink.querySelector("svg")).toBeNull();
+	const avatar = settingsLink.querySelector(".avatar");
+	expect(avatar?.textContent?.trim()).toBe("P");
+	expect(settingsLink.textContent).toContain("Personal");
+});
+
+test("its accessible name says Settings and the profile", async () => {
+	const el = await mount();
+	const nav = el.shadowRoot!.querySelector("nav")!;
+	const settingsLink = [...nav.querySelectorAll("a")].at(-1)!;
+	expect(settingsLink.getAttribute("aria-label")).toBe(
+		"Settings, profile Personal",
+	);
+});
+
+test("a profile switched in another tab reloads the page", async () => {
+	const el = await mount();
+	let calls = 0;
+	el.reload = () => {
+		calls += 1;
+	};
+	window.dispatchEvent(new StorageEvent("storage", { key: ACTIVE_KEY }));
+	expect(calls).toBe(1);
+	window.dispatchEvent(new StorageEvent("storage", { key: PROFILES_KEY }));
+	expect(calls).toBe(2);
+});
+
+test("a theme change in another tab does not reload", async () => {
+	const el = await mount();
+	let calls = 0;
+	el.reload = () => {
+		calls += 1;
+	};
+	window.dispatchEvent(new StorageEvent("storage", { key: "whattoeat:theme" }));
+	expect(calls).toBe(0);
 });
 
 test("marks the current page", async () => {

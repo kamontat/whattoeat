@@ -10,7 +10,9 @@ import {
 	deleteProfile,
 	ensureProfiles,
 	loadProfiles,
+	onProfileSwitchedElsewhere,
 	PROFILE_STORES,
+	PROFILES_KEY,
 	profileCounts,
 	profileInitial,
 	profileKey,
@@ -225,6 +227,26 @@ test("resetStorage leaves one fresh default profile", () => {
 	expect(list).toHaveLength(1);
 	expect(list[0]?.name).toBe("Personal");
 	expect(loadRestaurants()).toEqual([]);
+});
+
+test("onProfileSwitchedElsewhere ignores other keys and unsubscribes", () => {
+	let calls = 0;
+	const unsubscribe = onProfileSwitchedElsewhere(() => {
+		calls += 1;
+	});
+
+	window.dispatchEvent(new StorageEvent("storage", { key: "whattoeat:theme" }));
+	expect(calls).toBe(0);
+
+	window.dispatchEvent(new StorageEvent("storage", { key: ACTIVE_KEY }));
+	expect(calls).toBe(1);
+
+	window.dispatchEvent(new StorageEvent("storage", { key: PROFILES_KEY }));
+	expect(calls).toBe(2);
+
+	unsubscribe();
+	window.dispatchEvent(new StorageEvent("storage", { key: ACTIVE_KEY }));
+	expect(calls).toBe(2);
 });
 
 test("blocked storage still yields one in-memory profile", () => {

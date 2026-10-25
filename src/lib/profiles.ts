@@ -7,6 +7,9 @@ export type Profile = { id: string; name: string };
 export const PROFILES_KEY = "whattoeat:profiles";
 export const ACTIVE_KEY = "whattoeat:profile";
 
+/** Dispatched on `window` whenever this tab creates, switches, renames or deletes a profile. */
+export const PROFILE_EVENT = "whattoeat:profile-changed";
+
 /** A store kept separately per profile. `"tags-group"` lives in sessionStorage; the rest in localStorage. */
 export type ProfileStore =
 	| "restaurants"
@@ -68,7 +71,11 @@ const readActive = (): string | undefined => {
 	}
 };
 
-/** Write both keys together; a throw from either moves everything into memory for this session. */
+/**
+ * Write both keys together; a throw from either moves everything into memory for this session.
+ * Always announces the change on `PROFILE_EVENT`, so anything showing the active profile (the
+ * Settings tab) can refresh itself within this tab without a reload.
+ */
 const persist = (list: Profile[], active: string): void => {
 	try {
 		localStorage.setItem(PROFILES_KEY, JSON.stringify(list));
@@ -77,6 +84,7 @@ const persist = (list: Profile[], active: string): void => {
 	} catch {
 		memory = { list, active };
 	}
+	window.dispatchEvent(new CustomEvent(PROFILE_EVENT));
 };
 
 const current = (): { list: Profile[]; active: string } => {
@@ -284,3 +292,17 @@ export const profileCounts = (
 /** The first whole character of a trimmed name, upper-cased; `"?"` for a blank name. */
 export const profileInitial = (name: string): string =>
 	Array.from(name.trim())[0]?.toUpperCase() ?? "?";
+
+/**
+ * Calls `callback` when another tab switches, renames or deletes a profile: a `storage` event
+ * whose key is `ACTIVE_KEY` or `PROFILES_KEY`. Returns an unsubscribe function.
+ */
+export const onProfileSwitchedElsewhere = (
+	callback: () => void,
+): (() => void) => {
+	const onStorage = (event: StorageEvent): void => {
+		if (event.key === ACTIVE_KEY || event.key === PROFILES_KEY) callback();
+	};
+	window.addEventListener("storage", onStorage);
+	return () => window.removeEventListener("storage", onStorage);
+};

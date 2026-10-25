@@ -3,6 +3,12 @@ import { customElement, property } from "lit/decorators.js";
 import { readBuildInfo } from "#lib/build-info";
 import { LangController, type MessageKey, t } from "#lib/i18n";
 import { type IconName, icon, logo } from "#lib/icons";
+import {
+	activeProfile,
+	onProfileSwitchedElsewhere,
+	PROFILE_EVENT,
+	profileInitial,
+} from "#lib/profiles";
 import { uiStyles } from "#styles/ui";
 
 export type Page =
@@ -121,6 +127,36 @@ export class AppHeader extends LitElement {
 				font-weight: 600;
 			}
 
+			/*
+			 * The Settings tab's avatar in place of the gear icon: always white text on a solid
+			 * circle, regardless of the link's own (muted or primary) text colour above, because
+			 * this rule sets .avatar's own "color" rather than letting it inherit the link's.
+			 */
+			.avatar {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 22px;
+				height: 22px;
+				border-radius: 50%;
+				background: var(--color-muted);
+				color: white;
+				font-size: 0.6875rem;
+				font-weight: 700;
+				line-height: 1;
+			}
+
+			nav a[aria-current="page"] .avatar {
+				background: var(--color-primary);
+			}
+
+			.label {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				max-width: 5.5rem;
+			}
+
 			/* A short bar on the top edge marks the current tab, so colour is not the only cue. */
 			nav a[aria-current="page"]::before {
 				content: "";
@@ -228,7 +264,35 @@ export class AppHeader extends LitElement {
 	@property({ attribute: false })
 	pr: number | undefined = readBuildInfo().pr;
 
+	/**
+	 * Called when another tab switches, renames or deletes a profile, since this tab's pages
+	 * still show the old profile's data. Replaced in tests so a cross-tab switch doesn't
+	 * actually navigate.
+	 */
+	@property({ attribute: false })
+	reload: () => void = () => location.reload();
+
 	protected readonly langController = new LangController(this);
+
+	private unsubscribeProfile: (() => void) | undefined;
+
+	/** A same-tab create/switch/rename/delete: just re-render with the new active profile. */
+	private readonly onProfileChanged = (): void => {
+		this.requestUpdate();
+	};
+
+	override connectedCallback(): void {
+		super.connectedCallback();
+		this.unsubscribeProfile = onProfileSwitchedElsewhere(() => this.reload());
+		window.addEventListener(PROFILE_EVENT, this.onProfileChanged);
+	}
+
+	override disconnectedCallback(): void {
+		super.disconnectedCallback();
+		this.unsubscribeProfile?.();
+		this.unsubscribeProfile = undefined;
+		window.removeEventListener(PROFILE_EVENT, this.onProfileChanged);
+	}
 
 	/** Keep the browser tab title in the current language; a preview build says so first. */
 	override updated(): void {
@@ -239,6 +303,19 @@ export class AppHeader extends LitElement {
 			this.pr === undefined ? title : `[${t("nav.preview")}] ${title}`;
 	}
 
+	/** The Settings tab: the active profile's avatar and name, in place of the gear and its label. */
+	private renderSettingsTab(link: Tab, current: boolean) {
+		const profile = activeProfile();
+		return html`<a
+			href=${this.base + link.path}
+			aria-current=${current ? "page" : nothing}
+			aria-label=${t("nav.settingsProfile", { name: profile.name })}
+		>
+			<span class="avatar">${profileInitial(profile.name)}</span>
+			<span class="label">${profile.name}</span>
+		</a>`;
+	}
+
 	override render() {
 		const tab = tabOf(this.current);
 		return html`
@@ -246,12 +323,14 @@ export class AppHeader extends LitElement {
 			<header class=${this.pr === undefined ? "" : "preview"}>
 				<a class="brand" href=${this.base}>${logo()}<span>${t("app.title")}</span></a>
 				<nav aria-label=${t("nav.label")}>
-					${TABS.map(
-						(link) =>
-							html`<a href=${this.base + link.path} aria-current=${tab === link.page ? "page" : nothing}>
-								${icon(link.icon, 22)}<span>${t(link.label)}</span>
-							</a>`,
-					)}
+					${TABS.map((link) => {
+						const current = tab === link.page;
+						if (link.page === "settings")
+							return this.renderSettingsTab(link, current);
+						return html`<a href=${this.base + link.path} aria-current=${current ? "page" : nothing}>
+							${icon(link.icon, 22)}<span>${t(link.label)}</span>
+						</a>`;
+					})}
 				</nav>
 			</header>
 		`;
