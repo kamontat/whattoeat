@@ -248,33 +248,6 @@ export const updatePreset = (
 	};
 };
 
-/**
- * Add `files`' restaurants to `saved`: an id already saved, or repeated across the files, is
- * dropped, so existing restaurants (including any edits) are never touched. `list` is `saved`
- * followed by the new restaurants, in file order.
- */
-export const addPresets = (
-	saved: Restaurant[],
-	files: PresetFile[],
-	added: AddedPreset[],
-): { list: Restaurant[]; added: AddedPreset[]; newCount: number } => {
-	const savedIds = new Set(saved.map((item) => item.id));
-	const seen = new Set<string>();
-	const fresh: Restaurant[] = [];
-	for (const file of files) {
-		for (const restaurant of file.restaurants) {
-			if (savedIds.has(restaurant.id) || seen.has(restaurant.id)) continue;
-			seen.add(restaurant.id);
-			fresh.push(restaurant);
-		}
-	}
-	return {
-		list: [...saved, ...fresh],
-		added: recordAdded(added, files),
-		newCount: fresh.length,
-	};
-};
-
 /** Replace the whole list with `files`' restaurants, repeat ids dropped (keeping the first copy). */
 export const replaceWithPresets = (
 	files: PresetFile[],

@@ -1,7 +1,6 @@
 import { expect, spyOn, test } from "bun:test";
 import {
 	type AddedPreset,
-	addPresets,
 	fetchIndex,
 	fetchPresetFiles,
 	loadAddedPresets,
@@ -126,40 +125,6 @@ test('presetState is "update" when recorded, an id is saved, and the stored upda
 			new Set(["a"]),
 		),
 	).toBe("update");
-});
-
-test("addPresets keeps an existing restaurant untouched when a preset has the same id", () => {
-	const saved = [make("a", "Old Name")];
-	const files = [file(entry(), make("a", "New Name"), make("b", "B"))];
-	const result = addPresets(saved, files, []);
-	expect(result.list.find((item) => item.id === "a")?.name.en).toBe("Old Name");
-	expect(result.newCount).toBe(1);
-});
-
-test("addPresets counts a restaurant in two files once", () => {
-	const files = [
-		file(entry({ id: "ladprao" }), make("a", "A")),
-		file(entry({ id: "ratchayothin" }), make("a", "A dup"), make("b", "B")),
-	];
-	const result = addPresets([], files, []);
-	expect(result.newCount).toBe(2);
-	expect(result.list).toHaveLength(2);
-});
-
-test("addPresets records each file with entry.updatedAt and all of its file ids, replacing an older record for the same id", () => {
-	const files = [
-		file(
-			entry({ id: "ladprao", updatedAt: "2026-11-01" }),
-			make("a"),
-			make("b"),
-		),
-	];
-	const result = addPresets([], files, [
-		record({ id: "ladprao", updatedAt: "2026-10-16", ids: ["old"] }),
-	]);
-	expect(result.added).toEqual([
-		{ id: "ladprao", updatedAt: "2026-11-01", ids: ["a", "b"] },
-	]);
 });
 
 test("replaceWithPresets returns only the files' restaurants, deduped, and records exactly those presets", () => {

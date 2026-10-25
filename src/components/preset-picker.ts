@@ -14,7 +14,6 @@ import {
 import { icon } from "#lib/icons";
 import {
 	type AddedPreset,
-	addPresets,
 	fetchIndex,
 	fetchPresetFiles,
 	loadAddedPresets,
@@ -26,6 +25,7 @@ import {
 	replaceWithPresets,
 	saveAddedPresets,
 } from "#lib/presets";
+import { activeProfile } from "#lib/profiles";
 import type { Restaurant } from "#lib/restaurant";
 import {
 	isMemoryOnly,
@@ -34,12 +34,6 @@ import {
 	saveRestaurants,
 } from "#lib/store";
 import { uiStyles } from "#styles/ui";
-
-type Mode = "add" | "replace";
-
-const MODES: readonly Mode[] = ["add", "replace"];
-
-const MODE_KEYS = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"];
 
 /** How long "Undone." stays, shorter than the default 6 s because it has no action. */
 const UNDONE_DURATION = 3000;
@@ -53,8 +47,8 @@ const restaurantsText = (n: number): string =>
 		: t("presets.restaurants.other", { n });
 
 /**
- * Room for the pinned area where ResizeObserver is missing: the switch, the Replace warning
- * line and the button, at phone size. Measured otherwise.
+ * Room for the pinned area where ResizeObserver is missing: the warning line and the button, at
+ * phone size. Measured otherwise.
  */
 const PINNED_FALLBACK = "9.5rem";
 
@@ -88,8 +82,9 @@ type Badge = { label: MessageKey; state: string };
 /**
  * The `/settings/presets` page body: fetches the bundled neighbourhood index, then lists its
  * presets grouped by district with search and a city filter. A pinned area at the bottom holds
- * the Add / Replace switch and the action button; saving fetches the ticked preset files, then
- * merges them into (Add) or swaps them for (Replace) the saved list, with an Undo message.
+ * the action button; saving fetches the ticked preset files and replaces the active profile's
+ * whole saved list with them, confirmed first when the profile has restaurants to lose, with an
+ * Undo message.
  *
  * Messages go to the page's `<app-toast>` when one is mounted, otherwise to one rendered in
  * this component's own shadow root.
@@ -121,13 +116,6 @@ export class PresetPicker extends LitElement {
 				gap: 0.625rem;
 				padding: 0.75rem 0 0.5rem;
 				background: linear-gradient(to bottom, transparent, var(--color-bg) 35%);
-			}
-
-			fieldset {
-				margin: 0;
-				padding: 0;
-				border: 0;
-				min-width: 0;
 			}
 
 			.pinned .action {
@@ -188,14 +176,6 @@ export class PresetPicker extends LitElement {
 				font-weight: 600;
 			}
 
-			.badge[data-state="added"] {
-				color: var(--color-success);
-			}
-
-			.badge[data-state="update"] {
-				color: var(--color-primary);
-			}
-
 			mark {
 				background: var(--color-primary-soft);
 				color: inherit;
@@ -224,12 +204,6 @@ export class PresetPicker extends LitElement {
 
 	@state() private savedIds: ReadonlySet<string> = new Set();
 	@state() private added: AddedPreset[] = [];
-
-	/**
-	 * Add mode shows a locked "Added" row and a tickable "Update" one; Replace mode shows "In
-	 * your list" for both, starting unticked. Starts as Add on every mount and is never stored.
-	 */
-	@state() mode: Mode = "add";
 
 	/** True while the Replace confirm card stands in for the pinned area. */
 	@state() confirming = false;
@@ -264,7 +238,6 @@ export class PresetPicker extends LitElement {
 
 	override connectedCallback(): void {
 		super.connectedCallback();
-		this.mode = "add";
 		this.confirming = false;
 		this.ownToast = document.querySelector("app-toast") === null;
 		this.reloadStore();
@@ -316,17 +289,6 @@ export class PresetPicker extends LitElement {
 	private reloadStore(): void {
 		this.savedIds = new Set(loadRestaurants().map((item) => item.id));
 		this.added = loadAddedPresets();
-		// The switch hides with nothing saved, and the mode is then Add.
-		if (this.savedIds.size === 0) this.setMode("add");
-	}
-
-	/** Changing the mode clears the selection: ticking means something different in each. */
-	private setMode(mode: Mode): void {
-		if (mode === this.mode) return;
-		this.mode = mode;
-		this.selected = new Set();
-		this.confirming = false;
-		this.filesError = false;
 	}
 
 	/** Runs `find` after the next render and focuses what it returns, as data-transfer does. */
@@ -336,21 +298,6 @@ export class PresetPicker extends LitElement {
 			if (target instanceof HTMLElement) target.focus();
 		});
 	}
-
-	private modeInput(mode: Mode): Element | null {
-		return this.renderRoot.querySelector(
-			`input[name="preset-mode"][value="${mode}"]`,
-		);
-	}
-
-	/** Arrow keys move between the two options, wrapping, like a native radio group. */
-	private readonly onModeKey = (event: KeyboardEvent): void => {
-		if (!MODE_KEYS.includes(event.key)) return;
-		event.preventDefault();
-		const next: Mode = this.mode === "add" ? "replace" : "add";
-		this.setMode(next);
-		this.focusAfterRender(() => this.modeInput(next));
-	};
 
 	/** The pinned area's action: the apply button, or the Go to picker link with nothing ticked. */
 	private pinnedAction(): Element | null {
@@ -365,34 +312,26 @@ export class PresetPicker extends LitElement {
 			this.renderRoot.querySelector("app-toast")) as AppToast | null;
 	}
 
-	/**
-	 * The presets the action applies to, in index order. In Add mode an Added row shows ticked
-	 * but is locked, so it is never part of the action.
-	 */
+	/** The presets the action applies to, in index order. */
 	private tickedEntries(index: PresetIndex): PresetEntry[] {
-		return index.presets.filter(
-			(entry) =>
-				this.selected.has(entry.id) &&
-				!(
-					this.mode === "add" &&
-					presetState(entry, this.added, this.savedIds) === "added"
-				),
-		);
+		return index.presets.filter((entry) => this.selected.has(entry.id));
 	}
 
 	/** The action button's label; the restaurant count is the index's estimate. */
 	private actionLabel(ticked: readonly PresetEntry[]): string {
 		if (ticked.length === 0) return t("presets.goPicker");
+		const areas = areasText(ticked.length);
 		const count = restaurantsText(
 			ticked.reduce((sum, entry) => sum + entry.count, 0),
 		);
-		return this.mode === "replace"
-			? t("presets.replace", { count })
-			: t("presets.add", { areas: areasText(ticked.length), count });
+		return this.savedIds.size > 0
+			? t("presets.replace", { areas, count })
+			: t("presets.use", { areas, count });
 	}
 
+	/** An empty profile has nothing to lose, so applying saves right away, no confirm needed. */
 	private readonly onApply = (): void => {
-		if (this.mode === "add") {
+		if (this.savedIds.size === 0) {
 			void this.save();
 			return;
 		}
@@ -414,13 +353,13 @@ export class PresetPicker extends LitElement {
 	};
 
 	/**
-	 * Fetch every ticked file, then save. If any file fails, nothing is saved and the selection
-	 * is kept. The list and `whattoeat:presets` are snapshotted right before saving, for Undo.
+	 * Fetch every ticked file, then replace the saved list with their restaurants. If any file
+	 * fails, nothing is saved and the selection is kept. The list and `whattoeat:presets` are
+	 * snapshotted right before saving, for Undo.
 	 */
 	private async save(): Promise<void> {
 		const index = this.index;
 		if (index === undefined || this.busy) return;
-		const mode = this.mode;
 		const ticked = this.tickedEntries(index);
 		if (ticked.length === 0) return;
 		this.busy = true;
@@ -436,33 +375,22 @@ export class PresetPicker extends LitElement {
 		}
 
 		const before = { list: loadRestaurants(), added: loadAddedPresets() };
+		const hadRestaurants = before.list.length > 0;
+		const result = replaceWithPresets(files);
 		let message: string;
-		let undoable = true;
 		// `whattoeat:presets` is written only once the list itself was stored: a refused list
 		// write must not leave records claiming presets the stored list does not hold.
-		if (mode === "add") {
-			const result = addPresets(before.list, files, before.added);
-			if (result.newCount === 0) {
-				// Nothing to undo: the list is unchanged, only the presets are recorded.
-				saveAddedPresets(result.added);
-				undoable = false;
-				message = t("presets.nothingNew");
-			} else if (saveRestaurants(result.list)) {
-				saveAddedPresets(result.added);
-				message = t("presets.added", { count: result.newCount });
-			} else {
-				message = t("presets.sessionOnly");
-			}
+		if (saveRestaurants(result.list)) {
+			saveAddedPresets(result.added);
+			message = hadRestaurants
+				? t("presets.replaced", { count: result.list.length })
+				: t("presets.added", { count: result.list.length });
 		} else {
-			const result = replaceWithPresets(files);
-			if (saveRestaurants(result.list)) {
-				saveAddedPresets(result.added);
-				message = t("presets.replaced", { count: result.list.length });
-			} else {
-				message = t("presets.replacedSessionOnly");
-			}
+			message = hadRestaurants
+				? t("presets.replacedSessionOnly")
+				: t("presets.sessionOnly");
 		}
-		this.snapshot = undoable ? before : undefined;
+		this.snapshot = before;
 		this.busy = false;
 		this.confirming = false;
 		this.selected = new Set();
@@ -470,10 +398,10 @@ export class PresetPicker extends LitElement {
 		// The apply button (or the confirm card) just went away; keep focus in the pinned area.
 		this.focusAfterRender(() => this.pinnedAction());
 		await this.updateComplete;
-		this.toast()?.show(
-			message,
-			undoable ? { action: t("presets.undo"), onAction: this.undo } : {},
-		);
+		this.toast()?.show(message, {
+			action: t("presets.undo"),
+			onAction: this.undo,
+		});
 	}
 
 	/** Put back the list and `whattoeat:presets` from before the last save. */
@@ -583,15 +511,14 @@ export class PresetPicker extends LitElement {
 					</div>
 				</div>
 			`;
-		const replacing = this.mode === "replace";
+		const hasSaved = this.savedIds.size > 0;
 		return html`
 			${announce}
 			<div class="pinned">
-				${this.savedIds.size > 0 ? this.renderSwitch() : nothing}
 				${this.filesError ? html`<p class="error files-error" role="alert">${t("presets.filesError")}</p>` : nothing}
 				${
-					replacing && ticked.length > 0
-						? html`<p class="muted replace-warning">${t("presets.replaceWarning", { count: this.savedIds.size })}</p>`
+					hasSaved && ticked.length > 0
+						? html`<p class="muted replace-warning">${t("presets.replaceWarning", { count: this.savedIds.size, profile: activeProfile().name })}</p>`
 						: nothing
 				}
 				${
@@ -599,7 +526,7 @@ export class PresetPicker extends LitElement {
 						? html`<a class="button-link action" data-action="go-picker" href=${this.base}>${label}</a>`
 						: html`<button
 								type="button"
-								class="action ${replacing ? "danger" : "primary"}"
+								class="action ${hasSaved ? "danger" : "primary"}"
 								data-action="apply"
 								?disabled=${this.busy}
 								@click=${this.onApply}
@@ -607,32 +534,6 @@ export class PresetPicker extends LitElement {
 				}
 			</div>
 		`;
-	}
-
-	private renderSwitch() {
-		return html`<fieldset
-			class="mode"
-			role="radiogroup"
-			aria-labelledby="preset-mode-label"
-			@keydown=${this.onModeKey}
-		>
-			<legend id="preset-mode-label" class="visually-hidden">${t("presets.mode.label")}</legend>
-			<div class="seg">
-				${MODES.map(
-					(mode) => html`<label>
-						<input
-							type="radio"
-							name="preset-mode"
-							value=${mode}
-							.checked=${live(this.mode === mode)}
-							?disabled=${this.busy}
-							@change=${() => this.setMode(mode)}
-						/>
-						<span>${t(mode === "add" ? "presets.mode.add" : "presets.mode.replace")}</span>
-					</label>`,
-				)}
-			</div>
-		</fieldset>`;
 	}
 
 	private renderBody() {
@@ -754,26 +655,23 @@ export class PresetPicker extends LitElement {
 		</p>`;
 	}
 
+	/** An applied preset (current or stale) is badged "In your list"; Task 3 adds an Update button. */
 	private rowBadge(state: PresetState): Badge | undefined {
-		if (state === "new") return undefined;
-		if (this.mode === "replace")
-			return { label: "presets.badge.inList", state: "in-list" };
-		return state === "added"
-			? { label: "presets.badge.added", state: "added" }
-			: { label: "presets.badge.update", state: "update" };
+		return state === "new"
+			? undefined
+			: { label: "presets.badge.inList", state: "in-list" };
 	}
 
 	private renderRow(entry: PresetEntry, query: string, searching: boolean) {
 		const state = presetState(entry, this.added, this.savedIds);
-		const locked = this.mode === "add" && state === "added";
-		const checked = locked ? true : this.selected.has(entry.id);
+		const checked = this.selected.has(entry.id);
 		const badge = this.rowBadge(state);
 		return html`
 			<label class="item preset" data-preset=${entry.id}>
 				<input
 					type="checkbox"
 					.checked=${checked}
-					?disabled=${locked || this.busy}
+					?disabled=${this.busy}
 					@change=${(event: Event) =>
 						this.toggle(entry.id, (event.target as HTMLInputElement).checked)}
 				/>
