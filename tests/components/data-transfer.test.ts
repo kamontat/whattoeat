@@ -516,6 +516,44 @@ test("a blocked clipboard read opens a box to paste by hand", async () => {
 	expect($(el, "textarea.paste")).toBeNull();
 });
 
+test("cancel closes the paste box so paste reads the clipboard again", async () => {
+	addRestaurant({
+		name: { en: "Old", th: "" },
+		tags: [],
+		links: [],
+		notes: "",
+	});
+	setClipboardText(() => Promise.reject(new Error("NotAllowedError")));
+	const el = await mount();
+	$(el, 'button[data-action="paste"]')!.click();
+	await flush(el);
+	await pasteByHand(el, "hello");
+	expect($(el, '[role="alert"]')?.textContent?.trim()).toBe(
+		"The data is not valid JSON.",
+	);
+	await click(el, 'button[data-action="cancel-paste"]');
+	expect($(el, "textarea.paste")).toBeNull();
+	expect($(el, ".paste-failed")).toBeNull();
+	expect($(el, ".error")).toBeNull();
+	expect(el.shadowRoot!.activeElement?.getAttribute("data-action")).toBe(
+		"paste",
+	);
+	setClipboardText(() =>
+		Promise.resolve(JSON.stringify(toExportFile([make("x", "X")]))),
+	);
+	$(el, 'button[data-action="paste"]')!.click();
+	await flush(el);
+	expect($(el, "textarea.paste")).toBeNull();
+	expect($(el, ".found")?.textContent?.trim()).toBe("1 restaurants found.");
+	// The text typed before cancelling is gone if the box opens again.
+	setClipboardText(() => Promise.reject(new Error("NotAllowedError")));
+	$(el, 'button[data-action="paste"]')!.click();
+	await flush(el);
+	expect(
+		el.shadowRoot!.querySelector<HTMLTextAreaElement>("textarea.paste")!.value,
+	).toBe("");
+});
+
 test("an empty clipboard or a browser without one opens the paste box", async () => {
 	setClipboardText(() => Promise.resolve("  "));
 	const el = await mount();
