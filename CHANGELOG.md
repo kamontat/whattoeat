@@ -2,6 +2,52 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-25: Profiles
+
+### BREAKING CHANGES
+
+- Restaurants, tag groups, history, both filters, the pick count, the preset record and the
+  session's tag group are now stored per profile under `whattoeat:<profile id>:<store>`
+  instead of `whattoeat:<store>`. Saved data moves into the first profile on the next load;
+  code must build these keys with `profileKey` (or the stores' key functions such as
+  `restaurantsKey()`) instead of the removed constants (`STORAGE_KEY`, `HISTORY_KEY`, ...).
+- The export format goes from version 7 to 8 with a new `presets` list. Version 1–7 files
+  still import, with no preset record; `toExportFile` and `exportJson` take the preset record
+  as a new argument before `now`.
+
+### Features
+
+- Profiles keep several separate restaurant lists on one device, for example Personal,
+  Couple and Family. Each has its own restaurants, tags, history, filters, pick count and
+  preset record; language and theme stay shared.
+- A `/settings/profiles` page lists every profile with its restaurant and history counts.
+  Tapping a row switches to it; each row has Rename, Copy and Delete. A "+" button adds an
+  empty profile, in a sheet on phones and a side panel on wide screens, like the Restaurants
+  page.
+- Copy makes `<name> - 1` (then `- 2`, ...) with everything except pick history, and keeps
+  the current profile active. Delete asks once with Delete and Cancel on the row itself.
+- Settings opens with a Profile row that leads to the profiles page, and the Settings tab
+  shows the active profile's initial and name.
+- An export now carries which presets the profile uses. Replace takes the file's record;
+  Merge adds records only for presets the profile has none for.
+
+### Improvements
+
+- Settings' "Appearance" section is now "This device", because it holds the settings that
+  every profile shares.
+
+### Decisions
+
+- Profiles replace the idea of local presets: a group's list should keep its own edits and
+  history, not be reloaded from a template each time.
+- Existing data moves into a profile named "Personal" ("ส่วนตัว" in Thai) on first load. The
+  move is all-or-nothing and retries on the next load, so a full or blocked storage never
+  leaves the saved list unread.
+- Other open tabs reload when the profile changes elsewhere, and so does a page restored by
+  the Back button, so no page keeps showing or saving the old profile's data.
+- The rest of Settings is not regrouped under the profile's name yet; the Profile row and
+  "This device" already show what is shared and what is not.
+
 ## 2026-10-24: A Phanat Nikhom preset and official links for the last map-only restaurants
 
 ### Features
