@@ -3,13 +3,13 @@ import "#components/data-transfer";
 import type { DataTransferPanel } from "#components/data-transfer";
 import {
 	forgetGroupsMemory,
-	GROUPS_KEY,
+	groupsKey,
 	loadGroups,
 	saveGroups,
 } from "#lib/groups";
 import {
-	HISTORY_KEY,
 	type HistoryEntry,
+	historyKey,
 	loadHistory,
 	saveHistory,
 } from "#lib/history";
@@ -19,8 +19,19 @@ import {
 	type PresetIndex,
 	saveAddedPresets,
 } from "#lib/presets";
+import {
+	ACTIVE_KEY,
+	activeProfile,
+	PROFILES_KEY,
+	profileInitial,
+} from "#lib/profiles";
 import { nameFromText, type Restaurant } from "#lib/restaurant";
-import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
+import {
+	addRestaurant,
+	loadRestaurants,
+	restaurantsKey,
+	saveRestaurants,
+} from "#lib/store";
 import { toExportFile } from "#lib/transfer";
 
 const make = (id: string, name = id): Restaurant => ({
@@ -103,7 +114,7 @@ test("export downloads a json file of the stored list", async () => {
 		const file = JSON.parse(await blobs[0]!.text());
 		expect(file).toMatchObject({
 			app: "whattoeat",
-			version: 7,
+			version: 8,
 			restaurants: loadRestaurants(),
 			history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 		});
@@ -347,7 +358,7 @@ test("copy puts one-line export json on the clipboard", async () => {
 	expect(copied).not.toContain("\n");
 	expect(JSON.parse(copied)).toMatchObject({
 		app: "whattoeat",
-		version: 7,
+		version: 8,
 		restaurants: loadRestaurants(),
 		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 	});
@@ -496,7 +507,7 @@ test("an empty clipboard or a browser without one opens the paste box", async ()
 
 test("warns about stored entries that could not be read until a save drops them", async () => {
 	localStorage.setItem(
-		"whattoeat:restaurants",
+		restaurantsKey(),
 		JSON.stringify([{ name: "broken" }, null]),
 	);
 	const el = await mount();
@@ -514,7 +525,7 @@ test("warns about stored entries that could not be read until a save drops them"
 });
 
 test("uses the singular when one stored entry could not be read", async () => {
-	localStorage.setItem("whattoeat:restaurants", "{not json");
+	localStorage.setItem(restaurantsKey(), "{not json");
 	const el = await mount();
 	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
 		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
@@ -571,7 +582,12 @@ test("confirming reset deletes everything in localStorage", async () => {
 	const el = await mount();
 	await click(el, 'button[data-action="reset"]');
 	await click(el, 'button[data-action="reset-confirm"]');
-	expect(localStorage.length).toBe(0);
+	// The component's re-render reads the (now empty) restaurant list, which lazily recreates the
+	// default profile; only its two bootstrap keys remain.
+	const remaining = Array.from({ length: localStorage.length }, (_, i) =>
+		localStorage.key(i),
+	);
+	expect(remaining.sort()).toEqual([ACTIVE_KEY, PROFILES_KEY].sort());
 	expect(loadRestaurants()).toEqual([]);
 	// happy-dom reports an English browser, so the language falls back to English.
 	expect(getLang()).toBe("en");
@@ -635,7 +651,7 @@ test("confirming reset deletes the history too", async () => {
 	const el = await mount();
 	await click(el, 'button[data-action="reset"]');
 	await click(el, 'button[data-action="reset-confirm"]');
-	expect(localStorage.getItem(HISTORY_KEY)).toBeNull();
+	expect(localStorage.getItem(historyKey())).toBeNull();
 	expect(loadHistory()).toEqual([]);
 });
 
@@ -647,7 +663,7 @@ test("warns when the browser refuses to save the group list", async () => {
 		value: {
 			getItem: (key: string) => real.getItem(key),
 			setItem: (key: string, value: string) => {
-				if (key === GROUPS_KEY) throw new Error("QuotaExceededError");
+				if (key === groupsKey()) throw new Error("QuotaExceededError");
 				real.setItem(key, value);
 			},
 		},
@@ -675,7 +691,7 @@ test("an import whose history the browser refuses to store warns", async () => {
 		value: {
 			getItem: (key: string) => real.getItem(key),
 			setItem: (key: string, value: string) => {
-				if (key === HISTORY_KEY) throw new Error("QuotaExceededError");
+				if (key === historyKey()) throw new Error("QuotaExceededError");
 				real.setItem(key, value);
 			},
 		},
@@ -761,13 +777,156 @@ test("replace with a version 3 file keeps the current groups", async () => {
 	expect(loadGroups()).toEqual([{ id: "g1", name: "Price" }]);
 });
 
-test("settings is grouped under Appearance, Organise, Export, Import, Reset and About", async () => {
+test("Replace takes the file's preset record", async () => {
+	addRestaurant({
+		name: { en: "Old", th: "" },
+		tags: [],
+		links: [],
+		notes: "",
+	});
+	saveAddedPresets([{ id: "ladprao", updatedAt: "2026-10-01", ids: ["old"] }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify(
+			toExportFile(
+				[make("x", "X")],
+				[],
+				[],
+				[{ id: "siam", updatedAt: "2026-10-23", ids: ["x"] }],
+			),
+		),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="replace"]');
+	expect(loadAddedPresets()).toEqual([
+		{ id: "siam", updatedAt: "2026-10-23", ids: ["x"] },
+	]);
+});
+
+test("Merge adds only presets the profile has no record of", async () => {
+	addRestaurant({
+		name: { en: "Old", th: "" },
+		tags: [],
+		links: [],
+		notes: "",
+	});
+	saveAddedPresets([{ id: "siam", updatedAt: "2026-10-01", ids: ["mine"] }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify(
+			toExportFile(
+				[make("x", "X")],
+				[],
+				[],
+				[
+					{ id: "siam", updatedAt: "2026-10-23", ids: ["x"] },
+					{ id: "ladprao", updatedAt: "2026-10-16", ids: ["y"] },
+				],
+			),
+		),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="merge"]');
+	expect(loadAddedPresets()).toEqual([
+		{ id: "siam", updatedAt: "2026-10-01", ids: ["mine"] },
+		{ id: "ladprao", updatedAt: "2026-10-16", ids: ["y"] },
+	]);
+});
+
+test("Replace with a version 7 file leaves no preset record", async () => {
+	addRestaurant({
+		name: { en: "Old", th: "" },
+		tags: [],
+		links: [],
+		notes: "",
+	});
+	saveAddedPresets([{ id: "siam", updatedAt: "2026-10-01", ids: ["mine"] }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 7,
+			exportedAt: "2026-10-14T00:00:00.000Z",
+			restaurants: [make("x", "X")],
+			history: [],
+			groups: [],
+		}),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="replace"]');
+	expect(loadAddedPresets()).toEqual([]);
+});
+
+test("Merge with a version 7 file keeps the profile's record", async () => {
+	addRestaurant({
+		name: { en: "Old", th: "" },
+		tags: [],
+		links: [],
+		notes: "",
+	});
+	saveAddedPresets([{ id: "siam", updatedAt: "2026-10-01", ids: ["mine"] }]);
+	const el = await mount();
+	el.readImport(
+		JSON.stringify({
+			app: "whattoeat",
+			version: 7,
+			exportedAt: "2026-10-14T00:00:00.000Z",
+			restaurants: [make("x", "X")],
+			history: [],
+			groups: [],
+		}),
+	);
+	await el.updateComplete;
+	await click(el, 'button[data-action="merge"]');
+	expect(loadAddedPresets()).toEqual([
+		{ id: "siam", updatedAt: "2026-10-01", ids: ["mine"] },
+	]);
+});
+
+test("Download and Copy include the preset record", async () => {
+	addRestaurant({ name: { en: "A", th: "" }, tags: [], links: [], notes: "" });
+	saveAddedPresets([{ id: "siam", updatedAt: "2026-10-01", ids: ["a"] }]);
+	const blobs: Blob[] = [];
+	const create = spyOn(URL, "createObjectURL").mockImplementation(
+		(blob: Blob | MediaSource) => {
+			blobs.push(blob as Blob);
+			return "blob:test";
+		},
+	);
+	const anchorClick = spyOn(
+		HTMLAnchorElement.prototype,
+		"click",
+	).mockImplementation(() => {});
+	let copied = "";
+	setClipboard(async (text) => {
+		copied = text;
+	});
+	try {
+		const el = await mount();
+		$(el, 'button[data-action="export"]')!.click();
+		const downloaded = JSON.parse(await blobs[0]!.text());
+		expect(downloaded.presets).toEqual([
+			{ id: "siam", updatedAt: "2026-10-01", ids: ["a"] },
+		]);
+		$(el, 'button[data-action="copy"]')!.click();
+		await flush(el);
+		expect(JSON.parse(copied).presets).toEqual([
+			{ id: "siam", updatedAt: "2026-10-01", ids: ["a"] },
+		]);
+	} finally {
+		create.mockRestore();
+		anchorClick.mockRestore();
+	}
+});
+
+test("settings is grouped under Profile, This device, Organise, Export, Import, Reset and About", async () => {
 	const el = await mount();
 	const headings = [
 		...el.shadowRoot!.querySelectorAll("section > h2.group-label"),
 	].map((h) => h.textContent?.trim());
 	expect(headings).toEqual([
-		"Appearance",
+		"Profile",
+		"This device",
 		"Organise",
 		"Export",
 		"Import",
@@ -779,6 +938,35 @@ test("settings is grouped under Appearance, Organise, Export, Import, Reset and 
 		expect(id).not.toBeNull();
 		expect(section.querySelector(`#${id}`)?.tagName).toBe("H2");
 	}
+});
+
+test("the first section links to the profiles page with the active profile's name and count", async () => {
+	addRestaurant({ name: { en: "A", th: "" }, tags: [], links: [], notes: "" });
+	addRestaurant({ name: { en: "B", th: "" }, tags: [], links: [], notes: "" });
+	const el = await mount();
+	const sections = [...el.shadowRoot!.querySelectorAll("section")];
+	expect(sections[0]?.className).toBe("profile");
+	expect($(el, "#profile-title")?.textContent?.trim()).toBe("Profile");
+	const row = $(
+		el,
+		'section.profile a.item[data-action="profiles"]',
+	) as HTMLAnchorElement | null;
+	expect(row?.getAttribute("href")).toBe("./settings/profiles");
+	expect(row?.querySelector(".lead.avatar")?.textContent?.trim()).toBe(
+		profileInitial(activeProfile().name),
+	);
+	expect(row?.querySelector("b")?.textContent?.trim()).toBe(
+		activeProfile().name,
+	);
+	expect(row?.querySelector("small")?.textContent?.trim()).toBe(
+		"2 restaurants",
+	);
+	expect(row?.querySelector(".trail svg")).not.toBeNull();
+});
+
+test("the appearance section is titled This device", async () => {
+	const el = await mount();
+	expect($(el, "#appearance-title")?.textContent?.trim()).toBe("This device");
 });
 
 test("the appearance section holds the language and theme switches", async () => {

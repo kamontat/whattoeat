@@ -1,4 +1,6 @@
 import type { Localized } from "#lib/i18n";
+import { type AddedPreset, isAddedPreset } from "#lib/preset-record";
+import { profileKey } from "#lib/profiles";
 import type { Restaurant } from "#lib/restaurant";
 import { parseImport } from "#lib/transfer";
 
@@ -21,15 +23,18 @@ export type PresetIndex = {
 	presets: PresetEntry[];
 };
 
-/** A preset this browser has added: the restaurant ids its file held when it was added. */
-export type AddedPreset = { id: string; updatedAt: string; ids: string[] };
+export {
+	type AddedPreset,
+	isAddedPreset,
+	mergeAddedPresets,
+} from "#lib/preset-record";
 
 export type PresetState = "new" | "added" | "update";
 
 /** An index entry together with the restaurants its file validated to. */
 export type PresetFile = { entry: PresetEntry; restaurants: Restaurant[] };
 
-export const PRESETS_KEY = "whattoeat:presets";
+export const presetsKey = (): string => profileKey("presets");
 
 const isString = (value: unknown): value is string => typeof value === "string";
 
@@ -84,23 +89,11 @@ export const indexUrl = (base: string): string =>
 export const presetFileUrl = (base: string, id: string): string =>
 	`${base}data/presets/${id}.json`;
 
-const isAddedPreset = (value: unknown): value is AddedPreset => {
-	if (typeof value !== "object" || value === null) return false;
-	const item = value as Partial<Record<keyof AddedPreset, unknown>>;
-	return (
-		isString(item.id) &&
-		item.id !== "" &&
-		isString(item.updatedAt) &&
-		Array.isArray(item.ids) &&
-		item.ids.every(isString)
-	);
-};
-
 /** Unreadable entries are skipped; bad JSON or blocked storage gives `[]`. */
 export const loadAddedPresets = (): AddedPreset[] => {
 	let data: unknown;
 	try {
-		data = JSON.parse(localStorage.getItem(PRESETS_KEY) ?? "[]");
+		data = JSON.parse(localStorage.getItem(presetsKey()) ?? "[]");
 	} catch {
 		return [];
 	}
@@ -111,7 +104,7 @@ export const loadAddedPresets = (): AddedPreset[] => {
 /** `false` when localStorage refused the write. */
 export const saveAddedPresets = (list: AddedPreset[]): boolean => {
 	try {
-		localStorage.setItem(PRESETS_KEY, JSON.stringify(list));
+		localStorage.setItem(presetsKey(), JSON.stringify(list));
 		return true;
 	} catch {
 		return false;

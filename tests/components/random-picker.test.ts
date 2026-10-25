@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import { nameFromText } from "#lib/restaurant";
 import "#components/random-picker";
 import { RandomPicker } from "#components/random-picker";
-import { FILTER_KEY } from "#lib/filter";
+import { filterKey, HOME_FILTER } from "#lib/filter";
 import { saveGroups } from "#lib/groups";
 import { loadHistory, saveHistory } from "#lib/history";
 import { getLang, setLang } from "#lib/i18n";
@@ -11,6 +11,7 @@ import {
 	addRestaurant,
 	loadRestaurants,
 	removeRestaurant,
+	restaurantsKey,
 	saveRestaurants,
 } from "#lib/store";
 
@@ -366,9 +367,9 @@ test("an active filter is counted on its pill and Clear all resets it", async ()
 	await settle(el);
 	expect(pill(el, "area")?.querySelector(".badge")).toBeNull();
 	expect(await valueState(el, "thai")).toBe("off");
-	expect(JSON.parse(localStorage.getItem(FILTER_KEY) ?? "null")).toEqual(
-		emptyFilter,
-	);
+	expect(
+		JSON.parse(localStorage.getItem(filterKey(HOME_FILTER)) ?? "null"),
+	).toEqual(emptyFilter);
 });
 
 test("a filter that matches nothing disables the button and says so", async () => {
@@ -411,12 +412,14 @@ test("saved filter values no longer used by any restaurant are dropped", async (
 		groups: { area: ["thai"] },
 	});
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({ area: { include: ["thai", "gone"], exclude: ["old"] } }),
 	);
 	const el = await mount();
 	expect(await valueState(el, "thai")).toBe("include");
-	expect(JSON.parse(localStorage.getItem(FILTER_KEY) ?? "null")).toEqual({
+	expect(
+		JSON.parse(localStorage.getItem(filterKey(HOME_FILTER)) ?? "null"),
+	).toEqual({
 		...emptyFilter,
 		area: { include: ["thai"], exclude: [] },
 	});
@@ -429,21 +432,23 @@ test("a filter saved in another tab is picked up without dropping values not yet
 		groups: { cuisine: ["thia"] },
 	});
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
 	);
 	const el = await mount();
 	// Another tab renames thia to thai: filter first, then restaurants.
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({ cuisine: { include: ["thai"], exclude: [] } }),
 	);
-	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	window.dispatchEvent(
+		new StorageEvent("storage", { key: filterKey(HOME_FILTER) }),
+	);
 	await el.updateComplete;
 	const [item] = loadRestaurants();
 	saveRestaurants([{ ...item!, groups: { cuisine: ["thai"] } }]);
 	await el.updateComplete;
-	expect(JSON.parse(localStorage.getItem(FILTER_KEY)!)).toEqual({
+	expect(JSON.parse(localStorage.getItem(filterKey(HOME_FILTER))!)).toEqual({
 		cuisine: { include: ["thai"], exclude: [] },
 	});
 	expect(await valueState(el, "thai", "cuisine")).toBe("include");
@@ -456,7 +461,7 @@ test("a value renamed in another tab keeps the picked card on screen", async () 
 		groups: { cuisine: ["thia"] },
 	});
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
 	);
 	const el = await mount();
@@ -465,10 +470,12 @@ test("a value renamed in another tab keeps the picked card on screen", async () 
 	expect(pickedNames(el)).toEqual(["A"]);
 	// Another tab renames thia to thai: the filter arrives before the restaurants.
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({ cuisine: { include: ["thai"], exclude: [] } }),
 	);
-	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	window.dispatchEvent(
+		new StorageEvent("storage", { key: filterKey(HOME_FILTER) }),
+	);
 	await el.updateComplete;
 	expect(pickedNames(el)).toEqual(["A"]);
 	const [item] = loadRestaurants();
@@ -670,7 +677,7 @@ test("the count renders in Thai", async () => {
 
 test("warns about stored entries that could not be read until a save drops them", async () => {
 	localStorage.setItem(
-		"whattoeat:restaurants",
+		restaurantsKey(),
 		JSON.stringify([{ name: "broken" }, null]),
 	);
 	const el = await mount();
@@ -688,7 +695,7 @@ test("warns about stored entries that could not be read until a save drops them"
 });
 
 test("uses the singular when one stored entry could not be read", async () => {
-	localStorage.setItem("whattoeat:restaurants", "{not json");
+	localStorage.setItem(restaurantsKey(), "{not json");
 	const el = await mount();
 	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
 		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
@@ -898,13 +905,15 @@ test("a filter on a deleted group is dropped", async () => {
 		groups: { g1: ["cheap"] },
 	});
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({ g1: { include: ["cheap"], exclude: [] } }),
 	);
 	const el = await mount();
 	saveGroups([]);
 	await el.updateComplete;
-	expect(JSON.parse(localStorage.getItem(FILTER_KEY) ?? "null")).toEqual({});
+	expect(
+		JSON.parse(localStorage.getItem(filterKey(HOME_FILTER)) ?? "null"),
+	).toEqual({});
 	await settle(el);
 	expect(pill(el, "g1")).toBeNull();
 });

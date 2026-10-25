@@ -1,4 +1,5 @@
 import { en, t, th } from "#lib/i18n";
+import { profileKey } from "#lib/profiles";
 import {
 	BUILT_IN_GROUPS,
 	groupValues,
@@ -15,7 +16,7 @@ import {
 /** A group people made themselves, like "price". Built-in groups are never stored. */
 export type GroupDef = { id: string; name: string };
 
-export const GROUPS_KEY = "whattoeat:groups";
+export const groupsKey = (): string => profileKey("groups");
 export const GROUPS_EVENT = "whattoeat:groups-changed";
 
 /** Set when localStorage refused a write; the list then lives in memory for this session. */
@@ -45,7 +46,7 @@ export const loadGroups = (): GroupDef[] => {
 	if (memory !== undefined) return memory;
 	let data: unknown;
 	try {
-		data = JSON.parse(localStorage.getItem(GROUPS_KEY) ?? "[]");
+		data = JSON.parse(localStorage.getItem(groupsKey()) ?? "[]");
 	} catch {
 		return [];
 	}
@@ -70,7 +71,7 @@ export const forgetGroupsMemory = (): void => {
 /** Returns `false` when localStorage refused the write and the list is only kept in memory. */
 export const saveGroups = (list: GroupDef[]): boolean => {
 	try {
-		localStorage.setItem(GROUPS_KEY, JSON.stringify(list));
+		localStorage.setItem(groupsKey(), JSON.stringify(list));
 		memory = undefined;
 	} catch {
 		memory = list;
@@ -82,7 +83,7 @@ export const saveGroups = (list: GroupDef[]): boolean => {
 /** Call `callback` after every save here and every change from another tab. Returns an unsubscribe function. */
 export const onGroupsChanged = (callback: () => void): (() => void) => {
 	const onStorage = (event: StorageEvent): void => {
-		if (event.key === GROUPS_KEY || event.key === null) callback();
+		if (event.key === null || event.key === groupsKey()) callback();
 	};
 	window.addEventListener(GROUPS_EVENT, callback);
 	window.addEventListener("storage", onStorage);

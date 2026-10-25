@@ -5,13 +5,14 @@ import "#components/restaurant-manager";
 import { RestaurantForm } from "#components/restaurant/form";
 import { RestaurantManager } from "#components/restaurant-manager";
 import type { TagInput } from "#components/tag-input";
-import { FILTER_KEY, LIST_FILTER_KEY } from "#lib/filter";
+import { filterKey, HOME_FILTER, LIST_FILTER } from "#lib/filter";
 import { saveGroups } from "#lib/groups";
 import { setLang } from "#lib/i18n";
 import {
 	addRestaurant,
 	loadRestaurants,
 	removeRestaurant,
+	restaurantsKey,
 	saveRestaurants,
 	updateRestaurant,
 } from "#lib/store";
@@ -680,7 +681,7 @@ test("starting an edit drops text left in the tag box", async () => {
 
 test("warns about stored entries that could not be read until a save drops them", async () => {
 	localStorage.setItem(
-		"whattoeat:restaurants",
+		restaurantsKey(),
 		JSON.stringify([{ name: "broken" }, null]),
 	);
 	const el = await mount();
@@ -698,7 +699,7 @@ test("warns about stored entries that could not be read until a save drops them"
 });
 
 test("uses the singular when one stored entry could not be read", async () => {
-	localStorage.setItem("whattoeat:restaurants", "{not json");
+	localStorage.setItem(restaurantsKey(), "{not json");
 	const el = await mount();
 	expect($(el, ".skipped")?.textContent?.trim()).toBe(
 		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
@@ -1736,10 +1737,10 @@ test("filter: wanting a tag narrows the list and the count, and is saved apart f
 	expect(rowNames(el)).toEqual(["Ramen Champion"]);
 	expect($(el, ".head .count")?.textContent?.trim()).toBe("1 of 3 restaurants");
 	expect($(el, 'button.pill[data-group="tags"] .badge')?.textContent).toBe("1");
-	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
+	expect(JSON.parse(localStorage.getItem(filterKey(LIST_FILTER))!)).toEqual({
 		tags: { include: ["late"], exclude: [] },
 	});
-	expect(localStorage.getItem(FILTER_KEY)).toBeNull();
+	expect(localStorage.getItem(filterKey(HOME_FILTER))).toBeNull();
 });
 
 test("filter: skipping a tag drops restaurants that have it", async () => {
@@ -1752,11 +1753,11 @@ test("filter: skipping a tag drops restaurants that have it", async () => {
 test("filter: remembered across visits, and Home's filter is ignored", async () => {
 	seedTags();
 	localStorage.setItem(
-		LIST_FILTER_KEY,
+		filterKey(LIST_FILTER),
 		JSON.stringify({ tags: { include: ["spicy"], exclude: [] } }),
 	);
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({ kind: { include: ["drinks"], exclude: [] } }),
 	);
 	const el = await mount();
@@ -1775,7 +1776,7 @@ test("filter: search looks only within the filtered restaurants", async () => {
 test("filter: matching nothing says so and offers Clear", async () => {
 	addRestaurant({ ...blank, name: { en: "Jay Fai", th: "" }, tags: ["spicy"] });
 	localStorage.setItem(
-		LIST_FILTER_KEY,
+		filterKey(LIST_FILTER),
 		JSON.stringify({ tags: { include: [], exclude: ["spicy"] } }),
 	);
 	const el = await mount();
@@ -1784,5 +1785,5 @@ test("filter: matching nothing says so and offers Clear", async () => {
 	);
 	await click(el, '.filter-no-match [data-action="clear-list-filter"]');
 	expect(rowNames(el)).toEqual(["Jay Fai"]);
-	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({});
+	expect(JSON.parse(localStorage.getItem(filterKey(LIST_FILTER))!)).toEqual({});
 });

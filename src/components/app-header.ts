@@ -3,6 +3,12 @@ import { customElement, property } from "lit/decorators.js";
 import { readBuildInfo } from "#lib/build-info";
 import { LangController, type MessageKey, t } from "#lib/i18n";
 import { type IconName, icon, logo } from "#lib/icons";
+import {
+	activeProfile,
+	onProfileSwitchedElsewhere,
+	PROFILE_EVENT,
+	profileInitial,
+} from "#lib/profiles";
 import { uiStyles } from "#styles/ui";
 
 export type Page =
@@ -11,7 +17,8 @@ export type Page =
 	| "tags"
 	| "history"
 	| "settings"
-	| "presets";
+	| "presets"
+	| "profiles";
 
 type Tab = { page: Page; path: string; label: MessageKey; icon: IconName };
 
@@ -40,11 +47,14 @@ const TITLES: Record<Page, MessageKey | undefined> = {
 	history: "nav.history",
 	settings: "nav.settings",
 	presets: "presets.title",
+	profiles: "profiles.title",
 };
 
-/** Tags and presets have no tab of their own: both live under Settings. */
+/** Tags, presets and profiles have no tab of their own: all live under Settings. */
 const tabOf = (page: Page): Page =>
-	page === "tags" || page === "presets" ? "settings" : page;
+	page === "tags" || page === "presets" || page === "profiles"
+		? "settings"
+		: page;
 
 @customElement("app-header")
 export class AppHeader extends LitElement {
@@ -115,6 +125,39 @@ export class AppHeader extends LitElement {
 			nav a[aria-current="page"] {
 				color: var(--color-primary);
 				font-weight: 600;
+			}
+
+			/*
+			 * The Settings tab's avatar in place of the gear icon: a solid circle with text that
+			 * stays readable against its own background in both themes, regardless of the link's
+			 * own (muted or primary) text colour above, because this rule sets .avatar's own
+			 * "color" rather than letting it inherit the link's. Same contrast-safe pairing as
+			 * .badge/.badge.skip in filter-bar.ts.
+			 */
+			.avatar {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 22px;
+				height: 22px;
+				border-radius: 50%;
+				background: var(--color-muted);
+				color: var(--color-bg);
+				font-size: 0.6875rem;
+				font-weight: 700;
+				line-height: 1;
+			}
+
+			nav a[aria-current="page"] .avatar {
+				background: var(--color-primary);
+				color: var(--color-primary-text);
+			}
+
+			.label {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				max-width: 5.5rem;
 			}
 
 			/* A short bar on the top edge marks the current tab, so colour is not the only cue. */
@@ -224,7 +267,56 @@ export class AppHeader extends LitElement {
 	@property({ attribute: false })
 	pr: number | undefined = readBuildInfo().pr;
 
+	/**
+	 * Called when another tab switches, renames or deletes a profile, since this tab's pages
+	 * still show the old profile's data. Replaced in tests so a cross-tab switch doesn't
+	 * actually navigate.
+	 */
+	@property({ attribute: false })
+	reload: () => void = () => location.reload();
+
 	protected readonly langController = new LangController(this);
+
+	private unsubscribeProfile: (() => void) | undefined;
+
+	/** A same-tab create/switch/rename/delete: just re-render with the new active profile. */
+	private readonly onProfileChanged = (): void => {
+		this.requestUpdate();
+	};
+
+	/** The active profile's id when this page was shown, to spot a switch made while it sat in the back/forward cache. */
+	private shownProfileId: string | undefined;
+
+	/**
+	 * A page restored from the back/forward cache still holds the profile it was left with,
+	 * while its writes would go to whichever profile is active now. Reload it when the active
+	 * profile changed meanwhile; a rename alone just needs the new name drawn.
+	 */
+	private readonly onPageShow = (event: PageTransitionEvent): void => {
+		if (!event.persisted) return;
+		const { id } = activeProfile();
+		if (id !== this.shownProfileId) {
+			this.reload();
+			return;
+		}
+		this.requestUpdate();
+	};
+
+	override connectedCallback(): void {
+		super.connectedCallback();
+		this.shownProfileId = activeProfile().id;
+		this.unsubscribeProfile = onProfileSwitchedElsewhere(() => this.reload());
+		window.addEventListener(PROFILE_EVENT, this.onProfileChanged);
+		window.addEventListener("pageshow", this.onPageShow);
+	}
+
+	override disconnectedCallback(): void {
+		super.disconnectedCallback();
+		this.unsubscribeProfile?.();
+		this.unsubscribeProfile = undefined;
+		window.removeEventListener(PROFILE_EVENT, this.onProfileChanged);
+		window.removeEventListener("pageshow", this.onPageShow);
+	}
 
 	/** Keep the browser tab title in the current language; a preview build says so first. */
 	override updated(): void {
@@ -235,6 +327,19 @@ export class AppHeader extends LitElement {
 			this.pr === undefined ? title : `[${t("nav.preview")}] ${title}`;
 	}
 
+	/** The Settings tab: the active profile's avatar and name, in place of the gear and its label. */
+	private renderSettingsTab(link: Tab, current: boolean) {
+		const profile = activeProfile();
+		return html`<a
+			href=${this.base + link.path}
+			aria-current=${current ? "page" : nothing}
+			aria-label=${t("nav.settingsProfile", { name: profile.name })}
+		>
+			<span class="avatar">${profileInitial(profile.name)}</span>
+			<span class="label">${profile.name}</span>
+		</a>`;
+	}
+
 	override render() {
 		const tab = tabOf(this.current);
 		return html`
@@ -242,12 +347,14 @@ export class AppHeader extends LitElement {
 			<header class=${this.pr === undefined ? "" : "preview"}>
 				<a class="brand" href=${this.base}>${logo()}<span>${t("app.title")}</span></a>
 				<nav aria-label=${t("nav.label")}>
-					${TABS.map(
-						(link) =>
-							html`<a href=${this.base + link.path} aria-current=${tab === link.page ? "page" : nothing}>
-								${icon(link.icon, 22)}<span>${t(link.label)}</span>
-							</a>`,
-					)}
+					${TABS.map((link) => {
+						const current = tab === link.page;
+						if (link.page === "settings")
+							return this.renderSettingsTab(link, current);
+						return html`<a href=${this.base + link.path} aria-current=${current ? "page" : nothing}>
+							${icon(link.icon, 22)}<span>${t(link.label)}</span>
+						</a>`;
+					})}
 				</nav>
 			</header>
 		`;

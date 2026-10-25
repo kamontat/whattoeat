@@ -2,11 +2,17 @@ import { expect, test } from "bun:test";
 import { Glob } from "bun";
 
 const pages = Array.from(new Glob("**/*.html").scanSync({ cwd: "src/routes" }));
-const WIDE_PAGES = ["index.html", "restaurants.html", "settings/tags.html"];
+const WIDE_PAGES = [
+	"index.html",
+	"restaurants.html",
+	"settings/tags.html",
+	"settings/profiles.html",
+];
 const PINNED_PAGES = [
 	"index.html",
 	"restaurants.html",
 	"settings/presets.html",
+	"settings/profiles.html",
 ];
 
 test("src/routes has at least one page", () => {
@@ -63,7 +69,7 @@ test.each(pages)("%s gives the skip link a focusable target", async (page) => {
 	expect(html).toMatch(/<main id="main" tabindex="-1"( class="wide")?>/);
 });
 
-test("home and restaurants use the wide main; other pages keep the narrow one", async () => {
+test("home, restaurants, settings/tags and settings/profiles use the wide main; other pages keep the narrow one", async () => {
 	for (const page of pages) {
 		const html = await Bun.file(`src/routes/${page}`).text();
 		expect(html.includes('<main id="main" tabindex="-1" class="wide">')).toBe(
@@ -101,7 +107,7 @@ test.each(pages)(
 	},
 );
 
-test("home, restaurants and settings/presets opt into room for their pinned areas; other pages do not", async () => {
+test("home, restaurants, settings/presets and settings/profiles opt into room for their pinned areas; other pages do not", async () => {
 	for (const page of pages) {
 		const html = await Bun.file(`src/routes/${page}`).text();
 		const tag = html.match(/<html[^>]*>/)?.[0];
@@ -141,20 +147,21 @@ test.each(pages)(
 	},
 );
 
-test.each(["settings/presets.html", "settings/tags.html"])(
-	"%s links its assets one folder deeper",
-	async (page) => {
-		const html = await Bun.file(`src/routes/${page}`).text();
-		const links = Array.from(html.matchAll(/(?:src|href)="([^"]+)"/g)).map(
-			(match) => match[1]!,
-		);
-		expect(links.length).toBeGreaterThan(0);
-		for (const link of links) {
-			if (link === "#main") continue;
-			expect(link.startsWith("../../")).toBe(true);
-		}
-	},
-);
+test.each([
+	"settings/presets.html",
+	"settings/tags.html",
+	"settings/profiles.html",
+])("%s links its assets one folder deeper", async (page) => {
+	const html = await Bun.file(`src/routes/${page}`).text();
+	const links = Array.from(html.matchAll(/(?:src|href)="([^"]+)"/g)).map(
+		(match) => match[1]!,
+	);
+	expect(links.length).toBeGreaterThan(0);
+	for (const link of links) {
+		if (link === "#main") continue;
+		expect(link.startsWith("../../")).toBe(true);
+	}
+});
 
 test("the tags page lives under settings and points its links one folder up", async () => {
 	expect(await Bun.file("src/routes/tags.html").exists()).toBe(false);

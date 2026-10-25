@@ -6,16 +6,17 @@ import type { TagGroupForm } from "#components/tags/group-form";
 import type { TagList } from "#components/tags/list";
 import type { TagPicker } from "#components/tags/picker";
 import type { TagValueForm } from "#components/tags/value-form";
-import { FILTER_KEY, LIST_FILTER_KEY } from "#lib/filter";
+import { filterKey, HOME_FILTER, LIST_FILTER } from "#lib/filter";
 import { forgetGroupsMemory, loadGroups, saveGroups } from "#lib/groups";
 import { setLang } from "#lib/i18n";
 import {
 	addRestaurant,
 	loadRestaurants,
+	restaurantsKey,
 	saveRestaurants,
 	updateRestaurant,
 } from "#lib/store";
-import { PICK_KEY } from "#lib/tags";
+import { pickKey } from "#lib/tags";
 
 const base = { tags: [], links: [], notes: "" };
 
@@ -248,7 +249,7 @@ test("Cuisine is picked first and the pick is remembered for the session", async
 	el = await mount();
 	expect(pressed(el)).toBe("g1");
 	el.remove();
-	sessionStorage.setItem(PICK_KEY, "gone");
+	sessionStorage.setItem(pickKey(), "gone");
 	el = await mount();
 	expect(pressed(el)).toBe("cuisine");
 });
@@ -398,7 +399,7 @@ test("deleting a group turns its values into tags, drops its filter and picks Cu
 		groups: { g1: ["cheap"] },
 	});
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({ g1: { include: ["cheap"], exclude: [] } }),
 	);
 	const el = await mount();
@@ -412,7 +413,9 @@ test("deleting a group turns its values into tags, drops its filter and picks Cu
 	await settle(el);
 	expect(loadGroups()).toEqual([]);
 	expect(loadRestaurants()[0]?.tags).toEqual(["cheap"]);
-	expect(JSON.parse(localStorage.getItem(FILTER_KEY) ?? "null")).toEqual({});
+	expect(
+		JSON.parse(localStorage.getItem(filterKey(HOME_FILTER)) ?? "null"),
+	).toEqual({});
 	expect(pickerIds(el)).not.toContain("g1");
 	expect(pressed(el)).toBe("cuisine");
 	expect(groupForm(el)).toBeNull();
@@ -433,7 +436,7 @@ test("editing a value renames it everywhere and in the saved filter", async () =
 		groups: { cuisine: ["thia", "lao"] },
 	});
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({ cuisine: { include: ["thia"], exclude: [] } }),
 	);
 	const el = await mount();
@@ -449,7 +452,7 @@ test("editing a value renames it everywhere and in the saved filter", async () =
 		["thai"],
 		["thai", "lao"],
 	]);
-	expect(JSON.parse(localStorage.getItem(FILTER_KEY)!)).toEqual({
+	expect(JSON.parse(localStorage.getItem(filterKey(HOME_FILTER))!)).toEqual({
 		cuisine: { include: ["thai"], exclude: [] },
 	});
 	expect($(el, ".status")?.textContent?.trim()).toBe("Saved thai");
@@ -970,7 +973,7 @@ test("renders in Thai", async () => {
 
 test("warns about stored restaurants that could not be read", async () => {
 	localStorage.setItem(
-		"whattoeat:restaurants",
+		restaurantsKey(),
 		JSON.stringify([{ name: "broken" }, null]),
 	);
 	const el = await mount();
@@ -1046,7 +1049,7 @@ test("base prefixes the back link and the restaurants link", async () => {
 test("editing a plain tag renames it in the restaurants page filter too", async () => {
 	addRestaurant({ ...base, name: { en: "A", th: "" }, tags: ["spicey"] });
 	localStorage.setItem(
-		LIST_FILTER_KEY,
+		filterKey(LIST_FILTER),
 		JSON.stringify({ tags: { include: ["spicey"], exclude: [] } }),
 	);
 	const el = await mount();
@@ -1054,7 +1057,7 @@ test("editing a plain tag renames it in the restaurants page filter too", async 
 	await typeIn(el, inForm(form, "#name"), "spicy");
 	await clickOn(el, inForm(form, '[data-action="save"]'));
 	await settle(el);
-	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
+	expect(JSON.parse(localStorage.getItem(filterKey(LIST_FILTER))!)).toEqual({
 		tags: { include: ["spicy"], exclude: [] },
 	});
 });
@@ -1066,8 +1069,8 @@ test("moving a value into plain tags keeps it in the restaurants page filter onl
 		groups: { area: ["siam"] },
 	});
 	const filter = JSON.stringify({ area: { include: [], exclude: ["siam"] } });
-	localStorage.setItem(FILTER_KEY, filter);
-	localStorage.setItem(LIST_FILTER_KEY, filter);
+	localStorage.setItem(filterKey(HOME_FILTER), filter);
+	localStorage.setItem(filterKey(LIST_FILTER), filter);
 	const el = await mount();
 	const form = await openValue(el, "area", "siam");
 	const select = inForm<HTMLSelectElement>(form, "select");
@@ -1076,8 +1079,8 @@ test("moving a value into plain tags keeps it in the restaurants page filter onl
 	await el.updateComplete;
 	await clickOn(el, inForm(valueForm(el)!, '[data-action="save"]'));
 	await settle(el);
-	expect(JSON.parse(localStorage.getItem(FILTER_KEY)!)).toEqual({});
-	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({
+	expect(JSON.parse(localStorage.getItem(filterKey(HOME_FILTER))!)).toEqual({});
+	expect(JSON.parse(localStorage.getItem(filterKey(LIST_FILTER))!)).toEqual({
 		tags: { include: [], exclude: ["siam"] },
 	});
 });
@@ -1090,7 +1093,7 @@ test("deleting a value or a group drops it from the restaurants page filter too"
 		groups: { g1: ["cheap"], area: ["ari"] },
 	});
 	localStorage.setItem(
-		LIST_FILTER_KEY,
+		filterKey(LIST_FILTER),
 		JSON.stringify({
 			g1: { include: ["cheap"], exclude: [] },
 			area: { include: ["ari"], exclude: [] },
@@ -1105,5 +1108,5 @@ test("deleting a value or a group drops it from the restaurants page filter too"
 	await clickOn(el, inForm(group, '[data-action="delete"]'));
 	await clickOn(el, inForm(groupForm(el)!, '[data-action="confirm-delete"]'));
 	await settle(el);
-	expect(JSON.parse(localStorage.getItem(LIST_FILTER_KEY)!)).toEqual({});
+	expect(JSON.parse(localStorage.getItem(filterKey(LIST_FILTER))!)).toEqual({});
 });

@@ -2,11 +2,12 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import { type Filter, LIST_FILTER } from "#lib/filter";
 import type { GroupDef } from "#lib/groups";
 import { setLang } from "#lib/i18n";
+import { profileKey } from "#lib/profiles";
 import { groupValues, nameFromText, type Restaurant } from "#lib/restaurant";
 import {
 	editValue,
 	loadPick,
-	PICK_KEY,
+	pickKey,
 	savePick,
 	tagEntries,
 	tagGroups,
@@ -176,7 +177,7 @@ test("loadPick falls back to cuisine for a missing or unknown group", () => {
 	savePick("g1");
 	expect(loadPick(["cuisine", "g1"])).toBe("g1");
 	expect(loadPick(["cuisine"])).toBe("cuisine");
-	expect(PICK_KEY).toBe("whattoeat:tags-group");
+	expect(pickKey()).toBe(profileKey("tags-group"));
 });
 
 test("loadPick and savePick swallow storage errors", () => {

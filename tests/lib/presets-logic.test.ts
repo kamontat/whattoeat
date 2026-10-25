@@ -5,11 +5,12 @@ import {
 	fetchIndex,
 	fetchPresetFiles,
 	loadAddedPresets,
-	PRESETS_KEY,
+	mergeAddedPresets,
 	type PresetEntry,
 	type PresetFile,
 	parseIndex,
 	presetState,
+	presetsKey,
 	replaceWithPresets,
 	saveAddedPresets,
 } from "#lib/presets";
@@ -19,7 +20,7 @@ import {
 	nameFromText,
 	type Restaurant,
 } from "#lib/restaurant";
-import { EXPORT_VERSION, toExportFile } from "#lib/transfer";
+import { toExportFile } from "#lib/transfer";
 
 const make = (id: string, name = id): Restaurant => ({
 	id,
@@ -85,11 +86,11 @@ test("parseIndex accepts the bundled index", async () => {
 	expect(parseIndex(data)).toEqual(data);
 });
 
-test("every bundled preset file is the current export version, with preset-labelled links and no old location or link", async () => {
+test("every bundled preset file is version 7, with preset-labelled links and no old location or link", async () => {
 	const index = await Bun.file("src/assets/data/presets/index.json").json();
 	for (const { id } of index.presets as { id: string }[]) {
 		const data = await Bun.file(`src/assets/data/presets/${id}.json`).json();
-		expect(data.version).toBe(EXPORT_VERSION);
+		expect(data.version).toBe(7);
 		for (const item of data.restaurants) {
 			expect(item).not.toHaveProperty("location");
 			expect(item).not.toHaveProperty("link");
@@ -171,15 +172,27 @@ test("replaceWithPresets returns only the files' restaurants, deduped, and recor
 });
 
 test("loadAddedPresets returns [] for bad JSON and drops entries without a string id", () => {
-	localStorage.setItem(PRESETS_KEY, "{not json");
+	localStorage.setItem(presetsKey(), "{not json");
 	expect(loadAddedPresets()).toEqual([]);
 	localStorage.setItem(
-		PRESETS_KEY,
+		presetsKey(),
 		JSON.stringify([record(), { updatedAt: "x", ids: [] }]),
 	);
 	expect(loadAddedPresets()).toEqual([record()]);
 	expect(saveAddedPresets([record()])).toBe(true);
 	localStorage.clear();
+});
+
+test("mergeAddedPresets keeps current records and adds unknown ones", () => {
+	const current = [record({ id: "siam", updatedAt: "2026-10-01" })];
+	const incoming = [
+		record({ id: "siam", updatedAt: "2026-10-16" }),
+		record({ id: "ladprao", updatedAt: "2026-10-16" }),
+	];
+	expect(mergeAddedPresets(current, incoming)).toEqual([
+		record({ id: "siam", updatedAt: "2026-10-01" }),
+		record({ id: "ladprao", updatedAt: "2026-10-16" }),
+	]);
 });
 
 const stubFetch = (respond: (url: string) => Promise<Response>) => {

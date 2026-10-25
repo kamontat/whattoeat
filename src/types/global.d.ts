@@ -7,6 +7,7 @@ import type { DataTransferPanel } from "#components/data-transfer";
 import type { FilterBar } from "#components/filter-bar";
 import type { HistoryClear } from "#components/history-clear";
 import type { PresetPicker } from "#components/preset-picker";
+import type { ProfileManager } from "#components/profile-manager";
 import type { RandomPicker } from "#components/random-picker";
 import type { RestaurantForm } from "#components/restaurant/form";
 import type { RestaurantList } from "#components/restaurant/list";
@@ -32,6 +33,7 @@ declare global {
 		"history-clear": HistoryClear;
 		"visit-history": VisitHistory;
 		"preset-picker": PresetPicker;
+		"profile-manager": ProfileManager;
 		"random-picker": RandomPicker;
 		"restaurant-form": RestaurantForm;
 		"restaurant-list": RestaurantList;

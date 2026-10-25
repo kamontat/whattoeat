@@ -22,12 +22,20 @@ import {
 import { LangController, t } from "#lib/i18n";
 import { icon } from "#lib/icons";
 import {
+	type AddedPreset,
 	fetchIndex,
 	loadAddedPresets,
+	mergeAddedPresets,
 	type PresetIndex,
 	presetState,
 	saveAddedPresets,
 } from "#lib/presets";
+import {
+	activeProfile,
+	profileCounts,
+	profileCountText,
+	profileInitial,
+} from "#lib/profiles";
 import type { Restaurant } from "#lib/restaurant";
 import {
 	isMemoryOnly,
@@ -129,7 +137,7 @@ export class DataTransferPanel extends LitElement {
 
 	/**
 	 * A checked import waiting for Replace or Merge; `history` is `undefined` for a version 1
-	 * file, `groups` for a version 1–3 file.
+	 * file, `groups` for a version 1–3 file, `presets` for a version 1–7 file.
 	 */
 	@state()
 	private pending:
@@ -137,6 +145,7 @@ export class DataTransferPanel extends LitElement {
 				restaurants: Restaurant[];
 				history: HistoryEntry[] | undefined;
 				groups: GroupDef[] | undefined;
+				presets: AddedPreset[] | undefined;
 		  }
 		| undefined;
 
@@ -214,6 +223,7 @@ export class DataTransferPanel extends LitElement {
 				restaurants: result.restaurants,
 				history: result.history,
 				groups: result.groups,
+				presets: result.presets,
 			};
 			this.error = undefined;
 			const empty =
@@ -260,6 +270,7 @@ export class DataTransferPanel extends LitElement {
 			loadRestaurants(),
 			loadHistory(),
 			loadGroups(),
+			loadAddedPresets(),
 			now,
 			{
 				pretty: true,
@@ -282,6 +293,7 @@ export class DataTransferPanel extends LitElement {
 			restaurants,
 			loadHistory(),
 			loadGroups(),
+			loadAddedPresets(),
 			new Date(),
 			{
 				pretty: false,
@@ -323,7 +335,7 @@ export class DataTransferPanel extends LitElement {
 
 	private apply(mode: "replace" | "merge"): void {
 		if (this.pending === undefined) return;
-		const { restaurants, history, groups } = this.pending;
+		const { restaurants, history, groups, presets } = this.pending;
 		let incoming = restaurants;
 		let persisted = true;
 		// Groups first, so loading restaurants after the save already knows every group id.
@@ -346,6 +358,15 @@ export class DataTransferPanel extends LitElement {
 			const visits =
 				mode === "replace" ? history : mergeHistory(loadHistory(), history);
 			persisted = saveHistory(visits) && persisted;
+		}
+		// A version 1–7 file has no preset record. Replace takes the file's record outright;
+		// merge keeps the profile's own record for a preset both sides have one for.
+		if (mode === "replace") {
+			persisted = saveAddedPresets(presets ?? []) && persisted;
+		} else if (presets !== undefined) {
+			persisted =
+				saveAddedPresets(mergeAddedPresets(loadAddedPresets(), presets)) &&
+				persisted;
 		}
 		this.pending = undefined;
 		this.pasteText = "";
@@ -506,6 +527,26 @@ export class DataTransferPanel extends LitElement {
 		`;
 	}
 
+	/** The Profile row: the active profile's avatar, name and restaurant count, linking to the profiles page. */
+	private renderProfile() {
+		const profile = activeProfile();
+		return html`
+			<section class="profile" aria-labelledby="profile-title">
+				<h2 id="profile-title" class="group-label">${t("settings.profileTitle")}</h2>
+				<div class="group">
+					<a class="item" href="./settings/profiles" data-action="profiles">
+						<span class="lead avatar">${profileInitial(profile.name)}</span>
+						<span class="grow">
+							<b>${profile.name}</b>
+							<small>${profileCountText(profileCounts(profile.id).restaurants)}</small>
+						</span>
+						<span class="trail">${icon("chevron", 20)}</span>
+					</a>
+				</div>
+			</section>
+		`;
+	}
+
 	/** "{added} of {total} added", once the index has loaded; `nothing` until then or on failure. */
 	private presetsSubtitle() {
 		if (this.presetIndex === undefined) return nothing;
@@ -571,6 +612,7 @@ export class DataTransferPanel extends LitElement {
 						</p>`
 					: nothing
 			}
+			${this.renderProfile()}
 			<section class="appearance" aria-labelledby="appearance-title">
 				<h2 id="appearance-title" class="group-label">${t("settings.appearance")}</h2>
 				<app-preferences></app-preferences>

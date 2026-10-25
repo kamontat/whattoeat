@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import type { HistoryEntry } from "#lib/history";
+import type { AddedPreset } from "#lib/presets";
 import { nameFromText, type Restaurant } from "#lib/restaurant";
 import type { ImportError } from "#lib/transfer";
 import {
@@ -37,16 +38,16 @@ const visit = (
 test("exportJson gives indented or one-line json that imports back", () => {
 	const now = new Date("2026-10-12T10:00:00.000Z");
 	const history = [visit("h1", "2026-10-12T09:00:00.000Z")];
-	const pretty = exportJson([make("a"), make("b")], history, [], now, {
+	const pretty = exportJson([make("a"), make("b")], history, [], [], now, {
 		pretty: true,
 	});
-	const compact = exportJson([make("a"), make("b")], history, [], now, {
+	const compact = exportJson([make("a"), make("b")], history, [], [], now, {
 		pretty: false,
 	});
 	expect(pretty).toContain("\n  ");
 	expect(compact).not.toContain("\n");
 	expect(JSON.parse(pretty)).toEqual(
-		toExportFile([make("a"), make("b")], history, [], now),
+		toExportFile([make("a"), make("b")], history, [], [], now),
 	);
 	for (const text of [pretty, compact])
 		expect(parseImport(text)).toEqual({
@@ -54,6 +55,7 @@ test("exportJson gives indented or one-line json that imports back", () => {
 			restaurants: [make("a"), make("b")],
 			history,
 			groups: [],
+			presets: [],
 		});
 });
 
@@ -64,17 +66,19 @@ test("toExportFile wraps restaurants and history in the versioned envelope", () 
 			[make("a")],
 			[visit("h1", "2026-10-12T09:00:00.000Z")],
 			[],
+			[],
 			now,
 		),
 	).toEqual({
 		app: "whattoeat",
-		version: 7,
+		version: 8,
 		exportedAt: "2026-10-12T10:00:00.000Z",
 		restaurants: [make("a")],
 		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 		groups: [],
+		presets: [],
 	});
-	expect(toExportFile([], undefined, [], now).history).toEqual([]);
+	expect(toExportFile([], undefined, [], [], now).history).toEqual([]);
 });
 
 test("exportFileName uses the local date, zero padded", () => {
@@ -90,6 +94,7 @@ test("an exported file imports back unchanged", () => {
 		restaurants: list,
 		history: [],
 		groups: [],
+		presets: [],
 	});
 });
 
@@ -99,6 +104,7 @@ test("an empty restaurants array is a valid import", () => {
 		restaurants: [],
 		history: [],
 		groups: [],
+		presets: [],
 	});
 });
 
@@ -118,7 +124,7 @@ test.each([
 	],
 	[
 		"future version",
-		JSON.stringify({ app: "whattoeat", version: 8, restaurants: [] }),
+		JSON.stringify({ app: "whattoeat", version: 9, restaurants: [] }),
 		"import.error.version",
 	],
 	[
@@ -193,7 +199,7 @@ test("a version 6 file turns its single link into one unlabelled link", () => {
 	});
 });
 
-test("a version 7 file keeps its labelled links in order", () => {
+test("a version 8 file keeps its labelled links in order", () => {
 	const item = {
 		...make("a"),
 		links: [
@@ -207,7 +213,7 @@ test("a version 7 file keeps its labelled links in order", () => {
 	});
 });
 
-test("a version 7 file keeps both names", () => {
+test("a version 8 file keeps both names", () => {
 	const item = { ...make("a"), name: { en: "Pho", th: "เฝอ" } };
 	expect(parseImport(JSON.stringify(toExportFile([item])))).toMatchObject({
 		ok: true,
@@ -215,17 +221,62 @@ test("a version 7 file keeps both names", () => {
 	});
 });
 
-test("a version 7 file round-trips its groups", () => {
+test("a version 8 file round-trips its groups", () => {
 	const item = { ...make("a"), groups: { g1: ["cheap"] } };
 	const result = parseImport(
-		exportJson([item], [], [price], new Date(), { pretty: false }),
+		exportJson([item], [], [price], [], new Date(), { pretty: false }),
 	);
 	expect(result).toEqual({
 		ok: true,
 		restaurants: [item],
 		history: [],
 		groups: [price],
+		presets: [],
 	});
+});
+
+const siamRecord: AddedPreset = {
+	id: "siam",
+	updatedAt: "2026-10-23",
+	ids: ["a"],
+};
+
+test("exports version 8 with the preset record", () => {
+	const now = new Date("2026-10-23T10:00:00.000Z");
+	const result = toExportFile([], [], [], [siamRecord], now);
+	expect(result.version).toBe(8);
+	expect(result.presets).toEqual([siamRecord]);
+});
+
+test("reads a version 8 preset record", () => {
+	const now = new Date("2026-10-23T10:00:00.000Z");
+	const result = parseImport(
+		JSON.stringify(toExportFile([], [], [], [siamRecord], now)),
+	);
+	expect(result).toEqual({
+		ok: true,
+		restaurants: [],
+		history: [],
+		groups: [],
+		presets: [siamRecord],
+	});
+});
+
+test("version 7 and older read as no preset record", () => {
+	expect(parseImport(file(7, [], { groups: [] }))).toEqual({
+		ok: true,
+		restaurants: [],
+		history: [],
+		groups: [],
+		presets: undefined,
+	});
+});
+
+test("a malformed preset record rejects the file", () => {
+	const result = parseImport(
+		file(8, [], { groups: [], presets: [{ id: "siam", updatedAt: "x" }] }),
+	);
+	expect(result).toEqual({ ok: false, error: "import.error.entries" });
 });
 
 test("a version 4 file moves each location into link or notes and keeps its groups", () => {
@@ -376,6 +427,7 @@ test("imported entries are normalized like typed input and lose unknown fields",
 		],
 		history: undefined,
 		groups: undefined,
+		presets: undefined,
 	});
 });
 
@@ -400,6 +452,7 @@ test("an entry without area, cuisine and kinds imports with them empty, unknown 
 		],
 		history: [],
 		groups: undefined,
+		presets: undefined,
 	});
 });
 
@@ -428,6 +481,7 @@ test("imported tags are lowercased and merged by case", () => {
 		restaurants: [{ ...make("a"), tags: ["thai", "noodle"] }],
 		history: undefined,
 		groups: undefined,
+		presets: undefined,
 	});
 });
 
@@ -445,6 +499,7 @@ test("a version 1 file imports with no history", () => {
 		restaurants: [make("a")],
 		history: undefined,
 		groups: undefined,
+		presets: undefined,
 	});
 });
 
@@ -497,6 +552,7 @@ test("imported history is sorted newest first and loses unknown fields", () => {
 			visit("old", "2026-10-01T09:00:00.000Z"),
 		],
 		groups: undefined,
+		presets: undefined,
 	});
 });
 
@@ -516,6 +572,7 @@ test("a version 2 file reads each entry's lockedAt as its visit time", () => {
 		restaurants: [],
 		history: [visit("h1", "2026-10-12T09:00:00.000Z")],
 		groups: undefined,
+		presets: undefined,
 	});
 });
 

@@ -206,6 +206,21 @@ export const uiStyles = css`
 		color: var(--color-muted);
 	}
 
+	/* A profile's initial in a round badge. Three classes, so it beats ".item .lead" above and
+	   shows in its own colour rather than the muted one. */
+	.item .lead.avatar {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: 50%;
+		background: var(--color-primary-soft);
+		color: var(--color-link);
+		font-size: 0.9375rem;
+		font-weight: 600;
+	}
+
 	.item .grow {
 		display: grid;
 		flex: 1;

@@ -3,15 +3,22 @@ import "#components/app-toast";
 import "#components/preset-picker";
 import type { AppToast } from "#components/app-toast";
 import type { PresetPicker } from "#components/preset-picker";
+import { groupsKey } from "#lib/groups";
+import { historyKey } from "#lib/history";
 import { setLang } from "#lib/i18n";
 import {
 	type AddedPreset,
 	loadAddedPresets,
-	PRESETS_KEY,
 	type PresetIndex,
+	presetsKey,
 } from "#lib/presets";
 import { nameFromText, type Restaurant } from "#lib/restaurant";
-import { isMemoryOnly, loadRestaurants, saveRestaurants } from "#lib/store";
+import {
+	isMemoryOnly,
+	loadRestaurants,
+	restaurantsKey,
+	saveRestaurants,
+} from "#lib/store";
 
 const make = (id: string, name = id): Restaurant => ({
 	id,
@@ -419,7 +426,7 @@ test("no match shows the no-match line", async () => {
 test("in Add mode, an added preset is ticked, disabled and badged Added; an update preset is tickable and badged Update", async () => {
 	saveRestaurants([make("r1", "R1"), make("r2", "R2")]);
 	localStorage.setItem(
-		PRESETS_KEY,
+		presetsKey(),
 		JSON.stringify([
 			{ id: "ladprao", updatedAt: "2026-10-16", ids: ["r1"] },
 			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r2"] },
@@ -454,7 +461,7 @@ test("in Add mode, an added preset is ticked, disabled and badged Added; an upda
 
 test("a recorded preset whose ids are all gone is tickable with no badge", async () => {
 	localStorage.setItem(
-		PRESETS_KEY,
+		presetsKey(),
 		JSON.stringify([{ id: "kaset", updatedAt: "2026-10-16", ids: ["gone"] }]),
 	);
 	const restore = stubFetch(() => jsonResponse(INDEX9));
@@ -566,13 +573,11 @@ const savedIdsNow = (): string[] => loadRestaurants().map((item) => item.id);
 
 const storedIds = (): string[] =>
 	(
-		JSON.parse(
-			localStorage.getItem("whattoeat:restaurants") ?? "[]",
-		) as Restaurant[]
+		JSON.parse(localStorage.getItem(restaurantsKey()) ?? "[]") as Restaurant[]
 	).map((item) => item.id);
 
 const storedPresets = (): AddedPreset[] =>
-	JSON.parse(localStorage.getItem(PRESETS_KEY) ?? "[]") as AddedPreset[];
+	JSON.parse(localStorage.getItem(presetsKey()) ?? "[]") as AddedPreset[];
 
 const modeInput = (el: PresetPicker, mode: "add" | "replace") =>
 	$(el, `input[name="preset-mode"][value="${mode}"]`) as HTMLInputElement;
@@ -708,7 +713,7 @@ test('in Add mode, the label sums ticked counts, skipping Added rows: "Add 2 are
 	saveRestaurants([make("k1")]);
 	// kaset is Added: it shows ticked and locked, but does not count.
 	localStorage.setItem(
-		PRESETS_KEY,
+		presetsKey(),
 		JSON.stringify([{ id: "kaset", updatedAt: "2026-10-16", ids: ["k1"] }]),
 	);
 	const { restore } = stubRoutes();
@@ -802,7 +807,7 @@ test("Add with nothing new shows the nothing-new message with no Undo, and still
 test("in Replace mode, Added rows unlock and show In your list; the warning line and the danger button show", async () => {
 	saveRestaurants([make("l1"), make("r1")]);
 	localStorage.setItem(
-		PRESETS_KEY,
+		presetsKey(),
 		JSON.stringify([
 			{ id: "ladprao", updatedAt: "2026-10-16", ids: ["l1"] },
 			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1"] },
@@ -839,7 +844,7 @@ test("in Replace mode, Added rows unlock and show In your list; the warning line
 test("Replace opens the confirm with the counts and names; Cancel returns focus to the button; confirming saves only the ticked restaurants and keeps history and groups", async () => {
 	saveRestaurants([make("s1"), make("s2")]);
 	localStorage.setItem(
-		PRESETS_KEY,
+		presetsKey(),
 		JSON.stringify([{ id: "kaset", updatedAt: "2026-10-16", ids: ["s1"] }]),
 	);
 	const history = JSON.stringify([
@@ -851,8 +856,8 @@ test("Replace opens the confirm with the counts and names; Cancel returns focus 
 		},
 	]);
 	const groups = JSON.stringify([{ id: "g1", name: "Mine" }]);
-	localStorage.setItem("whattoeat:history", history);
-	localStorage.setItem("whattoeat:groups", groups);
+	localStorage.setItem(historyKey(), history);
+	localStorage.setItem(groupsKey(), groups);
 	const { restore, urls } = stubRoutes();
 	try {
 		const el = await mount();
@@ -888,8 +893,8 @@ test("Replace opens the confirm with the counts and names; Cancel returns focus 
 			"ladprao",
 			"ratchayothin",
 		]);
-		expect(localStorage.getItem("whattoeat:history")).toBe(history);
-		expect(localStorage.getItem("whattoeat:groups")).toBe(groups);
+		expect(localStorage.getItem(historyKey())).toBe(history);
+		expect(localStorage.getItem(groupsKey())).toBe(groups);
 		expect(toastText(el)).toBe("Replaced with 4 restaurants");
 		expect(toastAction(el)?.textContent?.trim()).toBe("Undo");
 		expect($(el, ".replace-prompt")).toBeNull();
@@ -902,7 +907,7 @@ test("Replace opens the confirm with the counts and names; Cancel returns focus 
 test("Undo restores the list and whattoeat:presets from before, then shows Undone.", async () => {
 	saveRestaurants([make("s1")]);
 	const before = [{ id: "kaset", updatedAt: "2026-10-01", ids: ["s1"] }];
-	localStorage.setItem(PRESETS_KEY, JSON.stringify(before));
+	localStorage.setItem(presetsKey(), JSON.stringify(before));
 	const { restore } = stubRoutes();
 	try {
 		const el = await mount();
@@ -933,16 +938,16 @@ test("one file failing leaves storage untouched, keeps the selection, and shows 
 	const presets = JSON.stringify([
 		{ id: "kaset", updatedAt: "2026-10-16", ids: ["s1"] },
 	]);
-	localStorage.setItem(PRESETS_KEY, presets);
-	const rawBefore = localStorage.getItem("whattoeat:restaurants");
+	localStorage.setItem(presetsKey(), presets);
+	const rawBefore = localStorage.getItem(restaurantsKey());
 	const { restore } = stubRoutes(INDEX_M, ["ratchayothin"]);
 	try {
 		const el = await mount();
 		await setChecked(el, "ladprao", true);
 		await setChecked(el, "ratchayothin", true);
 		await press(el, '[data-action="apply"]');
-		expect(localStorage.getItem("whattoeat:restaurants")).toBe(rawBefore);
-		expect(localStorage.getItem(PRESETS_KEY)).toBe(presets);
+		expect(localStorage.getItem(restaurantsKey())).toBe(rawBefore);
+		expect(localStorage.getItem(presetsKey())).toBe(presets);
 		expect($(el, ".files-error")?.textContent?.trim()).toBe(
 			"The selected neighbourhoods could not be loaded. Nothing was changed. Try again.",
 		);
@@ -961,8 +966,8 @@ test("one file failing leaves storage untouched, keeps the selection, and shows 
 		await setChecked(el, "ratchayothin", true);
 		await press(el, '[data-action="apply"]');
 		await press(el, '[data-action="replace-confirm"]');
-		expect(localStorage.getItem("whattoeat:restaurants")).toBe(rawBefore);
-		expect(localStorage.getItem(PRESETS_KEY)).toBe(presets);
+		expect(localStorage.getItem(restaurantsKey())).toBe(rawBefore);
+		expect(localStorage.getItem(presetsKey())).toBe(presets);
 		expect($(el, ".files-error")).not.toBeNull();
 		expect(
 			($(el, '[data-preset="ratchayothin"] input') as HTMLInputElement).checked,
@@ -998,7 +1003,7 @@ test('a refused write shows the storage warning and "Replaced for this session o
 		expect(savedIdsNow()).toEqual(["l1", "l2", "shared"]);
 		// Storage itself was never changed.
 		expect(storedIds()).toEqual(["s1", "s2"]);
-		expect(real.getItem(PRESETS_KEY)).toBeNull();
+		expect(real.getItem(presetsKey())).toBeNull();
 		const warning = $(el, ".warning");
 		expect(warning?.getAttribute("role")).toBe("alert");
 		expect(warning?.textContent?.trim()).toBe(
@@ -1027,7 +1032,7 @@ test("when only the restaurant list write is refused, whattoeat:presets in stora
 	const presets = JSON.stringify([
 		{ id: "kaset", updatedAt: "2026-10-16", ids: ["s1"] },
 	]);
-	localStorage.setItem(PRESETS_KEY, presets);
+	localStorage.setItem(presetsKey(), presets);
 	const { restore } = stubRoutes();
 	// A quota failure on the large list while the small presets write still fits.
 	const real = globalThis.localStorage;
@@ -1035,8 +1040,7 @@ test("when only the restaurant list write is refused, whattoeat:presets in stora
 		value: {
 			getItem: (key: string) => real.getItem(key),
 			setItem: (key: string, value: string) => {
-				if (key === "whattoeat:restaurants")
-					throw new Error("QuotaExceededError");
+				if (key === restaurantsKey()) throw new Error("QuotaExceededError");
 				real.setItem(key, value);
 			},
 		},
@@ -1048,7 +1052,7 @@ test("when only the restaurant list write is refused, whattoeat:presets in stora
 		await press(el, '[data-action="apply"]');
 		expect(isMemoryOnly()).toBe(true);
 		expect(toastText(el)).toBe("Added for this session only");
-		expect(real.getItem(PRESETS_KEY)).toBe(presets);
+		expect(real.getItem(presetsKey())).toBe(presets);
 		expect(storedIds()).toEqual(["s1", "s2"]);
 
 		await setMode(el, "replace");
@@ -1057,7 +1061,7 @@ test("when only the restaurant list write is refused, whattoeat:presets in stora
 		await press(el, '[data-action="replace-confirm"]');
 		expect(toastText(el)).toBe("Replaced for this session only");
 		expect(savedIdsNow()).toEqual(["r1", "shared"]);
-		expect(real.getItem(PRESETS_KEY)).toBe(presets);
+		expect(real.getItem(presetsKey())).toBe(presets);
 		expect(storedIds()).toEqual(["s1", "s2"]);
 	} finally {
 		Object.defineProperty(globalThis, "localStorage", {
@@ -1250,8 +1254,8 @@ test("Replace then Undo restores the stored list and whattoeat:presets exactly",
 	const presets = JSON.stringify([
 		{ id: "kaset", updatedAt: "2026-10-01", ids: ["s1"] },
 	]);
-	localStorage.setItem(PRESETS_KEY, presets);
-	const listBefore = localStorage.getItem("whattoeat:restaurants");
+	localStorage.setItem(presetsKey(), presets);
+	const listBefore = localStorage.getItem(restaurantsKey());
 	const { restore } = stubRoutes();
 	try {
 		const el = await mount();
@@ -1260,14 +1264,14 @@ test("Replace then Undo restores the stored list and whattoeat:presets exactly",
 		await press(el, '[data-action="apply"]');
 		await press(el, '[data-action="replace-confirm"]');
 		expect(storedIds()).toEqual(["l1", "l2", "shared"]);
-		expect(localStorage.getItem(PRESETS_KEY)).not.toBe(presets);
+		expect(localStorage.getItem(presetsKey())).not.toBe(presets);
 
 		await clickUndo(el);
 		// Same records field for field (the store may write keys in its own order).
 		expect(
-			JSON.parse(localStorage.getItem("whattoeat:restaurants") ?? "null"),
+			JSON.parse(localStorage.getItem(restaurantsKey()) ?? "null"),
 		).toEqual(JSON.parse(listBefore ?? ""));
-		expect(localStorage.getItem(PRESETS_KEY)).toBe(presets);
+		expect(localStorage.getItem(presetsKey())).toBe(presets);
 	} finally {
 		restore();
 	}

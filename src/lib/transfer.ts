@@ -11,16 +11,18 @@ import {
 	newestFirst,
 	renameLockedAt,
 } from "#lib/history";
+import { type AddedPreset, isAddedPreset } from "#lib/preset-record";
 import { cleanStored, isRestaurant, type Restaurant } from "#lib/restaurant";
 
-export const EXPORT_VERSION = 7;
+export const EXPORT_VERSION = 8;
 
 /**
  * Version 1 files predate history; they still import, with no history. Version 2 files call
  * each visit's time `lockedAt`. Versions 1–3 have no group list and keep area and cuisine as
  * single strings. Versions 1–4 keep a free-text `location` where version 5 has a `link`.
  * Versions 1–5 keep each name as one string where version 6 has one per language. Versions
- * 5–6 keep one unlabelled `link` where version 7 has a list of labelled `links`.
+ * 5–6 keep one unlabelled `link` where version 7 has a list of labelled `links`. Versions 1–7
+ * have no preset record.
  */
 const READABLE_VERSIONS: readonly unknown[] = [
 	1,
@@ -29,6 +31,7 @@ const READABLE_VERSIONS: readonly unknown[] = [
 	4,
 	5,
 	6,
+	7,
 	EXPORT_VERSION,
 ];
 
@@ -39,6 +42,7 @@ export type ExportFile = {
 	restaurants: Restaurant[];
 	history: HistoryEntry[];
 	groups: GroupDef[];
+	presets: AddedPreset[];
 };
 
 /** Each error is an i18n message key, so the UI can show it directly with `t(error)`. */
@@ -57,6 +61,8 @@ export type ImportResult =
 			history: HistoryEntry[] | undefined;
 			/** `undefined` for versions 1–3, which have no group list; the current groups stay. */
 			groups: GroupDef[] | undefined;
+			/** `undefined` for versions 1–7, which have no preset record. */
+			presets: AddedPreset[] | undefined;
 	  }
 	| { ok: false; error: ImportError };
 
@@ -64,6 +70,7 @@ export const toExportFile = (
 	restaurants: Restaurant[],
 	history: HistoryEntry[] = [],
 	groups: GroupDef[] = [],
+	presets: AddedPreset[] = [],
 	now: Date = new Date(),
 ): ExportFile => ({
 	app: "whattoeat",
@@ -72,6 +79,7 @@ export const toExportFile = (
 	restaurants,
 	history,
 	groups,
+	presets,
 });
 
 /** Export as JSON text: indented for a downloaded file, one line for the clipboard. */
@@ -79,11 +87,12 @@ export const exportJson = (
 	restaurants: Restaurant[],
 	history: HistoryEntry[],
 	groups: GroupDef[],
+	presets: AddedPreset[],
 	now: Date,
 	{ pretty }: { pretty: boolean },
 ): string =>
 	JSON.stringify(
-		toExportFile(restaurants, history, groups, now),
+		toExportFile(restaurants, history, groups, presets, now),
 		null,
 		pretty ? 2 : undefined,
 	);
@@ -140,6 +149,14 @@ export const parseImport = (text: string): ImportResult => {
 			return { ok: false, error: "import.error.entries" };
 		groups = file.groups.map(({ id, name }) => ({ id, name: name.trim() }));
 	}
+	let presets: AddedPreset[] | undefined;
+	if (typeof file.version === "number" && file.version >= 8) {
+		if (!Array.isArray(file.presets))
+			return { ok: false, error: "import.error.format" };
+		if (!file.presets.every(isAddedPreset))
+			return { ok: false, error: "import.error.entries" };
+		presets = file.presets;
+	}
 	// A file's own repeated names, or names of built-in groups, fold into one group.
 	const own = mergeGroupDefs([], groups ?? []);
 	const ids = (groups ?? []).map((item) => item.id);
@@ -152,6 +169,7 @@ export const parseImport = (text: string): ImportResult => {
 		),
 		history,
 		groups: groups === undefined ? undefined : own.groups,
+		presets,
 	};
 };
 

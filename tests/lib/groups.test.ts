@@ -9,8 +9,8 @@ import {
 	deleteGroup,
 	deleteValue,
 	GROUPS_EVENT,
-	GROUPS_KEY,
 	groupLabel,
+	groupsKey,
 	isGroupDef,
 	isGroupNameTaken,
 	isGroupsMemoryOnly,
@@ -55,15 +55,15 @@ afterEach(() => localStorage.clear());
 
 test("loadGroups gives [] when nothing or junk is stored", () => {
 	expect(loadGroups()).toEqual([]);
-	localStorage.setItem(GROUPS_KEY, "{");
+	localStorage.setItem(groupsKey(), "{");
 	expect(loadGroups()).toEqual([]);
-	localStorage.setItem(GROUPS_KEY, "{}");
+	localStorage.setItem(groupsKey(), "{}");
 	expect(loadGroups()).toEqual([]);
 });
 
 test("loadGroups skips invalid entries and repeated ids, and trims names", () => {
 	localStorage.setItem(
-		GROUPS_KEY,
+		groupsKey(),
 		JSON.stringify([
 			{ id: "g1", name: " Price " },
 			{ id: "g1", name: "Again" },
@@ -118,7 +118,7 @@ test("saveGroups round-trips, notifies, and falls back to memory when storage re
 test("a storage event for the groups key notifies, other keys do not", () => {
 	let count = 0;
 	const stop = onGroupsChanged(() => count++);
-	window.dispatchEvent(new StorageEvent("storage", { key: GROUPS_KEY }));
+	window.dispatchEvent(new StorageEvent("storage", { key: groupsKey() }));
 	window.dispatchEvent(new StorageEvent("storage", { key: "other" }));
 	window.dispatchEvent(new StorageEvent("storage", { key: null }));
 	stop();

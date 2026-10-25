@@ -4,11 +4,11 @@ import {
 	dropFilterGroup,
 	dropFilterValue,
 	EMPTY_FILTER,
-	FILTER_KEY,
 	type Filter,
+	filterKey,
+	HOME_FILTER,
 	isFilterActive,
 	LIST_FILTER,
-	LIST_FILTER_KEY,
 	loadFilter,
 	moveFilterValue,
 	onFilterChanged,
@@ -208,7 +208,7 @@ test("loadFilter gives the empty filter when nothing is stored", () => {
 
 test("loadFilter keeps any group id except tags", () => {
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({
 			kind: { include: ["food"], exclude: [] },
 			g1: { include: [" Cheap "], exclude: [] },
@@ -223,7 +223,7 @@ test("loadFilter keeps any group id except tags", () => {
 
 test("a saved filter of the old shape loads with its empty groups dropped", () => {
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({
 			kind: { include: [], exclude: [] },
 			cuisine: { include: ["thai"], exclude: [] },
@@ -240,13 +240,13 @@ test.each([
 	["a string", '"thai"'],
 	["an older tag-only filter", '{"include":["thai"],"exclude":["spicy"]}'],
 ])("loadFilter gives the empty filter for %s", (_label, raw) => {
-	localStorage.setItem(FILTER_KEY, raw);
+	localStorage.setItem(filterKey(HOME_FILTER), raw);
 	expect(loadFilter()).toEqual(EMPTY_FILTER);
 });
 
 test("loadFilter normalizes values, drops non-strings, blanks, unknown kinds and tags, and resolves conflicts toward include", () => {
 	localStorage.setItem(
-		FILTER_KEY,
+		filterKey(HOME_FILTER),
 		JSON.stringify({
 			tags: { include: ["thai"], exclude: [] },
 			cuisine: { include: ["Thai", 1, " ", "THAI"], exclude: ["thai", "Lao"] },
@@ -327,18 +327,22 @@ test("dropFilterValue and dropFilterGroup remove and tidy up", () => {
 test("onFilterChanged fires for filter storage events only", () => {
 	let count = 0;
 	const stop = onFilterChanged(() => count++);
-	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	window.dispatchEvent(
+		new StorageEvent("storage", { key: filterKey(HOME_FILTER) }),
+	);
 	window.dispatchEvent(new StorageEvent("storage", { key: "other" }));
 	stop();
-	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
+	window.dispatchEvent(
+		new StorageEvent("storage", { key: filterKey(HOME_FILTER) }),
+	);
 	expect(count).toBe(1);
 });
 
 test("the list filter keeps plain tags, stored apart from the home filter", () => {
 	const filter: Filter = { tags: f(["thai"], ["spicy"]), area: f(["siam"]) };
 	saveFilter(filter, LIST_FILTER);
-	expect(localStorage.getItem(LIST_FILTER_KEY)).not.toBeNull();
-	expect(localStorage.getItem(FILTER_KEY)).toBeNull();
+	expect(localStorage.getItem(filterKey(LIST_FILTER))).not.toBeNull();
+	expect(localStorage.getItem(filterKey(HOME_FILTER))).toBeNull();
 	expect(loadFilter(LIST_FILTER)).toEqual(filter);
 	expect(loadFilter()).toEqual(EMPTY_FILTER);
 });
@@ -381,8 +385,12 @@ test("moveFilterValue carries the state into plain tags for the list filter", ()
 test("onFilterChanged listens to the list filter key when asked", () => {
 	let count = 0;
 	const stop = onFilterChanged(() => count++, LIST_FILTER);
-	window.dispatchEvent(new StorageEvent("storage", { key: FILTER_KEY }));
-	window.dispatchEvent(new StorageEvent("storage", { key: LIST_FILTER_KEY }));
+	window.dispatchEvent(
+		new StorageEvent("storage", { key: filterKey(HOME_FILTER) }),
+	);
+	window.dispatchEvent(
+		new StorageEvent("storage", { key: filterKey(LIST_FILTER) }),
+	);
 	stop();
 	expect(count).toBe(1);
 });
