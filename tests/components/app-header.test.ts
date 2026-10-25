@@ -153,6 +153,83 @@ test("the same-tab profile listener is removed on disconnect", async () => {
 	expect(settingsLink.textContent).toContain("Personal");
 });
 
+/**
+ * A `pageshow` event; `persisted` true means the page came back from the back/forward cache.
+ * happy-dom's PageTransitionEvent is a plain Event alias, so `persisted` is defined by hand.
+ */
+const pageshow = (persisted: boolean): Event => {
+	const event = new Event("pageshow");
+	Object.defineProperty(event, "persisted", { value: persisted });
+	return event;
+};
+
+test("a page restored from the back/forward cache after a switch reloads", async () => {
+	createProfile("Family");
+	const personal = loadProfiles()[0]!;
+	const el = await mount();
+	let calls = 0;
+	el.reload = () => {
+		calls += 1;
+	};
+
+	switchProfile(personal.id);
+	window.dispatchEvent(pageshow(true));
+	expect(calls).toBe(1);
+});
+
+test("a page shown fresh (not from the cache) does not reload", async () => {
+	createProfile("Family");
+	const personal = loadProfiles()[0]!;
+	const el = await mount();
+	let calls = 0;
+	el.reload = () => {
+		calls += 1;
+	};
+
+	switchProfile(personal.id);
+	window.dispatchEvent(pageshow(false));
+	expect(calls).toBe(0);
+});
+
+test("a page restored from the cache after a rename only re-renders", async () => {
+	const { id } = activeProfile();
+	const el = await mount();
+	let calls = 0;
+	el.reload = () => {
+		calls += 1;
+	};
+	// reload is a reactive property: let the render it schedules finish first, so the
+	// assertions below see only what pageshow triggers.
+	await el.updateComplete;
+
+	// Written straight to storage, as another page would have while this one sat in the
+	// cache: no same-tab event reaches this header.
+	localStorage.setItem(PROFILES_KEY, JSON.stringify([{ id, name: "Mine" }]));
+	window.dispatchEvent(pageshow(true));
+	await el.updateComplete;
+
+	const nav = el.shadowRoot!.querySelector("nav")!;
+	const settingsLink = [...nav.querySelectorAll("a")].at(-1)!;
+	expect(settingsLink.querySelector(".avatar")?.textContent?.trim()).toBe("M");
+	expect(settingsLink.textContent).toContain("Mine");
+	expect(calls).toBe(0);
+});
+
+test("the back/forward cache listener is removed on disconnect", async () => {
+	createProfile("Family");
+	const personal = loadProfiles()[0]!;
+	const el = await mount();
+	let calls = 0;
+	el.reload = () => {
+		calls += 1;
+	};
+	el.remove();
+
+	switchProfile(personal.id);
+	window.dispatchEvent(pageshow(true));
+	expect(calls).toBe(0);
+});
+
 test("marks the current page", async () => {
 	const el = await mount("history");
 	const current = el.shadowRoot!.querySelectorAll('nav a[aria-current="page"]');

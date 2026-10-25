@@ -284,10 +284,30 @@ export class AppHeader extends LitElement {
 		this.requestUpdate();
 	};
 
+	/** The active profile's id when this page was shown, to spot a switch made while it sat in the back/forward cache. */
+	private shownProfileId: string | undefined;
+
+	/**
+	 * A page restored from the back/forward cache still holds the profile it was left with,
+	 * while its writes would go to whichever profile is active now. Reload it when the active
+	 * profile changed meanwhile; a rename alone just needs the new name drawn.
+	 */
+	private readonly onPageShow = (event: PageTransitionEvent): void => {
+		if (!event.persisted) return;
+		const { id } = activeProfile();
+		if (id !== this.shownProfileId) {
+			this.reload();
+			return;
+		}
+		this.requestUpdate();
+	};
+
 	override connectedCallback(): void {
 		super.connectedCallback();
+		this.shownProfileId = activeProfile().id;
 		this.unsubscribeProfile = onProfileSwitchedElsewhere(() => this.reload());
 		window.addEventListener(PROFILE_EVENT, this.onProfileChanged);
+		window.addEventListener("pageshow", this.onPageShow);
 	}
 
 	override disconnectedCallback(): void {
@@ -295,6 +315,7 @@ export class AppHeader extends LitElement {
 		this.unsubscribeProfile?.();
 		this.unsubscribeProfile = undefined;
 		window.removeEventListener(PROFILE_EVENT, this.onProfileChanged);
+		window.removeEventListener("pageshow", this.onPageShow);
 	}
 
 	/** Keep the browser tab title in the current language; a preview build says so first. */
