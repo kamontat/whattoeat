@@ -11,7 +11,8 @@ export type Page =
 	| "tags"
 	| "history"
 	| "settings"
-	| "presets";
+	| "presets"
+	| "profiles";
 
 type Tab = { page: Page; path: string; label: MessageKey; icon: IconName };
 
@@ -40,11 +41,14 @@ const TITLES: Record<Page, MessageKey | undefined> = {
 	history: "nav.history",
 	settings: "nav.settings",
 	presets: "presets.title",
+	profiles: "profiles.title",
 };
 
-/** Tags and presets have no tab of their own: both live under Settings. */
+/** Tags, presets and profiles have no tab of their own: all live under Settings. */
 const tabOf = (page: Page): Page =>
-	page === "tags" || page === "presets" ? "settings" : page;
+	page === "tags" || page === "presets" || page === "profiles"
+		? "settings"
+		: page;
 
 @customElement("app-header")
 export class AppHeader extends LitElement {

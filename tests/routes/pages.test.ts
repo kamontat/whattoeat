@@ -141,20 +141,21 @@ test.each(pages)(
 	},
 );
 
-test.each(["settings/presets.html", "settings/tags.html"])(
-	"%s links its assets one folder deeper",
-	async (page) => {
-		const html = await Bun.file(`src/routes/${page}`).text();
-		const links = Array.from(html.matchAll(/(?:src|href)="([^"]+)"/g)).map(
-			(match) => match[1]!,
-		);
-		expect(links.length).toBeGreaterThan(0);
-		for (const link of links) {
-			if (link === "#main") continue;
-			expect(link.startsWith("../../")).toBe(true);
-		}
-	},
-);
+test.each([
+	"settings/presets.html",
+	"settings/tags.html",
+	"settings/profiles.html",
+])("%s links its assets one folder deeper", async (page) => {
+	const html = await Bun.file(`src/routes/${page}`).text();
+	const links = Array.from(html.matchAll(/(?:src|href)="([^"]+)"/g)).map(
+		(match) => match[1]!,
+	);
+	expect(links.length).toBeGreaterThan(0);
+	for (const link of links) {
+		if (link === "#main") continue;
+		expect(link.startsWith("../../")).toBe(true);
+	}
+});
 
 test("the tags page lives under settings and points its links one folder up", async () => {
 	expect(await Bun.file("src/routes/tags.html").exists()).toBe(false);
