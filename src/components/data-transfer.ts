@@ -330,6 +330,16 @@ export class DataTransferPanel extends LitElement {
 		this.readImport(text);
 	};
 
+	/** Close the paste box and drop its text, so the Paste row reads the clipboard again. */
+	private readonly cancelPaste = (): void => {
+		this.pasteByHand = false;
+		this.pasteText = "";
+		this.error = undefined;
+		this.focusAfterRender(() =>
+			this.renderRoot.querySelector('[data-action="paste"]'),
+		);
+	};
+
 	private readonly selectAll = (event: Event): void => {
 		(event.target as HTMLTextAreaElement).select();
 	};
@@ -620,6 +630,9 @@ export class DataTransferPanel extends LitElement {
 						@click=${() => this.readImport(this.pasteText)}
 					>
 						${t("settings.pasteCheck")}
+					</button>
+					<button type="button" data-action="cancel-paste" @click=${this.cancelPaste}>
+						${t("settings.cancel")}
 					</button>
 				</div>
 			</div>

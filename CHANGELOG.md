@@ -2,6 +2,21 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-26: Cancel the paste box
+
+### Features
+
+- The paste box that opens when the clipboard can't be read has a Cancel button next to
+  Check. It closes the box, clears the typed text and any import error, and puts focus back
+  on the Paste JSON row, so tapping Paste reads the clipboard again.
+
+### Decisions
+
+- Cancel cannot bring back a clipboard permission the browser has blocked: once a site is
+  blocked, Brave and Chrome refuse the read without asking again, and only site settings
+  undo that. A hint for the blocked state (from the Permissions API) was considered and left
+  out for now.
+
 ## 2026-10-25: Profiles, and presets that replace and update
 
 ### BREAKING CHANGES
