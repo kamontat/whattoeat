@@ -167,9 +167,10 @@ would expect, new ones at the end.
 
 ## Pitfalls
 
-- **Ids must stay stable.** The browser remembers which restaurant ids came from a preset,
-  and Add skips ids already saved. Changing an existing restaurant's id makes it a duplicate
-  for everyone who added the preset. Fix a restaurant in place; never delete and re-add it.
+- **Ids must stay stable.** The browser remembers which restaurant ids came from a preset.
+  Under Update, a changed id looks like the old restaurant was dropped and a new one added: the
+  old one (with the user's edits) is removed and pick history for it then points at a dead id.
+  Fix a restaurant in place; never delete and re-add it.
 - **Same brand, two presets** (a chain in both Central Ladprao and Major Ratchayothin) is fine
   — each branch is its own restaurant with its own id and area, under the same name.
 - **Duplicates.** Two items with the same brand in the same area are one place: keep the

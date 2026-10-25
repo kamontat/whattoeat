@@ -22,8 +22,10 @@ import {
 import {
 	ACTIVE_KEY,
 	activeProfile,
+	createProfile,
 	PROFILES_KEY,
 	profileInitial,
+	switchProfile,
 } from "#lib/profiles";
 import { nameFromText, type Restaurant } from "#lib/restaurant";
 import {
@@ -556,11 +558,37 @@ test("reset asks for confirmation and can be cancelled", async () => {
 	expect($(el, 'button[data-action="reset-confirm"]')).toBeNull();
 	await click(el, 'button[data-action="reset"]');
 	expect($(el, ".reset-prompt")?.textContent?.trim()).toBe(
-		"Delete all 1 restaurants, your history and settings saved in this browser? This cannot be undone.",
+		"Delete 1 profile with 1 restaurant in total, plus all history and settings saved in this browser? This cannot be undone.",
 	);
 	await click(el, 'button[data-action="reset-cancel"]');
 	expect($(el, 'button[data-action="reset-confirm"]')).toBeNull();
 	expect(loadRestaurants()).toHaveLength(1);
+});
+
+test("the reset prompt counts every profile and the restaurants across all of them", async () => {
+	const first = activeProfile();
+	addRestaurant({ name: { en: "A", th: "" }, tags: [], links: [], notes: "" });
+	createProfile("Family");
+	addRestaurant({ name: { en: "B", th: "" }, tags: [], links: [], notes: "" });
+	addRestaurant({ name: { en: "C", th: "" }, tags: [], links: [], notes: "" });
+	createProfile("Couple");
+	switchProfile(first.id);
+	const el = await mount();
+	await click(el, 'button[data-action="reset"]');
+	expect($(el, ".reset-prompt")?.textContent?.trim()).toBe(
+		"Delete 3 profiles with 3 restaurants in total, plus all history and settings saved in this browser? This cannot be undone.",
+	);
+});
+
+test("the reset prompt in Thai", async () => {
+	setLang("th");
+	createProfile("ครอบครัว");
+	addRestaurant({ name: { en: "A", th: "" }, tags: [], links: [], notes: "" });
+	const el = await mount();
+	await click(el, 'button[data-action="reset"]');
+	expect($(el, ".reset-prompt")?.textContent?.trim()).toBe(
+		"ลบ 2 โปรไฟล์ รวมร้านอาหาร 1 ร้าน พร้อมประวัติและการตั้งค่าทั้งหมดที่บันทึกไว้ในเบราว์เซอร์นี้หรือไม่ การลบนี้ย้อนกลับไม่ได้",
+	);
 });
 
 test("reset moves focus to the confirm button, cancel moves it back", async () => {

@@ -66,6 +66,19 @@ test("restaurant ids are unique across all preset files", async () => {
 	expect(new Set(ids).size).toBe(ids.length);
 });
 
+test("every city and district in the index is used by a preset", () => {
+	const usedCities = new Set(index.presets.map((entry) => entry.city));
+	const usedDistricts = new Set(index.presets.map((entry) => entry.district));
+	const unusedCities = Object.keys(index.cities).filter(
+		(id) => !usedCities.has(id),
+	);
+	const unusedDistricts = Object.keys(index.districts).filter(
+		(id) => !usedDistricts.has(id),
+	);
+	expect(unusedCities, "unused cities").toEqual([]);
+	expect(unusedDistricts, "unused districts").toEqual([]);
+});
+
 test("every city and district id has en and th names", () => {
 	const cityIds = new Set(index.presets.map((entry) => entry.city));
 	const districtIds = new Set(index.presets.map((entry) => entry.district));

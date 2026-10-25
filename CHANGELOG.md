@@ -2,7 +2,7 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-25: Profiles
+## 2026-10-25: Profiles, and presets that replace and update
 
 ### BREAKING CHANGES
 
@@ -14,6 +14,9 @@ What changed in this project and why, newest first.
 - The export format goes from version 7 to 8 with a new `presets` list. Version 1–7 files
   still import, with no preset record; `toExportFile` and `exportJson` take the preset record
   as a new argument before `now`.
+- Neighbourhood presets no longer have an "Add to my list" mode: applying presets always
+  replaces the active profile's list. To keep your own restaurants, export first or use a
+  separate profile. `addPresets` is gone from `#lib/presets`.
 
 ### Features
 
@@ -30,9 +33,22 @@ What changed in this project and why, newest first.
   shows the active profile's initial and name.
 - An export now carries which presets the profile uses. Replace takes the file's record;
   Merge adds records only for presets the profile has none for.
+- A preset the profile already uses shows an Update button when its bundled list changes.
+  Update brings that one preset up to date in place: edited copies go back to the preset's
+  version, new places are added, dropped ones are removed, and restaurants you deleted or
+  added yourself are left alone. The message counts what changed and offers Undo.
 
 ### Improvements
 
+- Applying presets to an empty profile reads "Use 2 areas · 138 restaurants" and saves at
+  once; with restaurants saved it reads "Replace with …", names the profile in the warning
+  and asks first.
+- The neighbourhood city chips only list cities that have presets, and a test flags any
+  city or district in the index that no preset uses.
+- While searching neighbourhoods, a row whose match is a place beyond the first two shown
+  puts that place in its subtitle, highlighted.
+- The "Delete all data" prompt counts every profile and the restaurants across all of them,
+  since it wipes the whole device.
 - Settings' "Appearance" section is now "This device", because it holds the settings that
   every profile shares.
 
@@ -47,6 +63,13 @@ What changed in this project and why, newest first.
   the Back button, so no page keeps showing or saving the old profile's data.
 - The rest of Settings is not regrouped under the profile's name yet; the Profile row and
   "This device" already show what is shared and what is not.
+- Presets are Replace-only because a profile now stands for one occasion; adding a second
+  area on top is what a second profile is for. File and paste import keep Replace and Merge.
+- Update never runs on its own and there is no "update all": the user taps it per preset,
+  without a confirm step, because Undo covers a mistake. An update that changes nothing just
+  says the preset is up to date.
+- A restaurant a preset dropped is removed even if it came from another preset too; preset
+  ids are unique across files, so this should not happen.
 
 ## 2026-10-24: A Phanat Nikhom preset and official links for the last map-only restaurants
 
