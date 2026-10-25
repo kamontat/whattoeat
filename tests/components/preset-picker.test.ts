@@ -1586,3 +1586,117 @@ test("Update buttons are disabled while a save or update is in flight", async ()
 		spy.mockRestore();
 	}
 });
+
+// --- Final review fix wave ---
+
+test("an Update whose file matches the saved copies exactly reports up to date, with no Undo and no snapshot", async () => {
+	saveRestaurants([make("r1"), make("r2")]);
+	localStorage.setItem(
+		presetsKey(),
+		JSON.stringify([
+			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1"] },
+		]),
+	);
+	const files = { ratchayothin: fileOf(make("r1")) };
+	const { restore } = stubRoutes(INDEX_M, [], files);
+	try {
+		const el = await mount();
+		await press(el, '[data-preset="ratchayothin"] [data-action="update"]');
+
+		expect(toastText(el)).toBe("Ratchayothin is up to date.");
+		expect(toastAction(el)).toBeNull();
+		expect(loadAddedPresets()).toEqual([
+			{ id: "ratchayothin", updatedAt: "2026-10-16", ids: ["r1"] },
+		]);
+		expect(updateButton(el, "ratchayothin")).toBeNull();
+		expect(
+			$(el, '[data-preset="ratchayothin"] .badge')?.textContent?.trim(),
+		).toBe("In your list");
+	} finally {
+		restore();
+	}
+});
+
+test("Update buttons are disabled while the Replace confirm card is open; Cancel re-enables them", async () => {
+	saveRestaurants([make("r1")]);
+	localStorage.setItem(
+		presetsKey(),
+		JSON.stringify([
+			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1"] },
+		]),
+	);
+	const { restore } = stubRoutes();
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+		expect(updateButton(el, "ratchayothin")?.disabled).toBe(true);
+
+		($(el, '[data-action="replace-cancel"]') as HTMLButtonElement).click();
+		await el.updateComplete;
+		expect(updateButton(el, "ratchayothin")?.disabled).toBe(false);
+	} finally {
+		restore();
+	}
+});
+
+test("Undo after Update focuses that row's checkbox, not the pinned action", async () => {
+	const editedR1 = { ...make("r1"), notes: "edited" };
+	saveRestaurants([editedR1, make("r2"), make("mine")]);
+	localStorage.setItem(
+		presetsKey(),
+		JSON.stringify([
+			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1", "r2"] },
+		]),
+	);
+	const files = { ratchayothin: fileOf(make("r1"), make("r3")) };
+	const { restore } = stubRoutes(INDEX_M, [], files);
+	try {
+		const el = await mount();
+		await press(el, '[data-preset="ratchayothin"] [data-action="update"]');
+		await clickUndo(el);
+		await el.updateComplete;
+		expect($(el, '[data-preset="ratchayothin"] input')).toBe(
+			el.shadowRoot!.activeElement as HTMLInputElement,
+		);
+	} finally {
+		restore();
+	}
+});
+
+test("the replace warning uses the singular when exactly one restaurant is saved", async () => {
+	saveRestaurants([make("a")]);
+	const { restore } = stubRoutes(INDEX9);
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		expect($(el, ".replace-warning")?.textContent?.trim()).toBe(
+			"Replaces the 1 restaurant in Personal.",
+		);
+	} finally {
+		restore();
+	}
+});
+
+test("a successful Update clears a stale files error left over from a previous failed apply", async () => {
+	saveRestaurants([make("r1")]);
+	localStorage.setItem(
+		presetsKey(),
+		JSON.stringify([
+			{ id: "ratchayothin", updatedAt: "2026-10-01", ids: ["r1"] },
+		]),
+	);
+	const { restore } = stubRoutes(INDEX_M, ["ladprao"]);
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+		await press(el, '[data-action="replace-confirm"]');
+		expect($(el, ".files-error")).not.toBeNull();
+
+		await press(el, '[data-preset="ratchayothin"] [data-action="update"]');
+		expect($(el, ".files-error")).toBeNull();
+	} finally {
+		restore();
+	}
+});

@@ -214,6 +214,7 @@ export const en = {
 	"presets.use": "Use {areas} · {count}",
 	"presets.goPicker": "Go to picker",
 	"presets.replaceWarning": "Replaces the {count} restaurants in {profile}.",
+	"presets.replaceWarning.one": "Replaces the 1 restaurant in {profile}.",
 	"presets.replacePrompt":
 		"Replace your {saved} restaurants with {count} from {names}? Your history and groups stay.",
 	"presets.replaceConfirm": "Replace",
@@ -231,6 +232,7 @@ export const en = {
 		"{name} updated: {added} added, {removed} removed, {reverted} reverted.",
 	"presets.updatedSessionOnly": "{name} updated for this session only",
 	"presets.updateError": "Couldn't load {name}. Nothing changed.",
+	"presets.upToDate": "{name} is up to date.",
 	"profiles.defaultName": "Personal",
 	"profiles.title": "Profiles",
 	"profiles.count.one": "1 restaurant",
@@ -521,6 +523,7 @@ export const th: Record<MessageKey, string> = {
 	"presets.use": "ใช้ {areas} · {count}",
 	"presets.goPicker": "ไปสุ่มร้าน",
 	"presets.replaceWarning": "แทนที่ร้าน {count} ร้านใน {profile}",
+	"presets.replaceWarning.one": "แทนที่ร้าน 1 ร้านใน {profile}",
 	"presets.replacePrompt":
 		"แทนที่ร้านของคุณ {saved} ร้านด้วย {count} ร้านจาก {names} ใช่ไหม ประวัติและกลุ่มจะยังอยู่",
 	"presets.replaceConfirm": "แทนที่",
@@ -537,6 +540,7 @@ export const th: Record<MessageKey, string> = {
 		"อัปเดต {name} แล้ว: เพิ่ม {added} ลบ {removed} คืนค่า {reverted}",
 	"presets.updatedSessionOnly": "อัปเดต {name} ไว้เฉพาะครั้งนี้เท่านั้น",
 	"presets.updateError": "ไม่สามารถโหลด {name} ได้ ไม่มีการเปลี่ยนแปลงใด ๆ",
+	"presets.upToDate": "{name} เป็นข้อมูลล่าสุดแล้ว",
 	"profiles.defaultName": "ส่วนตัว",
 	"profiles.title": "โปรไฟล์",
 	"profiles.count.one": "1 ร้าน",

@@ -47,6 +47,12 @@ const restaurantsText = (n: number): string =>
 		? t("presets.restaurants.one")
 		: t("presets.restaurants.other", { n });
 
+/** The Replace warning line: singular wording when exactly one restaurant is saved. */
+const replaceWarningText = (count: number, profile: string): string =>
+	count === 1
+		? t("presets.replaceWarning.one", { profile })
+		: t("presets.replaceWarning", { count, profile });
+
 /**
  * Room for the pinned area where ResizeObserver is missing: the warning line and the button, at
  * phone size. Measured otherwise.
@@ -231,10 +237,17 @@ export class PresetPicker extends LitElement {
 	private ownToast = false;
 
 	/**
-	 * The saved list and `whattoeat:presets` from just before the last save, for Undo. Memory
-	 * only: leaving the page drops it.
+	 * The saved list and `whattoeat:presets` from just before the last save, for Undo, plus the
+	 * focus finder that save used — Undo returns focus to the same target. Memory only: leaving
+	 * the page drops it.
 	 */
-	private snapshot: { list: Restaurant[]; added: AddedPreset[] } | undefined;
+	private snapshot:
+		| {
+				list: Restaurant[];
+				added: AddedPreset[];
+				focus: () => Element | null | undefined;
+		  }
+		| undefined;
 
 	private unsubscribe: (() => void) | undefined;
 
@@ -404,18 +417,26 @@ export class PresetPicker extends LitElement {
 	}
 
 	/**
-	 * Store `result` as the new saved list and preset records, remember `before` for Undo, and
-	 * announce it with a toast — the part `save()` and `onUpdateClick()` share once each has its
-	 * own `before`/`result` and messages ready. `focus` runs after the next render, once the
-	 * caller's own state changes (ticked selection, confirm card, `busy`) have taken effect too.
+	 * Store `result` as the new saved list and preset records, remember `before` (and `focus`,
+	 * for Undo to return focus to the same target) unless `undo` is `false`, and announce it with
+	 * a toast — the part `save()` and `onUpdateClick()` share once each has its own
+	 * `before`/`result` and messages ready. `focus` runs after the next render, once the caller's
+	 * own state changes (ticked selection, confirm card) and this method's own (`busy`, cleared
+	 * here) have taken effect too. With `undo: false` the toast has no action and nothing is kept
+	 * to undo — for an Update that changed nothing.
 	 */
 	private async commit(
 		before: { list: Restaurant[]; added: AddedPreset[] },
 		result: { list: Restaurant[]; added: AddedPreset[] },
 		focus: () => Element | null | undefined,
 		messages: { saved: string; sessionOnly: string },
+		options?: { undo?: boolean },
 	): Promise<void> {
+		const undoable = options?.undo ?? true;
 		let message: string;
+		// A successful commit means the fetch behind it succeeded; any stale error from an
+		// earlier failed attempt no longer applies.
+		this.filesError = false;
 		// `whattoeat:presets` is written only once the list itself was stored: a refused list
 		// write must not leave records claiming presets the stored list does not hold.
 		if (saveRestaurants(result.list)) {
@@ -424,15 +445,17 @@ export class PresetPicker extends LitElement {
 		} else {
 			message = messages.sessionOnly;
 		}
-		this.snapshot = before;
+		if (undoable) this.snapshot = { ...before, focus };
 		this.busy = false;
 		this.reloadStore();
 		this.focusAfterRender(focus);
 		await this.updateComplete;
-		this.toast()?.show(message, {
-			action: t("presets.undo"),
-			onAction: this.undo,
-		});
+		if (undoable)
+			this.toast()?.show(message, {
+				action: t("presets.undo"),
+				onAction: this.undo,
+			});
+		else this.toast()?.show(message);
 	}
 
 	/** Put back the list and `whattoeat:presets` from before the last save. */
@@ -443,8 +466,10 @@ export class PresetPicker extends LitElement {
 		// Same rule as saving: the presets follow the list only once the list was stored.
 		if (saveRestaurants(snapshot.list)) saveAddedPresets(snapshot.added);
 		this.reloadStore();
-		// The toast's Undo button had focus and is gone now.
-		this.focusAfterRender(() => this.pinnedAction());
+		// The toast's Undo button had focus and is gone now; return to what the undone action
+		// itself focused (a row's checkbox after an Update, the pinned action after a
+		// Replace/Use), falling back to the pinned action if that target is gone.
+		this.focusAfterRender(() => snapshot.focus() ?? this.pinnedAction());
 		this.toast()?.show(t("presets.undone"), { duration: UNDONE_DURATION });
 	};
 
@@ -549,7 +574,7 @@ export class PresetPicker extends LitElement {
 				${this.filesError ? html`<p class="error files-error" role="alert">${t("presets.filesError")}</p>` : nothing}
 				${
 					hasSaved && ticked.length > 0
-						? html`<p class="muted replace-warning">${t("presets.replaceWarning", { count: this.savedIds.size, profile: activeProfile().name })}</p>`
+						? html`<p class="muted replace-warning">${replaceWarningText(this.savedIds.size, activeProfile().name)}</p>`
 						: nothing
 				}
 				${
@@ -717,7 +742,7 @@ export class PresetPicker extends LitElement {
 								class="quiet"
 								data-action="update"
 								aria-label=${t("presets.updateLabel", { name })}
-								?disabled=${this.busy}
+								?disabled=${this.busy || this.confirming}
 								@click=${() => void this.onUpdateClick(entry)}
 							>${t("presets.update")}</button>`
 						: nothing
@@ -727,9 +752,9 @@ export class PresetPicker extends LitElement {
 	}
 
 	/**
-	 * Sync one applied preset's current file into the saved list, via `updatePreset` (Task 1).
-	 * Never touches `selected`. A failed fetch leaves everything untouched (no snapshot, no Undo)
-	 * since nothing was computed yet.
+	 * Sync one applied preset's current file into the saved list, via `updatePreset`. Never
+	 * touches `selected`. A failed fetch leaves everything untouched (no snapshot, no Undo) since
+	 * nothing was computed yet.
 	 */
 	private async onUpdateClick(entry: PresetEntry): Promise<void> {
 		if (this.busy) return;
@@ -752,6 +777,13 @@ export class PresetPicker extends LitElement {
 
 		const before = { list: loadRestaurants(), added: loadAddedPresets() };
 		const result = updatePreset(before.list, file, before.added);
+		// Nothing to add, remove or revert: the file already matches what is saved. Still save
+		// (to bump the record's `updatedAt`, so the Update button goes away) but there is nothing
+		// to undo, so skip the snapshot and the toast's action.
+		const upToDate =
+			result.counts.added === 0 &&
+			result.counts.removed === 0 &&
+			result.counts.reverted === 0;
 		// The checkbox stays in this row either way; the Update button only disappears once the
 		// record is actually saved, so focus it rather than something that might have moved.
 		await this.commit(
@@ -759,14 +791,17 @@ export class PresetPicker extends LitElement {
 			result,
 			() => this.renderRoot.querySelector(`[data-preset="${entry.id}"] input`),
 			{
-				saved: t("presets.updated", {
-					name,
-					added: result.counts.added,
-					removed: result.counts.removed,
-					reverted: result.counts.reverted,
-				}),
+				saved: upToDate
+					? t("presets.upToDate", { name })
+					: t("presets.updated", {
+							name,
+							added: result.counts.added,
+							removed: result.counts.removed,
+							reverted: result.counts.reverted,
+						}),
 				sessionOnly: t("presets.updatedSessionOnly", { name }),
 			},
+			{ undo: !upToDate },
 		);
 	}
 
