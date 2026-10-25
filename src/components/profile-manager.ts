@@ -39,6 +39,13 @@ export class ProfileManager extends LitElement {
 	static override styles = [
 		uiStyles,
 		css`
+			/* Same rhythm as the presets and tags pages: one gap between every part. */
+			:host {
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+			}
+
 			.back {
 				display: inline-flex;
 				align-items: center;

@@ -31,6 +31,19 @@ const $$ = (el: ProfileManager, selector: string): HTMLElement[] => [
 	...el.shadowRoot!.querySelectorAll<HTMLElement>(selector),
 ];
 
+test("the page stacks its parts with the same gap as the other settings pages", () => {
+	const css = [
+		(customElements.get("profile-manager") as unknown as { styles: unknown })
+			.styles,
+	]
+		.flat(2)
+		.map((style) => (style as { cssText: string }).cssText)
+		.join("");
+	expect(css).toMatch(
+		/:host\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;[^}]*gap:\s*1rem/,
+	);
+});
+
 const mount = async (): Promise<ProfileManager> => {
 	const el = document.createElement("profile-manager");
 	document.body.append(el);
