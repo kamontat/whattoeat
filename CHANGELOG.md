@@ -2,13 +2,17 @@
 
 What changed in this project and why, newest first.
 
-## 2026-10-26: Cancel the paste box
+## 2026-10-26: Cancel the paste box, and a smaller download file
 
 ### Features
 
 - The paste box that opens when the clipboard can't be read has a Cancel button next to
   Check. It closes the box, clears the typed text and any import error, and puts focus back
   on the Paste JSON row, so tapping Paste reads the clipboard again.
+- "Download file" saves the export gzipped as `whattoeat-YYYY-MM-DD.json.gz`, several times
+  smaller than the JSON (the Ladprao preset: 110 KB as the old download, 14 KB gzipped), so a
+  list too large to copy and paste still moves between devices as a file. "Choose a file"
+  reads both `.json.gz` and plain `.json`, so older exports still import.
 
 ### Decisions
 
@@ -16,6 +20,9 @@ What changed in this project and why, newest first.
   blocked, Brave and Chrome refuse the read without asking again, and only site settings
   undo that. A hint for the blocked state (from the Permissions API) was considered and left
   out for now.
+- The download is compressed with the browser's built-in `CompressionStream` rather than a
+  library, and a chosen file is told apart by gzip's first two bytes rather than its name.
+  The export format stays version 8; only the file around it changed.
 
 ## 2026-10-25: Profiles, and presets that replace and update
 
