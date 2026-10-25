@@ -152,6 +152,11 @@ export const loadProfiles = (): Profile[] => {
 	return current().list;
 };
 
+/** Drop the in-memory fallback; `resetStorage` calls this when it wipes everything. */
+export const forgetProfilesMemory = (): void => {
+	memory = undefined;
+};
+
 /** The profile in use right now. */
 export const activeProfile = (): Profile => {
 	ensureProfiles();

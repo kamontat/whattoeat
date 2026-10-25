@@ -14,6 +14,7 @@ import {
 	valueCounts,
 	valueLabel,
 } from "#lib/groups";
+import { profileKey } from "#lib/profiles";
 import {
 	BUILT_IN_GROUPS,
 	type Restaurant,
@@ -140,12 +141,12 @@ export const editValue = (
 };
 
 /** Which group's tags last showed, kept for this tab only. */
-export const PICK_KEY = "whattoeat:tags-group";
+export const pickKey = (): string => profileKey("tags-group");
 
 /** The stored pick when it still names one of `ids`, else `"cuisine"`. */
 export const loadPick = (ids: readonly string[]): string => {
 	try {
-		const stored = sessionStorage.getItem(PICK_KEY);
+		const stored = sessionStorage.getItem(pickKey());
 		if (stored !== null && ids.includes(stored)) return stored;
 	} catch {
 		// Storage blocked: fall back to the default.
@@ -155,7 +156,7 @@ export const loadPick = (ids: readonly string[]): string => {
 
 export const savePick = (id: string): void => {
 	try {
-		sessionStorage.setItem(PICK_KEY, id);
+		sessionStorage.setItem(pickKey(), id);
 	} catch {
 		// Storage blocked: the pick lasts for this page only.
 	}

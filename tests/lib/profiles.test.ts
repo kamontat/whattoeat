@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
+import { loadGroups, saveGroups } from "#lib/groups";
+import { addVisit, loadHistory } from "#lib/history";
 import { setLang } from "#lib/i18n";
 import {
 	ACTIVE_KEY,
@@ -13,7 +15,17 @@ import {
 	profileInitial,
 	profileKey,
 	renameProfile,
+	switchProfile,
 } from "#lib/profiles";
+import { loadPickCount, savePickCount } from "#lib/random";
+import { addRestaurant, loadRestaurants, resetStorage } from "#lib/store";
+
+const input = {
+	name: { en: "Jay Fai", th: "" },
+	tags: [],
+	links: [],
+	notes: "",
+};
 
 beforeEach(() => {
 	localStorage.clear();
@@ -181,6 +193,38 @@ test("profileInitial takes the first whole character", () => {
 	expect(profileInitial("family")).toBe("F");
 	expect(profileInitial("ส่วนตัว")).toBe("ส");
 	expect(profileInitial("🍜 noodles")).toBe("🍜");
+});
+
+test("stores read and write the active profile only", () => {
+	const personal = loadProfiles()[0]!;
+	addRestaurant(input);
+	addVisit({ id: "r1", name: { en: "A", th: "" } });
+	saveGroups([{ id: "g1", name: "Price" }]);
+	savePickCount(4);
+
+	createProfile("Family");
+	expect(loadRestaurants()).toEqual([]);
+	expect(loadHistory()).toEqual([]);
+	expect(loadGroups()).toEqual([]);
+	expect(loadPickCount()).toBe(2);
+
+	switchProfile(personal.id);
+	expect(loadRestaurants()).toHaveLength(1);
+	expect(loadHistory()).toHaveLength(1);
+	expect(loadGroups()).toEqual([{ id: "g1", name: "Price" }]);
+	expect(loadPickCount()).toBe(4);
+});
+
+test("resetStorage leaves one fresh default profile", () => {
+	createProfile("Family");
+	expect(loadProfiles()).toHaveLength(2);
+
+	resetStorage();
+
+	const list = loadProfiles();
+	expect(list).toHaveLength(1);
+	expect(list[0]?.name).toBe("Personal");
+	expect(loadRestaurants()).toEqual([]);
 });
 
 test("blocked storage still yields one in-memory profile", () => {

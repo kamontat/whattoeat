@@ -1,6 +1,7 @@
+import { profileKey } from "#lib/profiles";
 import { displayName, newId, type Restaurant } from "#lib/restaurant";
 
-export const HISTORY_KEY = "whattoeat:history";
+export const historyKey = (): string => profileKey("history");
 export const HISTORY_EVENT = "whattoeat:history-changed";
 
 /** One "Eat here" press: which restaurant, its name as shown at that moment, and when. */
@@ -62,7 +63,7 @@ export const loadHistory = (): HistoryEntry[] => {
 	if (memory !== undefined) return memory;
 	let data: unknown;
 	try {
-		const raw = localStorage.getItem(HISTORY_KEY);
+		const raw = localStorage.getItem(historyKey());
 		if (raw === null) return [];
 		data = JSON.parse(raw);
 	} catch {
@@ -77,7 +78,7 @@ export const loadHistory = (): HistoryEntry[] => {
 /** Returns `false` when localStorage refused the write and history is only kept in memory. */
 export const saveHistory = (list: HistoryEntry[]): boolean => {
 	try {
-		localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+		localStorage.setItem(historyKey(), JSON.stringify(list));
 		memory = undefined;
 	} catch {
 		memory = list;
@@ -157,7 +158,7 @@ export const removeVisitsOlderThan = (
  */
 export const onHistoryChanged = (callback: () => void): (() => void) => {
 	const onStorage = (event: StorageEvent): void => {
-		if (event.key === HISTORY_KEY || event.key === null) callback();
+		if (event.key === null || event.key === historyKey()) callback();
 	};
 	window.addEventListener(HISTORY_EVENT, callback);
 	window.addEventListener("storage", onStorage);

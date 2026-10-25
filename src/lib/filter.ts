@@ -1,3 +1,4 @@
+import { profileKey } from "#lib/profiles";
 import {
 	groupValues,
 	isKind,
@@ -11,19 +12,21 @@ export type GroupFilter = { include: string[]; exclude: string[] };
 export type Filter = Record<string, GroupFilter>;
 export type TagState = "off" | "include" | "exclude";
 
-/** Where a filter is stored, and whether it filters plain tags too. */
-export type FilterScope = { key: string; tags: boolean };
+/** Where a filter is stored (its per-profile store), and whether it filters plain tags too. */
+export type FilterScope = { store: "filter" | "list-filter"; tags: boolean };
 
 const EMPTY_GROUP: GroupFilter = { include: [], exclude: [] };
 
 export const EMPTY_FILTER: Filter = {};
-export const FILTER_KEY = "whattoeat:filter";
-export const LIST_FILTER_KEY = "whattoeat:list-filter";
 
 /** Home's filter: groups only. */
-export const HOME_FILTER: FilterScope = { key: FILTER_KEY, tags: false };
+export const HOME_FILTER: FilterScope = { store: "filter", tags: false };
 /** The restaurants page's own filter: groups and plain tags. */
-export const LIST_FILTER: FilterScope = { key: LIST_FILTER_KEY, tags: true };
+export const LIST_FILTER: FilterScope = { store: "list-filter", tags: true };
+
+/** The active profile's localStorage key for a filter scope. */
+export const filterKey = (scope: FilterScope): string =>
+	profileKey(scope.store);
 
 const allows = (scope: FilterScope, group: string): boolean =>
 	scope.tags || group !== "tags";
@@ -125,7 +128,7 @@ const toGroup = (value: unknown, group: string): GroupFilter => {
 export const loadFilter = (scope: FilterScope = HOME_FILTER): Filter => {
 	let data: unknown;
 	try {
-		data = JSON.parse(localStorage.getItem(scope.key) ?? "null");
+		data = JSON.parse(localStorage.getItem(filterKey(scope)) ?? "null");
 	} catch {
 		return EMPTY_FILTER;
 	}
@@ -147,7 +150,7 @@ export const saveFilter = (
 	scope: FilterScope = HOME_FILTER,
 ): void => {
 	try {
-		localStorage.setItem(scope.key, JSON.stringify(filter));
+		localStorage.setItem(filterKey(scope), JSON.stringify(filter));
 	} catch {
 		// Storage blocked: the filter lasts for this page only.
 	}
@@ -254,7 +257,7 @@ export const onFilterChanged = (
 	scope: FilterScope = HOME_FILTER,
 ): (() => void) => {
 	const onStorage = (event: StorageEvent): void => {
-		if (event.key === scope.key) callback();
+		if (event.key === filterKey(scope)) callback();
 	};
 	window.addEventListener("storage", onStorage);
 	return () => window.removeEventListener("storage", onStorage);

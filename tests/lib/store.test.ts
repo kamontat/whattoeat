@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import { GROUPS_KEY, loadGroups, saveGroups } from "#lib/groups";
-import { addVisit, HISTORY_KEY, loadHistory } from "#lib/history";
+import { groupsKey, loadGroups, saveGroups } from "#lib/groups";
+import { addVisit, historyKey, loadHistory } from "#lib/history";
 import {
 	addRestaurant,
 	CHANGE_EVENT,
@@ -9,7 +9,7 @@ import {
 	onRestaurantsChanged,
 	removeRestaurant,
 	resetStorage,
-	STORAGE_KEY,
+	restaurantsKey,
 	saveRestaurants,
 	skippedCount,
 	updateRestaurant,
@@ -36,13 +36,13 @@ test("loads [] when nothing is stored", () => {
 });
 
 test("loads [] for unparseable data", () => {
-	localStorage.setItem(STORAGE_KEY, "{not json");
+	localStorage.setItem(restaurantsKey(), "{not json");
 	expect(loadRestaurants()).toEqual([]);
 	expect(skippedCount()).toBe(1);
 });
 
 test("loads [] when stored data is not an array", () => {
-	localStorage.setItem(STORAGE_KEY, JSON.stringify({ name: "x" }));
+	localStorage.setItem(restaurantsKey(), JSON.stringify({ name: "x" }));
 	expect(loadRestaurants()).toEqual([]);
 	expect(skippedCount()).toBe(1);
 });
@@ -50,10 +50,10 @@ test("loads [] when stored data is not an array", () => {
 test("drops invalid entries and keeps valid ones", () => {
 	const [kept] = addRestaurant(input);
 	const raw = JSON.parse(
-		localStorage.getItem(STORAGE_KEY) ?? "[]",
+		localStorage.getItem(restaurantsKey()) ?? "[]",
 	) as unknown[];
 	localStorage.setItem(
-		STORAGE_KEY,
+		restaurantsKey(),
 		JSON.stringify([...raw, { name: "broken" }, null]),
 	);
 	expect(loadRestaurants()).toEqual([kept!]);
@@ -62,10 +62,10 @@ test("drops invalid entries and keeps valid ones", () => {
 test("counts skipped entries until the next save drops them", () => {
 	addRestaurant(input);
 	const raw = JSON.parse(
-		localStorage.getItem(STORAGE_KEY) ?? "[]",
+		localStorage.getItem(restaurantsKey()) ?? "[]",
 	) as unknown[];
 	localStorage.setItem(
-		STORAGE_KEY,
+		restaurantsKey(),
 		JSON.stringify([...raw, { name: "broken" }, null]),
 	);
 	loadRestaurants();
@@ -185,7 +185,7 @@ test("a storage event for the restaurants key notifies subscribers", () => {
 	const unsubscribe = onRestaurantsChanged(() => {
 		calls += 1;
 	});
-	window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
+	window.dispatchEvent(new StorageEvent("storage", { key: restaurantsKey() }));
 	window.dispatchEvent(new StorageEvent("storage", { key: "other" }));
 	window.dispatchEvent(new StorageEvent("storage", { key: null }));
 	unsubscribe();
@@ -217,7 +217,7 @@ test("falls back to memory when localStorage throws", () => {
 	// A successful save leaves memory mode again.
 	saveRestaurants([]);
 	expect(loadRestaurants()).toEqual([]);
-	expect(localStorage.getItem(STORAGE_KEY)).toBe("[]");
+	expect(localStorage.getItem(restaurantsKey())).toBe("[]");
 });
 
 test("saveRestaurants reports whether the list was persisted", () => {
@@ -251,7 +251,7 @@ test("saveRestaurants reports whether the list was persisted", () => {
 test("stored tags that differ only in case load as one lowercase tag", () => {
 	const [item] = addRestaurant({ ...input, tags: [] });
 	localStorage.setItem(
-		STORAGE_KEY,
+		restaurantsKey(),
 		JSON.stringify([{ ...item, tags: ["Thai", "thai", " BBQ "] }]),
 	);
 	expect(loadRestaurants()[0]?.tags).toEqual(["thai", "bbq"]);
@@ -269,7 +269,7 @@ test("restaurants stored before groups load with old area and cuisine moved into
 		createdAt: "2026-10-12T00:00:00.000Z",
 		updatedAt: "2026-10-12T00:00:00.000Z",
 	};
-	localStorage.setItem(STORAGE_KEY, JSON.stringify([old]));
+	localStorage.setItem(restaurantsKey(), JSON.stringify([old]));
 	const { area: _a, cuisine: _c, ...rest } = old;
 	expect(loadRestaurants()).toEqual([
 		{
@@ -286,7 +286,7 @@ test("values of a stored custom group load, values of a missing group load as ta
 	saveGroups([{ id: "g1", name: "Price" }]);
 	const [item] = addRestaurant({ ...input });
 	localStorage.setItem(
-		STORAGE_KEY,
+		restaurantsKey(),
 		JSON.stringify([{ ...item, groups: { g1: ["cheap"], gone: ["cosy"] } }]),
 	);
 	expect(loadRestaurants()[0]).toMatchObject({
@@ -309,7 +309,7 @@ test("saving values for a group deleted meanwhile keeps them as tags", () => {
 test("resetStorage also clears stored groups", () => {
 	saveGroups([{ id: "g1", name: "Price" }]);
 	resetStorage();
-	expect(localStorage.getItem(GROUPS_KEY)).toBeNull();
+	expect(localStorage.getItem(groupsKey())).toBeNull();
 	expect(loadGroups()).toEqual([]);
 });
 
@@ -386,5 +386,5 @@ test("resetStorage also forgets history kept in memory", () => {
 		});
 	}
 	expect(loadHistory()).toEqual([]);
-	expect(localStorage.getItem(HISTORY_KEY)).toBeNull();
+	expect(localStorage.getItem(historyKey())).toBeNull();
 });

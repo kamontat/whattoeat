@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { VisitHistory } from "#components/visit-history";
 import {
-	HISTORY_KEY,
 	type HistoryEntry,
+	historyKey,
 	loadHistory,
 	saveHistory,
 } from "#lib/history";
@@ -164,12 +164,12 @@ test("with no visits shows a link to pick and no stats", async () => {
 test("follows changes from another tab", async () => {
 	const el = await mount();
 	localStorage.setItem(
-		HISTORY_KEY,
+		historyKey(),
 		JSON.stringify([
 			visit("x", "r4", "Ramen Champion", "2026-10-13T05:00:00.000Z"),
 		]),
 	);
-	window.dispatchEvent(new StorageEvent("storage", { key: HISTORY_KEY }));
+	window.dispatchEvent(new StorageEvent("storage", { key: historyKey() }));
 	await el.updateComplete;
 	expect(visitIds(el)).toEqual(["x"]);
 });

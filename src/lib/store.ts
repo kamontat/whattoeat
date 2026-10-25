@@ -1,5 +1,6 @@
 import { customGroupIds, forgetGroupsMemory, loadGroups } from "#lib/groups";
 import { forgetHistoryMemory } from "#lib/history";
+import { forgetProfilesMemory, profileKey } from "#lib/profiles";
 import {
 	type CleanInput,
 	cleanStored,
@@ -11,7 +12,7 @@ import {
 	type RestaurantInput,
 } from "#lib/restaurant";
 
-export const STORAGE_KEY = "whattoeat:restaurants";
+export const restaurantsKey = (): string => profileKey("restaurants");
 export const CHANGE_EVENT = "whattoeat:restaurants-changed";
 
 /** Set when localStorage refused a write; the list then lives in memory for this session. */
@@ -31,7 +32,7 @@ export const loadRestaurants = (): Restaurant[] => {
 	skipped = 0;
 	let raw: string | null;
 	try {
-		raw = localStorage.getItem(STORAGE_KEY);
+		raw = localStorage.getItem(restaurantsKey());
 	} catch {
 		return [];
 	}
@@ -61,7 +62,7 @@ export const isMemoryOnly = (): boolean => memory !== undefined;
 /** Returns `false` when localStorage refused the write and the list is only kept in memory. */
 export const saveRestaurants = (list: Restaurant[]): boolean => {
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+		localStorage.setItem(restaurantsKey(), JSON.stringify(list));
 		memory = undefined;
 	} catch {
 		memory = list;
@@ -77,6 +78,7 @@ export const saveRestaurants = (list: Restaurant[]): boolean => {
 export const resetStorage = (): void => {
 	forgetHistoryMemory();
 	forgetGroupsMemory();
+	forgetProfilesMemory();
 	try {
 		localStorage.clear();
 	} catch {
@@ -135,7 +137,7 @@ export const removeRestaurant = (id: string): Restaurant[] => {
  */
 export const onRestaurantsChanged = (callback: () => void): (() => void) => {
 	const onStorage = (event: StorageEvent): void => {
-		if (event.key === STORAGE_KEY || event.key === null) callback();
+		if (event.key === null || event.key === restaurantsKey()) callback();
 	};
 	window.addEventListener(CHANGE_EVENT, callback);
 	window.addEventListener("storage", onStorage);

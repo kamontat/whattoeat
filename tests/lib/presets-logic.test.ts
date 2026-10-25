@@ -5,11 +5,11 @@ import {
 	fetchIndex,
 	fetchPresetFiles,
 	loadAddedPresets,
-	PRESETS_KEY,
 	type PresetEntry,
 	type PresetFile,
 	parseIndex,
 	presetState,
+	presetsKey,
 	replaceWithPresets,
 	saveAddedPresets,
 } from "#lib/presets";
@@ -171,10 +171,10 @@ test("replaceWithPresets returns only the files' restaurants, deduped, and recor
 });
 
 test("loadAddedPresets returns [] for bad JSON and drops entries without a string id", () => {
-	localStorage.setItem(PRESETS_KEY, "{not json");
+	localStorage.setItem(presetsKey(), "{not json");
 	expect(loadAddedPresets()).toEqual([]);
 	localStorage.setItem(
-		PRESETS_KEY,
+		presetsKey(),
 		JSON.stringify([record(), { updatedAt: "x", ids: [] }]),
 	);
 	expect(loadAddedPresets()).toEqual([record()]);

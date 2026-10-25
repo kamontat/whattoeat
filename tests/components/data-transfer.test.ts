@@ -3,13 +3,13 @@ import "#components/data-transfer";
 import type { DataTransferPanel } from "#components/data-transfer";
 import {
 	forgetGroupsMemory,
-	GROUPS_KEY,
+	groupsKey,
 	loadGroups,
 	saveGroups,
 } from "#lib/groups";
 import {
-	HISTORY_KEY,
 	type HistoryEntry,
+	historyKey,
 	loadHistory,
 	saveHistory,
 } from "#lib/history";
@@ -19,8 +19,14 @@ import {
 	type PresetIndex,
 	saveAddedPresets,
 } from "#lib/presets";
+import { ACTIVE_KEY, PROFILES_KEY } from "#lib/profiles";
 import { nameFromText, type Restaurant } from "#lib/restaurant";
-import { addRestaurant, loadRestaurants, saveRestaurants } from "#lib/store";
+import {
+	addRestaurant,
+	loadRestaurants,
+	restaurantsKey,
+	saveRestaurants,
+} from "#lib/store";
 import { toExportFile } from "#lib/transfer";
 
 const make = (id: string, name = id): Restaurant => ({
@@ -496,7 +502,7 @@ test("an empty clipboard or a browser without one opens the paste box", async ()
 
 test("warns about stored entries that could not be read until a save drops them", async () => {
 	localStorage.setItem(
-		"whattoeat:restaurants",
+		restaurantsKey(),
 		JSON.stringify([{ name: "broken" }, null]),
 	);
 	const el = await mount();
@@ -514,7 +520,7 @@ test("warns about stored entries that could not be read until a save drops them"
 });
 
 test("uses the singular when one stored entry could not be read", async () => {
-	localStorage.setItem("whattoeat:restaurants", "{not json");
+	localStorage.setItem(restaurantsKey(), "{not json");
 	const el = await mount();
 	expect(el.shadowRoot!.querySelector(".skipped")?.textContent?.trim()).toBe(
 		"1 saved restaurant could not be read and was skipped. It will be removed the next time the list changes.",
@@ -571,7 +577,12 @@ test("confirming reset deletes everything in localStorage", async () => {
 	const el = await mount();
 	await click(el, 'button[data-action="reset"]');
 	await click(el, 'button[data-action="reset-confirm"]');
-	expect(localStorage.length).toBe(0);
+	// The component's re-render reads the (now empty) restaurant list, which lazily recreates the
+	// default profile; only its two bootstrap keys remain.
+	const remaining = Array.from({ length: localStorage.length }, (_, i) =>
+		localStorage.key(i),
+	);
+	expect(remaining.sort()).toEqual([ACTIVE_KEY, PROFILES_KEY].sort());
 	expect(loadRestaurants()).toEqual([]);
 	// happy-dom reports an English browser, so the language falls back to English.
 	expect(getLang()).toBe("en");
@@ -635,7 +646,7 @@ test("confirming reset deletes the history too", async () => {
 	const el = await mount();
 	await click(el, 'button[data-action="reset"]');
 	await click(el, 'button[data-action="reset-confirm"]');
-	expect(localStorage.getItem(HISTORY_KEY)).toBeNull();
+	expect(localStorage.getItem(historyKey())).toBeNull();
 	expect(loadHistory()).toEqual([]);
 });
 
@@ -647,7 +658,7 @@ test("warns when the browser refuses to save the group list", async () => {
 		value: {
 			getItem: (key: string) => real.getItem(key),
 			setItem: (key: string, value: string) => {
-				if (key === GROUPS_KEY) throw new Error("QuotaExceededError");
+				if (key === groupsKey()) throw new Error("QuotaExceededError");
 				real.setItem(key, value);
 			},
 		},
@@ -675,7 +686,7 @@ test("an import whose history the browser refuses to store warns", async () => {
 		value: {
 			getItem: (key: string) => real.getItem(key),
 			setItem: (key: string, value: string) => {
-				if (key === HISTORY_KEY) throw new Error("QuotaExceededError");
+				if (key === historyKey()) throw new Error("QuotaExceededError");
 				real.setItem(key, value);
 			},
 		},

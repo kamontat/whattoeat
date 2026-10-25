@@ -1,4 +1,5 @@
 import type { Localized } from "#lib/i18n";
+import { profileKey } from "#lib/profiles";
 import type { Restaurant } from "#lib/restaurant";
 import { parseImport } from "#lib/transfer";
 
@@ -29,7 +30,7 @@ export type PresetState = "new" | "added" | "update";
 /** An index entry together with the restaurants its file validated to. */
 export type PresetFile = { entry: PresetEntry; restaurants: Restaurant[] };
 
-export const PRESETS_KEY = "whattoeat:presets";
+export const presetsKey = (): string => profileKey("presets");
 
 const isString = (value: unknown): value is string => typeof value === "string";
 
@@ -100,7 +101,7 @@ const isAddedPreset = (value: unknown): value is AddedPreset => {
 export const loadAddedPresets = (): AddedPreset[] => {
 	let data: unknown;
 	try {
-		data = JSON.parse(localStorage.getItem(PRESETS_KEY) ?? "[]");
+		data = JSON.parse(localStorage.getItem(presetsKey()) ?? "[]");
 	} catch {
 		return [];
 	}
@@ -111,7 +112,7 @@ export const loadAddedPresets = (): AddedPreset[] => {
 /** `false` when localStorage refused the write. */
 export const saveAddedPresets = (list: AddedPreset[]): boolean => {
 	try {
-		localStorage.setItem(PRESETS_KEY, JSON.stringify(list));
+		localStorage.setItem(presetsKey(), JSON.stringify(list));
 		return true;
 	} catch {
 		return false;

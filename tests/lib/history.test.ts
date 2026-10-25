@@ -4,8 +4,8 @@ import {
 	countOlderThan,
 	groupByDay,
 	HISTORY_EVENT,
-	HISTORY_KEY,
 	type HistoryEntry,
+	historyKey,
 	isHistoryEntry,
 	isHistoryMemoryOnly,
 	loadHistory,
@@ -55,13 +55,13 @@ test.each([
 	["not json", "{oops"],
 	["not an array", JSON.stringify({ id: "a" })],
 ])("loads [] for stored text that is %s", (_label, raw) => {
-	localStorage.setItem(HISTORY_KEY, raw);
+	localStorage.setItem(historyKey(), raw);
 	expect(loadHistory()).toEqual([]);
 });
 
 test("skips entries that are not valid and drops unknown fields", () => {
 	localStorage.setItem(
-		HISTORY_KEY,
+		historyKey(),
 		JSON.stringify([
 			{ ...entry("a", "r1", "A", "2026-10-13T05:00:00.000Z"), extra: 1 },
 			{
@@ -108,7 +108,7 @@ test("loads entries saved with lockedAt before the rename to visitedAt", () => {
 		"2026-10-13T05:00:00.000Z",
 	);
 	localStorage.setItem(
-		HISTORY_KEY,
+		historyKey(),
 		JSON.stringify([{ ...rest, lockedAt: visitedAt }]),
 	);
 	expect(loadHistory()).toEqual([
@@ -118,7 +118,7 @@ test("loads entries saved with lockedAt before the rename to visitedAt", () => {
 
 test("loads newest first even when stored out of order", () => {
 	localStorage.setItem(
-		HISTORY_KEY,
+		historyKey(),
 		JSON.stringify([
 			entry("old", "r1", "A", "2026-10-01T05:00:00.000Z"),
 			entry("new", "r2", "B", "2026-10-13T05:00:00.000Z"),
@@ -140,7 +140,7 @@ test("addVisit saves the restaurant id, its name and the time, newest first", ()
 		visitedAt: "2026-10-13T12:30:00.000Z",
 	});
 	expect(added.id).toMatch(/^[0-9A-Za-z]{8}$/);
-	const stored = JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]");
+	const stored = JSON.parse(localStorage.getItem(historyKey()) ?? "[]");
 	expect(stored.map((item: HistoryEntry) => item.name)).toEqual([
 		"Thipsamai",
 		"Jay Fai",
@@ -187,7 +187,7 @@ test("addVisit falls back to memory when localStorage throws", () => {
 	}
 	// A successful save leaves memory mode again.
 	expect(saveHistory([])).toBe(true);
-	expect(localStorage.getItem(HISTORY_KEY)).toBe("[]");
+	expect(localStorage.getItem(historyKey())).toBe("[]");
 });
 
 test("onHistoryChanged fires for saves here, other tabs and a cleared storage", () => {
@@ -196,7 +196,7 @@ test("onHistoryChanged fires for saves here, other tabs and a cleared storage", 
 		calls += 1;
 	});
 	saveHistory([]);
-	window.dispatchEvent(new StorageEvent("storage", { key: HISTORY_KEY }));
+	window.dispatchEvent(new StorageEvent("storage", { key: historyKey() }));
 	window.dispatchEvent(new StorageEvent("storage", { key: null }));
 	window.dispatchEvent(new StorageEvent("storage", { key: "whattoeat:theme" }));
 	expect(calls).toBe(3);
