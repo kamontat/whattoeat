@@ -82,7 +82,7 @@ export const toExportFile = (
 	presets,
 });
 
-/** Export as JSON text: indented for a downloaded file, one line for the clipboard. */
+/** Export as JSON text: indented to read by eye, one line for the clipboard and the gzipped download. */
 export const exportJson = (
 	restaurants: Restaurant[],
 	history: HistoryEntry[],
@@ -100,7 +100,24 @@ export const exportJson = (
 const pad = (value: number): string => String(value).padStart(2, "0");
 
 export const exportFileName = (now: Date = new Date()): string =>
-	`whattoeat-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}.json`;
+	`whattoeat-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}.json.gz`;
+
+/** Gzip export text for a downloaded file, many times smaller than the JSON it holds. */
+export const compressExport = (text: string): Promise<Blob> =>
+	new Response(
+		new Blob([text]).stream().pipeThrough(new CompressionStream("gzip")),
+	)
+		.blob()
+		.then((blob) => new Blob([blob], { type: "application/gzip" }));
+
+/** Read a chosen file as export text: gzip (by its magic bytes) is unpacked, anything else read as is. */
+export const readExportFile = async (file: Blob): Promise<string> => {
+	const head = new Uint8Array(await file.slice(0, 2).arrayBuffer());
+	if (head[0] !== 0x1f || head[1] !== 0x8b) return file.text();
+	return new Response(
+		file.stream().pipeThrough(new DecompressionStream("gzip")),
+	).text();
+};
 
 /** Validate an export file. All or nothing: one invalid entry rejects the whole file. */
 export const parseImport = (text: string): ImportResult => {
