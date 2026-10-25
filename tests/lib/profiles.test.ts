@@ -16,6 +16,7 @@ import {
 	PROFILES_KEY,
 	type ProfileStore,
 	profileCounts,
+	profileCountText,
 	profileInitial,
 	profileKey,
 	renameProfile,
@@ -165,6 +166,15 @@ test("an active id not in the list falls back to the first profile", () => {
 	localStorage.setItem(ACTIVE_KEY, "does-not-exist");
 	expect(activeProfile().id).toBe(first!.id);
 	expect(localStorage.getItem(ACTIVE_KEY)).toBe(first!.id);
+});
+
+test("profileCountText reads correctly at one and many", () => {
+	expect(profileCountText(0)).toBe("0 restaurants");
+	expect(profileCountText(1)).toBe("1 restaurant");
+	expect(profileCountText(5)).toBe("5 restaurants");
+	setLang("th");
+	expect(profileCountText(1)).toBe("1 ร้าน");
+	expect(profileCountText(5)).toBe("5 ร้าน");
 });
 
 test("profileKey scopes by profile id", () => {

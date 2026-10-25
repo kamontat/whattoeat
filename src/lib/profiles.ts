@@ -316,6 +316,10 @@ export const profileCounts = (
 	history: arrayLength(profileKey("history", id)),
 });
 
+/** A profile's restaurant count in words: "1 restaurant", "5 restaurants". */
+export const profileCountText = (n: number): string =>
+	n === 1 ? t("profiles.count.one") : t("profiles.count.other", { count: n });
+
 /** The first whole character of a trimmed name, upper-cased; `"?"` for a blank name. */
 export const profileInitial = (name: string): string =>
 	Array.from(name.trim())[0]?.toUpperCase() ?? "?";

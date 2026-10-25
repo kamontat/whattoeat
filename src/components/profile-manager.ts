@@ -15,6 +15,7 @@ import {
 	PROFILE_MAX,
 	type Profile,
 	profileCounts,
+	profileCountText,
 	profileInitial,
 	renameProfile,
 	switchProfile,
@@ -23,9 +24,6 @@ import { uiStyles } from "#styles/ui";
 
 /** The actions row, or whichever inline card stands in for it. */
 type Mode = "list" | "new" | "rename" | "delete";
-
-const countText = (n: number): string =>
-	n === 1 ? t("profiles.count.one") : t("profiles.count.other", { count: n });
 
 /**
  * The `/settings/profiles` page body: one row per profile (tapping one switches to it), then
@@ -49,19 +47,6 @@ export class ProfileManager extends LitElement {
 				padding: 0 0.5rem;
 				font-weight: 600;
 				text-decoration: none;
-			}
-
-			.avatar {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: 2.25rem;
-				height: 2.25rem;
-				border-radius: 50%;
-				background: var(--color-primary-soft);
-				color: var(--color-link);
-				font-size: 0.9375rem;
-				font-weight: 600;
 			}
 
 			.confirm {
@@ -233,7 +218,7 @@ export class ProfileManager extends LitElement {
 				<span class="lead avatar">${profileInitial(profile.name)}</span>
 				<span class="grow">
 					<b>${profile.name}</b>
-					<small>${countText(counts.restaurants)}</small>
+					<small>${profileCountText(counts.restaurants)}</small>
 				</span>
 				${isActive ? html`<span class="trail">${icon("check", 20)}</span>` : nothing}
 			</button>

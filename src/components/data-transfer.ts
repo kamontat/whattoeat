@@ -30,7 +30,12 @@ import {
 	presetState,
 	saveAddedPresets,
 } from "#lib/presets";
-import { activeProfile, profileCounts, profileInitial } from "#lib/profiles";
+import {
+	activeProfile,
+	profileCounts,
+	profileCountText,
+	profileInitial,
+} from "#lib/profiles";
 import type { Restaurant } from "#lib/restaurant";
 import {
 	isMemoryOnly,
@@ -59,9 +64,6 @@ const DONE_CLASS: Record<DeleteKind, string> = {
 	all: "reset-done",
 };
 
-const countText = (n: number): string =>
-	n === 1 ? t("profiles.count.one") : t("profiles.count.other", { count: n });
-
 @customElement("data-transfer")
 export class DataTransferPanel extends LitElement {
 	static override styles = [
@@ -81,21 +83,6 @@ export class DataTransferPanel extends LitElement {
 
 			.item:disabled .grow {
 				color: var(--color-muted);
-			}
-
-			/* ".item .lead" in uiStyles sets a muted colour at two-class specificity; this needs a
-			   third class to win and show the avatar in its own colour. */
-			.item .lead.avatar {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: 2.25rem;
-				height: 2.25rem;
-				border-radius: 50%;
-				background: var(--color-primary-soft);
-				color: var(--color-link);
-				font-size: 0.9375rem;
-				font-weight: 600;
 			}
 
 			/* This card holds rows from two components, so it draws their dividers itself. */
@@ -551,7 +538,7 @@ export class DataTransferPanel extends LitElement {
 						<span class="lead avatar">${profileInitial(profile.name)}</span>
 						<span class="grow">
 							<b>${profile.name}</b>
-							<small>${countText(profileCounts(profile.id).restaurants)}</small>
+							<small>${profileCountText(profileCounts(profile.id).restaurants)}</small>
 						</span>
 						<span class="trail">${icon("chevron", 20)}</span>
 					</a>

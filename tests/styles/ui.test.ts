@@ -23,6 +23,14 @@ test("buttons, inputs, list rows and segments are at least the tap size", () => 
 	}
 });
 
+test("a profile avatar in a list row keeps its own colour over the muted lead colour", () => {
+	// Three classes, so it beats ".item .lead" and its muted colour.
+	const rule = css.match(/\.item \.lead\.avatar\s*\{([^}]*)\}/)?.[1];
+	expect(rule).toContain("border-radius: 50%");
+	expect(rule).toContain("background: var(--color-primary-soft)");
+	expect(rule).toContain("color: var(--color-link)");
+});
+
 test("inputs use 16px text so iOS does not zoom", () => {
 	expect(css).toMatch(/input,\s*select,\s*textarea\s*\{[^}]*font-size:\s*1rem/);
 });
