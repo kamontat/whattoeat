@@ -844,6 +844,29 @@ test("one file failing leaves storage untouched, keeps the selection, and shows 
 	}
 });
 
+test("a failing preset file on an empty profile shows the files error with no confirm card, and keeps the selection", async () => {
+	const { restore } = stubRoutes(INDEX_M, ["ladprao"]);
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+		expect($(el, '[data-action="replace-confirm"]')).toBeNull();
+		expect(loadRestaurants()).toEqual([]);
+		expect($(el, ".files-error")?.textContent?.trim()).toBe(
+			"The selected neighbourhoods could not be loaded. Nothing was changed. Try again.",
+		);
+		expect(
+			($(el, '[data-preset="ladprao"] input') as HTMLInputElement).checked,
+		).toBe(true);
+		expect(applyButton(el)?.textContent?.trim()).toBe(
+			"Use 1 area · 55 restaurants",
+		);
+		expect(toastText(el)).toBeUndefined();
+	} finally {
+		restore();
+	}
+});
+
 test('a refused write shows the storage warning and "Replaced for this session only"; Undo after Replace still restores the in-memory list', async () => {
 	saveRestaurants([make("s1"), make("s2")]);
 	const { restore } = stubRoutes();
@@ -882,6 +905,40 @@ test('a refused write shows the storage warning and "Replaced for this session o
 		expect(savedIdsNow()).toEqual(["s1", "s2"]);
 		await toastOf(el).updateComplete;
 		expect(toastText(el)).toBe("Undone.");
+	} finally {
+		Object.defineProperty(globalThis, "localStorage", {
+			value: real,
+			configurable: true,
+		});
+		restore();
+		// Leave memory mode so later tests read localStorage again.
+		saveRestaurants([]);
+	}
+});
+
+test('a refused write on an empty profile shows "Added for this session only", and whattoeat:presets stays untouched', async () => {
+	const { restore } = stubRoutes();
+	const real = globalThis.localStorage;
+	Object.defineProperty(globalThis, "localStorage", {
+		value: {
+			getItem: (key: string) => real.getItem(key),
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+		},
+		configurable: true,
+	});
+	try {
+		const el = await mount();
+		await setChecked(el, "ladprao", true);
+		await press(el, '[data-action="apply"]');
+
+		expect(isMemoryOnly()).toBe(true);
+		expect(savedIdsNow()).toEqual(["l1", "l2", "shared"]);
+		expect(real.getItem(restaurantsKey())).toBeNull();
+		expect(real.getItem(presetsKey())).toBeNull();
+		expect(toastText(el)).toBe("Added for this session only");
+		expect(toastAction(el)?.textContent?.trim()).toBe("Undo");
 	} finally {
 		Object.defineProperty(globalThis, "localStorage", {
 			value: real,
