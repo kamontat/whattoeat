@@ -83,6 +83,37 @@ export const parseIndex = (data: unknown): PresetIndex | undefined => {
 	return { version: 1, cities, districts, presets: presets as PresetEntry[] };
 };
 
+/** The keys of `index.cities`, in their order, that at least one preset's `city` uses. */
+export const presetCities = (index: PresetIndex): string[] => {
+	const used = new Set(index.presets.map((item) => item.city));
+	return Object.keys(index.cities).filter((city) => used.has(city));
+};
+
+/**
+ * The (at most two) places a preset row's subtitle shows: the first two places, unless `query`
+ * matches a later place that neither of those two does, in which case that place takes the
+ * second spot.
+ */
+export const shownPlaces = (
+	places: readonly string[],
+	query: string,
+): string[] => {
+	const first = places.slice(0, 2);
+	const needle = query.trim().toLowerCase();
+	const firstPlace = first[0];
+	if (
+		needle === "" ||
+		first.length < 2 ||
+		firstPlace === undefined ||
+		first.some((place) => place.toLowerCase().includes(needle))
+	)
+		return first;
+	const match = places
+		.slice(2)
+		.find((place) => place.toLowerCase().includes(needle));
+	return match === undefined ? first : [firstPlace, match];
+};
+
 export const indexUrl = (base: string): string =>
 	`${base}data/presets/index.json`;
 
@@ -146,6 +177,75 @@ const recordAdded = (
 		else next[index] = record;
 	}
 	return next;
+};
+
+/** Sort an object's keys (at every depth, arrays keep their order) for order-blind comparison. */
+const sortDeep = (value: unknown): unknown => {
+	if (Array.isArray(value)) return value.map(sortDeep);
+	if (value !== null && typeof value === "object") {
+		return Object.fromEntries(
+			Object.entries(value as Record<string, unknown>)
+				.sort(([a], [b]) => a.localeCompare(b))
+				.map(([key, item]) => [key, sortDeep(item)]),
+		);
+	}
+	return value;
+};
+
+/** Deep equality that ignores object key order at every depth; array order still matters. */
+export const sameRestaurant = (a: Restaurant, b: Restaurant): boolean =>
+	JSON.stringify(sortDeep(a)) === JSON.stringify(sortDeep(b));
+
+export type UpdateCounts = { added: number; removed: number; reverted: number };
+
+/**
+ * Sync one preset's current file into `saved`: a saved copy of a restaurant still in the file is
+ * replaced by the file's version in place (whether or not it was recorded, so a copy that arrived
+ * through another route is taken over, never duplicated); a recorded restaurant the file dropped
+ * is removed; a restaurant the user deleted (recorded, in the file, not saved) stays deleted;
+ * anything else in `saved` is left alone. Restaurants new in the file are appended, in file order.
+ * The returned `added` rewrites only this preset's record.
+ */
+export const updatePreset = (
+	saved: readonly Restaurant[],
+	file: PresetFile,
+	added: readonly AddedPreset[],
+): { list: Restaurant[]; added: AddedPreset[]; counts: UpdateCounts } => {
+	const record = added.find((item) => item.id === file.entry.id);
+	const recorded = new Set(record?.ids ?? []);
+	const savedIds = new Set(saved.map((item) => item.id));
+	const fileById = new Map(file.restaurants.map((item) => [item.id, item]));
+
+	let addedCount = 0;
+	let removedCount = 0;
+	let revertedCount = 0;
+	const list: Restaurant[] = [];
+	for (const item of saved) {
+		const fileVersion = fileById.get(item.id);
+		if (fileVersion !== undefined) {
+			if (!sameRestaurant(item, fileVersion)) revertedCount++;
+			list.push(fileVersion);
+		} else if (recorded.has(item.id)) {
+			removedCount++;
+		} else {
+			list.push(item);
+		}
+	}
+	for (const item of file.restaurants) {
+		if (recorded.has(item.id) || savedIds.has(item.id)) continue;
+		list.push(item);
+		addedCount++;
+	}
+
+	return {
+		list,
+		added: recordAdded(added, [file]),
+		counts: {
+			added: addedCount,
+			removed: removedCount,
+			reverted: revertedCount,
+		},
+	};
 };
 
 /**

@@ -8,11 +8,15 @@ import {
 	mergeAddedPresets,
 	type PresetEntry,
 	type PresetFile,
+	type PresetIndex,
 	parseIndex,
+	presetCities,
 	presetState,
 	presetsKey,
 	replaceWithPresets,
 	saveAddedPresets,
+	shownPlaces,
+	updatePreset,
 } from "#lib/presets";
 import {
 	isLink,
@@ -193,6 +197,122 @@ test("mergeAddedPresets keeps current records and adds unknown ones", () => {
 		record({ id: "siam", updatedAt: "2026-10-01" }),
 		record({ id: "ladprao", updatedAt: "2026-10-16" }),
 	]);
+});
+
+test("updatePreset reverts an edited recorded restaurant in place and counts it", () => {
+	const a = make("a");
+	const edited = { ...a, notes: "edited" };
+	const x = make("x");
+	const result = updatePreset([edited, x], file(entry(), a), [
+		record({ ids: ["a"] }),
+	]);
+	expect(result.list.map((item) => item.id)).toEqual(["a", "x"]);
+	expect(result.list[0]).toEqual(a);
+	expect(result.counts).toEqual({ added: 0, removed: 0, reverted: 1 });
+});
+
+test("updatePreset does not count an unchanged copy as reverted, whatever its key order", () => {
+	const a = make("a");
+	const reversed = Object.fromEntries(
+		Object.entries(a).reverse(),
+	) as Restaurant;
+	const result = updatePreset([reversed], file(entry(), a), [
+		record({ ids: ["a"] }),
+	]);
+	expect(result.counts.reverted).toBe(0);
+});
+
+test("updatePreset adds restaurants new in the file, after the saved list, in file order", () => {
+	const a = make("a");
+	const b = make("b");
+	const c = make("c");
+	const result = updatePreset([a], file(entry(), a, b, c), [
+		record({ ids: ["a"] }),
+	]);
+	expect(result.list.map((item) => item.id)).toEqual(["a", "b", "c"]);
+	expect(result.counts.added).toBe(2);
+});
+
+test("updatePreset removes restaurants the file dropped", () => {
+	const a = make("a");
+	const b = make("b");
+	const x = make("x");
+	const result = updatePreset([a, b, x], file(entry(), a), [
+		record({ ids: ["a", "b"] }),
+	]);
+	expect(result.list.map((item) => item.id)).toEqual(["a", "x"]);
+	expect(result.counts.removed).toBe(1);
+});
+
+test("updatePreset leaves a restaurant the user deleted deleted", () => {
+	const a = make("a");
+	const x = make("x");
+	const result = updatePreset([x], file(entry(), a), [record({ ids: ["a"] })]);
+	expect(result.list.map((item) => item.id)).toEqual(["x"]);
+	expect(result.counts).toEqual({ added: 0, removed: 0, reverted: 0 });
+});
+
+test("updatePreset takes over an unrecorded saved copy in place, never duplicating it", () => {
+	const a = make("a");
+	const b = make("b");
+	const editedB = { ...b, notes: "edited" };
+	const x = make("x");
+	const y = make("y");
+	const result = updatePreset([x, editedB, y], file(entry(), a, b), [
+		record({ ids: ["a"] }),
+	]);
+	expect(result.list.map((item) => item.id)).toEqual(["x", "b", "y"]);
+	expect(result.list[1]).toEqual(b);
+	expect(result.counts).toEqual({ added: 0, removed: 0, reverted: 1 });
+});
+
+test("updatePreset with no record treats every saved file id as a takeover and adds the rest", () => {
+	const a = make("a");
+	const b = make("b");
+	const result = updatePreset([b], file(entry(), a, b), []);
+	expect(result.list.map((item) => item.id)).toEqual(["b", "a"]);
+	expect(result.counts.added).toBe(1);
+});
+
+test("updatePreset rewrites only this preset's record", () => {
+	const a = make("a");
+	const b = make("b");
+	const added: AddedPreset[] = [
+		{ id: "other", updatedAt: "2026-01-01", ids: ["o"] },
+		{ id: "p", updatedAt: "2026-01-01", ids: ["a"] },
+	];
+	const result = updatePreset(
+		[],
+		file(entry({ id: "p", updatedAt: "2026-10-25" }), a, b),
+		added,
+	);
+	expect(result.added).toEqual([
+		{ id: "other", updatedAt: "2026-01-01", ids: ["o"] },
+		{ id: "p", updatedAt: "2026-10-25", ids: ["a", "b"] },
+	]);
+});
+
+test("presetCities lists only cities a preset uses, in index order", () => {
+	const index: PresetIndex = {
+		version: 1,
+		cities: {
+			a: { en: "A", th: "A" },
+			b: { en: "B", th: "B" },
+			c: { en: "C", th: "C" },
+		},
+		districts: {},
+		presets: [entry({ id: "p1", city: "c" }), entry({ id: "p2", city: "a" })],
+	};
+	expect(presetCities(index)).toEqual(["a", "c"]);
+});
+
+test("shownPlaces", () => {
+	const places = ["P1", "P2", "Mall X"];
+	expect(shownPlaces(places, "")).toEqual(["P1", "P2"]);
+	expect(shownPlaces(places, "mall")).toEqual(["P1", "Mall X"]);
+	expect(shownPlaces(places, "p2")).toEqual(["P1", "P2"]);
+	expect(shownPlaces(["P1"], "mall")).toEqual(["P1"]);
+	expect(shownPlaces(["P1", "P2", "Q"], "zzz")).toEqual(["P1", "P2"]);
 });
 
 const stubFetch = (respond: (url: string) => Promise<Response>) => {
