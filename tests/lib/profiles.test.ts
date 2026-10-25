@@ -6,12 +6,15 @@ import {
 	ACTIVE_KEY,
 	activeProfile,
 	checkName,
+	copyName,
+	copyProfile,
 	createProfile,
 	deleteProfile,
 	ensureProfiles,
 	forgetProfilesMemory,
 	loadProfiles,
 	onProfileSwitchedElsewhere,
+	PROFILE_EVENT,
 	PROFILE_STORES,
 	PROFILES_KEY,
 	type ProfileStore,
@@ -244,6 +247,32 @@ test("deleteProfile removes every key of that profile and switches to the first 
 	expect(activeProfile()).toEqual(first!);
 });
 
+test("deleteProfile on a profile that is not active keeps the active one", () => {
+	const personal = loadProfiles()[0]!;
+	const family = createProfile("Family");
+	const couple = createProfile("Couple");
+	switchProfile(personal.id);
+	localStorage.setItem(profileKey("restaurants", family.id), "[]");
+
+	const active = deleteProfile(family.id);
+
+	expect(active).toEqual(personal);
+	expect(activeProfile()).toEqual(personal);
+	expect(localStorage.getItem(ACTIVE_KEY)).toBe(personal.id);
+	expect(loadProfiles()).toEqual([personal, couple]);
+	expect(localStorage.getItem(profileKey("restaurants", family.id))).toBeNull();
+});
+
+test("deleteProfile on the active profile switches to the first remaining", () => {
+	const personal = loadProfiles()[0]!;
+	const family = createProfile("Family");
+	createProfile("Couple");
+	switchProfile(family.id);
+
+	expect(deleteProfile(family.id)).toEqual(personal);
+	expect(activeProfile()).toEqual(personal);
+});
+
 test("deleteProfile refuses the last profile", () => {
 	const [only] = loadProfiles();
 	expect(() => deleteProfile(only?.id ?? "")).toThrow();
@@ -338,4 +367,115 @@ test("blocked storage still yields one in-memory profile", () => {
 		Storage.prototype.getItem = getItem;
 		Storage.prototype.setItem = setItem;
 	}
+});
+
+test("copyName adds the smallest free number", () => {
+	expect(copyName("Family", ["Family"])).toBe("Family - 1");
+	expect(copyName("Family", ["Family", "family - 1"])).toBe("Family - 2");
+	expect(copyName("Family", ["Family", "Family - 2"])).toBe("Family - 1");
+});
+
+test("copyName shortens a long name so the copy fits", () => {
+	const name = "abcdefghijklmnopqrstuvwx";
+	expect(name).toHaveLength(24);
+	const copy = copyName(name, [name]);
+	expect(copy.length).toBeLessThanOrEqual(24);
+	expect(copy.endsWith(" - 1")).toBe(true);
+	expect(copy).toBe("abcdefghijklmnopqrst - 1");
+	// A space left at the cut is dropped, not doubled up before the dash.
+	expect(copyName("abcdefghijklmnopqrs uvwx", [])).toBe(
+		"abcdefghijklmnopqrs - 1",
+	);
+	// Measured as checkName measures, and never cut through an emoji.
+	const emoji = copyName(`${"a".repeat(18)}🍜🍜`, []);
+	expect(emoji).toBe(`${"a".repeat(18)}🍜 - 1`);
+	expect(checkName(emoji)).toBeUndefined();
+});
+
+test("copyProfile copies everything but history and stays on the current profile", () => {
+	const personal = loadProfiles()[0]!;
+	const family = createProfile("Family");
+	const values: [ProfileStore, string][] = [
+		["restaurants", '[{"id":"r1"},{"id":"r2"}]'],
+		["history", '[{"id":"h1"}]'],
+		["groups", '[{"id":"g1","name":"Price"}]'],
+		["filter", '{"want":["a"]}'],
+		["list-filter", '{"want":["b"]}'],
+		["pick-count", "4"],
+		["presets", '[{"id":"siam","updatedAt":"2026-01-01","ids":["r1"]}]'],
+	];
+	for (const [store, value] of values)
+		localStorage.setItem(profileKey(store, family.id), value);
+	sessionStorage.setItem(profileKey("tags-group", family.id), "g1");
+	switchProfile(personal.id);
+
+	const copy = copyProfile(family.id);
+
+	expect(copy.name).toBe("Family - 1");
+	expect(loadProfiles()).toEqual([personal, family, copy]);
+	expect(activeProfile()).toEqual(personal);
+	for (const [store, value] of values) {
+		const key = profileKey(store, copy.id);
+		if (store === "history") expect(localStorage.getItem(key)).toBeNull();
+		else expect(localStorage.getItem(key)).toBe(value);
+		// The source is untouched.
+		expect(localStorage.getItem(profileKey(store, family.id))).toBe(value);
+	}
+	expect(sessionStorage.getItem(profileKey("tags-group", copy.id))).toBe("g1");
+	expect(copyProfile(family.id).name).toBe("Family - 2");
+});
+
+test("copyProfile announces the change in this tab", () => {
+	const [personal] = loadProfiles();
+	let calls = 0;
+	const count = (): void => {
+		calls += 1;
+	};
+	window.addEventListener(PROFILE_EVENT, count);
+	try {
+		copyProfile(personal!.id);
+	} finally {
+		window.removeEventListener(PROFILE_EVENT, count);
+	}
+	expect(calls).toBe(1);
+});
+
+test("copyProfile throws for an unknown id", () => {
+	loadProfiles();
+	expect(() => copyProfile("missing")).toThrow();
+	expect(loadProfiles()).toHaveLength(1);
+});
+
+test("copyProfile is all or nothing", () => {
+	const personal = loadProfiles()[0]!;
+	localStorage.setItem(profileKey("restaurants", personal.id), "[1]");
+	localStorage.setItem(profileKey("groups", personal.id), "[2]");
+	localStorage.setItem(profileKey("filter", personal.id), "{}");
+	const listBefore = localStorage.getItem(PROFILES_KEY);
+	const keysBefore = Object.keys(localStorage).sort();
+
+	// happy-dom binds Storage methods onto each instance, so patch localStorage itself.
+	const setItem = localStorage.setItem;
+	const define = (value: Storage["setItem"]): void => {
+		Object.defineProperty(localStorage, "setItem", {
+			value,
+			configurable: true,
+			writable: true,
+		});
+	};
+	define((key: string, value: string) => {
+		if (key.endsWith(":groups") && key !== profileKey("groups", personal.id))
+			throw new Error("full");
+		setItem.call(localStorage, key, value);
+	});
+	try {
+		expect(() => copyProfile(personal.id)).toThrow();
+	} finally {
+		define(setItem);
+	}
+
+	expect(localStorage.getItem(PROFILES_KEY)).toBe(listBefore);
+	expect(Object.keys(localStorage).sort()).toEqual(keysBefore);
+	expect(loadProfiles()).toEqual([personal]);
+	expect(activeProfile()).toEqual(personal);
 });

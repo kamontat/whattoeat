@@ -262,6 +262,67 @@ export const switchProfile = (id: string): void => {
 	persist(list, id);
 };
 
+/**
+ * The name for a copy of `name`: `"<name> - <n>"` with the smallest `n` from 1 that no name in
+ * `taken` has (ignoring case). When that passes `PROFILE_MAX`, `name` is cut from its end, and
+ * any space left at the cut dropped, until it fits.
+ */
+export const copyName = (name: string, taken: readonly string[]): string => {
+	const used = new Set(taken.map((item) => item.toLowerCase()));
+	for (let n = 1; ; n += 1) {
+		const suffix = ` - ${n}`;
+		// Measured as `checkName` measures, but cut a whole character at a time.
+		const chars = Array.from(name);
+		while (chars.join("").length + suffix.length > PROFILE_MAX) chars.pop();
+		const base =
+			chars.length < Array.from(name).length ? chars.join("").trimEnd() : name;
+		const candidate = `${base}${suffix}`;
+		if (!used.has(candidate.toLowerCase())) return candidate;
+	}
+};
+
+/**
+ * Make a new profile holding a copy of everything in profile `id` except its pick history,
+ * appended to the list, without switching to it. All or nothing: when any copy fails to save,
+ * the copies already made are removed, the list is left as it was and this throws. Throws too
+ * when `id` names no profile.
+ */
+export const copyProfile = (id: string): Profile => {
+	const list = loadProfiles();
+	const source = list.find((profile) => profile.id === id);
+	if (source === undefined) throw new Error(`No profile ${id}`);
+	const profile: Profile = {
+		id: newId(list.map((item) => item.id)),
+		name: copyName(
+			source.name,
+			list.map((item) => item.name),
+		),
+	};
+	const copied: [Storage, string][] = [];
+	try {
+		for (const store of PROFILE_STORES) {
+			if (store === "history") continue;
+			const storage = store === "tags-group" ? sessionStorage : localStorage;
+			const raw = storage.getItem(profileKey(store, id));
+			if (raw === null) continue;
+			const key = profileKey(store, profile.id);
+			storage.setItem(key, raw);
+			copied.push([storage, key]);
+		}
+	} catch (error) {
+		for (const [storage, key] of copied) {
+			try {
+				storage.removeItem(key);
+			} catch {
+				// Storage blocked: nothing to remove.
+			}
+		}
+		throw error;
+	}
+	persist([...list, profile], activeProfile().id);
+	return profile;
+};
+
 /** Remove every key in `storage` whose name starts with `whattoeat:<id>:`. */
 const removeProfileKeys = (storage: Storage, id: string): void => {
 	const prefix = `whattoeat:${id}:`;
