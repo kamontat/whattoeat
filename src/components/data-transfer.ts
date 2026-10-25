@@ -32,6 +32,7 @@ import {
 } from "#lib/presets";
 import {
 	activeProfile,
+	loadProfiles,
 	profileCounts,
 	profileCountText,
 	profileInitial,
@@ -508,7 +509,7 @@ export class DataTransferPanel extends LitElement {
 					this.confirming === "all"
 						? this.renderPrompt(
 								"all",
-								t("settings.resetPrompt", { count: this.count }),
+								this.resetPromptText(),
 								t("settings.resetConfirm"),
 								this.confirmReset,
 							)
@@ -525,6 +526,30 @@ export class DataTransferPanel extends LitElement {
 			</div>
 			${this.renderDeleted("all")}
 		`;
+	}
+
+	/**
+	 * The reset prompt: every profile on this device and the restaurants across all of them. The
+	 * active profile uses the loaded count, which also covers a session-only (memory) list.
+	 */
+	private resetPromptText(): string {
+		const active = activeProfile().id;
+		const profiles = loadProfiles();
+		const restaurants = profiles.reduce(
+			(sum, profile) =>
+				sum +
+				(profile.id === active
+					? this.count
+					: profileCounts(profile.id).restaurants),
+			0,
+		);
+		return t("settings.resetPrompt", {
+			profiles:
+				profiles.length === 1
+					? t("settings.resetProfiles.one")
+					: t("settings.resetProfiles.other", { count: profiles.length }),
+			restaurants: profileCountText(restaurants),
+		});
 	}
 
 	/** The Profile row: the active profile's avatar, name and restaurant count, linking to the profiles page. */

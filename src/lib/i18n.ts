@@ -295,7 +295,9 @@ export const en = {
 	"settings.clearedRestaurants.other": "Deleted {count} restaurants.",
 	"settings.reset": "Delete all data",
 	"settings.resetPrompt":
-		"Delete all {count} restaurants, your history and settings saved in this browser? This cannot be undone.",
+		"Delete {profiles} with {restaurants} in total, plus all history and settings saved in this browser? This cannot be undone.",
+	"settings.resetProfiles.one": "1 profile",
+	"settings.resetProfiles.other": "{count} profiles",
 	"settings.resetConfirm": "Delete everything",
 	"settings.resetDone": "All saved data was deleted.",
 	"import.error.json": "The data is not valid JSON.",
@@ -603,7 +605,9 @@ export const th: Record<MessageKey, string> = {
 	"settings.clearedRestaurants.other": "ลบร้านอาหาร {count} ร้านแล้ว",
 	"settings.reset": "ลบข้อมูลทั้งหมด",
 	"settings.resetPrompt":
-		"ลบร้านอาหาร {count} ร้าน ประวัติ และการตั้งค่าทั้งหมดที่บันทึกไว้ในเบราว์เซอร์นี้หรือไม่ การลบนี้ย้อนกลับไม่ได้",
+		"ลบ {profiles} รวมร้านอาหาร {restaurants} พร้อมประวัติและการตั้งค่าทั้งหมดที่บันทึกไว้ในเบราว์เซอร์นี้หรือไม่ การลบนี้ย้อนกลับไม่ได้",
+	"settings.resetProfiles.one": "1 โปรไฟล์",
+	"settings.resetProfiles.other": "{count} โปรไฟล์",
 	"settings.resetConfirm": "ลบทั้งหมด",
 	"settings.resetDone": "ลบข้อมูลที่บันทึกไว้ทั้งหมดแล้ว",
 	"import.error.json": "ข้อมูลนี้ไม่ใช่ JSON ที่ถูกต้อง",
