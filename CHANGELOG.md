@@ -2,6 +2,35 @@
 
 What changed in this project and why, newest first.
 
+## 2026-10-27: Open the app without a connection
+
+### Features
+
+- The app opens and works offline after one visit online. A service worker saves every page,
+  script, style, icon and neighbourhood preset (about 780 KB), so the installed app still
+  opens in a mall basement or on airplane mode.
+- With a connection, pages and presets still come from the network, so a new deploy shows
+  on the next load. When the network fails or takes more than 3 seconds, the saved copy
+  answers instead.
+
+### Improvements
+
+- `bun run build` now ends with `scripts/service-worker.ts`, which writes `dist/sw.js` with
+  every built file except source maps and a version hashed from their contents. Every page
+  loads `lib/offline.ts`, which registers the worker in built pages only; `bun run dev`
+  stays without one.
+
+### Decisions
+
+- Each build gets its own cache, and only build files are cached, nothing at runtime, so a
+  page is never served with another deploy's chunks. The new worker takes over straight
+  away and deletes older caches. Saving pages as they are fetched was left out because
+  an offline page could then load chunks the cache no longer has.
+- Hashed chunks come from the cache first, since their names change when they do. Pages
+  and unhashed files try the network first with a 3-second limit: always reading the cache
+  would keep a stale page until the next visit, and waiting on the network alone would
+  hang on weak signal.
+
 ## 2026-10-26: Cancel the paste box, and a smaller download file
 
 ### Features
