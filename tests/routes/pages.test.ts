@@ -26,6 +26,13 @@ test.each(pages)("%s loads lib/gtm.ts", async (page) => {
 	);
 });
 
+test.each(pages)("%s loads lib/offline.ts", async (page) => {
+	const html = await Bun.file(`src/routes/${page}`).text();
+	expect(html).toMatch(
+		/<script type="module" src="(\.\.\/)+lib\/offline\.ts"><\/script>/,
+	);
+});
+
 test.each(pages)(
 	"%s loads the global stylesheet and the app header",
 	async (page) => {

@@ -55,6 +55,20 @@ the About section — `BUN_PUBLIC_ENVIRONMENT`, `BUN_PUBLIC_COMMIT_SHA`, `BUN_PU
 `process.env.…` in the bundle and throws in the browser, so give each read its own `try`:
 one shared `try` lets an unset variable blank every other one.
 
+## Service worker
+
+After bundling, `build` runs `scripts/service-worker.ts`. It writes `dist/sw.js` from
+`src/sw.ts` with every file in `dist/` except source maps, and a version hashed from the
+files' names and contents, so every deploy that changes a file gets a new worker and a new
+cache. The caching rules live in `src/lib/precache.ts`. Hashed chunks are served
+cache-first. Pages and unhashed files (icons, presets) are served network-first and fall
+back to the cache after 3 seconds, so a deploy shows as soon as there is a connection. Pages
+are cached at the paths Cloudflare serves (`/settings/tags`, not `/settings/tags.html`). A
+cached path that 404s fails the whole install, so a new page or static folder needs nothing
+extra but must answer at its served path. `src/lib/offline.ts` registers `/sw.js` only in
+built pages (the dev server stamps no build date and serves no `sw.js`), so every page loads
+it next to `lib/gtm.ts`. `bun run preview` registers it too, on its own origin.
+
 `dist/` is what Cloudflare serves — `wrangler.jsonc` names it as `assets.directory` — so
 its shape is part of the deployment contract, not a local convenience.
 
