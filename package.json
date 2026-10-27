@@ -10,7 +10,7 @@
 	},
 	"scripts": {
 		"dev": "bun-server dev --statics src/assets/icons:icons --statics src/assets/data:data src/routes",
-		"build": "BUN_PUBLIC_BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) bun-server build --clean --statics src/assets/icons:icons --statics src/assets/data:data src/routes",
+		"build": "BUN_PUBLIC_BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ) bun-server build --clean --statics src/assets/icons:icons --statics src/assets/data:data src/routes && bun scripts/service-worker.ts",
 		"preview": "bun-server preview",
 		"test": "bun test",
 		"check": "bun run check:type && bun run check:biome",
